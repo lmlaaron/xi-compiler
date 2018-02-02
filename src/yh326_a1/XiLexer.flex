@@ -80,7 +80,8 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "."                            { return new Token(TokenType.SEPARATOR, yytext()); } 
   
   /* operators */
-  "-"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "-"                        { return new Token(TokenType.OPERATOR, yytext()); }
+  "="                        { return new Token(TokenType.OPERATOR, yytext()); } 
   "!"                        { return new Token(TokenType.OPERATOR, yytext()); } 
   "*"                        { return new Token(TokenType.OPERATOR, yytext()); } 
   "*>>"                      { return new Token(TokenType.OPERATOR, yytext()); } 
