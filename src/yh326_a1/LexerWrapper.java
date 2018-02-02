@@ -2,6 +2,9 @@ package yh326_a1;
 
 import java.io.FileReader;
 
+import yh326_a1.XiLexer.Token;
+import yh326_a1.XiLexer.TokenType;
+
 public class LexerWrapper {
 	public static void main(String[] argv) {
 		for (int i = 0; i < argv.length; i++) {
@@ -9,13 +12,22 @@ public class LexerWrapper {
 				System.out.println("lexing: " + argv[i]);
 				XiLexer xiLexer = new XiLexer(new FileReader(argv[i]));
 				while (true) {
-					System.out.println(xiLexer.nextToken().toString());
+					System.out.println(tokenToString(xiLexer.nextToken()));
 				}
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
+		}
+	}
+	
+	public static String tokenToString(Token t) {
+		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR) {
+			return t.line + ":" + t.column + " " + t.attribute;
+		}
+		else {
+			return t.line + ":" + t.column + " " + t.type + " " + (t.attribute == null ? "" : "" + t.attribute);
 		}
 	}
 }

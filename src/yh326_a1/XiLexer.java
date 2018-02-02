@@ -281,11 +281,13 @@ public class XiLexer {
     class Token {
 	TokenType type;
 	Object attribute;
-	Token(TokenType tt) {
-	    type = tt; attribute = null;
+        int line;
+        int column;
+	Token(TokenType tt, int Line, int Column) {
+	    type = tt; attribute = null; line = Line; column = Column;
 	}
-	Token(TokenType tt, Object attr) {
-	    type = tt; attribute = attr;
+	Token(TokenType tt, Object attr,int Line, int Column) {
+	    type = tt; attribute = attr; line= Line; column = Column;
 	}
 	public String toString() {
 	    return "" + type + "(" + attribute + ")";
@@ -612,48 +614,48 @@ public class XiLexer {
             }
           case 13: break;
           case 2: 
-            { return new Token(TokenType.ID, yytext());
+            { return new Token(TokenType.ID, yytext(), yyline, yycolumn);
             }
           case 14: break;
           case 3: 
             { return new Token(TokenType.INT,
-  				 Integer.parseInt(yytext()));
+  				 Integer.parseInt(yytext()), yyline, yycolumn);
             }
           case 15: break;
           case 4: 
-            { return new Token(TokenType.OPERATOR, yytext());
+            { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn);
             }
           case 16: break;
           case 5: 
-            { return new Token(TokenType.SEPARATOR, yytext());
+            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn);
             }
           case 17: break;
           case 6: 
-            { return new Token(TokenType.IF);
+            { return new Token(TokenType.IF, yyline, yycolumn);
             }
           case 18: break;
           case 7: 
-            { return new Token(TokenType.USE);
+            { return new Token(TokenType.USE, yyline, yycolumn);
             }
           case 19: break;
           case 8: 
-            { return new Token(TokenType.BOOL, yytext());
+            { return new Token(TokenType.BOOL, yytext(), yyline, yycolumn);
             }
           case 20: break;
           case 9: 
-            { return new Token(TokenType.ELSE);
+            { return new Token(TokenType.ELSE, yyline, yycolumn);
             }
           case 21: break;
           case 10: 
-            { return new Token(TokenType.WHILE);
+            { return new Token(TokenType.WHILE, yyline, yycolumn);
             }
           case 22: break;
           case 11: 
-            { return new Token(TokenType.RETURN);
+            { return new Token(TokenType.RETURN, yyline, yycolumn);
             }
           case 23: break;
           case 12: 
-            { return new Token(TokenType.LENGTH);
+            { return new Token(TokenType.LENGTH, yyline, yycolumn);
             }
           case 24: break;
           default:
