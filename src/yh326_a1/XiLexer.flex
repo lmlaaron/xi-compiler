@@ -75,6 +75,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "["                            { return new Token(TokenType.SEPARATOR, yytext()); }
   "]"                            { return new Token(TokenType.SEPARATOR, yytext()); }
   ";"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  ":"                            { return new Token(TokenType.SEPARATOR, yytext()); }
   ","                            { return new Token(TokenType.SEPARATOR, yytext()); }
   "."                            { return new Token(TokenType.SEPARATOR, yytext()); } 
   
