@@ -7,6 +7,8 @@
 
 %unicode
 %pack
+%line
+%column
 
 %{
     enum TokenType {
@@ -17,7 +19,9 @@
         RETURN,
 	ID,
 	INT,
+        INTEGER,
 	BOOL,
+        BOOLEAN,
         SEPARATOR,
         OPERATOR,
         DOT,
@@ -29,10 +33,10 @@
         int line;
         int column;
 	Token(TokenType tt, int Line, int Column) {
-	    type = tt; attribute = null; line = Line; column = Column;
+	    type = tt; attribute = null; line = Line + 1; column = Column + 1;
 	}
 	Token(TokenType tt, Object attr,int Line, int Column) {
-	    type = tt; attribute = attr; line= Line; column = Column;
+	    type = tt; attribute = attr; line= Line + 1; column = Column + 1;
 	}
 	public String toString() {
 	    return "" + type + "(" + attribute + ")";
@@ -63,10 +67,12 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "else"        { return new Token(TokenType.ELSE, yyline, yycolumn); }
   "return"      { return new Token(TokenType.RETURN, yyline, yycolumn);}
   "length"      { return new Token(TokenType.LENGTH, yyline, yycolumn);}
+  "int"         { return new Token(TokenType.INT, yyline, yycolumn); }
+  "bool"        { return new Token(TokenType.BOOL, yyline, yycolumn); }
   
-  {Integer}     { return new Token(TokenType.INT,
+  {Integer}     { return new Token(TokenType.INTEGER,
   				 Integer.parseInt(yytext()), yyline, yycolumn); }
-  {Boolean}     { return new Token(TokenType.BOOL, yytext(), yyline, yycolumn); }
+  {Boolean}     { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
   {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
 
   /* separators */
