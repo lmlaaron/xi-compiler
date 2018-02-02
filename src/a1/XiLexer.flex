@@ -20,7 +20,8 @@
 	BOOL,
         SEPARATOR,
         OPERATOR,
-        DOT
+        DOT,
+        LENGTH
     }
     class Token {
 	TokenType type;
@@ -58,7 +59,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "if"          { return new Token(TokenType.IF); }
   "while"       { return new Token(TokenType.WHILE); }
   "else"        { return new Token(TokenType.ELSE); }
-  "return"      { return new Token(TokenType.RETURN;)}
+  "return"      { return new Token(TokenType.RETURN);}
   "length"      { return new Token(TokenType.LENGTH);}
   
   {Integer}     { return new Token(TokenType.INT,
@@ -67,32 +68,32 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   {Identifier}  { return new Token(TokenType.ID, yytext()); }
 
   /* separators */
-  "("                            { return new Token(TokenType(TokenType.SEPARATOR, yytext()); }
-  ")"                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  "{"                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  "}"                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  "["                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  "]"                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  ";"                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  ","                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); }
-  "."                            { return new Toekn(TokenType(TokenType.SEPARATOR, yytext()); } 
+  "("                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  ")"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  "{"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  "}"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  "["                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  "]"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  ";"                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  ","                            { return new Token(TokenType.SEPARATOR, yytext()); }
+  "."                            { return new Token(TokenType.SEPARATOR, yytext()); } 
   
   /* operators */
-  "-"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "!"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "*"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "*>>"                      { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "/"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "%"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "+"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "<"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "<="                       { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  ">="                       { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  ">"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "=="                       { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "!="                       { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "&"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); } 
-  "|"                        { retrun new Token(TokenType(TokenType.OPERATOR, yytext()); }  
+  "-"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "!"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "*"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "*>>"                      { return new Token(TokenType.OPERATOR, yytext()); } 
+  "/"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "%"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "+"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "<"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "<="                       { return new Token(TokenType.OPERATOR, yytext()); } 
+  ">="                       { return new Token(TokenType.OPERATOR, yytext()); } 
+  ">"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "=="                       { return new Token(TokenType.OPERATOR, yytext()); } 
+  "!="                       { return new Token(TokenType.OPERATOR, yytext()); } 
+  "&"                        { return new Token(TokenType.OPERATOR, yytext()); } 
+  "|"                        { return new Token(TokenType.OPERATOR, yytext()); }  
 
   /* comments */
   {Comment}                  {/* ignore */}
