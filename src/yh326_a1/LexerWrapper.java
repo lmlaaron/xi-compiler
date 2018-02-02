@@ -11,8 +11,10 @@ public class LexerWrapper {
 			try{
 				System.out.println("lexing: " + argv[i]);
 				XiLexer xiLexer = new XiLexer(new FileReader(argv[i]));
-				while (true) {
-					System.out.println(tokenToString(xiLexer.nextToken()));
+				Token t = xiLexer.nextToken();
+				while (t != null) {
+					System.out.println(tokenToString(t));
+					t = xiLexer.nextToken();
 				}
 			}
 			catch (Exception e) {
