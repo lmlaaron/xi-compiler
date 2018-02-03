@@ -1,8 +1,7 @@
 #!/bin/bash
 
 jflex XiLexer.flex
-echo "package yh326_a1;" > temp
-cat temp XiLexer.java > NewXiLexer.java
-mv NewXiLexer.java XiLexer.java
-rm temp
-javac LexerWrapper.java
+sed -i '1s/^/package yh326_a1;\n\n/' XiLexer.java
+javac -cp ../ LexerWrapper.java
+echo -e "#!/bin/bash\njava -cp ../ yh326_a1.LexerWrapper \$1 \$2" > xic
+chmod +x xic
