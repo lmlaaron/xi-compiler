@@ -21,7 +21,6 @@ public class LexerWrapper {
 				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {
-					System.out.println(tokenToString(t));
 					writer.write(tokenToString(t) + "\n");
 					t = xiLexer.nextToken();
 				}
@@ -38,6 +37,10 @@ public class LexerWrapper {
 	public static String tokenToString(Token t) {
 		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR) {
 			return t.line + ":" + t.column + " " + t.attribute;
+		}
+		else if (t.type == TokenType.STRING) {
+			int length = t.attribute.toString().length();
+			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + t.attribute.toString().substring(1, length - 1);
 		}
 		else {
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + (t.attribute == null ? "" : " " + t.attribute);
