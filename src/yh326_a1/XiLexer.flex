@@ -55,7 +55,7 @@ Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_)*
 StringCharacter = [^\r\"\\]
 String = "\""{StringCharacter}*"\""
-Integer = "0"|"-"?[1-9]{Digit}*
+Integer = "0"|[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
 
