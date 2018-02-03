@@ -1,26 +1,36 @@
 package yh326_a1;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 
 import yh326_a1.XiLexer.Token;
 import yh326_a1.XiLexer.TokenType;
 
 public class LexerWrapper {
 	public static void main(String[] argv) {
-		for (int i = 0; i < argv.length; i++) {
-			try{
-				System.out.println("lexing: " + argv[i]);
-				XiLexer xiLexer = new XiLexer(new FileReader(argv[i]));
+		if (argv[0].equals("--help") || argv[0].equals("-h")) {
+			System.out.println("TODO");
+			return;
+		}
+		if (argv[0].equals("--lex")) {
+			String pwd = System.getProperty("user.dir");
+			String sourcePath = pwd + "\\" + argv[1];
+			String solutionPath = pwd + "\\" + argv[1].split("\\.")[0] + ".lexed";
+			try {
+				XiLexer xiLexer = new XiLexer(new FileReader(sourcePath));
+				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {
-					System.out.println(tokenToString(t));
+					writer.write(tokenToString(t) + "\n");
 					t = xiLexer.nextToken();
 				}
+				writer.close();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
+			return;
 		}
 	}
 	
@@ -29,7 +39,7 @@ public class LexerWrapper {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
 		else {
-			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + (t.attribute == null ? "" : "" + t.attribute);
+			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + (t.attribute == null ? "" : " " + t.attribute);
 		}
 	}
 }
