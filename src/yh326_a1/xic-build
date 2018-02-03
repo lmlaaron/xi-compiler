@@ -1,0 +1,8 @@
+#!/bin/bash
+
+jflex XiLexer.flex
+echo "package yh326_a1;" > temp
+cat temp XiLexer.java > NewXiLexer.java
+mv NewXiLexer.java XiLexer.java
+rm temp
+javac LexerWrapper.java
