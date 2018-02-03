@@ -21,6 +21,7 @@ public class LexerWrapper {
 				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {
+					System.out.println(tokenToString(t));
 					writer.write(tokenToString(t) + "\n");
 					t = xiLexer.nextToken();
 				}
