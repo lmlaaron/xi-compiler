@@ -29,7 +29,7 @@ public class LexerWrapper {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
 		else {
-			return t.line + ":" + t.column + " " + t.type + " " + (t.attribute == null ? "" : "" + t.attribute);
+			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + (t.attribute == null ? "" : "" + t.attribute);
 		}
 	}
 }

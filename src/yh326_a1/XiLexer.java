@@ -32,12 +32,13 @@ public class XiLexer {
    * Translates characters to character classes
    */
   private static final String ZZ_CMAP_PACKED = 
-    "\11\0\1\3\1\2\1\0\1\3\1\1\22\0\1\3\1\31\3\0"+
-    "\1\34\1\34\1\0\1\27\1\27\1\32\1\34\1\27\1\10\1\27"+
-    "\1\21\1\7\11\5\1\27\1\27\1\31\1\30\1\33\2\0\32\4"+
-    "\1\27\1\0\1\27\1\0\1\6\1\0\1\16\3\4\1\14\1\15"+
-    "\1\26\1\24\1\22\2\4\1\17\1\4\1\25\3\4\1\12\1\20"+
-    "\1\11\1\13\1\4\1\23\3\4\1\27\1\34\1\27\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uff92\0";
+    "\11\0\1\3\1\2\1\0\1\3\1\1\22\0\1\3\1\33\3\0"+
+    "\1\36\1\36\1\0\1\31\1\31\1\34\1\36\1\31\1\10\1\31"+
+    "\1\21\1\7\11\5\1\31\1\31\1\33\1\32\1\35\2\0\32\4"+
+    "\1\31\1\0\1\31\1\0\1\6\1\0\1\16\1\27\2\4\1\14"+
+    "\1\15\1\26\1\24\1\22\2\4\1\17\1\4\1\25\1\30\2\4"+
+    "\1\12\1\20\1\11\1\13\1\4\1\23\3\4\1\31\1\36\1\31"+
+    "\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uff92\0";
 
   /** 
    * Translates characters to character classes
@@ -50,13 +51,13 @@ public class XiLexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\1\0\1\1\1\2\2\3\1\4\6\2\1\4\2\2"+
-    "\1\5\3\4\6\2\1\1\1\6\1\2\1\0\2\2"+
-    "\1\7\3\2\1\1\1\2\1\10\1\2\1\11\4\2"+
-    "\1\12\1\13\1\14";
+    "\1\0\1\1\1\2\2\3\1\4\6\2\1\4\3\2"+
+    "\1\5\3\4\6\2\1\1\1\6\3\2\1\0\2\2"+
+    "\1\7\3\2\1\1\1\10\2\2\1\11\1\2\1\12"+
+    "\2\2\1\13\2\2\1\14\1\15\1\16";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[47];
+    int [] result = new int[53];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -81,15 +82,16 @@ public class XiLexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\35\0\72\0\127\0\35\0\164\0\221\0\256"+
-    "\0\313\0\350\0\u0105\0\u0122\0\u013f\0\u015c\0\u0179\0\35"+
-    "\0\u0196\0\u01b3\0\35\0\u01d0\0\u01ed\0\u020a\0\u0227\0\u0244"+
-    "\0\u0261\0\u027e\0\72\0\u029b\0\u02b8\0\u02d5\0\u02f2\0\72"+
-    "\0\u030f\0\u032c\0\u0349\0\u0366\0\u0383\0\72\0\u03a0\0\72"+
-    "\0\u03bd\0\u03da\0\u03f7\0\u0414\0\72\0\72\0\72";
+    "\0\0\0\37\0\76\0\135\0\37\0\174\0\233\0\272"+
+    "\0\331\0\370\0\u0117\0\u0136\0\u0155\0\u0174\0\u0193\0\u01b2"+
+    "\0\37\0\u01d1\0\u01f0\0\37\0\u020f\0\u022e\0\u024d\0\u026c"+
+    "\0\u028b\0\u02aa\0\u02c9\0\76\0\u02e8\0\u0307\0\u0326\0\u0345"+
+    "\0\u0364\0\u0383\0\76\0\u03a2\0\u03c1\0\u03e0\0\u03ff\0\76"+
+    "\0\u041e\0\u043d\0\76\0\u045c\0\76\0\u047b\0\u049a\0\76"+
+    "\0\u04b9\0\u04d8\0\76\0\76\0\76";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[47];
+    int [] result = new int[53];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -114,39 +116,43 @@ public class XiLexer {
   private static final String ZZ_TRANS_PACKED_0 =
     "\1\0\3\2\1\3\1\4\1\0\1\5\1\6\1\7"+
     "\1\10\1\11\1\12\1\13\1\3\1\14\1\3\1\15"+
-    "\1\16\1\17\3\3\1\20\2\21\1\22\1\21\1\23"+
-    "\41\0\4\3\1\0\10\3\1\0\5\3\13\0\1\4"+
-    "\1\0\1\4\32\0\1\4\33\0\4\3\1\0\1\3"+
-    "\1\24\6\3\1\0\5\3\12\0\4\3\1\0\3\3"+
-    "\1\25\4\3\1\0\5\3\12\0\4\3\1\0\7\3"+
-    "\1\26\1\0\5\3\12\0\4\3\1\0\6\3\1\27"+
-    "\1\3\1\0\5\3\12\0\4\3\1\0\5\3\1\30"+
-    "\2\3\1\0\5\3\12\0\4\3\1\0\3\3\1\31"+
-    "\4\3\1\0\5\3\27\0\1\32\17\0\4\3\1\0"+
-    "\4\3\1\33\3\3\1\0\5\3\12\0\4\3\1\0"+
-    "\10\3\1\0\2\3\1\34\2\3\36\0\1\23\37\0"+
-    "\1\35\5\0\4\3\1\0\2\3\1\36\5\3\1\0"+
-    "\5\3\12\0\4\3\1\0\1\37\7\3\1\0\5\3"+
-    "\12\0\4\3\1\0\3\3\1\40\4\3\1\0\5\3"+
-    "\12\0\4\3\1\0\7\3\1\41\1\0\5\3\12\0"+
-    "\4\3\1\0\6\3\1\42\1\3\1\0\5\3\12\0"+
-    "\4\3\1\0\10\3\1\0\3\3\1\43\1\3\6\0"+
-    "\1\32\1\44\1\2\32\32\4\0\4\3\1\0\10\3"+
-    "\1\0\1\45\4\3\41\0\1\23\5\0\4\3\1\0"+
-    "\3\3\1\46\4\3\1\0\5\3\12\0\4\3\1\0"+
-    "\2\3\1\47\5\3\1\0\5\3\12\0\4\3\1\0"+
-    "\3\3\1\50\4\3\1\0\5\3\12\0\4\3\1\0"+
-    "\7\3\1\36\1\0\5\3\12\0\4\3\1\0\10\3"+
-    "\1\0\4\3\1\51\10\0\1\2\36\0\4\3\1\0"+
-    "\6\3\1\52\1\3\1\0\5\3\12\0\4\3\1\0"+
-    "\1\3\1\53\6\3\1\0\5\3\12\0\4\3\1\0"+
-    "\1\54\7\3\1\0\5\3\12\0\4\3\1\0\3\3"+
-    "\1\55\4\3\1\0\5\3\12\0\4\3\1\0\10\3"+
-    "\1\0\3\3\1\56\1\3\12\0\4\3\1\0\10\3"+
-    "\1\0\2\3\1\57\2\3\6\0";
+    "\1\16\1\17\3\3\1\20\1\3\1\21\2\22\1\23"+
+    "\1\22\1\24\43\0\4\3\1\0\10\3\1\0\7\3"+
+    "\13\0\1\4\1\0\1\4\34\0\1\4\35\0\4\3"+
+    "\1\0\1\3\1\25\6\3\1\0\7\3\12\0\4\3"+
+    "\1\0\3\3\1\26\4\3\1\0\7\3\12\0\4\3"+
+    "\1\0\7\3\1\27\1\0\7\3\12\0\4\3\1\0"+
+    "\6\3\1\30\1\3\1\0\7\3\12\0\4\3\1\0"+
+    "\5\3\1\31\2\3\1\0\7\3\12\0\4\3\1\0"+
+    "\3\3\1\32\4\3\1\0\7\3\27\0\1\33\21\0"+
+    "\4\3\1\0\4\3\1\34\3\3\1\0\3\3\1\35"+
+    "\3\3\12\0\4\3\1\0\10\3\1\0\2\3\1\36"+
+    "\4\3\12\0\4\3\1\0\10\3\1\0\6\3\1\37"+
+    "\40\0\1\24\41\0\1\40\5\0\4\3\1\0\2\3"+
+    "\1\41\5\3\1\0\7\3\12\0\4\3\1\0\1\42"+
+    "\7\3\1\0\7\3\12\0\4\3\1\0\3\3\1\43"+
+    "\4\3\1\0\7\3\12\0\4\3\1\0\7\3\1\44"+
+    "\1\0\7\3\12\0\4\3\1\0\6\3\1\45\1\3"+
+    "\1\0\7\3\12\0\4\3\1\0\10\3\1\0\3\3"+
+    "\1\46\3\3\6\0\1\33\1\47\1\2\34\33\4\0"+
+    "\4\3\1\0\1\50\7\3\1\0\7\3\12\0\4\3"+
+    "\1\0\10\3\1\0\1\51\6\3\12\0\4\3\1\0"+
+    "\10\3\1\0\6\3\1\52\43\0\1\24\5\0\4\3"+
+    "\1\0\3\3\1\53\4\3\1\0\7\3\12\0\4\3"+
+    "\1\0\2\3\1\54\5\3\1\0\7\3\12\0\4\3"+
+    "\1\0\3\3\1\55\4\3\1\0\7\3\12\0\4\3"+
+    "\1\0\7\3\1\41\1\0\7\3\12\0\4\3\1\0"+
+    "\10\3\1\0\4\3\1\56\2\3\10\0\1\2\40\0"+
+    "\4\3\1\0\6\3\1\57\1\3\1\0\7\3\12\0"+
+    "\4\3\1\0\6\3\1\60\1\3\1\0\7\3\12\0"+
+    "\4\3\1\0\1\3\1\61\6\3\1\0\7\3\12\0"+
+    "\4\3\1\0\1\62\7\3\1\0\7\3\12\0\4\3"+
+    "\1\0\3\3\1\63\4\3\1\0\7\3\12\0\4\3"+
+    "\1\0\10\3\1\0\3\3\1\64\3\3\12\0\4\3"+
+    "\1\0\10\3\1\0\2\3\1\65\4\3\6\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[1073];
+    int [] result = new int[1271];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -184,11 +190,11 @@ public class XiLexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\1\11\2\1\1\11\12\1\1\11\2\1\1\11"+
-    "\11\1\1\0\22\1";
+    "\1\0\1\11\2\1\1\11\13\1\1\11\2\1\1\11"+
+    "\13\1\1\0\25\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[47];
+    int [] result = new int[53];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -272,7 +278,9 @@ public class XiLexer {
         RETURN,
 	ID,
 	INT,
+        INTEGER,
 	BOOL,
+        BOOLEAN,
         SEPARATOR,
         OPERATOR,
         DOT,
@@ -284,10 +292,10 @@ public class XiLexer {
         int line;
         int column;
 	Token(TokenType tt, int Line, int Column) {
-	    type = tt; attribute = null; line = Line; column = Column;
+	    type = tt; attribute = null; line = Line + 1; column = Column + 1;
 	}
 	Token(TokenType tt, Object attr,int Line, int Column) {
-	    type = tt; attribute = attr; line= Line; column = Column;
+	    type = tt; attribute = attr; line= Line + 1; column = Column + 1;
 	}
 	public String toString() {
 	    return "" + type + "(" + attribute + ")";
@@ -315,7 +323,7 @@ public class XiLexer {
     char [] map = new char[0x110000];
     int i = 0;  /* index in packed string  */
     int j = 0;  /* index in unpacked array */
-    while (i < 150) {
+    while (i < 154) {
       int  count = packed.charAt(i++);
       char value = packed.charAt(i++);
       do map[j++] = value; while (--count > 0);
@@ -543,6 +551,62 @@ public class XiLexer {
     while (true) {
       zzMarkedPosL = zzMarkedPos;
 
+      boolean zzR = false;
+      int zzCh;
+      int zzCharCount;
+      for (zzCurrentPosL = zzStartRead  ;
+           zzCurrentPosL < zzMarkedPosL ;
+           zzCurrentPosL += zzCharCount ) {
+        zzCh = Character.codePointAt(zzBufferL, zzCurrentPosL, zzMarkedPosL);
+        zzCharCount = Character.charCount(zzCh);
+        switch (zzCh) {
+        case '\u000B':
+        case '\u000C':
+        case '\u0085':
+        case '\u2028':
+        case '\u2029':
+          yyline++;
+          yycolumn = 0;
+          zzR = false;
+          break;
+        case '\r':
+          yyline++;
+          yycolumn = 0;
+          zzR = true;
+          break;
+        case '\n':
+          if (zzR)
+            zzR = false;
+          else {
+            yyline++;
+            yycolumn = 0;
+          }
+          break;
+        default:
+          zzR = false;
+          yycolumn += zzCharCount;
+        }
+      }
+
+      if (zzR) {
+        // peek one character ahead if it is \n (if we have counted one line too much)
+        boolean zzPeek;
+        if (zzMarkedPosL < zzEndReadL)
+          zzPeek = zzBufferL[zzMarkedPosL] == '\n';
+        else if (zzAtEOF)
+          zzPeek = false;
+        else {
+          boolean eof = zzRefill();
+          zzEndReadL = zzEndRead;
+          zzMarkedPosL = zzMarkedPos;
+          zzBufferL = zzBuffer;
+          if (eof) 
+            zzPeek = false;
+          else 
+            zzPeek = zzBufferL[zzMarkedPosL] == '\n';
+        }
+        if (zzPeek) yyline--;
+      }
       zzAction = -1;
 
       zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
@@ -612,52 +676,60 @@ public class XiLexer {
           case 1: 
             { /* ignore */
             }
-          case 13: break;
+          case 15: break;
           case 2: 
             { return new Token(TokenType.ID, yytext(), yyline, yycolumn);
             }
-          case 14: break;
+          case 16: break;
           case 3: 
-            { return new Token(TokenType.INT,
+            { return new Token(TokenType.INTEGER,
   				 Integer.parseInt(yytext()), yyline, yycolumn);
             }
-          case 15: break;
+          case 17: break;
           case 4: 
             { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn);
             }
-          case 16: break;
+          case 18: break;
           case 5: 
             { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn);
             }
-          case 17: break;
+          case 19: break;
           case 6: 
             { return new Token(TokenType.IF, yyline, yycolumn);
             }
-          case 18: break;
+          case 20: break;
           case 7: 
             { return new Token(TokenType.USE, yyline, yycolumn);
             }
-          case 19: break;
-          case 8: 
-            { return new Token(TokenType.BOOL, yytext(), yyline, yycolumn);
-            }
-          case 20: break;
-          case 9: 
-            { return new Token(TokenType.ELSE, yyline, yycolumn);
-            }
           case 21: break;
-          case 10: 
-            { return new Token(TokenType.WHILE, yyline, yycolumn);
+          case 8: 
+            { return new Token(TokenType.INT, yyline, yycolumn);
             }
           case 22: break;
-          case 11: 
-            { return new Token(TokenType.RETURN, yyline, yycolumn);
+          case 9: 
+            { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn);
             }
           case 23: break;
-          case 12: 
-            { return new Token(TokenType.LENGTH, yyline, yycolumn);
+          case 10: 
+            { return new Token(TokenType.ELSE, yyline, yycolumn);
             }
           case 24: break;
+          case 11: 
+            { return new Token(TokenType.BOOL, yyline, yycolumn);
+            }
+          case 25: break;
+          case 12: 
+            { return new Token(TokenType.WHILE, yyline, yycolumn);
+            }
+          case 26: break;
+          case 13: 
+            { return new Token(TokenType.RETURN, yyline, yycolumn);
+            }
+          case 27: break;
+          case 14: 
+            { return new Token(TokenType.LENGTH, yyline, yycolumn);
+            }
+          case 28: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }
