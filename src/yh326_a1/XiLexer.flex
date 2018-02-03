@@ -26,7 +26,8 @@
         OPERATOR,
         DOT,
         STRING,
-        LENGTH
+        LENGTH,
+        DONTCARE
     }
     class Token {
 	TokenType type;
@@ -52,7 +53,8 @@ InputCharacter = [^\r\n]
 Whitespace = [ \t\f\r\n]
 Letter = [a-zA-Z]
 Digit = [0-9]
-Identifier = {Letter}({Digit}|{Letter}|_)*
+Identifier = {Letter}({Digit}|{Letter}|_)*(')*
+Dontcare = _
 StringCharacter = [^\r\"\\]
 String = "\""{StringCharacter}*"\""
 Integer = "0"|[1-9]{Digit}*
@@ -68,8 +70,8 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "if"          { return new Token(TokenType.IF, yyline, yycolumn); }
   "while"       { return new Token(TokenType.WHILE, yyline, yycolumn); }
   "else"        { return new Token(TokenType.ELSE, yyline, yycolumn); }
-  "return"      { return new Token(TokenType.RETURN, yyline, yycolumn);}
-  "length"      { return new Token(TokenType.LENGTH, yyline, yycolumn);}
+  "return"      { return new Token(TokenType.RETURN, yyline, yycolumn); }
+  "length"      { return new Token(TokenType.LENGTH, yyline, yycolumn); }
   "int"         { return new Token(TokenType.INT, yyline, yycolumn); }
   "bool"        { return new Token(TokenType.BOOL, yyline, yycolumn); }
   
@@ -78,6 +80,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   {Boolean}     { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
   {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
   {String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
+  {Dontcare}    { return new Token(TokenType.DONTCARE, yytext(), yyline, yycolumn); }
 
   /* separators */
   "("                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }

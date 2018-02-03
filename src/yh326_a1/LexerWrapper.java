@@ -43,6 +43,9 @@ public class LexerWrapper {
 			int length = t.attribute.toString().length();
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + t.attribute.toString().substring(1, length - 1);
 		}
+		else if (t.type == TokenType.DONTCARE) {
+			return t.line + ":" + t.column + " " + t.attribute;
+		}
 		else {
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + (t.attribute == null ? "" : " " + t.attribute);
 		}
