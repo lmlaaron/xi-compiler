@@ -15,7 +15,7 @@ public class LexerWrapper {
 		if (argv[0].equals("--lex")) {
 			String pwd = System.getProperty("user.dir");
 			String sourcePath = pwd + "/" + argv[1];
-			String solutionPath = pwd + "/" + argv[1].split("/")[0] + ".lexed";
+			String solutionPath = pwd + "/" + argv[1].split("\\.")[0] + ".lexed";
 			try {
 				XiLexer xiLexer = new XiLexer(new FileReader(sourcePath));
 				FileWriter writer = new FileWriter(solutionPath);

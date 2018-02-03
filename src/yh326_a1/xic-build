@@ -5,7 +5,7 @@ echo "package yh326_a1;" > temp
 cat temp XiLexer.java > NewXiLexer.java
 mv NewXiLexer.java XiLexer.java
 rm temp
-javac LexerWrapper.java
+javac -cp ../ LexerWrapper.java
 echo "#!/bin/bash" > xic
 echo "java yh326_a1.LexerWrapper \$1 \$2" >> xic
 chmod 777 xic
