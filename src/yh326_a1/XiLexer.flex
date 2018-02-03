@@ -25,6 +25,7 @@
         SEPARATOR,
         OPERATOR,
         DOT,
+        STRING,
         LENGTH
     }
     class Token {
@@ -52,6 +53,8 @@ Whitespace = [ \t\f\r\n]
 Letter = [a-zA-Z]
 Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_)*
+StringCharacter = [^\r\n\"\\]
+String = "\""{StringCharacter}*"\""
 Integer = "0"|"-"?[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
@@ -74,6 +77,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   				 Integer.parseInt(yytext()), yyline, yycolumn); }
   {Boolean}     { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
   {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
+  {String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
 
   /* separators */
   "("                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
