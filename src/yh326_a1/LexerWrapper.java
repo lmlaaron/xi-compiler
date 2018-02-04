@@ -40,16 +40,13 @@ public class LexerWrapper {
 		}
 	}
 	public static String tokenToString(Token t) {
-                
-		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR) {
+
+		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR || t.type == TokenType.DUMMYIDENTIFIER) {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
 		else if (t.type == TokenType.STRING) {
 			int length = t.attribute.toString().length();
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + t.attribute.toString().substring(1, length - 1);
-		}
-		else if (t.type == TokenType.DONTCARE) {
-			return t.line + ":" + t.column + " " + t.attribute;
 		}
                 else if (t.type == TokenType.ERROR) {
                         return t.line + ":" + t.column + " error" + t.attribute;

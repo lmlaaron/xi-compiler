@@ -30,7 +30,7 @@
         DOT,
         STRING,
         LENGTH,
-        DONTCARE,
+        DUMMYIDENTIFIER,
         ERROR,
         CHARACTER
     }
@@ -78,7 +78,7 @@ Whitespace = [ \t\f\r\n]
 Letter = [a-zA-Z]
 Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_|')*
-Dontcare = _
+DummyIdentifier = _
 //StringCharacter = [^\r\n\"\\]
 //String = "\""{StringCharacter}*"\""
 Integer = "0"|[1-9]{Digit}*
@@ -101,21 +101,20 @@ HexDigit =[0-9a-fA-F]
 
 <YYINITIAL> {
   {Whitespace}  { /* ignore */ }
-  "use"         { return new Token(TokenType.USE, yyline, yycolumn); }
-  "if"          { return new Token(TokenType.IF, yyline, yycolumn); }
-  "while"       { return new Token(TokenType.WHILE, yyline, yycolumn); }
-  "else"        { return new Token(TokenType.ELSE, yyline, yycolumn); }
-  "return"      { return new Token(TokenType.RETURN, yyline, yycolumn); }
-  "length"      { return new Token(TokenType.LENGTH, yyline, yycolumn); }
-  "int"         { return new Token(TokenType.INT, yyline, yycolumn); }
-  "bool"        { return new Token(TokenType.BOOL, yyline, yycolumn); }
+  "use"             { return new Token(TokenType.USE, yyline, yycolumn); }
+  "if"              { return new Token(TokenType.IF, yyline, yycolumn); }
+  "while"           { return new Token(TokenType.WHILE, yyline, yycolumn); }
+  "else"            { return new Token(TokenType.ELSE, yyline, yycolumn); }
+  "return"          { return new Token(TokenType.RETURN, yyline, yycolumn); }
+  "length"          { return new Token(TokenType.LENGTH, yyline, yycolumn); }
+  "int"             { return new Token(TokenType.INT, yyline, yycolumn); }
+  "bool"            { return new Token(TokenType.BOOL, yyline, yycolumn); }
   
-  {Integer}     { return new Token(TokenType.INTEGER,
-  				 Integer.parseInt(yytext()), yyline, yycolumn); }
-  {Boolean}     { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
-  {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
-  //{String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
-  {Dontcare}    { return new Token(TokenType.DONTCARE, yytext(), yyline, yycolumn); }
+  {Integer}         { return new Token(TokenType.INTEGER, Integer.parseInt(yytext()), yyline, yycolumn); }
+  {Boolean}         { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
+  {Identifier}      { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
+  //{String}        { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
+  {DummyIdentifier} { return new Token(TokenType.DUMMYIDENTIFIER, yytext(), yyline, yycolumn); }
 
   /* string literal */
   "\""                             { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
