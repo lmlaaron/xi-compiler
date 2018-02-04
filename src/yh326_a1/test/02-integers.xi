@@ -1,8 +1,15 @@
 a:int;
+a=1
+a=2147483647
+a=2147483648 // BUG!!!!!!!!
+a=-2147483648
+a=-2147483649 // BUG!!!!!!!!
 a=123+456
 a=123-456
 a=123*456
 a=123/456
+a=123%456
+a=123*>>123123123123
 a=123+456*789/12
 a=(123+456)*789
 a=3/0
@@ -15,10 +22,11 @@ a>10
 a>=10
 a='a'
 a='啊'
-//a=\x61 // Currently don't support hex or oct
+//a=\x61 // Currently don't support hex or oct. It's ok.
+
+// TODO !!!!!!!!!!!!!!!!!!!! The following cases FAIL!!!
 a='\x62'+1
-a=1
-a='\x1f'
-a='\x0061'
-a='\xffff'
+a='\x1f' // Non-printable character
+a='\xe5\x95\x8a' // The '啊' character
+a='\xff\xff'
 
