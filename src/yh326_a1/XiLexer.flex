@@ -137,14 +137,14 @@ SingleCharacter = [^\r\n\'\\]
   {StringCharacter}+         {string.append(yytext());}
   
   /* error cases */
-  \\.                        {throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-  {LineTerminator}           {throw new RuntimeException("Unterminated string at end of line"); }
+  \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR, "Illegal escape sequence \""+yytext()+"\"", str_line, str_column); }
+  {LineTerminator}           { yybegin(YYINITIAL); return new Token(TokenType.ERROR, "Unterminated string at end of line", str_line, str_column); }
 } 
 
 <CHARLITERAL> {
-  {SingleCharacter}\'        {yybegin(YYINITIAL); return new Token(TokenType.INT, yytext().charAt(0), yyline, yycolumn);}
+  {SingleCharacter}\'        { yybegin(YYINITIAL); return new Token(TokenType.INT, yytext().charAt(0), yyline, yycolumn);}
   
   /* error cases */
-  \'                         {yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
-  \\.                        {throw new RuntimeException("Unterminated character literal at end of line");}
+  \'                         { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
+  \\.                        { yybegin(YYINITIAL): return new Token(TokenType.ERROR,"Unterminated character literal at end of line", yyline, yycolumn -1);}
 }
