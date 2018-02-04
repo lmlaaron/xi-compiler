@@ -22,35 +22,30 @@ public class LexerWrapper {
 				while (t != null) {
 					System.out.println(tokenToString(t));
 					writer.write(tokenToString(t) + "\n");
-
-                                        if ( t.type != TokenType.ERROR) {
-					  t = xiLexer.nextToken();
-                                        } else {
-                                          break;
-                                        }
+					if (t.type == TokenType.ERROR) break;
+					t = xiLexer.nextToken();
 				}
 				writer.close();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-			        return;
+			    return;
 				//System.exit(1);
 			}
 			return;
 		}
 	}
 	public static String tokenToString(Token t) {
-
-		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR || t.type == TokenType.DUMMYIDENTIFIER) {
+		if (t.type == TokenType.ERROR) {
+			return t.line + ":" + t.column + " error" + t.attribute;
+		}
+		else if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR || t.type == TokenType.DUMMYIDENTIFIER) {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
 		else if (t.type == TokenType.STRING) {
 			int length = t.attribute.toString().length();
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + " " + t.attribute.toString().substring(1, length - 1);
 		}
-                else if (t.type == TokenType.ERROR) {
-                        return t.line + ":" + t.column + " error" + t.attribute;
-                }
 		else {
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + (t.attribute == null ? "" : " " + t.attribute);
 		}

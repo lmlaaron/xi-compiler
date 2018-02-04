@@ -110,7 +110,7 @@ HexDigit =[0-9a-fA-F]
   "int"             { return new Token(TokenType.INT, yyline, yycolumn); }
   "bool"            { return new Token(TokenType.BOOL, yyline, yycolumn); }
   
-  {Integer}         { return new Token(TokenType.INTEGER, Integer.parseInt(yytext()), yyline, yycolumn); }
+  {Integer}         { return new Token(TokenType.INTEGER, Long.parseLong(yytext()), yyline, yycolumn); }
   {Boolean}         { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
   {Identifier}      { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
   //{String}        { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
