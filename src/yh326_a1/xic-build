@@ -1,6 +1,8 @@
 #!/bin/bash
-jflex XiLexer.flex
-sed -i '1s/^/package yh326_a1;\n\n/' XiLexer.java
-javac -cp $(pwd)/../ LexerWrapper.java
-echo -e "#!/bin/bash\njava -cp $(pwd)/../ yh326_a1.LexerWrapper \$1 \$2" > xic
+DIR=`cd $(dirname "$0"); pwd`
+echo $DIR/XiLexer.flex
+jflex $DIR/XiLexer.flex
+sed -i '1s/^/package yh326_a1;\n\n/' $DIR/XiLexer.java
+javac -cp $DIR/../ $DIR/LexerWrapper.java
+echo -e "#!/bin/bash\njava -cp $DIR/../ yh326_a1.LexerWrapper \$1 \$2" > xic
 chmod +x xic
