@@ -1,0 +1,2 @@
+#!/bin/bash
+java -cp /home/vagrant/pa/src/yh326_a1/test/../ yh326_a1.LexerWrapper $1 $2
