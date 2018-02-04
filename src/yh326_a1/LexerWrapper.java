@@ -7,11 +7,18 @@ import yh326_a1.XiLexer.Token;
 import yh326_a1.XiLexer.TokenType;
 public class LexerWrapper {
 	public static void main(String[] argv) {
-		if (argv[0].equals("--help") || argv[0].equals("-h")) {
+                if (argv.length == 0) {
+			System.out.println("TODO");
+		}
+		else if (argv[0].equals("--help") || argv[0].equals("-h")) {
 			System.out.println("TODO");
 			return;
 		}
-		if (argv[0].equals("--lex")) {
+		else if (argv[0].equals("--lex")) {
+			if (argv.length == 1) {
+				System.out.println(".xi file needed");
+				return;
+			}
 			String pwd = System.getProperty("user.dir");
 			String sourcePath = pwd + "/" + argv[1];
 			String solutionPath = pwd + "/" + argv[1].split("\\.")[0] + ".lexed";
@@ -29,7 +36,7 @@ public class LexerWrapper {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-			    return;
+				return;
 				//System.exit(1);
 			}
 			return;
