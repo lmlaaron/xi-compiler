@@ -31,7 +31,8 @@
         STRING,
         LENGTH,
         DONTCARE,
-        ERROR
+        ERROR,
+        CHARACTER
     }
     class Token {
 	TokenType type;
@@ -48,6 +49,24 @@
 	    return "" + type + "(" + attribute + ")";
 	}
     }
+    private int value() {
+         int r = 0;
+
+         for (int k = zzMarkedPos-4; k < zzMarkedPos; k++) {
+           int c = zzBuffer[k];
+
+           if (c >= 'a') 
+             c-= 'a'-10;
+           else if (c >= 'A')
+             c-= 'A'-10;
+           else
+             c-= '0';
+
+           r <<= 4;
+           r += c;
+         }
+         return r;
+   }
 %}
 
 
@@ -60,8 +79,8 @@ Letter = [a-zA-Z]
 Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_)*(')*
 Dontcare = _
-StringCharacter = [^\r\n\"\\]
-String = "\""{StringCharacter}*"\""
+//StringCharacter = [^\r\n\"\\]
+//String = "\""{StringCharacter}*"\""
 Integer = "0"|[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
@@ -70,7 +89,12 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
 SingleCharacter = [^\r\n\'\\]
-%state STRING, CHARLITERAL
+
+//UnicodeEscape = {UnicodeMarker} {HexDigit} 
+//UnicodeMarker ="\\x"
+HexDigit =[0-9a-fA-F]
+
+%state YYSTRING, CHARLITERAL
 
 %%
 
@@ -90,11 +114,11 @@ SingleCharacter = [^\r\n\'\\]
   				 Integer.parseInt(yytext()), yyline, yycolumn); }
   {Boolean}     { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
   {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
-  {String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
+  //{String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
   {Dontcare}    { return new Token(TokenType.DONTCARE, yytext(), yyline, yycolumn); }
 
   /* string literal */
-  \"                             { yybegin(STRING); str_line = yyline; str_column = yycolumn; string.setLength(0);}
+  "\""                             { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
   /* character literal */
   \'                             { yybegin(CHARLITERAL); }
 
@@ -132,19 +156,41 @@ SingleCharacter = [^\r\n\'\\]
   {Comment}                  {/* ignore */}
 }
 
-<STRING> {
-  \"                         { yybegin(YYINITIAL);  return new Token(TokenType.STRING, string, str_line, str_column);}
+<YYSTRING> {
+  "\x64"                      {;}
+  "\""                         {string.append(yytext()); yybegin(YYINITIAL);  return new Token(TokenType.STRING, string, str_line, str_column);}
   {StringCharacter}+         {string.append(yytext());}
-  
+
+  /*escape sequences*/
+  "\\b"                          { string.append( "\\b" ); }
+  "\\t"                          { string.append( "\\t" ); }
+  "\\n"                          { string.append( "\\n" ); }
+  "\\f"                          { string.append( "\\f" ); }
+  "\\r"                          { string.append( "\\r" ); }
+  "\\\""                         { string.append( "\\\"" ); }
+  "\\'"                          { string.append( "\\\'" ); }
+  "\\\\"                         { string.append( "\\\\" ); }
+  \\x{HexDigit}?{HexDigit}    { char val = (char) Integer.parseInt(yytext().substring(2),16); string.append(val); }
+ 
   /* error cases */
-  \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR, "Illegal escape sequence \""+yytext()+"\"", str_line, str_column); }
-  {LineTerminator}           { yybegin(YYINITIAL); return new Token(TokenType.ERROR, "Unterminated string at end of line", str_line, str_column); }
+  {LineTerminator}           { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated string at end of line", str_line, str_column); }
 } 
 
 <CHARLITERAL> {
-  {SingleCharacter}\'        { yybegin(YYINITIAL); return new Token(TokenType.INT, yytext().charAt(0), yyline, yycolumn);}
-  
+  {SingleCharacter}\'        { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, yytext().charAt(0), yyline, yycolumn-1);}
+
+  /*escape sequences*/
+  "\\b"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\b', yyline, yycolumn-1); }    
+  "\\t"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\t', yyline, yycolumn-1); } 
+  "\\n"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\n', yyline, yycolumn-1); } 
+  "\\f"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\f', yyline, yycolumn-1); } 
+  "\\r"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\r', yyline, yycolumn-1); } 
+  "\\\""\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\"', yyline, yycolumn-1);   } 
+  "\\'"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\'', yyline, yycolumn-1);   } 
+  "\\\\"\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\\', yyline, yycolumn-1);   } 
+  \\x{HexDigit}?{HexDigit}\'    { char val = (char) Integer.parseInt(yytext().substring(2, yylength()-1),16); return new Token(TokenType.CHARACTER, val, yyline, yycolumn-1); }
+ 
   /* error cases */
   \'                         { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
-  \\.                        { yybegin(YYINITIAL): return new Token(TokenType.ERROR,"Unterminated character literal at end of line", yyline, yycolumn -1);}
+  \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unterminated character literal at end of line", yyline, yycolumn -1);}
 }

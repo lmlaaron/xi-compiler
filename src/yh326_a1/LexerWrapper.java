@@ -5,7 +5,6 @@ import java.io.FileWriter;
 
 import yh326_a1.XiLexer.Token;
 import yh326_a1.XiLexer.TokenType;
-import yh326_a1.UnicodeEscapes.*;
 public class LexerWrapper {
 	public static void main(String[] argv) {
 		if (argv[0].equals("--help") || argv[0].equals("-h")) {
@@ -17,7 +16,7 @@ public class LexerWrapper {
 			String sourcePath = pwd + "/" + argv[1];
 			String solutionPath = pwd + "/" + argv[1].split("\\.")[0] + ".lexed";
 			try {
-				XiLexer xiLexer = new XiLexer(new UnicodeEscapes(new FileReader(sourcePath)));
+				XiLexer xiLexer = new XiLexer(/*new UnicodeEscapes(*/new FileReader(sourcePath));
 				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 jflex XiLexer.flex
 sed -i '1s/^/package yh326_a1;\n\n/' XiLexer.java
 javac -cp $(pwd)/../ LexerWrapper.java
