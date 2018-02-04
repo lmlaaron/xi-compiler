@@ -5,7 +5,7 @@ import java.io.FileWriter;
 
 import yh326_a1.XiLexer.Token;
 import yh326_a1.XiLexer.TokenType;
-
+import yh326_a1.UnicodeEscapes.*;
 public class LexerWrapper {
 	public static void main(String[] argv) {
 		if (argv[0].equals("--help") || argv[0].equals("-h")) {
@@ -17,25 +17,31 @@ public class LexerWrapper {
 			String sourcePath = pwd + "/" + argv[1];
 			String solutionPath = pwd + "/" + argv[1].split("\\.")[0] + ".lexed";
 			try {
-				XiLexer xiLexer = new XiLexer(new FileReader(sourcePath));
+				XiLexer xiLexer = new XiLexer(new UnicodeEscapes(new FileReader(sourcePath)));
 				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {
 					System.out.println(tokenToString(t));
 					writer.write(tokenToString(t) + "\n");
-					t = xiLexer.nextToken();
+
+                                        if ( t.type != TokenType.ERROR) {
+					  t = xiLexer.nextToken();
+                                        } else {
+                                          break;
+                                        }
 				}
 				writer.close();
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				System.exit(1);
+			        return;
+				//System.exit(1);
 			}
 			return;
 		}
 	}
-	
 	public static String tokenToString(Token t) {
+                
 		if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR) {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
@@ -46,6 +52,9 @@ public class LexerWrapper {
 		else if (t.type == TokenType.DONTCARE) {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
+                else if (t.type == TokenType.ERROR) {
+                        return t.line + ":" + t.column + " error" + t.attribute;
+                }
 		else {
 			return t.line + ":" + t.column + " " + t.type.toString().toLowerCase() + (t.attribute == null ? "" : " " + t.attribute);
 		}

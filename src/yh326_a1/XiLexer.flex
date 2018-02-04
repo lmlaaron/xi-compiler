@@ -11,6 +11,9 @@
 %column
 
 %{
+    StringBuilder string = new StringBuilder();
+    int str_line = 0;
+    int str_column = 0;
     enum TokenType {
         USE,
 	IF,
@@ -27,7 +30,8 @@
         DOT,
         STRING,
         LENGTH,
-        DONTCARE
+        DONTCARE,
+        ERROR
     }
     class Token {
 	TokenType type;
@@ -46,6 +50,7 @@
     }
 %}
 
+
 /* main character classes */
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
@@ -55,11 +60,17 @@ Letter = [a-zA-Z]
 Digit = [0-9]
 Identifier = {Letter}({Digit}|{Letter}|_)*(')*
 Dontcare = _
-StringCharacter = [^\r\"\\]
+StringCharacter = [^\r\n\"\\]
 String = "\""{StringCharacter}*"\""
 Integer = "0"|[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
+
+
+/* string and character literals */
+StringCharacter = [^\r\n\"\\]
+SingleCharacter = [^\r\n\'\\]
+%state STRING, CHARLITERAL
 
 %%
 
@@ -81,6 +92,11 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   {Identifier}  { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
   {String}      { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
   {Dontcare}    { return new Token(TokenType.DONTCARE, yytext(), yyline, yycolumn); }
+
+  /* string literal */
+  \"                             { yybegin(STRING); str_line = yyline; str_column = yycolumn; string.setLength(0);}
+  /* character literal */
+  \'                             { yybegin(CHARLITERAL); }
 
   /* separators */
   "("                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
@@ -116,3 +132,19 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   {Comment}                  {/* ignore */}
 }
 
+<STRING> {
+  \"                         { yybegin(YYINITIAL);  return new Token(TokenType.STRING, string, str_line, str_column);}
+  {StringCharacter}+         {string.append(yytext());}
+  
+  /* error cases */
+  \\.                        {throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}           {throw new RuntimeException("Unterminated string at end of line"); }
+} 
+
+<CHARLITERAL> {
+  {SingleCharacter}\'        {yybegin(YYINITIAL); return new Token(TokenType.INT, yytext().charAt(0), yyline, yycolumn);}
+  
+  /* error cases */
+  \'                         {yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
+  \\.                        {throw new RuntimeException("Unterminated character literal at end of line");}
+}
