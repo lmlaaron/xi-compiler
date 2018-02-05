@@ -193,3 +193,5 @@ HexDigit =[0-9a-fA-F]
   \'                         { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
   \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unterminated character literal at end of line", yyline, yycolumn -1);}
 }
+
+[^]                          { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unrecognized character", yyline, yycolumn); }
