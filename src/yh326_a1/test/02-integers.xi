@@ -29,6 +29,6 @@ a='啊'
 // TODO !!!!!!!!!!!!!!!!!!!! The following cases FAIL!!!
 a='\x62'+1
 a='\x1f' // Non-printable character
-a='\xe5\x95\x8a' // The '啊' character
-a='\xff\xff'
+a='\x554a' // The '啊' character
+a='\xffff'
 

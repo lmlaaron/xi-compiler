@@ -187,11 +187,15 @@ HexDigit =[0-9a-fA-F]
   "\\\""\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\"', yyline, yycolumn-1);   } 
   "\\'"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\'', yyline, yycolumn-1);   } 
   "\\\\"\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\\', yyline, yycolumn-1);   } 
-  \\x{HexDigit}?{HexDigit}\'    { char val = (char) Integer.parseInt(yytext().substring(2, yylength()-1),16); return new Token(TokenType.CHARACTER, val, yyline, yycolumn-1); }
+  \\x{HexDigit}+\'    { yybegin(YYINITIAL); 
+                        int n = Integer.parseInt(yytext().substring(2, yylength()-1),16); 
+                        char val = (char) n; 
+                        if (n < 32) { return new Token(TokenType.ERROR, ": Non printable character "+ yytext(), yyline, yycolumn-1); }
+                        else return new Token(TokenType.CHARACTER, val, yyline, yycolumn-1); }
  
   /* error cases */
   \'                         { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
   \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unterminated character literal at end of line", yyline, yycolumn -1);}
 }
 
-[^]                          { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unrecognized character", yyline, yycolumn); }
+[^]                          { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unrecognized character"+yytext(), yyline, yycolumn); }
