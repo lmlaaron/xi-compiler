@@ -25,10 +25,9 @@ a>=10
 a='a'
 a='啊'
 //a=\x61 // Currently don't support hex or oct. It's ok.
-
-// TODO !!!!!!!!!!!!!!!!!!!! The following cases FAIL!!!
 a='\x62'+1
 a='\x1f' // Non-printable character
 a='\x554a' // The '啊' character
 a='\xffff'
-
+a='\n'
+a='\t'

@@ -27,10 +27,9 @@
         BOOLEAN,
         SEPARATOR,
         OPERATOR,
-        DOT,
         STRING,
         LENGTH,
-        DUMMYIDENTIFIER,
+        DUMMY,
         ERROR,
         CHARACTER
     }
@@ -49,149 +48,65 @@
 	    return "" + type + "(" + attribute + ")";
 	}
     }
-    private int value() {
-         int r = 0;
-
-         for (int k = zzMarkedPos-4; k < zzMarkedPos; k++) {
-           int c = zzBuffer[k];
-
-           if (c >= 'a') 
-             c-= 'a'-10;
-           else if (c >= 'A')
-             c-= 'A'-10;
-           else
-             c-= '0';
-
-           r <<= 4;
-           r += c;
-         }
-         return r;
-   }
 %}
 
 
 /* main character classes */
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
-
 Whitespace = [ \t\f\r\n]
 Letter = [a-zA-Z]
 Digit = [0-9]
+HexDigit =[0-9a-fA-F]
 Identifier = {Letter}({Digit}|{Letter}|_|')*
-DummyIdentifier = _
+Dummy = _
 Integer = "0"|[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
-
-
-/* string and character literals */
-StringCharacter = [^\r\n\"\\]
-SingleCharacter = [^\r\n\'\\]
-
-//UnicodeEscape = {UnicodeMarker} {HexDigit} 
-//UnicodeMarker ="\\x"
-HexDigit =[0-9a-fA-F]
+Separator = [\(\)\{\}\[\];:,\.]
+Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 %state YYSTRING, CHARLITERAL
 
 %%
 
-
 <YYINITIAL> {
   {Whitespace}  { /* ignore */ }
-  "use"             { return new Token(TokenType.USE, yyline, yycolumn); }
-  "if"              { return new Token(TokenType.IF, yyline, yycolumn); }
-  "while"           { return new Token(TokenType.WHILE, yyline, yycolumn); }
-  "else"            { return new Token(TokenType.ELSE, yyline, yycolumn); }
+  "use"             { return new Token(TokenType.USE,    yyline, yycolumn); }
+  "if"              { return new Token(TokenType.IF,     yyline, yycolumn); }
+  "while"           { return new Token(TokenType.WHILE,  yyline, yycolumn); }
+  "else"            { return new Token(TokenType.ELSE,   yyline, yycolumn); }
   "return"          { return new Token(TokenType.RETURN, yyline, yycolumn); }
   "length"          { return new Token(TokenType.LENGTH, yyline, yycolumn); }
-  "int"             { return new Token(TokenType.INT, yyline, yycolumn); }
-  "bool"            { return new Token(TokenType.BOOL, yyline, yycolumn); }
+  "int"             { return new Token(TokenType.INT,    yyline, yycolumn); }
+  "bool"            { return new Token(TokenType.BOOL,   yyline, yycolumn); }
   
-  {Integer}         { return new Token(TokenType.INTEGER, yytext(), yyline, yycolumn); }
-  {Boolean}         { return new Token(TokenType.BOOLEAN, yytext(), yyline, yycolumn); }
-  {Identifier}      { return new Token(TokenType.ID, yytext(), yyline, yycolumn); }
-  //{String}        { return new Token(TokenType.STRING, yytext(), yyline, yycolumn); }
-  {DummyIdentifier} { return new Token(TokenType.DUMMYIDENTIFIER, yytext(), yyline, yycolumn); }
+  {Integer}         { return new Token(TokenType.INTEGER,   yytext(), yyline, yycolumn); }
+  {Boolean}         { return new Token(TokenType.BOOLEAN,   yytext(), yyline, yycolumn); }
+  {Identifier}      { return new Token(TokenType.ID,        yytext(), yyline, yycolumn); }
+  {Dummy}           { return new Token(TokenType.DUMMY,     yytext(), yyline, yycolumn); }
+  {Separator}       { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
+  {Operator}        { return new Token(TokenType.OPERATOR,        yytext(), yyline, yycolumn); }
+  {Comment}         {/* ignore */}
 
-  /* string literal */
-  "\""                             { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
-  /* character literal */
-  \'                             { yybegin(CHARLITERAL); }
-
-  /* separators */
-  "("                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  ")"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  "{"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  "}"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  "["                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  "]"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  ";"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  ":"                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  ","                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  "."                            { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); } 
-  
-  /* operators */
-  "-"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); }
-  "="                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "!"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "*"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "*>>"                      { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "/"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "%"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "+"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "<"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "<="                       { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  ">="                       { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  ">"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "=="                       { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "!="                       { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "&"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); } 
-  "|"                        { return new Token(TokenType.OPERATOR, yytext(), yyline, yycolumn); }  
-
-  /* comments */
-  {Comment}                  {/* ignore */}
+  "\""              { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
+  \'                { yybegin(CHARLITERAL); }
 }
 
 <YYSTRING> {
-  "\x64"                      {;}
-  "\""                         {string.append(yytext()); yybegin(YYINITIAL);  return new Token(TokenType.STRING, string, str_line, str_column);}
-  {StringCharacter}+         {string.append(yytext());}
-
-  /*escape sequences*/
-  "\\b"                          { string.append( "\\b" ); }
-  "\\t"                          { string.append( "\\t" ); }
-  "\\n"                          { string.append( "\\n" ); }
-  "\\f"                          { string.append( "\\f" ); }
-  "\\r"                          { string.append( "\\r" ); }
-  "\\\""                         { string.append( "\\\"" ); }
-  "\\'"                          { string.append( "\\\'" ); }
-  "\\\\"                         { string.append( "\\\\" ); }
-  \\x{HexDigit}{1,4}             { char val = (char) Integer.parseInt(yytext().substring(2),16); string.append(val); }
- 
-  /* error cases */
-  {LineTerminator}           { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated string at end of line", str_line, str_column); }
+  \"                   { string.append(yytext()); yybegin(YYINITIAL); return new Token(TokenType.STRING, string, str_line, str_column);}
+  {LineTerminator}     { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated string at end of line", str_line, str_column); }
+  \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
+  \\.|.                { string.append(yytext());}
 } 
 
 <CHARLITERAL> {
-  {SingleCharacter}\'        { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, yytext().charAt(0), yyline, yycolumn-1);}
-
-  /*escape sequences*/
-  "\\b"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\b', yyline, yycolumn-1); }    
-  "\\t"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\t', yyline, yycolumn-1); } 
-  "\\n"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\n', yyline, yycolumn-1); } 
-  "\\f"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\f', yyline, yycolumn-1); } 
-  "\\r"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\r', yyline, yycolumn-1); } 
-  "\\\""\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\"', yyline, yycolumn-1);   } 
-  "\\'"\'                    { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\'', yyline, yycolumn-1);   } 
-  "\\\\"\'                   { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, '\\', yyline, yycolumn-1);   } 
-  \\x{HexDigit}{1,4}\'    { yybegin(YYINITIAL); 
-                        char val = (char) Integer.parseInt(yytext().substring(2, yylength()-1),16); 
-                         return new Token(TokenType.CHARACTER, val, yyline, yycolumn-1); }
- 
-  /* error cases */
-  \'                         { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": empty character literal", yyline, yycolumn - 1); }
-  \\.                        { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unterminated character literal at end of line", yyline, yycolumn -1);}
+  \'                   { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": empty character literal", yyline, yycolumn - 1); }
+  {LineTerminator}     { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
+  \\x{HexDigit}{1,5}\' { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
+  (\\.|.)\'            { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
+  .[^\']+\'                { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
 }
 
-[^]                          { yybegin(YYINITIAL); return new Token(TokenType.ERROR,": Unrecognized character: "+yytext(), yyline, yycolumn); }
+  [^]               { return new Token(TokenType.ERROR, ": Unrecognized character: "+yytext(), yyline, yycolumn); }
+

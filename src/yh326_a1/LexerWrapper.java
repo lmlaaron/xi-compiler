@@ -46,7 +46,7 @@ public class LexerWrapper {
 		if (t.type == TokenType.ERROR) {
 			return t.line + ":" + t.column + " error" + t.attribute;
 		}
-		else if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR || t.type == TokenType.DUMMYIDENTIFIER) {
+		else if (t.type == TokenType.OPERATOR || t.type == TokenType.SEPARATOR || t.type == TokenType.DUMMY) {
 			return t.line + ":" + t.column + " " + t.attribute;
 		}
 		else if (t.type == TokenType.STRING) {
