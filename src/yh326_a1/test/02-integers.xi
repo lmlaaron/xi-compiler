@@ -23,6 +23,9 @@ a<=3
 a>10
 a>=10
 a='a'
+a='"'  // double quote
+a='\"' // double quote with backslash
+a='\'' // single quote with backslash
 a='啊'
 //a=\x61 // Currently don't support hex or oct. It's ok.
 a='\x62'+1

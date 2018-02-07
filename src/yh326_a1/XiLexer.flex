@@ -103,9 +103,9 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 <CHARLITERAL> {
   \'                   { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": empty character literal", yyline, yycolumn - 1); }
   {LineTerminator}     { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
-  \\x{HexDigit}{1,5}\' { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
+  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
   (\\.|.)\'            { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
-  .[^\']+\'                { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
+  .[^\']+\'            { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
 }
 
   [^]               { return new Token(TokenType.ERROR, ": Unrecognized character: "+yytext(), yyline, yycolumn); }
