@@ -8,10 +8,11 @@ import yh326_a1.XiLexer.TokenType;
 public class LexerWrapper {
 	public static void main(String[] argv) {
                 if (argv.length == 0) {
-			System.out.println("TODO");
+//			System.out.println("TODO");
+                        return;
 		}
 		else if (argv[0].equals("--help") || argv[0].equals("-h")) {
-			System.out.println("TODO");
+//			System.out.println("TODO");
 			return;
 		}
 		else if (argv[0].equals("--lex")) {
@@ -27,7 +28,7 @@ public class LexerWrapper {
 				FileWriter writer = new FileWriter(solutionPath);
 				Token t = xiLexer.nextToken();
 				while (t != null) {
-					System.out.println(tokenToString(t));
+//					System.out.println(tokenToString(t));
 					writer.write(tokenToString(t) + "\n");
 					if (t.type == TokenType.ERROR) break;
 					t = xiLexer.nextToken();
