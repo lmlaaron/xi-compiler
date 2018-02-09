@@ -1,0 +1,3 @@
+#!/bin/bash
+rm -rfv gen
+rm -rv yh326_a1/test/*.lexed
