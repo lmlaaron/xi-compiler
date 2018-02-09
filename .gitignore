@@ -3,7 +3,6 @@
 *.classpath
 *.project
 XiLexer.java
-xic
 *~
 *.lexed
 

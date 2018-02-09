@@ -1,0 +1,5 @@
+#!/bin/bash
+DIR=`cd $(dirname "$0"); pwd`/yh326_a1
+jflex $DIR/XiLexer.flex
+sed -i '1s/^/package yh326_a1;\n\n/' $DIR/XiLexer.java
+javac -cp $DIR/../ $DIR/LexerWrapper.java
