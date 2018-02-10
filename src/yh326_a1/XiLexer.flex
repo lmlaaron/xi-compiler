@@ -59,21 +59,21 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 <YYINITIAL> {
   {Whitespace}  { /* ignore */ }
-  "use"             { return symbol(sym.USE,       yytext()); }
-  "if"              { return symbol(sym.IF,        yytext()); }
-  "while"           { return symbol(sym.WHILE,     yytext()); }
-  "else"            { return symbol(sym.ELSE,      yytext()); }
-  "return"          { return symbol(sym.RETURN,    yytext()); }
-  "length"          { return symbol(sym.LENGTH,    yytext()); }
-  "int"             { return symbol(sym.INT,       yytext()); }
-  "bool"            { return symbol(sym.BOOL,      yytext()); }
+  "use"             { return symbol(USE,       yytext()); }
+  "if"              { return symbol(IF,        yytext()); }
+  "while"           { return symbol(WHILE,     yytext()); }
+  "else"            { return symbol(ELSE,      yytext()); }
+  "return"          { return symbol(RETURN,    yytext()); }
+  "length"          { return symbol(LENGTH,    yytext()); }
+  "int"             { return symbol(INT,       yytext()); }
+  "bool"            { return symbol(BOOL,      yytext()); }
 
-  {Integer}         { return symbol(sym.INTEGER,   yytext()); }
-  {Boolean}         { return symbol(sym.BOOLEAN,   yytext()); }
-  {Identifier}      { return symbol(sym.ID,        yytext()); }
-  {Dummy}           { return symbol(sym.DUMMY,     yytext()); }
-  {Separator}       { return symbol(sym.SEPARATOR, yytext()); }
-  {Operator}        { return symbol(sym.OPERATOR,  yytext()); }
+  {Integer}         { return symbol(INTEGER,   yytext()); }
+  {Boolean}         { return symbol(BOOLEAN,   yytext()); }
+  {Identifier}      { return symbol(ID,        yytext()); }
+  {Dummy}           { return symbol(DUMMY,     yytext()); }
+  {Separator}       { return symbol(SEPARATOR, yytext()); }
+  {Operator}        { return symbol(OPERATOR,  yytext()); }
   {Comment}         {/* ignore */}
 
   "\""              { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
@@ -81,18 +81,19 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 }
 
 <YYSTRING> {
-  \"                   { string.append(yytext()); yybegin(YYINITIAL); return symbol(sym.STRING, string, str_line, str_column);}
-  {LineTerminator}     { yybegin(YYINITIAL); return symbol(sym.ERROR, ": Unterminated string at end of line", str_line, str_column); }
+  \"                   { string.append(yytext()); yybegin(YYINITIAL); return symbol(STRING, string, str_line, str_column);}
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, ": Unterminated string at end of line", str_line, str_column); }
   \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
   \\.|.                { string.append(yytext());}
 }
 
 <CHARLITERAL> {
-  \'                   { yybegin(YYINITIAL); return symbol(sym.ERROR, ": empty character literal", yyline, yycolumn - 1); }
-  {LineTerminator}     { yybegin(YYINITIAL); return symbol(sym.ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
-  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(sym.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
-  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(sym.CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
-  .[^\']+\'            { yybegin(YYINITIAL); return symbol(sym.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
+  \'                   { yybegin(YYINITIAL); return symbol(ERROR, ": empty character literal", yyline, yycolumn - 1); }
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
+  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
+  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
+  .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
 }
 
-  [^]               { return symbol(sym.ERROR, ": Unrecognized character: "+yytext()); }
+  [^]               { return symbol(ERROR, ": Unrecognized character: "+yytext()); }
+<<EOF>>                          { return symbol(EOF); }
