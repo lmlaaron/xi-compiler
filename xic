@@ -1,0 +1,11 @@
+#!/bin/bash
+DIR=`cd $(dirname "$0"); pwd`
+if [[ $1 == "--help" ]]; then
+    echo "TODO"
+elif [[ $1 == "--lex" ]]; then
+    java -cp $DIR/bin/ yh326_a1.LexerWrapper $1 $2
+elif [[ $1 == "--parsed" ]]; then
+    echo "TODO"
+else
+    echo "Unrecognized argument"
+fi

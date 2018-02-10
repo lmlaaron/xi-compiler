@@ -1,3 +1,0 @@
-#!/bin/bash
-DIR=`cd $(dirname "$0"); pwd`
-java -cp $DIR/gen yh326_a1.LexerWrapper $1 $2
