@@ -1,52 +1,39 @@
+import java_cup.runtime.*;
+
 %%
 
 %public
 %class XiLexer
-%type Token
-%function nextToken
+%implements sym
+%function next_token
 
 %unicode
-%pack
+
 %line
 %column
+
+%cup
+%cupdebug
 
 %{
     StringBuilder string = new StringBuilder();
     int str_line = 0;
     int str_column = 0;
-    enum TokenType {
-        USE,
-	IF,
-        WHILE,
-        ELSE,
-        RETURN,
-	ID,
-	INT,
-        INTEGER,
-	BOOL,
-        BOOLEAN,
-        SEPARATOR,
-        OPERATOR,
-        STRING,
-        LENGTH,
-        DUMMY,
-        ERROR,
-        CHARACTER
+
+    private Symbol symbol(int type) {
+        return new XiSymbol(type, yyline+1, yycolumn+1);
     }
-    class Token {
-	TokenType type;
-	Object attribute;
-        int line;
-        int column;
-	Token(TokenType tt, int Line, int Column) {
-	    type = tt; attribute = null; line = Line + 1; column = Column + 1;
-	}
-	Token(TokenType tt, Object attr,int Line, int Column) {
-	    type = tt; attribute = attr; line= Line + 1; column = Column + 1;
-	}
-	public String toString() {
-	    return "" + type + "(" + attribute + ")";
-	}
+
+    private Symbol symbol(int type, int line, int column) {
+        return new XiSymbol(type, line+1, column+1);
+    }
+
+    private Symbol symbol(int type, Object value) {
+        return new XiSymbol(type, yyline+1, yycolumn+1, value);
+    }
+
+    private Symbol symbol(int type, Object value, int line, int column) {
+        return new XiSymbol(type, line+1, column+1, value);
     }
 %}
 
@@ -72,21 +59,21 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 <YYINITIAL> {
   {Whitespace}  { /* ignore */ }
-  "use"             { return new Token(TokenType.USE,    yyline, yycolumn); }
-  "if"              { return new Token(TokenType.IF,     yyline, yycolumn); }
-  "while"           { return new Token(TokenType.WHILE,  yyline, yycolumn); }
-  "else"            { return new Token(TokenType.ELSE,   yyline, yycolumn); }
-  "return"          { return new Token(TokenType.RETURN, yyline, yycolumn); }
-  "length"          { return new Token(TokenType.LENGTH, yyline, yycolumn); }
-  "int"             { return new Token(TokenType.INT,    yyline, yycolumn); }
-  "bool"            { return new Token(TokenType.BOOL,   yyline, yycolumn); }
-  
-  {Integer}         { return new Token(TokenType.INTEGER,   yytext(), yyline, yycolumn); }
-  {Boolean}         { return new Token(TokenType.BOOLEAN,   yytext(), yyline, yycolumn); }
-  {Identifier}      { return new Token(TokenType.ID,        yytext(), yyline, yycolumn); }
-  {Dummy}           { return new Token(TokenType.DUMMY,     yytext(), yyline, yycolumn); }
-  {Separator}       { return new Token(TokenType.SEPARATOR, yytext(), yyline, yycolumn); }
-  {Operator}        { return new Token(TokenType.OPERATOR,        yytext(), yyline, yycolumn); }
+  "use"             { return symbol(sym.USE,       yytext()); }
+  "if"              { return symbol(sym.IF,        yytext()); }
+  "while"           { return symbol(sym.WHILE,     yytext()); }
+  "else"            { return symbol(sym.ELSE,      yytext()); }
+  "return"          { return symbol(sym.RETURN,    yytext()); }
+  "length"          { return symbol(sym.LENGTH,    yytext()); }
+  "int"             { return symbol(sym.INT,       yytext()); }
+  "bool"            { return symbol(sym.BOOL,      yytext()); }
+
+  {Integer}         { return symbol(sym.INTEGER,   yytext()); }
+  {Boolean}         { return symbol(sym.BOOLEAN,   yytext()); }
+  {Identifier}      { return symbol(sym.ID,        yytext()); }
+  {Dummy}           { return symbol(sym.DUMMY,     yytext()); }
+  {Separator}       { return symbol(sym.SEPARATOR, yytext()); }
+  {Operator}        { return symbol(sym.OPERATOR,  yytext()); }
   {Comment}         {/* ignore */}
 
   "\""              { yybegin(YYSTRING); str_line = yyline; str_column = yycolumn; string.setLength(0); string.append(yytext());}
@@ -94,19 +81,18 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 }
 
 <YYSTRING> {
-  \"                   { string.append(yytext()); yybegin(YYINITIAL); return new Token(TokenType.STRING, string, str_line, str_column);}
-  {LineTerminator}     { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated string at end of line", str_line, str_column); }
+  \"                   { string.append(yytext()); yybegin(YYINITIAL); return symbol(sym.STRING, string, str_line, str_column);}
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(sym.ERROR, ": Unterminated string at end of line", str_line, str_column); }
   \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
   \\.|.                { string.append(yytext());}
-} 
-
-<CHARLITERAL> {
-  \'                   { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": empty character literal", yyline, yycolumn - 1); }
-  {LineTerminator}     { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
-  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
-  (\\.|.)\'            { yybegin(YYINITIAL); return new Token(TokenType.CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
-  .[^\']+\'            { yybegin(YYINITIAL); return new Token(TokenType.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
 }
 
-  [^]               { return new Token(TokenType.ERROR, ": Unrecognized character: "+yytext(), yyline, yycolumn); }
+<CHARLITERAL> {
+  \'                   { yybegin(YYINITIAL); return symbol(sym.ERROR, ": empty character literal", yyline, yycolumn - 1); }
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(sym.ERROR, ": Unterminated character literal at end of line", yyline, yycolumn -1);}
+  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(sym.CHARACTER, (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, yycolumn-1); }
+  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(sym.CHARACTER, yytext().substring(0, yylength()-1), yyline, yycolumn-1);}
+  .[^\']+\'            { yybegin(YYINITIAL); return symbol(sym.ERROR, ": invalid character literal: \'" + yytext(), yyline, yycolumn - 1); }
+}
 
+  [^]               { return symbol(sym.ERROR, ": Unrecognized character: "+yytext()); }

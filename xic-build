@@ -1,8 +1,11 @@
 #!/bin/bash
 dir=`cd $(dirname "$0"); pwd`
 a1=yh326_a1
-rm -rf $dir/bin/$a1/XiLexer.java
-jflex -d $dir/bin/$a1/ $dir/src/$a1/XiLexer.flex
-sed -i "1s/^/package $a1;\n\n/" $dir/bin/$a1/XiLexer.java
-cp $dir/src/$a1/LexerWrapper.java $dir/bin/$a1/
-javac -cp $dir/bin/ -d $dir/bin/ $dir/bin/$a1/LexerWrapper.java
+
+# a1 - .flex -> Lexer
+rm -rf $dir/src/$a1/XiLexer.java*
+jflex -d $dir/src/$a1/ $dir/src/$a1/XiLexer.flex
+sed -i "1s/^/package $a1;\n\n/" $dir/src/$a1/XiLexer.java
+
+# a1 - Compile lexer
+javac -cp $dir/lib/java_cup.jar:$dir/src/ -d $dir/bin/ $dir/src/$a1/LexerWrapper.java
