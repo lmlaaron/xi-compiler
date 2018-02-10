@@ -28,19 +28,16 @@ public class XiSymbol extends java_cup.runtime.Symbol implements sym {
     }
 
     public String toString() {
-        if (sym == ERROR) {
-            return line + ":" + column + " error" + sym;
-        }
-        else if (sym == OPERATOR || sym == SEPARATOR || sym == DUMMY) {
-            return line + ":" + column + " " + sym;
-        }
+//        if (sym == OPERATOR || sym == SEPARATOR || sym == DUMMY) {
+            return line + ":" + column + " " + value;
+/*        }
         else if (sym == STRING) {
             int length = value.toString().length();
             return line + ":" + column + " string " + value.toString().substring(1, length - 1);
         }
         else {
-            return line + ":" + column + " " + value == null ? "" : " " + value;
+            return line + ":" + column + (value == null ? "" : " " + value);
         }
-    }
+*/    }
 
 }
