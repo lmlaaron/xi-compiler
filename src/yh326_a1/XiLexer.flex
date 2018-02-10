@@ -19,20 +19,12 @@ import java_cup.runtime.*;
     StringBuilder string = new StringBuilder();
     int column = 0;
 
-    private Symbol symbol(int type) {
-        return new XiSymbol(type, yyline+1, yycolumn+1);
-    }
-
-    private Symbol symbol(int type, int line, int column) {
-        return new XiSymbol(type, line+1, column+1);
-    }
-
     private Symbol symbol(int type, Object value) {
-        return new XiSymbol(type, yyline+1, yycolumn+1, value);
+        return new XiSymbol(type, value, yyline+1, yycolumn+1);
     }
 
     private Symbol symbol(int type, Object value, int line, int column) {
-        return new XiSymbol(type, line+1, column+1, value);
+        return new XiSymbol(type, value, line+1, column+1);
     }
 %}
 
@@ -89,11 +81,11 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 <CHARLITERAL> {
   \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
-  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: Unterminated character literal at end of line", yyline, column);}
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
   \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER, "character " + (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
   (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER, "character " + yytext().substring(0, yylength()-1), yyline, column);}
   .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 }
 
-  [^]               { return symbol(ERROR, "error: Unrecognized character: "+yytext()); }
-<<EOF>>                          { return symbol(EOF); }
+  [^]                  { return symbol(ERROR, "error: unrecognized character: "+yytext()); }
+  <<EOF>>              { return symbol(EOF, yytext()); }

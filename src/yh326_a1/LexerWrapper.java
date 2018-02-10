@@ -6,12 +6,12 @@ import java_cup.runtime.Symbol;
 public class LexerWrapper {
 	public static void main(String[] argv) {
                 if (argv.length == 0) {
-//			System.out.println("TODO");
+			System.out.println("xi file not given.");
                         return;
 		}
 		String pwd = System.getProperty("user.dir");
-		String sourcePath = pwd + "/" + argv[1];
-		String solutionPath = pwd + "/" + argv[1].split("\\.")[0] + ".lexed";
+		String sourcePath = pwd + "/" + argv[0];
+		String solutionPath = pwd + "/" + argv[0].split("\\.")[0] + ".lexed";
 		try {
 			XiLexer xiLexer = new XiLexer(/*new UnicodeEscapes(*/new FileReader(sourcePath));
 			FileWriter writer = new FileWriter(solutionPath);
@@ -27,7 +27,6 @@ public class LexerWrapper {
 		catch (Exception e) {
 			e.printStackTrace();
 			return;
-			//System.exit(1);
 		}
 		return;
 	}
