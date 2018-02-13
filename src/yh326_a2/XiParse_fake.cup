@@ -1,0 +1,36 @@
+// A stub for a Xi CUP specification.
+
+package yh326_a2;
+
+// You might want to add types to these declarations.
+
+terminal IDENTIFIER;
+terminal USE, IF, WHILE, ELSE, RETURN, LENGTH, INT, BOOL, BOOLEAN, INTEGER;
+// separator () {} []
+terminal OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE;
+terminal COMMA, SEMICOLON, COLON;
+
+// operator
+terminal ASSIGN;
+terminal INTEGER_NEGATION, BOOLEAN_NEGATION;
+terminal MULTIPLICATION, HIGH_MULTI, DIVISION, REMAINDER;
+terminal ADDITION, SUBTRACTION;
+terminal LT, LEQ, GEQ, GT;
+terminal EQUAL, NOT_EQUAL;
+terminal LOGICAL_AND;
+terminal LOGICAL_OR;
+terminal UNDERSCORE;
+// You might want to add types to these declarations.
+nonterminal program, use, methods, method, decls, block, typeid, typeids;
+nonterminal decl, stmts, stmt, assignment, if_stmt, while_stmt;
+nonterminal ret_stmt, proc_stmt, block_stmts, decl_stmt;
+nonterminal expr, bool_expr, int_expr, bool_operator, int_operator, expr_list;
+//nonterminal else_stmt;
+nonterminal comparator;
+
+start with program;
+// Recognizes "Hello World!", but not much else.
+//program ::= USE IDENTIFIER IDENTIFIER OPEN_PAREN IDENTIFIER COLON
+//  INT OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET CLOSE_PAREN
+//  OPEN_BRACE IDENTIFIER OPEN_PAREN STRING_LITERAL CLOSE_PAREN CLOSE_BRACE;
+program ::= IDENTIFIER OPEN_PAREN CLOSE_PAREN OPEN_BRACE IDENTIFIER COLON INT IDENTIFIER COLON INT ASSIGN INTEGER CLOSE_PAREN;
