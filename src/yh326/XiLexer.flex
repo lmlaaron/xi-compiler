@@ -74,7 +74,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   "*"               { return symbol(MULTIPLICATION,   yytext()); }
   "*>>"             { return symbol(HIGH_MULTI,       yytext()); }
   "/"               { return symbol(DIVISION,         yytext()); }
-  "%"               { return symbol(REMAINER,         yytext()); }
+  "%"               { return symbol(REMAINDER,        yytext()); }
   "+"               { return symbol(ADDITION,         yytext()); }
   "<"               { return symbol(LT,               yytext()); }
   "<="              { return symbol(LEQ,              yytext()); }

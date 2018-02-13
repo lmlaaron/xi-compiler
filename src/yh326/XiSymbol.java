@@ -1,4 +1,4 @@
-package yh326_a1;
+package yh326;
 
 public class XiSymbol extends java_cup.runtime.Symbol implements sym {
     private int line;

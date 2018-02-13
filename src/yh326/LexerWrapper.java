@@ -1,4 +1,4 @@
-package yh326_a1;
+package yh326;
 
 import java.io.*;
 import java_cup.runtime.Symbol;
@@ -31,7 +31,7 @@ public class LexerWrapper {
 		return;
 	}
 	
-	public void writeLexed(String sourcePath) {
+/*	public void writeLexed(String sourcePath) {
 		String pwd = System.getProperty("user.dir");
 		String completeSourcePath = pwd + "/" + sourcePath;
 		String[] sourcePath_ary = sourcePath.split("\\");
@@ -48,4 +48,4 @@ public class LexerWrapper {
 		}
 		
 	}
-}
+*/}

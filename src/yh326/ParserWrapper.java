@@ -1,7 +1,7 @@
-package yh326_a2;
+package yh326;
 
 import java_cup.*;
-import yh326_a1.XiLexer;
+import yh326.XiLexer;
 
 import java.io.*;
 import java.util.ArrayList;

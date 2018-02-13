@@ -1,6 +1,6 @@
 // A stub for a Xi CUP specification.
 
-package yh326_a2;
+package yh326;
 
 // You might want to add types to these declarations.
 
@@ -20,6 +20,9 @@ terminal EQUAL, NOT_EQUAL;
 terminal LOGICAL_AND;
 terminal LOGICAL_OR;
 terminal UNDERSCORE;
+
+terminal ERROR, STRING, CHARACTER;
+
 // You might want to add types to these declarations.
 nonterminal program, use, methods, method, decls, block, typeid, typeids;
 nonterminal decl, stmts, stmt, assignment, if_stmt, while_stmt;
@@ -34,3 +37,4 @@ start with program;
 //  INT OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET CLOSE_PAREN
 //  OPEN_BRACE IDENTIFIER OPEN_PAREN STRING_LITERAL CLOSE_PAREN CLOSE_BRACE;
 program ::= IDENTIFIER OPEN_PAREN CLOSE_PAREN OPEN_BRACE IDENTIFIER COLON INT IDENTIFIER COLON INT ASSIGN INTEGER CLOSE_BRACE;
+//program ::= OPEN_PAREN CLOSE_PAREN
