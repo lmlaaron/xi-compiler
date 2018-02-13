@@ -12,3 +12,5 @@ javac -cp $dir/lib/java_cup.jar:$dir/src/ -d $dir/bin/ $dir/src/$a1/LexerWrapper
 
 # a2 -
 # $dir/lib/cup $dir/src/$a2/XiParser.cup
+java -jar $dir/lib/java_cup.jar < $dir/src/$a2/XiParser_fake.cup
+ 
