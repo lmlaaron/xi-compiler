@@ -5,6 +5,7 @@
 
 package yh326;
 
+import java_cup.runtime.*;
 
 /** CUP v0.11b 20150326 generated parser.
   */
@@ -30,7 +31,7 @@ public class parser
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\002\000\002\002\004\000\002\002\017" });
+    "\000\002\000\002\002\004\000\002\002\005" });
 
   /** Access to production table. */
   @Override
@@ -39,14 +40,9 @@ public class parser
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\020\000\004\004\005\001\002\000\004\002\022\001" +
-    "\002\000\004\021\006\001\002\000\004\022\007\001\002" +
-    "\000\004\023\010\001\002\000\004\004\011\001\002\000" +
-    "\004\027\012\001\002\000\004\013\013\001\002\000\004" +
-    "\004\014\001\002\000\004\027\015\001\002\000\004\013" +
-    "\016\001\002\000\004\030\017\001\002\000\004\016\020" +
-    "\001\002\000\004\024\021\001\002\000\004\002\000\001" +
-    "\002\000\004\002\001\001\002" });
+    "\000\006\000\004\021\004\001\002\000\004\004\007\001" +
+    "\002\000\004\002\006\001\002\000\004\002\001\001\002" +
+    "\000\004\022\010\001\002\000\004\002\000\001\002" });
 
   /** Access to parse-action table. */
   @Override
@@ -55,12 +51,9 @@ public class parser
   /** {@code reduce_goto} table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\020\000\004\002\003\001\001\000\002\001\001\000" +
+    "\000\006\000\004\002\004\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
-    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001" });
+    "\001\001" });
 
   /** Access to {@code reduce_goto} table. */
   @Override
@@ -105,6 +98,60 @@ public class parser
   public int error_sym() {return 1;}
 
 
+
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+   
+        /* Create a StringBuilder called 'm' with the string 'Error' in it. */
+        StringBuilder m = new StringBuilder("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuilder error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuilder error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuilder error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuilder 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+
 /** Cup generated class to encapsulate user supplied action code.*/
 class CUP$parser$actions {
     private final parser parser;
@@ -141,11 +188,11 @@ class CUP$parser$actions {
             return CUP$parser$result;
 
         /*. . . . . . . . . . . . . . . . . . . .*/
-        case 1: // program ::= IDENTIFIER OPEN_PAREN CLOSE_PAREN OPEN_BRACE IDENTIFIER COLON INT IDENTIFIER COLON INT ASSIGN INTEGER CLOSE_BRACE 
+        case 1: // program ::= OPEN_PAREN IDENTIFIER CLOSE_PAREN 
             {
                 Object RESULT = null;
 
-                CUP$parser$result = parser.getSymbolFactory().newSymbol("program",0, CUP$parser$stack.elementAt(CUP$parser$top-12), CUP$parser$stack.peek(), RESULT);
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("program",0, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
             }
             return CUP$parser$result;
 
