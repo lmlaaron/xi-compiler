@@ -1,13 +1,13 @@
-package yh326_a1;
+package yh326;
 
 import java.io.*;
 import java_cup.runtime.Symbol;
 
 public class LexerWrapper {
 	public static void main(String[] argv) {
-                if (argv.length == 0) {
+        if (argv.length == 0) {
 			System.out.println("xi file not given.");
-                        return;
+            return;
 		}
 		String pwd = System.getProperty("user.dir");
 		String sourcePath = pwd + "/" + argv[0];
@@ -30,4 +30,22 @@ public class LexerWrapper {
 		}
 		return;
 	}
-}
+	
+/*	public void writeLexed(String sourcePath) {
+		String pwd = System.getProperty("user.dir");
+		String completeSourcePath = pwd + "/" + sourcePath;
+		String[] sourcePath_ary = sourcePath.split("\\");
+		String sourceFileName = sourcePath_ary[sourcePath_ary.length - 1];
+		String solutionFileName = sourceFileName.split("\\.")[0] + ".lexed";
+		sourcePath_ary[sourcePath_ary.length - 1] = solutionFileName;
+		String solutionPath = "";
+		for (int i = 0; i < sourcePath_ary.length; i++) {
+			solutionPath += sourcePath_ary[i];
+		}
+		String completeSolutionPath = pwd + "/" + solutionPath.toString();
+		try {
+			
+		}
+		
+	}
+*/}

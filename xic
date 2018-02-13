@@ -3,9 +3,9 @@ DIR=`cd $(dirname "$0"); pwd`
 if [[ $1 == "--help" ]]; then
     echo "TODO"
 elif [[ $1 == "--lex" ]]; then
-    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326_a1.LexerWrapper $2
-elif [[ $1 == "--parsed" ]]; then
-    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326_a2.ParserWrapper $2
+    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326.LexerWrapper $2
+elif [[ $1 == "--parse" ]]; then
+    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326.ParserWrapper $1 $2
 else
     echo "Unrecognized argument"
 fi
