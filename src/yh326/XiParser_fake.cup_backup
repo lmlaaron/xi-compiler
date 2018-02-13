@@ -1,0 +1,98 @@
+// A stub for a Xi CUP specification.
+
+package yh326;
+import java_cup.runtime.*;
+
+parser code {:
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+   
+        /* Create a StringBuilder called 'm' with the string 'Error' in it. */
+        StringBuilder m = new StringBuilder("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuilder error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuilder error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuilder error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuilder 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+   
+
+
+
+// You might want to add types to these declarations.
+
+terminal IDENTIFIER;
+terminal USE, IF, WHILE, ELSE, RETURN, LENGTH, INT, BOOL, BOOLEAN, INTEGER;
+// separator () {} []
+terminal OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE;
+terminal COMMA, SEMICOLON, COLON;
+
+// operator
+terminal ASSIGN;
+terminal INTEGER_NEGATION, BOOLEAN_NEGATION;
+terminal MULTIPLICATION, HIGH_MULTI, DIVISION, REMAINDER;
+terminal ADDITION, SUBTRACTION;
+terminal LT, LEQ, GEQ, GT;
+terminal EQUAL, NOT_EQUAL;
+terminal LOGICAL_AND;
+terminal LOGICAL_OR;
+terminal UNDERSCORE;
+
+terminal ERROR, STRING, CHARACTER;
+
+// You might want to add types to these declarations.
+nonterminal program, use, methods, method, decls, block, typeid, typeids;
+nonterminal decl, stmts, stmt, assignment, if_stmt, while_stmt;
+nonterminal ret_stmt, proc_stmt, block_stmts, decl_stmt;
+nonterminal expr, bool_expr, int_expr, bool_operator, int_operator, expr_list;
+//nonterminal else_stmt;
+nonterminal comparator;
+
+start with program;
+// Recognizes "Hello World!", but not much else.
+//program ::= USE IDENTIFIER IDENTIFIER OPEN_PAREN IDENTIFIER COLON
+//  INT OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET CLOSE_PAREN
+//  OPEN_BRACE IDENTIFIER OPEN_PAREN STRING_LITERAL CLOSE_PAREN CLOSE_BRACE;
+//program ::= IDENTIFIER OPEN_PAREN CLOSE_PAREN OPEN_BRACE IDENTIFIER COLON INT IDENTIFIER COLON INT ASSIGN INTEGER CLOSE_BRACE;
+program ::= OPEN_PAREN IDENTIFIER CLOSE_PAREN;
