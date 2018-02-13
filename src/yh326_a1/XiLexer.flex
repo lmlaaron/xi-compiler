@@ -41,8 +41,6 @@ Dummy = _
 Integer = "0"|[1-9]{Digit}*
 Boolean = "true" | "false"
 Comment = "//" {InputCharacter}* {LineTerminator}?
-Separator = [\(\)\{\}\[\];:,\.]
-Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 %state YYSTRING, CHARLITERAL
 
@@ -50,22 +48,45 @@ Operator = (-|\!|\*|\*>>|\/|%|\+|<|<=|>=|>|==|\!=|&|\||=)
 
 <YYINITIAL> {
   {Whitespace}  { /* ignore */ }
-  "use"             { return symbol(USE,       yytext()); }
-  "if"              { return symbol(IF,        yytext()); }
-  "while"           { return symbol(WHILE,     yytext()); }
-  "else"            { return symbol(ELSE,      yytext()); }
-  "return"          { return symbol(RETURN,    yytext()); }
-  "length"          { return symbol(LENGTH,    yytext()); }
-  "int"             { return symbol(INT,       yytext()); }
-  "bool"            { return symbol(BOOL,      yytext()); }
+  "use"             { return symbol(USE,              yytext()); }
+  "if"              { return symbol(IF,               yytext()); }
+  "while"           { return symbol(WHILE,            yytext()); }
+  "else"            { return symbol(ELSE,             yytext()); }
+  "return"          { return symbol(RETURN,           yytext()); }
+  "length"          { return symbol(LENGTH,           yytext()); }
+  "int"             { return symbol(INT,              yytext()); }
+  "bool"            { return symbol(BOOL,             yytext()); }
 
-  {Boolean}         { return symbol(BOOLEAN,   yytext()); }
-  {Dummy}           { return symbol(DUMMY,     yytext()); }
-  {Separator}       { return symbol(SEPARATOR, yytext()); }
-  {Operator}        { return symbol(OPERATOR,  yytext()); }
+  {Boolean}         { return symbol(BOOLEAN,          yytext()); }
+  {Integer}         { return symbol(INTEGER, "integer " + yytext()); }
+  "["               { return symbol(OPEN_BRACKET,     yytext()); }
+  "]"               { return symbol(CLOSE_BRACKET,    yytext()); }
+  "("               { return symbol(OPEN_PAREN,       yytext()); }
+  ")"               { return symbol(CLOSE_PAREN,      yytext()); }
+  "{"               { return symbol(OPEN_BRACE,       yytext()); }
+  "}"               { return symbol(CLOSE_BRACE,      yytext()); }
+  ","               { return symbol(COMMA,            yytext()); }
+  ";"               { return symbol(SEMICOLON,        yytext()); }
+  ":"               { return symbol(COLON,            yytext()); }
+  "="               { return symbol(ASSIGN,           yytext()); }
+  "-"               { return symbol(SUBTRACTION,      yytext()); }
+  "!"               { return symbol(BOOLEAN_NEGATION, yytext()); }
+  "*"               { return symbol(MULTIPLICATION,   yytext()); }
+  "*>>"             { return symbol(HIGH_MULTI,       yytext()); }
+  "/"               { return symbol(DIVISION,         yytext()); }
+  "%"               { return symbol(REMAINER,         yytext()); }
+  "+"               { return symbol(ADDITION,         yytext()); }
+  "<"               { return symbol(LT,               yytext()); }
+  "<="              { return symbol(LEQ,              yytext()); }
+  ">="              { return symbol(GEQ,              yytext()); }
+  ">"               { return symbol(GT,               yytext()); }
+  "=="              { return symbol(EQUAL,            yytext()); }
+  "!="              { return symbol(NOT_EQUAL,        yytext()); }
+  "&"               { return symbol(LOGICAL_AND,      yytext()); }
+  "|"               { return symbol(LOGICAL_OR,       yytext()); }
 
-  {Integer}         { return symbol(INTEGER,   "integer " + yytext()); }
-  {Identifier}      { return symbol(ID,        "id " + yytext()); }
+  "_"               { return symbol(UNDERSCORE,       yytext()); }
+  {Identifier}      { return symbol(IDENTIFIER, "id " + yytext()); }
   {Comment}         {/* ignore */}
 
   "\""              { yybegin(YYSTRING); column = yycolumn; string.setLength(0);}
