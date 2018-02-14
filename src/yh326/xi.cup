@@ -30,7 +30,8 @@ start with program;
 
 
 program   ::= use_list:ul method_list:ml
-              {: System.out.println(new Node(ul, ml)); :};
+              {: Node.write(new Node(ul, ml)); :};
+              //{: System.out.println(); :};
 use_list  ::= use_list:ul use:u
               {: ul.addNode(u); RESULT = ul; :}
             | use:u
@@ -45,26 +46,5 @@ method_list ::= method_list:ml method:m
                 {: RESULT = m; :};
 
 // Not implemented ..... TODO
-method  ::= IDENTIFIER method_args method_retvals block
-            {: RESULT = "_____"; :};
-
-method_args ::= OPEN_PAREN var_decl_list CLOSE_PAREN
-var_decl_list ::= var_decl COMMA var_decl_list //<-- for now, allow trailing commas
-                | var_decl
-                | nothing;
-var_decl ::= IDENTIFIER COLON type;
-method_retvals ::= type COMMA method_retvals
-                 | type
-                 | nothing;
-primitive_type ::= INT
-                 | BOOL;
-type ::= primitive_type
-       | array_type
-array_type ::= array_type OPEN_BRACKET CLOSE_BRACKET
-             | primitive_type OPEN_BRACKET CLOSE_BRACKET
-nothing     ::= /* placeholder for epsilon */;
-block       ::= OPEN
-                {: RESULT = new Node(m); :};
-// Not implemented ..... TODO
 method  ::= UNDERSCORE
-            {: RESULT = new Node("_____"); :};
+            {: RESULT = new Node("___________________________________________________________________"); :};
