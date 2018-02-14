@@ -31,7 +31,11 @@ public class parser
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\002\000\002\002\004\000\002\002\005" });
+    "\000\016\000\002\002\004\000\002\002\004\000\002\002" +
+    "\003\000\002\007\002\000\002\003\005\000\002\004\005" +
+    "\000\002\004\005\000\002\004\003\000\002\005\005\000" +
+    "\002\005\005\000\002\005\003\000\002\006\005\000\002" +
+    "\006\003\000\002\006\003" });
 
   /** Access to production table. */
   @Override
@@ -40,9 +44,29 @@ public class parser
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\006\000\004\021\004\001\002\000\004\004\007\001" +
-    "\002\000\004\002\006\001\002\000\004\002\001\001\002" +
-    "\000\004\022\010\001\002\000\004\002\000\001\002" });
+    "\000\027\000\010\011\007\013\004\014\012\001\002\000" +
+    "\016\004\ufff5\005\ufff5\006\ufff5\007\ufff5\010\ufff5\012\ufff5" +
+    "\001\002\000\012\002\uffff\011\uffff\013\uffff\014\uffff\001" +
+    "\002\000\012\002\031\011\007\013\004\014\012\001\002" +
+    "\000\010\011\007\013\004\014\012\001\002\000\010\004" +
+    "\ufffe\005\022\006\021\001\002\000\016\004\ufff7\005\ufff7" +
+    "\006\ufff7\007\ufff7\010\ufff7\012\ufff7\001\002\000\016\004" +
+    "\ufff4\005\ufff4\006\ufff4\007\ufff4\010\ufff4\012\ufff4\001\002" +
+    "\000\016\004\ufffa\005\ufffa\006\ufffa\007\014\010\015\012" +
+    "\ufffa\001\002\000\010\011\007\013\004\014\012\001\002" +
+    "\000\010\011\007\013\004\014\012\001\002\000\016\004" +
+    "\ufff8\005\ufff8\006\ufff8\007\ufff8\010\ufff8\012\ufff8\001\002" +
+    "\000\016\004\ufff9\005\ufff9\006\ufff9\007\ufff9\010\ufff9\012" +
+    "\ufff9\001\002\000\004\004\025\001\002\000\010\011\007" +
+    "\013\004\014\012\001\002\000\010\011\007\013\004\014" +
+    "\012\001\002\000\016\004\ufffc\005\ufffc\006\ufffc\007\014" +
+    "\010\015\012\ufffc\001\002\000\016\004\ufffb\005\ufffb\006" +
+    "\ufffb\007\014\010\015\012\ufffb\001\002\000\012\002\ufffd" +
+    "\011\ufffd\013\ufffd\014\ufffd\001\002\000\010\005\022\006" +
+    "\021\012\027\001\002\000\016\004\ufff6\005\ufff6\006\ufff6" +
+    "\007\ufff6\010\ufff6\012\ufff6\001\002\000\012\002\001\011" +
+    "\001\013\001\014\001\001\002\000\004\002\000\001\002" +
+    "" });
 
   /** Access to parse-action table. */
   @Override
@@ -51,7 +75,15 @@ public class parser
   /** {@code reduce_goto} table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\006\000\004\002\004\001\001\000\002\001\001\000" +
+    "\000\027\000\014\002\005\003\004\004\007\005\012\006" +
+    "\010\001\001\000\002\001\001\000\002\001\001\000\012" +
+    "\003\027\004\007\005\012\006\010\001\001\000\010\004" +
+    "\025\005\012\006\010\001\001\000\004\007\017\001\001" +
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
+    "\004\006\016\001\001\000\004\006\015\001\001\000\002" +
+    "\001\001\000\002\001\001\000\002\001\001\000\006\005" +
+    "\023\006\010\001\001\000\006\005\022\006\010\001\001" +
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001" });
 
@@ -87,7 +119,7 @@ public class parser
   public int start_state() {return 0;}
   /** Indicates start production. */
   @Override
-  public int start_production() {return 0;}
+  public int start_production() {return 1;}
 
   /** {@code EOF} Symbol index. */
   @Override
@@ -161,7 +193,7 @@ class CUP$parser$actions {
         this.parser = parser;
     }
 
-    /** Method with the actual generated action code for actions 0 to 1. */
+    /** Method with the actual generated action code for actions 0 to 13. */
     public final java_cup.runtime.Symbol CUP$parser$do_action_part00000000(
             int                        CUP$parser$act_num,
             java_cup.runtime.lr_parser CUP$parser$parser,
@@ -174,7 +206,16 @@ class CUP$parser$actions {
         /* select the action based on the action number */
         switch (CUP$parser$act_num) {
         /*. . . . . . . . . . . . . . . . . . . .*/
-        case 0: // $START ::= program EOF 
+        case 0: // expr_list ::= expr_list expr_part 
+            {
+                Object RESULT = null;
+
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr_list",0, CUP$parser$stack.elementAt(CUP$parser$top-1), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 1: // $START ::= expr_list EOF 
             {
                 Object RESULT = null;
                 int start_valleft = CUP$parser$stack.elementAt(CUP$parser$top-1).left;
@@ -188,11 +229,157 @@ class CUP$parser$actions {
             return CUP$parser$result;
 
         /*. . . . . . . . . . . . . . . . . . . .*/
-        case 1: // program ::= OPEN_PAREN IDENTIFIER CLOSE_PAREN 
+        case 2: // expr_list ::= expr_part 
             {
                 Object RESULT = null;
 
-                CUP$parser$result = parser.getSymbolFactory().newSymbol("program",0, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr_list",0, CUP$parser$stack.peek(), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 3: // NT$0 ::= 
+            {
+                Object RESULT = null;
+                int eleft = CUP$parser$stack.peek().left;
+                int eright = CUP$parser$stack.peek().right;
+                Integer e = CUP$parser$stack.peek().<Integer> value();
+ System.out.println(" = " + e); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("NT$0",5, CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 4: // expr_part ::= expr NT$0 SEMI 
+            {
+                Object RESULT = null;
+                // propagate RESULT from NT$0
+                RESULT = CUP$parser$stack.elementAt(CUP$parser$top-1).<Object> value();
+                int eleft = CUP$parser$stack.elementAt(CUP$parser$top-2).left;
+                int eright = CUP$parser$stack.elementAt(CUP$parser$top-2).right;
+                Integer e = CUP$parser$stack.elementAt(CUP$parser$top-2).<Integer> value();
+
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr_part",1, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 5: // expr ::= expr PLUS factor 
+            {
+                Integer RESULT = null;
+                int eleft = CUP$parser$stack.elementAt(CUP$parser$top-2).left;
+                int eright = CUP$parser$stack.elementAt(CUP$parser$top-2).right;
+                Integer e = CUP$parser$stack.elementAt(CUP$parser$top-2).<Integer> value();
+                int fleft = CUP$parser$stack.peek().left;
+                int fright = CUP$parser$stack.peek().right;
+                Integer f = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(e.intValue() + f.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr",2, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 6: // expr ::= expr MINUS factor 
+            {
+                Integer RESULT = null;
+                int eleft = CUP$parser$stack.elementAt(CUP$parser$top-2).left;
+                int eright = CUP$parser$stack.elementAt(CUP$parser$top-2).right;
+                Integer e = CUP$parser$stack.elementAt(CUP$parser$top-2).<Integer> value();
+                int fleft = CUP$parser$stack.peek().left;
+                int fright = CUP$parser$stack.peek().right;
+                Integer f = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(e.intValue() - f.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr",2, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 7: // expr ::= factor 
+            {
+                Integer RESULT = null;
+                int fleft = CUP$parser$stack.peek().left;
+                int fright = CUP$parser$stack.peek().right;
+                Integer f = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(f.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("expr",2, CUP$parser$stack.peek(), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 8: // factor ::= factor TIMES term 
+            {
+                Integer RESULT = null;
+                int fleft = CUP$parser$stack.elementAt(CUP$parser$top-2).left;
+                int fright = CUP$parser$stack.elementAt(CUP$parser$top-2).right;
+                Integer f = CUP$parser$stack.elementAt(CUP$parser$top-2).<Integer> value();
+                int tleft = CUP$parser$stack.peek().left;
+                int tright = CUP$parser$stack.peek().right;
+                Integer t = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(f.intValue() * t.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("factor",3, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 9: // factor ::= factor DIVIDE term 
+            {
+                Integer RESULT = null;
+                int fleft = CUP$parser$stack.elementAt(CUP$parser$top-2).left;
+                int fright = CUP$parser$stack.elementAt(CUP$parser$top-2).right;
+                Integer f = CUP$parser$stack.elementAt(CUP$parser$top-2).<Integer> value();
+                int tleft = CUP$parser$stack.peek().left;
+                int tright = CUP$parser$stack.peek().right;
+                Integer t = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(f.intValue() / t.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("factor",3, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 10: // factor ::= term 
+            {
+                Integer RESULT = null;
+                int tleft = CUP$parser$stack.peek().left;
+                int tright = CUP$parser$stack.peek().right;
+                Integer t = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = new Integer(t.intValue()); 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("factor",3, CUP$parser$stack.peek(), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 11: // term ::= LPAREN expr RPAREN 
+            {
+                Integer RESULT = null;
+                int eleft = CUP$parser$stack.elementAt(CUP$parser$top-1).left;
+                int eright = CUP$parser$stack.elementAt(CUP$parser$top-1).right;
+                Integer e = CUP$parser$stack.elementAt(CUP$parser$top-1).<Integer> value();
+                 RESULT = e; 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("term",4, CUP$parser$stack.elementAt(CUP$parser$top-2), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 12: // term ::= NUMBER 
+            {
+                Integer RESULT = null;
+                int nleft = CUP$parser$stack.peek().left;
+                int nright = CUP$parser$stack.peek().right;
+                Integer n = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = n; 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("term",4, CUP$parser$stack.peek(), CUP$parser$stack.peek(), RESULT);
+            }
+            return CUP$parser$result;
+
+        /*. . . . . . . . . . . . . . . . . . . .*/
+        case 13: // term ::= ID 
+            {
+                Integer RESULT = null;
+                int ileft = CUP$parser$stack.peek().left;
+                int iright = CUP$parser$stack.peek().right;
+                Integer i = CUP$parser$stack.peek().<Integer> value();
+                 RESULT = i; 
+                CUP$parser$result = parser.getSymbolFactory().newSymbol("term",4, CUP$parser$stack.peek(), CUP$parser$stack.peek(), RESULT);
             }
             return CUP$parser$result;
 

@@ -57,11 +57,6 @@ public class ParserWrapper {
 			System.exit(0);
 		}
 		if (argv_alist.contains("--parse")) {
-			//if (argv.length == 1) {
-			//	System.out.println("Need the path to the file");
-			//	System.exit(1);
-			//}
-			//String name = argv[1].split("\\.")[0];
 			String[] temp = removePostfix(input_source);
 			String input_source_without_postfix = temp[0];
 			String postfix = temp[1];
@@ -83,7 +78,6 @@ public class ParserWrapper {
 			String absolute_solution_path = pwd + "/" + input_source_without_postfix + ".parsed";
 			absolute_solution_path = absolute_solution_path.replace('/', '\\');
 			try {
-				// TODO: the scanner that we build (jflex) needs to implement sym and java_cup.runtime.scanner
 				XiLexer x = new XiLexer(new FileReader(absolute_source_path));
 				parser p = new parser(x);
 				Object result = p.parse().value;
@@ -91,7 +85,6 @@ public class ParserWrapper {
 			catch (Exception e) {
 				e.printStackTrace();
 				return;
-				//System.exit(1);
 			}
 			
 		}

@@ -19,7 +19,7 @@ public class LexerWrapper {
 			while (s.sym != sym.EOF) {
 //				System.out.println(s.toString());
 				writer.write(s.toString() + "\n");
-				if (s.sym == sym.ERROR) break;
+				//if (s.sym == sym.ERROR) break;
 				s = xiLexer.next_token();
 			}
 			writer.close();
