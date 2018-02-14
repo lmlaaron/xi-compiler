@@ -18,7 +18,7 @@ terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
-nonterminal String program, use_list, use, method_list, method;
+nonterminal Node program, use_list, use, method_list, method;
 
 
 start with program;
@@ -30,17 +30,17 @@ start with program;
 
 
 program   ::= use_list:ul method_list:ml
-              {: System.out.println("((" + ul + ")" + "(" + ml + "))"); :};
+              {: System.out.println(new Node(ul, ml)); :};
 use_list  ::= use_list:ul use:u
-              {: RESULT = ul + u; :}
+              {: ul.addNode(u); RESULT = ul; :}
             | use:u
-              {: RESULT = u; :};
+              {: RESULT = new Node(u); :};
 
 use       ::= USE IDENTIFIER:id
-            {: RESULT = "(use " + id + ")"; :};
+            {: RESULT = new Node(new Node("use"), new Node(id)); :};
 
 method_list ::= method_list:ml method:m
-                {: RESULT = ml + m; :}
+                {: ml.addNode(m); RESULT = ml; :}
               | method:m
                 {: RESULT = m; :};
 
@@ -64,3 +64,7 @@ array_type ::= array_type OPEN_BRACKET CLOSE_BRACKET
              | primitive_type OPEN_BRACKET CLOSE_BRACKET
 nothing     ::= /* placeholder for epsilon */;
 block       ::= OPEN
+                {: RESULT = new Node(m); :};
+// Not implemented ..... TODO
+method  ::= UNDERSCORE
+            {: RESULT = new Node("_____"); :};
