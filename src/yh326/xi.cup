@@ -13,12 +13,19 @@ terminal INT, BOOL;
 terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE;
+  COLON, COMMA, SEMICOLON, UNDERSCORE, EOF;
 
 terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
-nonterminal Node program, use_list, use, method_list, method;
+nonterminal Node program, use_list, use, method_list, method,
+                 method_args, var_decl_list, method_retvals,
+                 type, primitive_type, array_type, block, stmt_list,
+                 stmt, var_decl, assignment, lhs, expr, unary_op,
+                 binary_op, value, literal, array_literal, literal_list,
+                 length_statement, return_statement, method_call,
+                 expr_list, nothing
+                 ;
 
 
 start with program;
@@ -29,42 +36,85 @@ start with program;
   OPEN_BRACE IDENTIFIER OPEN_PAREN STRING_LITERAL CLOSE_PAREN CLOSE_BRACE;*/
 
 
-program   ::= use_list:ul method_list:ml
-              {: System.out.println(new Node(ul, ml)); :};
-use_list  ::= use_list:ul use:u
-              {: ul.addNode(u); RESULT = ul; :}
-            | use:u
-              {: RESULT = new Node(u); :};
+program          ::= use_list:ul method_list:ml
+                     {: System.out.println(new Node(ul, ml)); :};
+use_list         ::= use_list:ul use:u
+                     {: ul.addNode(u); RESULT = ul; :}
+                   | use:u
+                     {: RESULT = new Node(u); :};
 
-use       ::= USE IDENTIFIER:id
-            {: RESULT = new Node(new Node("use"), new Node(id)); :};
+use              ::= USE IDENTIFIER:id
+                     {: RESULT = new Node(new Node("use"), new Node(id)); :};
 
-method_list ::= method_list:ml method:m
-                {: ml.addNode(m); RESULT = ml; :}
-              | method:m
-                {: RESULT = m; :};
+method_list      ::= method_list:ml method:m
+                     {: ml.addNode(m); RESULT = ml; :}
+                   | method:m
+                     {: RESULT = new Node(m); :};
 
 // Not implemented ..... TODO
-method  ::= IDENTIFIER method_args method_retvals block
-            {: RESULT = "_____"; :};
+method           ::= IDENTIFIER method_args method_retvals block
+                     {: RESULT = "_____"; :};
 
-method_args ::= OPEN_PAREN var_decl_list CLOSE_PAREN
-var_decl_list ::= var_decl COMMA var_decl_list //<-- for now, allow trailing commas
-                | var_decl
-                | nothing;
-var_decl ::= IDENTIFIER COLON type;
-method_retvals ::= type COMMA method_retvals
-                 | type
-                 | nothing;
-primitive_type ::= INT
-                 | BOOL;
-type ::= primitive_type
-       | array_type
-array_type ::= array_type OPEN_BRACKET CLOSE_BRACKET
-             | primitive_type OPEN_BRACKET CLOSE_BRACKET
-nothing     ::= /* placeholder for epsilon */;
-block       ::= OPEN
-                {: RESULT = new Node(m); :};
-// Not implemented ..... TODO
-method  ::= UNDERSCORE
-            {: RESULT = new Node("_____"); :};
+method_args      ::= OPEN_PAREN var_decl_list CLOSE_PAREN;
+var_decl_list    ::= var_decl COMMA var_decl_list //<-- for now, allow trailing commas
+                   | var_decl
+                   | nothing;
+var_decl         ::= IDENTIFIER COLON type;
+method_retvals   ::= type COMMA method_retvals
+                   | type
+                   | nothing;
+primitive_type   ::= INT
+                   | BOOL;
+type             ::= primitive_type
+                   | array_type;
+array_type       ::= array_type OPEN_BRACKET CLOSE_BRACKET
+                   | primitive_type OPEN_BRACKET CLOSE_BRACKET;
+nothing          ::= /* placeholder for epsilon */;
+block            ::= OPEN_BRACE stmt_list CLOSE_BRACE;
+stmt_list        ::= stmt stmt_list
+                   | nothing;
+stmt             ::= stmt SEMICOLON   //<-- for now, any number of semicolons are allowed
+                   | var_decl
+                   | block
+                   | assignment
+                   | method_call
+                   | return_statement
+                   | length_statement;
+assignment       ::= lhs GETS expr;
+lhs              ::= var_decl
+                   | IDENTIFIER; //TODO: array index access?
+expr             ::= unary_op expr
+                   | expr binary_op expr
+                   | OPEN_PAREN expr CLOSE_PAREN
+                   | value;
+unary_op         ::= NOT;     //TODO: arithmetic negation (minus)
+binary_op        ::= PLUS
+                   | MINUS
+                   | TIMES
+                   | DIVIDE
+                   | MODULO
+                   | LT
+                   | GT
+                   | LEQ
+                   | GEQ
+                   | AND
+                   | OR
+                   | EQUAL
+                   | NOT_EQUAL
+                   | TIMES_SHIFT;
+value            ::= IDENTIFIER
+                   | literal;    //TODO: array index access?
+literal          ::= INTEGER_LITERAL
+                   | STRING_LITERAL
+                   | CHARACTER_LITERAL
+                   | array_literal;
+array_literal    ::= OPEN_BRACE literal_list CLOSE_BRACE;
+literal_list     ::= literal COMMA literal_list   //<-- for now, allow trailing commas
+                   | literal
+                   | nothing;
+method_call      ::= IDENTIFIER OPEN_PAREN expr_list CLOSE_PAREN;
+expr_list        ::= expr COMMA expr_list         //<-- for now, allow trailing commas
+                   | expr
+                   | nothing;
+return_statement ::= RETURN expr;
+length_statement ::= LENGTH OPEN_PAREN expr CLOSE_PAREN;
