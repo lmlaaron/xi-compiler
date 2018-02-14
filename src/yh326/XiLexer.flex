@@ -1,144 +1,112 @@
 import java_cup.runtime.*;
-/*
-  This example comes from a short article series in the Linux 
-  Gazette by Richard A. Sevenich and Christopher Lopes, titled
-  "Compiler Construction Tools". The article series starts at
 
-  http://www.linuxgazette.com/issue39/sevenich.html
-
-  Small changes and updates to newest JFlex+Cup versions 
-  by Gerwin Klein
-*/
-
-/*
-  Commented By: Christopher Lopes
-  File Name: lcalc.flex
-  To Create: > jflex lcalc.flex
-
-  and then after the parser is created
-  > javac Lexer.java
-*/
-   
-/* --------------------------Usercode Section------------------------ */
-import java_cup.runtime.*;
-      
 %%
-   
-/* -----------------Options and Declarations Section----------------- */
-   
-/* 
-   The name of the class JFlex will create will be Lexer.
-   Will write the code to the file Lexer.java. 
-*/
+
 %public
 %class XiLexer
 %implements sym
 %function next_token
-/*
-  The current line number can be accessed with the variable yyline
-  and the current column number with the variable yycolumn.
-*/
+
+%unicode
+
 %line
 %column
-    
-/* 
-   Will switch to a CUP compatibility mode to interface with a CUP
-   generated parser.
-*/
+
 %cup
-   
-/*
-  Declarations
-   
-  Code between %{ and %}, both of which must be at the beginning of a
-  line, will be copied letter to letter into the lexer class source.
-  Here you declare member variables and functions that are used inside
-  scanner actions.  
-*/
-%{   
-    /* To create a new java_cup.runtime.Symbol with information about
-       the current token, the token will have no value in this
-       case. */
-    private Symbol symbol(int type) {
-        return new Symbol(type, yyline, yycolumn);
-    }
-    
-    /* Also creates a new java_cup.runtime.Symbol with information
-       about the current token, but this object has a value. */
+%cupdebug
+
+%{
+    StringBuilder string = new StringBuilder();
+    int column = 0;
+
     private Symbol symbol(int type, Object value) {
-        return new Symbol(type, yyline, yycolumn, value);
+        return new XiSymbol(type, value, yyline+1, yycolumn+1);
+    }
+
+    private Symbol symbol(int type, Object value, int line, int column) {
+        return new XiSymbol(type, value, line+1, column+1);
     }
 %}
-   
 
-/*
-  Macro Declarations
-  
-  These declarations are regular expressions that will be used latter
-  in the Lexical Rules Section.  
-*/
-   
-/* A line terminator is a \r (carriage return), \n (line feed), or
-   \r\n. */
+
+/* main character classes */
 LineTerminator = \r|\n|\r\n
-   
-/* White space is a line terminator, space, tab, or line feed. */
-WhiteSpace     = {LineTerminator} | [ \t\f]
-   
-/* A literal integer is is a number beginning with a number between
-   one and nine followed by zero or more numbers between zero and nine
-   or just a zero.  */
-dec_int_lit = 0 | [1-9][0-9]*
-   
-/* A identifier integer is a word beginning a letter between A and
-   Z, a and z, or an underscore followed by zero or more letters
-   between A and Z, a and z, zero and nine, or an underscore. */
-dec_int_id = [A-Za-z_][A-Za-z_0-9]*
-   
+InputCharacter = [^\r\n]
+Whitespace = [ \t\f\r\n]
+Letter = [a-zA-Z]
+Digit = [0-9]
+HexDigit =[0-9a-fA-F]
+Identifier = {Letter}({Digit}|{Letter}|_|')*
+Integer = "0"|[1-9]{Digit}*
+Comment = "//" {InputCharacter}* {LineTerminator}?
+
+%state YYSTRING, CHARLITERAL
+
 %%
-/* ------------------------Lexical Rules Section---------------------- */
-   
-/*
-   This section contains regular expressions and actions, i.e. Java
-   code, that will be executed when the scanner matches the associated
-   regular expression. */
-   
-   /* YYINITIAL is the state at which the lexer begins scanning.  So
-   these regular expressions will only be matched if the scanner is in
-   the start state YYINITIAL. */
-   
+
 <YYINITIAL> {
-   
-    /* Return the token SEMI declared in the class sym that was found. */
-    ";"                { return symbol(sym.SEMI); }
-   
-    /* Print the token found that was declared in the class sym and then
-       return it. */
-    "+"                { System.out.print(" + "); return symbol(sym.PLUS); }
-    "-"                { System.out.print(" - "); return symbol(sym.MINUS); }
-    "*"                { System.out.print(" * "); return symbol(sym.TIMES); }
-    "/"                { System.out.print(" / "); return symbol(sym.DIVIDE); }
-    "("                { System.out.print(" ( "); return symbol(sym.LPAREN); }
-    ")"                { System.out.print(" ) "); return symbol(sym.RPAREN); }
-   
-    /* If an integer is found print it out, return the token NUMBER
-       that represents an integer and the value of the integer that is
-       held in the string yytext which will get turned into an integer
-       before returning */
-    {dec_int_lit}      { System.out.print(yytext());
-                         return symbol(sym.NUMBER, new Integer(yytext())); }
-   
-    /* If an identifier is found print it out, return the token ID
-       that represents an identifier and the default value one that is
-       given to all identifiers. */
-    {dec_int_id}       { System.out.print(yytext());
-                         return symbol(sym.ID, new Integer(1));}
-   
-    /* Don't do anything if whitespace is found */
-    {WhiteSpace}       { /* just skip what was found, do nothing */ }   
+  "true"            { return symbol(TRUE,          yytext()); }
+  "false"           { return symbol(FALSE,         yytext()); }
+  "int"             { return symbol(INT,           yytext()); }
+  "bool"            { return symbol(BOOL,          yytext()); }
+
+  "if"              { return symbol(IF,            yytext()); }
+  "else"            { return symbol(ELSE,          yytext()); }
+  "while"           { return symbol(WHILE,         yytext()); }
+  // BREAK ???
+  "return"          { return symbol(RETURN,        yytext()); }
+  "use"             { return symbol(USE,           yytext()); }
+  "length"          { return symbol(LENGTH,        yytext()); }
+  "+"               { return symbol(PLUS,          yytext()); }
+  "-"               { return symbol(MINUS,         yytext()); }
+  "*"               { return symbol(TIMES,         yytext()); }
+  "*>>"             { return symbol(TIMES_SHIFT,   yytext()); }
+  "/"               { return symbol(DIVIDE,        yytext()); }
+  "%"               { return symbol(MODULO,        yytext()); }
+  "!"               { return symbol(NOT,           yytext()); }
+  "<"               { return symbol(LT,            yytext()); }
+  "<="              { return symbol(LEQ,           yytext()); }
+  ">"               { return symbol(GT,            yytext()); }
+  ">="              { return symbol(GEQ,           yytext()); }
+  "&"               { return symbol(AND,           yytext()); }
+  "|"               { return symbol(OR,            yytext()); }
+  "=="              { return symbol(EQUAL,         yytext()); }
+  "!="              { return symbol(NOT_EQUAL,     yytext()); }
+  "="               { return symbol(GETS,          yytext()); }
+  "["               { return symbol(OPEN_BRACKET,  yytext()); }
+  "]"               { return symbol(CLOSE_BRACKET, yytext()); }
+  "("               { return symbol(OPEN_PAREN,    yytext()); }
+  ")"               { return symbol(CLOSE_PAREN,   yytext()); }
+  "{"               { return symbol(OPEN_BRACE,    yytext()); }
+  "}"               { return symbol(CLOSE_BRACE,   yytext()); }
+  ":"               { return symbol(COLON,         yytext()); }
+  ","               { return symbol(COMMA,         yytext()); }
+  ";"               { return symbol(SEMICOLON,     yytext()); }
+  "_"               { return symbol(UNDERSCORE,    yytext()); }
+
+  {Identifier}      { return symbol(IDENTIFIER, "id " + yytext()); }
+  "\""              { yybegin(YYSTRING); column = yycolumn; string.setLength(0);}
+  \'                { yybegin(CHARLITERAL); column = yycolumn; }
+  {Integer}         { return symbol(INTEGER_LITERAL, "integer " + yytext()); }
+  {Whitespace}      { /* ignore */ }
+  {Comment}         { /* ignore */ }
+
 }
 
+<YYSTRING> {
+  \"                   { yybegin(YYINITIAL); return symbol(STRING_LITERAL, "string " + string, yyline, column);}
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, ": Unterminated string at end of line", yyline, column); }
+  \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
+  \\.|.                { string.append(yytext());}
+}
 
-/* No token was found for the input so through an error.  Print out an
-   Illegal character message with the illegal character that was found. */
-[^]                    { throw new Error("Illegal character <"+yytext()+">"); }
+<CHARLITERAL> {
+  \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
+  {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
+  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character " + (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character " + yytext().substring(0, yylength()-1), yyline, column);}
+  .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
+}
+
+  [^]                  { return symbol(ERROR, "error: unrecognized character: "+yytext()); }
+  <<EOF>>              { return symbol(EOF, yytext()); }

@@ -6,7 +6,7 @@ rm -rf $dir/src/$pkg/XiLexer.java*
 jflex $dir/src/$pkg/XiLexer.flex
 sed -i "1s/^/package $pkg;\n\n/" $dir/src/$pkg/XiLexer.java
 
-java -jar $dir/lib/java_cup.jar -interface < $dir/src/$pkg/XiParser_fake.cup
+java -jar $dir/lib/java_cup.jar -interface < $dir/src/$pkg/xi.cup
 #$dir/lib/cup -noexamples -V $dir/src/$pkg/XiParser.cup
 mv sym.java $dir/src/$pkg/
 mv parser.java $dir/src/$pkg/

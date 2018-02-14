@@ -1,11 +1,11 @@
 #!/bin/bash
-DIR=`cd $(dirname "$0"); pwd`
+dir=`cd $(dirname "$0"); pwd`
 if [[ $1 == "--help" ]]; then
     echo "TODO"
 elif [[ $1 == "--lex" ]]; then
-    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326.LexerWrapper $2
+    java -cp $dir/lib/java_cup.jar:$dir/bin/ yh326.LexerWrapper $2
 elif [[ $1 == "--parse" ]]; then
-    java -cp $DIR/lib/java_cup.jar:$DIR/bin/ yh326.ParserWrapper $1 $2
+    java -cp $dir/lib/java_cup.jar:$dir/bin/ yh326.ParserWrapper $1 $2
 else
     echo "Unrecognized argument"
 fi
