@@ -7,10 +7,12 @@ import polyglot.util.*;
 public class Node {
     private String value;
     private List<Node> children;
+    private boolean needParen;
 
     public Node(String value) {
         this.value = value;
         this.children = null;
+        this.needParen = false;
     }
 
     public Node(Node... nodes) {
@@ -21,8 +23,10 @@ public class Node {
         }
     }
 
-    public void addNode(Node node) {
-        children.add(node);
+    public void addNodes(Node... nodes) {
+        for (Node node : nodes) {
+            children.add(node);
+        }
     }
 
     public static void write(Node node) {
@@ -33,7 +37,10 @@ public class Node {
     }
 
     private static void writeRec(Node node, SExpPrinter printer) {
-        if (node.children == null) {
+        if (node == null) {
+            printer.startList();
+            printer.endList();
+        } else if (node.children == null) {
             printer.printAtom(node.value);
         } else {
             printer.startList();
