@@ -18,8 +18,8 @@ terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
-nonterminal Node program, use_star, use_list, use, method_star, method_list, method,
-                 method_args, var_decl_star, var_decl_list, method_retvals,
+nonterminal Node program, use_list, use, method_list, method,
+                 method_args, var_decl_list, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, var_decl, assignment, lhs, expr, unary_op,
                  binary_op, value, literal, array_literal, literal_list,
@@ -39,56 +39,63 @@ precedence left NOT; //<-- TODO: arithmetic negation (minus)
 
 start with program;
 
-program          ::= use_star:us method_star:ms
-                     {: Node.write(new Node(us, ms)); :};
+program          ::= use_list:ul method_list:ml
+                       {: Node.write(new Node(ul, ml)); :};
 
-use_star         ::= nothing
-                   | use_list:ul         {: RESULT = ul; :};
-use_list         ::= use_list:ul use:u   {: ul.addNodes(u); RESULT = ul; :}
-                   | use:u               {: RESULT = new Node(u); :};
+/* ================= USE ==================================================== */
+use_list         ::= use:u use_list:ul {: RESULT = new Node(u).addChildren(ul); :}
+                   | use:u             {: RESULT = new Node(u); :};
 use              ::= USE IDENTIFIER:id
-                     {: RESULT = new Node(new Node("use"), new Node(id)); :};
+                       {: RESULT = new Node(new Node("use"), new Node(id)); :};
 
-method_star      ::= nothing
-                   | method_list:ml            {: RESULT = ml; :};
-method_list      ::= method_list:ml method:m   {: ml.addNodes(m); RESULT = ml; :}
-                   | method:m                  {: RESULT = new Node(m); :};
-method           ::= IDENTIFIER:id method_args:args method_retvals:type block:b
-                     {: RESULT = new Node(new Node(id), new Node(args), new Node(type), b); :};
+/* ================= METHOD ================================================= */
+method_list      ::= method:m method_list:ml {: RESULT = new Node(m).addChildren(ml); :}
+                   | method:m                {: RESULT = new Node(m); :};
+method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
+                       {: RESULT = new Node(new Node(id), args, mr, b); :};
+method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
+                       {: RESULT = vds; :};
 
-method_args      ::= OPEN_PAREN var_decl_star:vds CLOSE_PAREN
-                     {: RESULT = vds; :};
-var_decl_star    ::= nothing
-                   | var_decl_list:vdl  {: RESULT = vdl; :};
-var_decl_list    ::= var_decl_list:vdl COMMA var_decl:vd  //<-- for now, allow trailing commas
-                              {: vdl.addNodes(vd); RESULT = vdl; :}
-                   | var_decl:vd {: RESULT = vd; :};
-var_decl         ::= IDENTIFIER:id COLON type
-                     {: RESULT = new Node(new Node(id), new Node("type (change me)")); :};
-
-method_retvals   ::= type COMMA method_retvals
-                   | type
+/* ================= VARIABLE DECLARATION =================================== */
+var_decl_list    ::= var_decl:vd COMMA var_decl_list:vdl //<-- for now, allow trailing commas
+                       {: RESULT = new Node(vd).addChildren(vdl); :}
+                   | var_decl:vd {: RESULT = new Node(vd); :}
                    | nothing;
-primitive_type   ::= INT
-                   | BOOL;
-type             ::= primitive_type
-                   | array_type;
-array_type       ::= array_type OPEN_BRACKET CLOSE_BRACKET
-                   | primitive_type OPEN_BRACKET CLOSE_BRACKET;
-nothing          ::= /* placeholder for epsilon */;
-block            ::= OPEN_BRACE stmt_list CLOSE_BRACE;
-stmt_list        ::= stmt stmt_list
+var_decl         ::= IDENTIFIER:id COLON type:type
+                       {: RESULT = new Node(new Node(id), type); :};
+
+/* ================= TYPE =================================================== */
+type             ::= primitive_type:pt  {: RESULT = pt; :}
+                   | array_type:at      {: RESULT = at; :};
+primitive_type   ::= INT                {: RESULT = new Node("int"); :}
+                   | BOOL               {: RESULT = new Node("bool"); :};
+array_type       ::= array_type:at OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), at); :}
+                   | primitive_type:pt OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), pt); :};
+
+/* ================= RETVAL ================================================= */
+method_retvals   ::= COLON retvals:rv   {: RESULT = rv; :}
                    | nothing;
-stmt             ::= stmt SEMICOLON   //<-- for now, any number of semicolons are allowed
-                   | var_decl
+retvals          ::= type:t COMMA retvals:rv {: RESULT = new Node(t).addChildren(rv); :}
+                   | type:t                  {: RESULT = new Node(t); :};
+
+/* ================= BLOCK ================================================== */
+block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
+                       {: RESULT = sl; :};
+stmt_list        ::= stmt:st stmt_list:sl
+                       {: RESULT = new Node(st).addChildren(sl); :}
+                   | nothing;
+stmt             ::= stmt:st SEMICOLON      {: RESULT = st; :}
+                   | var_decl:vd            {: RESULT = vd; :}
                    | block
-                   | assignment
+                   | assignment:as          {: RESULT = as; :}
                    | method_call
                    | return_statement
                    | length_statement;
-assignment       ::= lhs GETS expr;
-lhs              ::= var_decl
-                   | IDENTIFIER; //TODO: array index access?
+assignment       ::= lhs:lhs GETS expr:expr {: RESULT = new Node(new Node("="), lhs, expr); :};
+lhs              ::= var_decl:vd            {: RESULT = vd; :}
+                   | IDENTIFIER:id          {: RESULT = new Node(id); :}; //TODO: array index access?
 expr             ::= unary_op expr
                    | expr binary_op expr
                    | OPEN_PAREN expr CLOSE_PAREN
@@ -124,3 +131,5 @@ expr_list        ::= expr COMMA expr_list         //<-- for now, allow trailing 
                    | nothing;
 return_statement ::= RETURN expr;
 length_statement ::= LENGTH OPEN_PAREN expr CLOSE_PAREN;
+
+nothing          ::= /* placeholder for epsilon */;

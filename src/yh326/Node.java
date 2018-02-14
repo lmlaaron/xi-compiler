@@ -23,14 +23,23 @@ public class Node {
         }
     }
 
-    public void addNodes(Node... nodes) {
+    public Node addNodes(Node... nodes) {
         for (Node node : nodes) {
             children.add(node);
         }
+        return this;
+    }
+
+    public Node addChildren(Node node) {
+        if (node == null) return this;
+        for (Node child : node.children) {
+            children.add(child);
+        }
+        return this;
     }
 
     public static void write(Node node) {
-        OptimalCodeWriter writer = new OptimalCodeWriter(System.out, 80);
+        OptimalCodeWriter writer = new OptimalCodeWriter(System.out, 40);
         SExpPrinter printer = new CodeWriterSExpPrinter​(writer);
         writeRec(node, printer);
         printer.close();
