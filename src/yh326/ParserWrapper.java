@@ -18,8 +18,11 @@ public class ParserWrapper {
 
 	public static void main(String[] argv) {
 		ArrayList<String> argv_alist = new ArrayList<String> (Arrays.asList(argv));
-		String input_source = "";
-		String diag_dump_path = "";
+		String input_source = System.getProperty("user.dir");
+		input_source = input_source.replace('\\', '/');
+		String diag_dump_path = System.getProperty("user.dir");
+		diag_dump_path = diag_dump_path.replace('\\', '/');
+		String source_files = argv[argv.length - 1];
 		if (argv_alist.contains("--help")) {
 			System.out.println("option --help to show this synopsis.");
 			System.out.println("option --lex to show the result from lexical analysis.");
@@ -57,13 +60,8 @@ public class ParserWrapper {
 			System.exit(0);
 		}
 		if (argv_alist.contains("--parse")) {
-			//if (argv.length == 1) {
-			//	System.out.println("Need the path to the file");
-			//	System.exit(1);
-			//}
-			//String name = argv[1].split("\\.")[0];
-			String[] temp = removePostfix(input_source);
-			String input_source_without_postfix = temp[0];
+			String[] temp = removePostfix(source_files);
+			String source_files_without_postfix = temp[0];
 			String postfix = temp[1];
 			
 			PostfixType type;
@@ -78,10 +76,12 @@ public class ParserWrapper {
 				System.exit(1);
 			}
 			
-			String pwd = System.getProperty("user.dir");
-			String absolute_source_path = pwd + "/" + input_source;
-			String absolute_solution_path = pwd + "/" + input_source_without_postfix + ".parsed";
-			absolute_solution_path = absolute_solution_path.replace('/', '\\');
+			//String pwd = System.getProperty("user.dir");
+			String absolute_source_path = input_source + "/" + source_files;
+			String absolute_solution_path = input_source + "/" + source_files_without_postfix + ".parsed";
+			if (System.getProperty("os.name") == "Windows 10") {
+				absolute_solution_path = absolute_solution_path.replace('/', '\\');
+			}
 			try {
 				// TODO: the scanner that we build (jflex) needs to implement sym and java_cup.runtime.scanner
 				XiLexer x = new XiLexer(new FileReader(absolute_source_path));
