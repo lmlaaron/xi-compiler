@@ -18,8 +18,8 @@ terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
-nonterminal Node program, use_list, use, method_list, method,
-                 method_args, var_decl_list, method_retvals,
+nonterminal Node program, use_star, use_list, use, method_star, method_list, method,
+                 method_args, var_decl_star, var_decl_list, method_retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, var_decl, assignment, lhs, expr, unary_op,
                  binary_op, value, literal, array_literal, literal_list,
@@ -39,30 +39,33 @@ precedence left NOT; //<-- TODO: arithmetic negation (minus)
 
 start with program;
 
-program          ::= use_list:ul method_list:ml
-                     {: System.out.println(new Node(ul, ml)); :};
-use_list         ::= use_list:ul use:u
-                     {: ul.addNode(u); RESULT = ul; :}
-                   | use:u
-                     {: RESULT = new Node(u); :};
+program          ::= use_star:us method_star:ms
+                     {: Node.write(new Node(us, ms)); :};
 
+use_star         ::= nothing
+                   | use_list:ul         {: RESULT = ul; :};
+use_list         ::= use_list:ul use:u   {: ul.addNodes(u); RESULT = ul; :}
+                   | use:u               {: RESULT = new Node(u); :};
 use              ::= USE IDENTIFIER:id
                      {: RESULT = new Node(new Node("use"), new Node(id)); :};
 
-method_list      ::= method_list:ml method:m
-                     {: ml.addNode(m); RESULT = ml; :}
-                   | method:m
-                     {: RESULT = new Node(m); :};
+method_star      ::= nothing
+                   | method_list:ml            {: RESULT = ml; :};
+method_list      ::= method_list:ml method:m   {: ml.addNodes(m); RESULT = ml; :}
+                   | method:m                  {: RESULT = new Node(m); :};
+method           ::= IDENTIFIER:id method_args:args method_retvals:type block:b
+                     {: RESULT = new Node(new Node(id), new Node(args), new Node(type), b); :};
 
-// Not implemented ..... TODO
-method           ::= IDENTIFIER method_args method_retvals block
-                     {: RESULT = new Node("Change me Yuan!"); :};
+method_args      ::= OPEN_PAREN var_decl_star:vds CLOSE_PAREN
+                     {: RESULT = vds; :};
+var_decl_star    ::= nothing
+                   | var_decl_list:vdl  {: RESULT = vdl; :};
+var_decl_list    ::= var_decl_list:vdl COMMA var_decl:vd  //<-- for now, allow trailing commas
+                              {: vdl.addNodes(vd); RESULT = vdl; :}
+                   | var_decl:vd {: RESULT = vd; :};
+var_decl         ::= IDENTIFIER:id COLON type
+                     {: RESULT = new Node(new Node(id), new Node("type (change me)")); :};
 
-method_args      ::= OPEN_PAREN var_decl_list CLOSE_PAREN;
-var_decl_list    ::= var_decl COMMA var_decl_list //<-- for now, allow trailing commas
-                   | var_decl
-                   | nothing;
-var_decl         ::= IDENTIFIER COLON type;
 method_retvals   ::= type COMMA method_retvals
                    | type
                    | nothing;

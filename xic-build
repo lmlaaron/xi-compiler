@@ -12,4 +12,4 @@ mv sym.java $dir/src/$pkg/
 mv parser.java $dir/src/$pkg/
 javac -cp $dir/lib/java_cup.jar:$dir/src/ -d $dir/bin/ $dir/src/$pkg/LexerWrapper.java
 
-javac -cp $dir/lib/java_cup.jar:$dir/src/ -d $dir/bin/ $dir/src/$pkg/ParserWrapper.java
+javac -cp $dir/lib/java_cup.jar:$dir/lib/src/:$dir/src/ -d $dir/bin/ $dir/src/$pkg/ParserWrapper.java

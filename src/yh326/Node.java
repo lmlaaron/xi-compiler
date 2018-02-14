@@ -1,14 +1,18 @@
 package yh326;
 
 import java.util.*;
+import edu.cornell.cs.cs4120.util.*;
+import polyglot.util.*;
 
 public class Node {
-    public String value;
-    public List<Node> children;
+    private String value;
+    private List<Node> children;
+    private boolean needParen;
 
     public Node(String value) {
         this.value = value;
         this.children = null;
+        this.needParen = false;
     }
 
     public Node(Node... nodes) {
@@ -19,8 +23,32 @@ public class Node {
         }
     }
 
-    public void addNode(Node node) {
-        children.add(node);
+    public void addNodes(Node... nodes) {
+        for (Node node : nodes) {
+            children.add(node);
+        }
+    }
+
+    public static void write(Node node) {
+        OptimalCodeWriter writer = new OptimalCodeWriter(System.out, 80);
+        SExpPrinter printer = new CodeWriterSExpPrinter​(writer);
+        writeRec(node, printer);
+        printer.close();
+    }
+
+    private static void writeRec(Node node, SExpPrinter printer) {
+        if (node == null) {
+            printer.startList();
+            printer.endList();
+        } else if (node.children == null) {
+            printer.printAtom(node.value);
+        } else {
+            printer.startList();
+            for (Node child : node.children) {
+                writeRec(child, printer);
+            }
+            printer.endList();
+        }
     }
 
     public String toString() {
