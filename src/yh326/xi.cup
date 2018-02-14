@@ -13,7 +13,7 @@ terminal INT, BOOL;
 terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE, EOF;
+  COLON, COMMA, SEMICOLON, UNDERSCORE;
 
 terminal TIMES_SHIFT, ERROR;
 
@@ -27,14 +27,17 @@ nonterminal Node program, use_list, use, method_list, method,
                  expr_list, nothing
                  ;
 
+/* precedence & associativity declarations */
+precedence left OR;
+precedence left AND;
+precedence left EQUAL, NOT_EQUAL;
+precedence left GT, LT, GEQ, LEQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
+precedence left NOT; //<-- TODO: arithmetic negation (minus)
+
 
 start with program;
-
-// Recognizes "Hello World!", but not much else.
-/*program ::= USE IDENTIFIER IDENTIFIER OPEN_PAREN IDENTIFIER COLON
-  INT OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET CLOSE_PAREN
-  OPEN_BRACE IDENTIFIER OPEN_PAREN STRING_LITERAL CLOSE_PAREN CLOSE_BRACE;*/
-
 
 program          ::= use_list:ul method_list:ml
                      {: System.out.println(new Node(ul, ml)); :};
@@ -53,7 +56,7 @@ method_list      ::= method_list:ml method:m
 
 // Not implemented ..... TODO
 method           ::= IDENTIFIER method_args method_retvals block
-                     {: RESULT = "_____"; :};
+                     {: RESULT = new Node("Change me Yuan!"); :};
 
 method_args      ::= OPEN_PAREN var_decl_list CLOSE_PAREN;
 var_decl_list    ::= var_decl COMMA var_decl_list //<-- for now, allow trailing commas
