@@ -2,9 +2,11 @@
 
 *.classpath
 *.project
-XiLexer.java
 *~
 *.lexed
+XiLexer.java
+parser.java
+sym.java
 
 # Compiled class file
 *.class

@@ -30,7 +30,7 @@ public class LexerWrapper {
 		}
 		return;
 	}
-	
+
 /*	public void writeLexed(String sourcePath) {
 		String pwd = System.getProperty("user.dir");
 		String completeSourcePath = pwd + "/" + sourcePath;
@@ -44,8 +44,8 @@ public class LexerWrapper {
 		}
 		String completeSolutionPath = pwd + "/" + solutionPath.toString();
 		try {
-			
+
 		}
-		
+
 	}
 */}
