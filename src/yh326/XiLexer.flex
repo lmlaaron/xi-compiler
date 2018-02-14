@@ -20,11 +20,15 @@ import java_cup.runtime.*;
     int column = 0;
 
     private Symbol symbol(int type, Object value) {
-        return new XiSymbol(type, value, yyline+1, yycolumn+1);
+        return new XiSymbol(type, null, value, yyline+1, yycolumn+1);
+    }
+
+    private Symbol symbol(int type, String typeString, Object value) {
+        return new XiSymbol(type, typeString, value, yyline+1, yycolumn+1);
     }
 
     private Symbol symbol(int type, Object value, int line, int column) {
-        return new XiSymbol(type, value, line+1, column+1);
+        return new XiSymbol(type, null, value, line+1, column+1);
     }
 %}
 
@@ -84,10 +88,11 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   ";"               { return symbol(SEMICOLON,     yytext()); }
   "_"               { return symbol(UNDERSCORE,    yytext()); }
 
-  {Identifier}      { return symbol(IDENTIFIER, "id " + yytext()); }
   "\""              { yybegin(YYSTRING); column = yycolumn; string.setLength(0);}
   \'                { yybegin(CHARLITERAL); column = yycolumn; }
-  {Integer}         { return symbol(INTEGER_LITERAL, "integer " + yytext()); }
+
+  {Identifier}      { return symbol(IDENTIFIER,      "id",      yytext()); }
+  {Integer}         { return symbol(INTEGER_LITERAL, "integer", yytext()); }
   {Whitespace}      { /* ignore */ }
   {Comment}         { /* ignore */ }
 
