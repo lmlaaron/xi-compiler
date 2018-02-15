@@ -165,7 +165,7 @@ expr_t5         ::= expr_t5:e1 t5op:o expr_t6:e2  {: RESULT = new Node(o,e1,e2);
 expr_t6         ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2); :}
                    | expr_t7:ee                   {: RESULT = ee; :};
 expr_t7         ::= t7op:o expr_t7:e                 {: RESULT = new Node(o,e); :}
-                   | expr_end:ee                   {: RESULT = ee; :};
+                   | expr_atom:ee                   {: RESULT = ee; :};
 
 expr_atom         ::= value:v                       {: RESULT = v; :}
                    | method_call:mc                {: RESULT = mc; :}
