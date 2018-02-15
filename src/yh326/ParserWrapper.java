@@ -31,11 +31,9 @@ public class ParserWrapper {
 		try {
 			XiLexer x = new XiLexer(new FileReader(filePath));
 			parser p = new parser(x);
-			PrintStream o = new PrintStream(new File(outputPath));
-	        PrintStream console = System.out;
-	        System.setOut(o);
-	        p.parse();
-	        System.setOut(console);
+			System.setOut(new PrintStream(new File(outputPath)));
+			p.parse();
+			System.setOut(System.out);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
