@@ -41,8 +41,9 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  unary_op, binary_op, value, array_literal, subscription,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
-                 unary_expr, binary_expr, expr_no_binary, expr_end, nothing
-                 ;
+                 unary_expr, binary_expr, expr_no_binary, expr_end, nothing,
+                 expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7,
+                 t1op, t2op, t3op, t4op, t5op, t6op, t7op ;
 
 /* precedence & associativity declarations */
 precedence left OR;
@@ -149,19 +150,47 @@ expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
                    | expr:e                        {: RESULT = new Node(e); :};
-expr             ::= binary_expr:be                {: RESULT = be; :}
-                   | expr_no_binary:enb            {: RESULT = enb; :};
-expr_no_binary   ::= unary_expr:ue                 {: RESULT = ue; :}
+expr             ::= expr_t1:t                {: RESULT = t; :};
+
+expr_t1         ::= expr_t1:e1 t1op:o expr_t2:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t2:ee                   {: RESULT = ee; :};
+expr_t2         ::= expr_t2:e1 t2op:o expr_t3:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t3:ee                   {: RESULT = ee; :};
+expr_t3         ::= expr_t3:e1 t3op:o expr_t4:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t4:ee                   {: RESULT = ee; :};
+expr_t4         ::= expr_t4:e1 t4op:o expr_t5:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t5:ee                   {: RESULT = ee; :};
+expr_t5         ::= expr_t5:e1 t5op:o expr_t6:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t6:ee                   {: RESULT = ee; :};
+expr_t6         ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t7:ee                   {: RESULT = ee; :};
+expr_t7         ::= t7op:o expr_t7:e                 {: RESULT = new Node(o,e); :}
                    | expr_end:ee                   {: RESULT = ee; :};
-// it is necessary to introduce unary, binary expr so that we can set their precedence
-unary_expr       ::= unary_op:uo expr_end:e        {: RESULT = new Node(uo, e); :};
-binary_expr      ::= expr:e1 binary_op:bo expr:e2  {: RESULT = new Node(bo, e1, e2); :};
+
 expr_end         ::= value:v                       {: RESULT = v; :}
                    | method_call:mc                {: RESULT = mc; :}
                    | length_statement:ls           {: RESULT = ls; :}
-                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = new Node(e); :};
+                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = e; :};
+
+t1op             ::= OR:o                          {: RESULT = new Node("|"); :};
+t2op             ::= AND:o                         {: RESULT = new Node("&"); :};
+t3op             ::= EQUAL:o                       {: RESULT = new Node("=="); :}
+                   | NOT_EQUAL:o                   {: RESULT = new Node("!="); :};
+t4op             ::= GT:o                          {: RESULT = new Node(">"); :}
+                   | LT:o                          {: RESULT = new Node("<"); :}
+                   | GEQ:o                          {: RESULT = new Node(">="); :}
+                   | LEQ:o                          {: RESULT = new Node("<="); :};
+t5op             ::= PLUS:o                          {: RESULT = new Node("+"); :}
+                   | MINUS:o                          {: RESULT = new Node("-"); :};
+t6op             ::= TIMES:o                          {: RESULT = new Node("*"); :}
+                   | DIVIDE:o                         {: RESULT = new Node("/"); :}
+                   | MODULO:o                        {: RESULT = new Node("%"); :}
+                   | TIMES_SHIFT:o                  {: RESULT = new Node("*>>"); :};
+t7op             ::= MINUS:o                        {: RESULT = new Node("-"); :}
+                   | NOT:o                          {: RESULT = new Node("!"); :};
 
 /* ================= OPERATION ============================================== */
+/*
 unary_op         ::= NOT                     {: RESULT = new Node("!"); :}
                    | MINUS                   {: RESULT = new Node("-"); :};
 binary_op        ::= PLUS                    {: RESULT = new Node("+"); :}
@@ -178,6 +207,7 @@ binary_op        ::= PLUS                    {: RESULT = new Node("+"); :}
                    | EQUAL                   {: RESULT = new Node("=="); :}
                    | NOT_EQUAL               {: RESULT = new Node("!="); :}
                    | TIMES_SHIFT             {: RESULT = new Node("*>>"); :};
+*/
 
 /* ================= LITERAL ================================================ */
 value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
