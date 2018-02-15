@@ -9,7 +9,7 @@ public class LexerWrapper {
         String filePath = sourcePath + "/" + filename;
 		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + ".lexed";
 		try {
-			XiLexer xiLexer = new XiLexer(new FileReader(filePath));
+			lexer xiLexer = new lexer(new FileReader(filePath));
 			FileWriter writer = new FileWriter(outputPath);
 			Symbol s = xiLexer.next_token();
 			while (s.sym != sym.EOF) {

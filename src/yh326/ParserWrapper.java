@@ -33,7 +33,7 @@ public class ParserWrapper {
 			outputPath = outputPath.replace('/', '\\');
 		}
 		try {
-			XiLexer x = new XiLexer(new FileReader(filePath));
+			lexer x = new lexer(new FileReader(filePath));
 			parser p = new parser(x);
 			System.setOut(new PrintStream(new File(outputPath)));
 			p.parse();

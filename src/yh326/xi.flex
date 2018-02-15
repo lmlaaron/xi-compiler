@@ -3,7 +3,7 @@ import java_cup.runtime.*;
 %%
 
 %public
-%class XiLexer
+%class lexer
 %implements sym
 %function next_token
 
@@ -105,14 +105,16 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
 <YYSTRING> {
   \"                   { yybegin(YYINITIAL); return symbol(STRING_LITERAL, "string", "" + string, yyline, column);}
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, ": Unterminated string at end of line", yyline, column); }
-  \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
+  \\x{HexDigit}{2}     { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
+  \\u{HexDigit}{4}     { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
   \\.|.                { string.append(yytext());}
 }
 
 <CHARLITERAL> {
   \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
-  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  \\x{HexDigit}{2}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  \\x{HexDigit}{4}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
   (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", yytext().substring(0, yylength()-1), yyline, column);}
   .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 }

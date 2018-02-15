@@ -4,6 +4,7 @@
 *.project
 *~
 *.lexed
+*.parsed
 XiLexer.java
 parser.java
 sym.java

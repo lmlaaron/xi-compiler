@@ -1,1 +1,2 @@
-zip -r submission.zip xic xic-build src tests -x "*.lexed"
+./clean
+zip -r submission.zip xic xic-build src tests -x

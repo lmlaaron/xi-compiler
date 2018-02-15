@@ -3,10 +3,9 @@ dir=`cd $(dirname "$0"); pwd`
 pkg=yh326
 cp=$dir/lib/java_cup.jar:$dir/lib/src/:$dir/src/
 
-rm -rf $dir/src/$pkg/XiLexer.java*
-jflex $dir/src/$pkg/XiLexer.flex
-sed -i "1s/^/package $pkg;\n\n/" $dir/src/$pkg/XiLexer.java
+rm -rf $dir/src/$pkg/lexer.java*
+jflex $dir/src/$pkg/xi.flex
+sed -i "1s/^/package $pkg;\n\n/" $dir/src/$pkg/lexer.java
 
-#java -jar $dir/lib/java_cup.jar -interface < $dir/src/$pkg/xi.cup
 $dir/lib/cup -interface -destdir $dir/src/$pkg/ $dir/src/$pkg/xi.cup
 javac -cp $cp -d $dir/bin/ $dir/src/$pkg/Main.java

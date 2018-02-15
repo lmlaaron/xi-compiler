@@ -10,8 +10,12 @@ parser code  {:
   public void report_fatal_error(String message, Object info) {
     if (info instanceof XiSymbol) {
       XiSymbol s = (XiSymbol) info;
-      String p = "" + s.getLine() + ":" + s.getColumn();
-      p += " error: Unexpected token " + s.value;
+      String p = "" + s.getLine() + ":" + s.getColumn() + " ";
+        if (s.type == sym.ERROR) {
+          p += s.value;
+        } else {
+          p += "error: Unexpected token " + s.value;
+        }
       System.out.println(p);
     }
   }
@@ -37,11 +41,11 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
-                 expr_list, expr_rec, expr, var, var_init_list,
-                 unary_op, binary_op, value, array_literal, subscription,
+                 expr_list, expr_rec, expr, var,
+                 value, array_literal, subscription,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
-                 unary_expr, binary_expr, expr_no_binary, expr_end, nothing,
+                 expr_end, nothing,
                  expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7,
                  t1op, t2op, t3op, t4op, t5op, t6op, t7op ;
 
@@ -91,10 +95,6 @@ var_decl_rec     ::= var_decl:vd COMMA var_decl_rec:vdr
                    | var_decl:vd             {: RESULT = new Node(vd); :};
 var_decl         ::= IDENTIFIER:id COLON type:type
                        {: RESULT = new Node(new Node(id), type); :};
-var_init_list    ::= var_decl_rec:vdr        {: RESULT = vdr.sub(); :}
-                   | var_decl_rec:vdr GETS expr:e
-                       {: RESULT = new Node(new Node("="), vdr.sub(), e); :};
-
 
 /* ================= TYPE =================================================== */
 type             ::= primitive_type:pt       {: RESULT = pt; :}
@@ -242,3 +242,4 @@ length_statement ::= LENGTH OPEN_PAREN expr:e CLOSE_PAREN
                        {: RESULT = new Node(new Node("length"), e); :};
 
 nothing          ::= /* placeholder for epsilon */;
+ERROR            ::= ;
