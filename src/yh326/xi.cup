@@ -41,7 +41,7 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
-                 expr_list, expr_rec, expr, var,
+                 expr_list, expr_rec, expr, var, box, boxes,
                  value, array_literal, subscription,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
@@ -101,10 +101,14 @@ type             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
 primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
                    | BOOL                    {: RESULT = new Node("bool"); :};
-array_type       ::= type:t OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), t); :}
-                   | type:t OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), t, e); :};
+box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null, e); :}
+                   | OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
+boxes            ::= box:b boxes:bs          {: RESULT = b.addHead(bs); :}
+                   | box:b                   {: RESULT = b; :};
+array_type       ::= primitive_type:pt boxes:bs
+                       {: RESULT = bs.addHead(pt); :};
 
 /* ================= RETVAL ================================================= */
 method_retvals   ::= COLON retvals:rv   {: RESULT = rv; :}
@@ -139,61 +143,56 @@ lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren
 var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
                    | var_decl:vd             {: RESULT = vd; :}
-                   | subscription:s          {: RESULT = s; :};
-subscription     ::= subscription:s OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), s, e); :}
-                   | IDENTIFIER:id OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), new Node(id), e); :};
+                   | IDENTIFIER:id boxes:bs  {: RESULT = bs.addHead(new Node(id)); :};
 
 /* ================= EXPRESSION ============================================= */
 expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
                    | expr:e                        {: RESULT = new Node(e); :};
-expr             ::= expr_t1:t                {: RESULT = t; :};
+expr             ::= expr_t1:t                     {: RESULT = t; :};
 
-expr_t1         ::= expr_t1:e1 t1op:o expr_t2:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t2:ee                   {: RESULT = ee; :};
-expr_t2         ::= expr_t2:e1 t2op:o expr_t3:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t3:ee                   {: RESULT = ee; :};
-expr_t3         ::= expr_t3:e1 t3op:o expr_t4:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t4:ee                   {: RESULT = ee; :};
-expr_t4         ::= expr_t4:e1 t4op:o expr_t5:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t5:ee                   {: RESULT = ee; :};
-expr_t5         ::= expr_t5:e1 t5op:o expr_t6:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t6:ee                   {: RESULT = ee; :};
-expr_t6         ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2); :}
-                   | expr_t7:ee                   {: RESULT = ee; :};
-expr_t7         ::= t7op:o expr_t7:e                 {: RESULT = new Node(o,e); :}
-                   | expr_atom:ee                   {: RESULT = ee; :};
+expr_t1          ::= expr_t1:e1 t1op:o expr_t2:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t2:ee                    {: RESULT = ee; :};
+expr_t2          ::= expr_t2:e1 t2op:o expr_t3:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t3:ee                    {: RESULT = ee; :};
+expr_t3          ::= expr_t3:e1 t3op:o expr_t4:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t4:ee                    {: RESULT = ee; :};
+expr_t4          ::= expr_t4:e1 t4op:o expr_t5:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t5:ee                    {: RESULT = ee; :};
+expr_t5          ::= expr_t5:e1 t5op:o expr_t6:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t6:ee                    {: RESULT = ee; :};
+expr_t6          ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2); :}
+                   | expr_t7:ee                    {: RESULT = ee; :};
+expr_t7          ::= t7op:o expr_t7:e              {: RESULT = new Node(o,e); :}
+                   | expr_atom:ee                  {: RESULT = ee; :};
 
-expr_atom         ::= value:v                       {: RESULT = v; :}
+expr_atom        ::= value:v                       {: RESULT = v; :}
                    | method_call:mc                {: RESULT = mc; :}
                    | length_statement:ls           {: RESULT = ls; :}
                    | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = e; :};
 
 /* ================= OPERATION ============================================== */
-
-t1op             ::= OR:o                          {: RESULT = new Node("|"); :};
-t2op             ::= AND:o                         {: RESULT = new Node("&"); :};
-t3op             ::= EQUAL:o                       {: RESULT = new Node("=="); :}
-                   | NOT_EQUAL:o                   {: RESULT = new Node("!="); :};
-t4op             ::= GT:o                          {: RESULT = new Node(">"); :}
-                   | LT:o                          {: RESULT = new Node("<"); :}
-                   | GEQ:o                          {: RESULT = new Node(">="); :}
-                   | LEQ:o                          {: RESULT = new Node("<="); :};
-t5op             ::= PLUS:o                          {: RESULT = new Node("+"); :}
-                   | MINUS:o                          {: RESULT = new Node("-"); :};
-t6op             ::= TIMES:o                          {: RESULT = new Node("*"); :}
-                   | DIVIDE:o                         {: RESULT = new Node("/"); :}
-                   | MODULO:o                        {: RESULT = new Node("%"); :}
-                   | TIMES_SHIFT:o                  {: RESULT = new Node("*>>"); :};
-t7op             ::= MINUS:o                        {: RESULT = new Node("-"); :}
-                   | NOT:o                          {: RESULT = new Node("!"); :};
+t1op             ::= OR:o                    {: RESULT = new Node("|"); :};
+t2op             ::= AND:o                   {: RESULT = new Node("&"); :};
+t3op             ::= EQUAL:o                 {: RESULT = new Node("=="); :}
+                   | NOT_EQUAL:o             {: RESULT = new Node("!="); :};
+t4op             ::= GT:o                    {: RESULT = new Node(">"); :}
+                   | LT:o                    {: RESULT = new Node("<"); :}
+                   | GEQ:o                   {: RESULT = new Node(">="); :}
+                   | LEQ:o                   {: RESULT = new Node("<="); :};
+t5op             ::= PLUS:o                  {: RESULT = new Node("+"); :}
+                   | MINUS:o                 {: RESULT = new Node("-"); :};
+t6op             ::= TIMES:o                 {: RESULT = new Node("*"); :}
+                   | DIVIDE:o                {: RESULT = new Node("/"); :}
+                   | MODULO:o                {: RESULT = new Node("%"); :}
+                   | TIMES_SHIFT:o           {: RESULT = new Node("*>>"); :};
+t7op             ::= MINUS:o                 {: RESULT = new Node("-"); :}
+                   | NOT:o                   {: RESULT = new Node("!"); :};
 
 /* ================= LITERAL ================================================ */
 value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
-                   | subscription:i                 {: RESULT = i; :}
+                   | IDENTIFIER:id boxes:b   {: RESULT = b.addHead(new Node(id)); :}
                    | INTEGER_LITERAL:il      {: RESULT = new Node(il); :}
                    | STRING_LITERAL:sl       {: RESULT = new Node("\"" + sl + "\""); :}
                    | CHARACTER_LITERAL:cl    {: RESULT = new Node("\'" + cl + "\'"); :}

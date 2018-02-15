@@ -25,6 +25,9 @@ public class Node {
         }
     }
 
+    /*
+    Add given nodes as children of this node.
+     */
     public Node addNodes(Node... nodes) {
         for (Node node : nodes) {
             children.add(node);
@@ -32,6 +35,9 @@ public class Node {
         return this;
     }
 
+    /*
+    Add children of the given node as children of this node.
+     */
     public Node addChildren(Node node) {
         if (node == null) return this;
         for (Node child : node.children) {
@@ -40,6 +46,9 @@ public class Node {
         return this;
     }
 
+    /*
+    Remove the most outer redundant paranthesis.
+     */
     public Node sub() {
         if (children == null) {
             return this;
@@ -48,6 +57,20 @@ public class Node {
         } else {
             return this;
         }
+    }
+
+    /*
+    Add the given node to the most left bottom position of the tree.
+    Note: this.children.get(0) is the root
+          this.children.get(1) is the first child
+     */
+    public Node addHead(Node node) {
+        Node cur = this;
+        while (cur.children.get(1) != null) {
+            cur = cur.children.get(1);
+        }
+        cur.children.set(1, node);
+        return this;
     }
 
     public static void write(Node node) {
