@@ -52,7 +52,7 @@ public class Node {
 
     public static void write(Node node) {
         OptimalCodeWriter writer = new OptimalCodeWriter(System.out, 40);
-        SExpPrinter printer = new CodeWriterSExpPrinter​(writer);
+        SExpPrinter printer = new CodeWriterSExpPrinter(writer);
         writeRec(node, printer);
         printer.close();
     }
