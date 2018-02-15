@@ -24,14 +24,18 @@ public class ParserWrapper {
 		}
 
 		String filePath = sourcePath + "/" + filename;
-		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + ".lexed";
+		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + ".parsed";
 		if (System.getProperty("os.name") == "Windows 10") {
 			outputPath = outputPath.replace('/', '\\');
 		}
 		try {
 			XiLexer x = new XiLexer(new FileReader(filePath));
 			parser p = new parser(x);
-			p.parse();
+			PrintStream o = new PrintStream(new File(outputPath));
+	        PrintStream console = System.out;
+	        System.setOut(o);
+	        p.parse();
+	        System.setOut(console);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
