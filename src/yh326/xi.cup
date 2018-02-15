@@ -32,7 +32,7 @@ terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
-nonterminal Node program, use_list, use, method_list, method,
+nonterminal Node program, use_list, use, method_list, method, interface_list, interface,
                  method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
@@ -51,11 +51,11 @@ precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
 precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
 
-
 start with program;
 
 program          ::= use_list:ul method_list:ml {: Node.write(new Node(ul, ml)); :}
-                   | method_list:ml             {: Node.write(new Node(null, ml)); :}
+                   | method_list:ml             {: Node.write(new Node(null,ml)); :}
+                   | interface_list:il          {: Node.write(new Node(il)); :}
                    | use_list:ul                {: Node.write(new Node(ul, null)); :}
                    | nothing                    {: Node.write(new Node(null, null)); :};
 
@@ -72,6 +72,14 @@ method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
                        {: RESULT = new Node(new Node(id), args, mr, b); :};
 method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
                        {: RESULT = vds; :};
+
+/*================== INTERFACE =========================================*/
+interface_list    ::= interface:i             {: RESULT = new Node(i); :}
+                   | interface:i interface_list:il {: RESULT = new Node(i).addChildren(il); :};
+
+interface        ::= IDENTIFIER:id method_args:args method_retvals:mr 
+                       {: RESULT = new Node(new Node(id), args, mr); :};
+
 
 /* ================= VARIABLE DECLARATION/INITIALIZATION ==================== */
 var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}

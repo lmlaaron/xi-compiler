@@ -12,11 +12,15 @@ public class ParserWrapper {
         String postfix = filename.substring(filename.lastIndexOf(".") + 1);
 
 		PostfixType type;
+
+                String out_postfix=".parsed";
 		if (postfix.equals("ixi")) {
 			type = PostfixType.INTERFACE;
+                        out_postfix=".iparsed";
 		}
 		else if (postfix.equals("xi")) {
 			type = PostfixType.REGULAR;
+                        out_postfix=".parsed";
 		}
 		else {
 			System.out.println("file postfix isn't correct");
@@ -24,7 +28,7 @@ public class ParserWrapper {
 		}
 
 		String filePath = sourcePath + "/" + filename;
-		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + ".parsed";
+		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + out_postfix;
 		if (System.getProperty("os.name") == "Windows 10") {
 			outputPath = outputPath.replace('/', '\\');
 		}
