@@ -49,7 +49,8 @@ precedence left EQUAL, NOT_EQUAL;
 precedence left GT, LT, GEQ, LEQ;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
-precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
+//precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
+precedence left unary_op;
 
 start with program;
 
