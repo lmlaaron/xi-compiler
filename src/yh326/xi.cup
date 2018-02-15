@@ -38,7 +38,7 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
                  expr_list, expr_rec, expr, var, var_init_list,
-                 unary_op, binary_op, value, array_literal, index,
+                 unary_op, binary_op, value, array_literal, subscription,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
                  unary_expr, binary_expr, expr_no_binary, expr_end, nothing
@@ -78,7 +78,7 @@ method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
 interface_list    ::= interface:i             {: RESULT = new Node(i); :}
                    | interface:i interface_list:il {: RESULT = new Node(i).addChildren(il); :};
 
-interface        ::= IDENTIFIER:id method_args:args method_retvals:mr 
+interface        ::= IDENTIFIER:id method_args:args method_retvals:mr
                        {: RESULT = new Node(new Node(id), args, mr); :};
 
 
@@ -89,8 +89,7 @@ var_decl_rec     ::= var_decl:vd COMMA var_decl_rec:vdr
                        {: RESULT = new Node(vd).addChildren(vdr); :}
                    | var_decl:vd             {: RESULT = new Node(vd); :};
 var_decl         ::= IDENTIFIER:id COLON type:type
-                       {: RESULT = new Node(new Node(id), type); :}
-                   | UNDERSCORE              {: RESULT = new Node("_"); :};
+                       {: RESULT = new Node(new Node(id), type); :};
 var_init_list    ::= var_decl_rec:vdr        {: RESULT = vdr.sub(); :}
                    | var_decl_rec:vdr GETS expr:e
                        {: RESULT = new Node(new Node("="), vdr.sub(), e); :};
@@ -127,8 +126,8 @@ stmt             ::= stmt_cond:sc            {: RESULT = sc; :}
 stmt_cond        ::= block:b                 {: RESULT = b; :}
                    | stmt_semi:ss            {: RESULT = ss; :};
 stmt_semi        ::= stmt_semi:ss SEMICOLON  {: RESULT = ss; :}
-                   | var_init_list:vil       {: RESULT = vil; :} // new variable (init or not)
-                   | assignment:as           {: RESULT = as; :} // existing variable
+                   | var_decl:vd             {: RESULT = vd; :} // without init
+                   | assignment:as           {: RESULT = as; :}
                    | method_call:mc          {: RESULT = mc; :}
                    | length_statement:ls     {: RESULT = ls; :};
 
@@ -136,10 +135,12 @@ stmt_semi        ::= stmt_semi:ss SEMICOLON  {: RESULT = ss; :}
 assignment       ::= lhs:lhs GETS expr:expr  {: RESULT = new Node(new Node("="), lhs.sub(), expr); :};
 lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren(lhs); :}
                    | var:v                   {: RESULT = new Node(v); :};
-var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :} //TODO: array index access?
-                   | index:i                 {: RESULT = i; :};
-index            ::= index:i OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), i, e); :}
+var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
+                   | UNDERSCORE              {: RESULT = new Node("_"); :}
+                   | var_decl:vd             {: RESULT = vd; :}
+                   | subscription:s          {: RESULT = s; :};
+subscription     ::= subscription:s OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), s, e); :}
                    | IDENTIFIER:id OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]"), new Node(id), e); :};
 
@@ -180,7 +181,7 @@ binary_op        ::= PLUS                    {: RESULT = new Node("+"); :}
 
 /* ================= LITERAL ================================================ */
 value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
-                   | index:i                 {: RESULT = i; :}
+                   | subscription:i                 {: RESULT = i; :}
                    | INTEGER_LITERAL:il      {: RESULT = new Node(il); :}
                    | STRING_LITERAL:sl       {: RESULT = new Node("\"" + sl + "\""); :}
                    | CHARACTER_LITERAL:cl    {: RESULT = new Node("\'" + cl + "\'"); :}
