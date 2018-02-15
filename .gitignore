@@ -5,7 +5,7 @@
 *~
 *.lexed
 *.parsed
-XiLexer.java
+lexer.java
 parser.java
 sym.java
 

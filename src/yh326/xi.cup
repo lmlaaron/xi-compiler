@@ -11,7 +11,7 @@ parser code  {:
     if (info instanceof XiSymbol) {
       XiSymbol s = (XiSymbol) info;
       String p = "" + s.getLine() + ":" + s.getColumn() + " ";
-        if (s.type == sym.ERROR) {
+        if (s.sym == sym.ERROR) {
           p += s.value;
         } else {
           p += "error: Unexpected token " + s.value;
@@ -45,7 +45,7 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  value, array_literal, subscription,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
-                 expr_end, nothing,
+                 expr_atom, nothing,
                  expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7,
                  t1op, t2op, t3op, t4op, t5op, t6op, t7op ;
 
@@ -165,12 +165,14 @@ expr_t5         ::= expr_t5:e1 t5op:o expr_t6:e2  {: RESULT = new Node(o,e1,e2);
 expr_t6         ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2); :}
                    | expr_t7:ee                   {: RESULT = ee; :};
 expr_t7         ::= t7op:o expr_t7:e                 {: RESULT = new Node(o,e); :}
-                   | expr_end:ee                   {: RESULT = ee; :};
+                   | expr_atom:ee                   {: RESULT = ee; :};
 
-expr_end         ::= value:v                       {: RESULT = v; :}
+expr_atom         ::= value:v                       {: RESULT = v; :}
                    | method_call:mc                {: RESULT = mc; :}
                    | length_statement:ls           {: RESULT = ls; :}
                    | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = e; :};
+
+/* ================= OPERATION ============================================== */
 
 t1op             ::= OR:o                          {: RESULT = new Node("|"); :};
 t2op             ::= AND:o                         {: RESULT = new Node("&"); :};
@@ -188,26 +190,6 @@ t6op             ::= TIMES:o                          {: RESULT = new Node("*");
                    | TIMES_SHIFT:o                  {: RESULT = new Node("*>>"); :};
 t7op             ::= MINUS:o                        {: RESULT = new Node("-"); :}
                    | NOT:o                          {: RESULT = new Node("!"); :};
-
-/* ================= OPERATION ============================================== */
-/*
-unary_op         ::= NOT                     {: RESULT = new Node("!"); :}
-                   | MINUS                   {: RESULT = new Node("-"); :};
-binary_op        ::= PLUS                    {: RESULT = new Node("+"); :}
-                   | MINUS                   {: RESULT = new Node("-"); :}
-                   | TIMES                   {: RESULT = new Node("*"); :}
-                   | DIVIDE                  {: RESULT = new Node("/"); :}
-                   | MODULO                  {: RESULT = new Node("%"); :}
-                   | LT                      {: RESULT = new Node("<"); :}
-                   | GT                      {: RESULT = new Node(">"); :}
-                   | LEQ                     {: RESULT = new Node("<="); :}
-                   | GEQ                     {: RESULT = new Node(">="); :}
-                   | AND                     {: RESULT = new Node("&"); :}
-                   | OR                      {: RESULT = new Node("|"); :}
-                   | EQUAL                   {: RESULT = new Node("=="); :}
-                   | NOT_EQUAL               {: RESULT = new Node("!="); :}
-                   | TIMES_SHIFT             {: RESULT = new Node("*>>"); :};
-*/
 
 /* ================= LITERAL ================================================ */
 value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
@@ -242,4 +224,3 @@ length_statement ::= LENGTH OPEN_PAREN expr:e CLOSE_PAREN
                        {: RESULT = new Node(new Node("length"), e); :};
 
 nothing          ::= /* placeholder for epsilon */;
-ERROR            ::= ;

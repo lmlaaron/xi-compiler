@@ -74,46 +74,102 @@ def load_testcases(test_dir):
             print_stderr("Testcase {} has no corresponding solution!".format(k))
             bad_keys.append(k)
     # TODO: uncomment below!
-    # for k in bad_keys:
-    #     del testcases[k]
+    for k in bad_keys:
+        del testcases[k]
 
     return testcase_dir, answer_dir, testcases, answers
 
-# runs PA1 tests
-def lex_tests():
-    testcase_dir, answer_dir, testcases, answers = load_testcases(LEXER_TESTS)
+# grader function returns (success, reason) tuple
+def lex_grader(testcase_f, answer_f):
+    ret = None
+    # run the lexer
+    run(['./xic', '--lex', testcase_f], print_results=False)
+    # find the .lexed file
+    # TODO: assumes .lexed files have been cleaned. this relies on the clean script which doesn't exist yet
+    _, lexfn, _ = run(['find', os.path.pardir(testcase_f), '*.lexed'], print_results=False)
+    lexfn = lexfn.strip()
+    if len(lexfn) == 0:
+        ret = (False, "couldn't find generated .lexed file")
+    else:
+        # examine results:
+        _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
+        _, testcase_contents, _ = run(['cat', answer_f])
+        if testcase_contents.find('error') != -1:
+            # correct answer is for lexer to detect error
+            lexed_lastline = lexed_contents.split['\n'][-1]
+            if lexed_lastline.find('error') == -1:
+                # fail
+                ret = (False, "Last line should have been an error. Instead, found '{}'".format(lexed_lastline))
+            else:
+                # pass
+                ret = (True, '')
+    run(['rm', lexfn], print_results=False)
+    return ret
 
-    results = [] # elements of type (testcode, result[bool], error[str]) tuple
+def remove_whitespace(s):
+    return ''.join(s.split())
 
-    for k in testcases.keys():
-        # run the lexer
-        run(['./xic', '--lex', testcases[k]])
+# grader function returns (success, reason) tuple
+def parse_grader(testcase_f, answer_f):
+    ret = None
+    # run the lexer
+    run(['./xic', '--parse', testcase_f], print_results=False)
+    # find the .parsed file
+    # TODO: assumes .parsed files have been cleaned. this relies on the clean script which doesn't exist yet
+    _, lexfn, _ = run(['find', os.path.pardir(testcase_f), '*.parsed'], print_results=False)
+    lexfn = lexfn.strip()
+    if len(lexfn) == 0:
+        ret = (False, "couldn't find generated .parsed file")
+    else:
+        # examine results:
+        _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
+        _, testcase_contents, _ = run(['cat', answer_f])
+        lexed_contents = remove_whitespace(lexed_contents)
+        testcase_contents = remove_whitespace(testcase_contents)
+        if lexed_contents != testcase_contents:
 
-        # find the .lexed file
-        _, lexfn, _ = run(['find', testcase_dir, '{}*.lexed'.format(k)], print_results=False)
-        lexfn = lexfn.strip()
-        if len(lexfn) == 0:
-            results.append( (k, False, "couldn't find generated .lexed file") )
-        else:
-            # examine results:
-            _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
-            _, testcase_contents, _ = run(['cat', answers[k]])
-            if testcase_contents.find('error') != -1:
-                # correct answer is for lexer to detect error
-                lexed_lastline = lexed_contents.split['\n'][-1]
-                if lexed_lastline.find('error') == -1:
-                    # fail
-                    results[k] = (k, False, "Last line should have been an error. Instead, found '{}'".format(lexed_lastline))
-                else:
-                    # pass
-                    results[k] = (k, True, '')
-        run(['rm', lexfn], print_results=False)
+    run(['rm', lexfn], print_results=False)
+    return ret
 
-    for case, passed, reason in results:
-        if passed:
-            print_log("Case {} : {} : {}".format(case, "PASS", reason))
-        else:
-            print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
+
+
+
+
+# # runs PA1 tests
+# def lex_tests():
+#     testcase_dir, answer_dir, testcases, answers = load_testcases(LEXER_TESTS)
+#
+#     results = [] # elements of type (testcode, result[bool], error[str]) tuple
+#
+#     for k in testcases.keys():
+#         # run the lexer
+#         run(['./xic', '--lex', testcases[k]])
+#
+#         # find the .lexed file
+#         _, lexfn, _ = run(['find', testcase_dir, '{}*.lexed'.format(k)], print_results=False)
+#         lexfn = lexfn.strip()
+#         if len(lexfn) == 0:
+#             results.append( (k, False, "couldn't find generated .lexed file") )
+#         else:
+#             # examine results:
+#             _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
+#             _, testcase_contents, _ = run(['cat', answers[k]])
+#             if testcase_contents.find('error') != -1:
+#                 # correct answer is for lexer to detect error
+#                 lexed_lastline = lexed_contents.split['\n'][-1]
+#                 if lexed_lastline.find('error') == -1:
+#                     # fail
+#                     results[k] = (k, False, "Last line should have been an error. Instead, found '{}'".format(lexed_lastline))
+#                 else:
+#                     # pass
+#                     results[k] = (k, True, '')
+#         run(['rm', lexfn], print_results=False)
+#
+#     for case, passed, reason in results:
+#         if passed:
+#             print_log("Case {} : {} : {}".format(case, "PASS", reason))
+#         else:
+#             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
 
 
 
@@ -127,7 +183,7 @@ def build():
     run(['./xic-build'], end_on_error=False) # TODO: SET TO TRUE
 
     print("===RUNNING LEX TESTS===")
-    lex_tests()
+    run_test_set(LEXER_TESTS, lex_grader)
     print("===RUNNING PARSE TESTS===")
     parse_tests()
 
