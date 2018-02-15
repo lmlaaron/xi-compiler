@@ -1,8 +1,10 @@
 package yh326;
 
-import java.util.*;
-import edu.cornell.cs.cs4120.util.*;
-import polyglot.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter​;
+import edu.cornell.cs.cs4120.util.SExpPrinter​;
+import polyglot.util.OptimalCodeWriter;
 
 public class Node {
     private String value;
@@ -36,6 +38,16 @@ public class Node {
             children.add(child);
         }
         return this;
+    }
+
+    public Node sub() {
+        if (children == null) {
+            return this;
+        } else if (children.size() == 1) {
+            return children.get(0);
+        } else {
+            return this;
+        }
     }
 
     public static void write(Node node) {

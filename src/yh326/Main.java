@@ -49,6 +49,6 @@ public class Main {
 		if (argv_alist.contains("--parse")) {
 			ParserWrapper.Parsing(input_source, diag_dump_path, source_files);
 		}
-		System.exit(1);
+		return;
 	}
 }

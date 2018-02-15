@@ -1,6 +1,7 @@
 package yh326;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java_cup.runtime.Symbol;
 
 public class LexerWrapper {
@@ -13,7 +14,7 @@ public class LexerWrapper {
 			Symbol s = xiLexer.next_token();
 			while (s.sym != sym.EOF) {
 				writer.write(s.toString() + "\n");
-				//if (s.sym == sym.ERROR) break;
+				if (s.sym == sym.ERROR) break;
 				s = xiLexer.next_token();
 			}
 			writer.close();

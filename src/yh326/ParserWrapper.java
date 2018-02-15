@@ -37,5 +37,6 @@ public class ParserWrapper {
 			e.printStackTrace();
 			return;
 		}
+		return;
 	}
 }

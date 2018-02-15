@@ -30,6 +30,10 @@ import java_cup.runtime.*;
     private Symbol symbol(int type, Object value, int line, int column) {
         return new XiSymbol(type, null, value, line+1, column+1);
     }
+
+    private Symbol symbol(int type, String typeString, Object value, int line, int column) {
+        return new XiSymbol(type, typeString, value, line+1, column+1);
+    }
 %}
 
 
@@ -99,7 +103,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
 }
 
 <YYSTRING> {
-  \"                   { yybegin(YYINITIAL); return symbol(STRING_LITERAL, "string " + string, yyline, column);}
+  \"                   { yybegin(YYINITIAL); return symbol(STRING_LITERAL, "string", "" + string, yyline, column);}
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, ": Unterminated string at end of line", yyline, column); }
   \\x{HexDigit}{1,4}   { string.append((char) Integer.parseInt(yytext().substring(2), 16)); }
   \\.|.                { string.append(yytext());}
@@ -108,8 +112,8 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
 <CHARLITERAL> {
   \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
-  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character " + (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
-  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character " + yytext().substring(0, yylength()-1), yyline, column);}
+  \\x{HexDigit}{1,4}\' { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", yytext().substring(0, yylength()-1), yyline, column);}
   .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 }
 

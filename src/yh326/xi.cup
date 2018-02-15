@@ -2,6 +2,20 @@
 
 package yh326;
 
+parser code  {:
+  public void report_error(String message, Object info) {}
+  public void report_expected_token_ids() {}
+
+  public void report_fatal_error(String message, Object info) {
+    if (info instanceof XiSymbol) {
+      XiSymbol s = (XiSymbol) info;
+      String p = "" + s.getLine() + ":" + s.getColumn();
+      p += " error: Unexpected token " + s.value;
+      System.out.println(p);
+    }
+  }
+:};
+
 // You might want to add types to these declarations.
 terminal String IDENTIFIER;
 terminal String STRING_LITERAL;
@@ -19,12 +33,13 @@ terminal TIMES_SHIFT, ERROR;
 
 // You might want to add types to these declarations.
 nonterminal Node program, use_list, use, method_list, method,
-                 method_args, var_decl_list, method_retvals, retvals,
+                 method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
-                 stmt, var_decl, assignment, lhs, expr, unary_op,
-                 binary_op, value, literal, array_literal, literal_list,
-                 length_statement, return_statement, method_call,
-                 expr_list, nothing
+                 stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
+                 expr_list, expr_rec, expr, var, var_init_list,
+                 unary_op, binary_op, value, array_literal, index,
+                 if_statement, while_statement, else_statement,
+                 length_statement, return_statement, return_core, method_call, nothing
                  ;
 
 /* precedence & associativity declarations */
@@ -39,8 +54,10 @@ precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
 
 start with program;
 
-program          ::= use_list:ul method_list:ml
-                       {: Node.write(new Node(ul, ml)); :};
+program          ::= use_list:ul method_list:ml {: Node.write(new Node(ul, ml)); :}
+                   | method_list:ml             {: Node.write(new Node(null, ml)); :}
+                   | use_list:ul                {: Node.write(new Node(ul, null)); :}
+                   | nothing                    {: Node.write(new Node(null, null)); :};
 
 /* ================= USE ==================================================== */
 use_list         ::= use:u use_list:ul {: RESULT = new Node(u).addChildren(ul); :}
@@ -56,23 +73,29 @@ method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
 method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
                        {: RESULT = vds; :};
 
-/* ================= VARIABLE DECLARATION =================================== */
-var_decl_list    ::= var_decl:vd COMMA var_decl_list:vdl //<-- for now, allow trailing commas
-                       {: RESULT = new Node(vd).addChildren(vdl); :}
-                   | var_decl:vd {: RESULT = new Node(vd); :}
+/* ================= VARIABLE DECLARATION/INITIALIZATION ==================== */
+var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}
                    | nothing;
+var_decl_rec     ::= var_decl:vd COMMA var_decl_rec:vdr
+                       {: RESULT = new Node(vd).addChildren(vdr); :}
+                   | var_decl:vd             {: RESULT = new Node(vd); :};
 var_decl         ::= IDENTIFIER:id COLON type:type
-                       {: RESULT = new Node(new Node(id), type); :};
+                       {: RESULT = new Node(new Node(id), type); :}
+                   | UNDERSCORE              {: RESULT = new Node("_"); :};
+var_init_list    ::= var_decl_rec:vdr        {: RESULT = vdr.sub(); :}
+                   | var_decl_rec:vdr GETS expr:e
+                       {: RESULT = new Node(new Node("="), vdr.sub(), e); :};
+
 
 /* ================= TYPE =================================================== */
-type             ::= primitive_type:pt  {: RESULT = pt; :}
-                   | array_type:at      {: RESULT = at; :};
-primitive_type   ::= INT                {: RESULT = new Node("int"); :}
-                   | BOOL               {: RESULT = new Node("bool"); :};
-array_type       ::= array_type:at OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), at); :}
-                   | primitive_type:pt OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), pt); :};
+type             ::= primitive_type:pt       {: RESULT = pt; :}
+                   | array_type:at           {: RESULT = at; :};
+primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
+                   | BOOL                    {: RESULT = new Node("bool"); :};
+array_type       ::= type:t OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), t); :}
+                   | type:t OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), t, e); :};
 
 /* ================= RETVAL ================================================= */
 method_retvals   ::= COLON retvals:rv   {: RESULT = rv; :}
@@ -82,57 +105,95 @@ retvals          ::= type:t COMMA retvals:rv {: RESULT = new Node(t).addChildren
 
 /* ================= BLOCK ================================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
-                       {: RESULT = sl; :};
+                       {: RESULT = sl; :}
+                   | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
+                       {: RESULT = sl.addNodes(rs); :};
 stmt_list        ::= stmt:st stmt_list:sl
                        {: RESULT = new Node(st).addChildren(sl); :}
                    | nothing;
-stmt             ::= stmt:st SEMICOLON      {: RESULT = st; :}
-                   | var_decl:vd            {: RESULT = vd; :}
-                   | block
-                   | assignment:as          {: RESULT = as; :}
-                   | method_call
-                   | return_statement
-                   | length_statement;
-assignment       ::= lhs:lhs GETS expr:expr {: RESULT = new Node(new Node("="), lhs, expr); :};
-lhs              ::= var_decl:vd            {: RESULT = vd; :}
-                   | IDENTIFIER:id          {: RESULT = new Node(id); :}; //TODO: array index access?
+// stmt_cond: make sure "else" statement always follows the inner-most "if"
+stmt             ::= stmt_cond:sc            {: RESULT = sc; :}
+                   | if_statement:is         {: RESULT = is; :}
+                   | while_statement:ws      {: RESULT = ws; :};
+stmt_cond        ::= block:b                 {: RESULT = b; :}
+                   | stmt_semi:ss            {: RESULT = ss; :};
+stmt_semi        ::= stmt_semi:ss SEMICOLON  {: RESULT = ss; :}
+                   | var_init_list:vil       {: RESULT = vil; :} // new variable (init or not)
+                   | assignment:as           {: RESULT = as; :} // existing variable
+                   | method_call:mc          {: RESULT = mc; :}
+                   | length_statement:ls     {: RESULT = ls; :};
+
+/* ================= ASSIGNMENT ============================================= */
+assignment       ::= lhs:lhs GETS expr:expr  {: RESULT = new Node(new Node("="), lhs.sub(), expr); :};
+lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren(lhs); :}
+                   | var:v                   {: RESULT = new Node(v); :};
+var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :} //TODO: array index access?
+                   | index:i                 {: RESULT = i; :};
+index            ::= index:i OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), i, e); :}
+                   | IDENTIFIER:id OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), new Node(id), e); :};
+
+/* ================= EXPRESSION ============================================= */
+expr_list        ::= expr_rec:er                   {: RESULT = er; :}
+                   | nothing;
+expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
+                   | expr:e                        {: RESULT = new Node(e); :};
 expr             ::= unary_op:uo expr:e            {: RESULT = new Node(uo, e); :}
                    | expr:e1 binary_op:bo expr:e2  {: RESULT = new Node(bo, e1, e2); :}
                    | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = new Node(e); :}
-                   | value:v                       {: RESULT = v; :};
-unary_op         ::= NOT                    {: RESULT = new Node("!"); :}
-                   | MINUS                  {: RESULT = new Node("-"); :};
-binary_op        ::= PLUS                   {: RESULT = new Node("+"); :}
-                   | MINUS                  {: RESULT = new Node("-"); :}
-                   | TIMES                  {: RESULT = new Node("*"); :}
-                   | DIVIDE                 {: RESULT = new Node("/"); :}
-                   | MODULO                 {: RESULT = new Node("%"); :}
-                   | LT                     {: RESULT = new Node("<"); :}
-                   | GT                     {: RESULT = new Node(">"); :}
-                   | LEQ                    {: RESULT = new Node("<="); :}
-                   | GEQ                    {: RESULT = new Node(">="); :}
-                   | AND                    {: RESULT = new Node("&"); :}
-                   | OR                     {: RESULT = new Node("|"); :}
-                   | EQUAL                  {: RESULT = new Node("=="); :}
-                   | NOT_EQUAL              {: RESULT = new Node("!="); :}
-                   | TIMES_SHIFT            {: RESULT = new Node("*>>"); :};
-value            ::= IDENTIFIER:id          {: RESULT = new Node(id); :}
-                   | literal:l              {: RESULT = l; :};    //TODO: array index access?
-literal          ::= INTEGER_LITERAL:il     {: RESULT = new Node(il); :}
-                   | STRING_LITERAL:sl      {: RESULT = new Node(sl); :}
-                   | CHARACTER_LITERAL:cl   {: RESULT = new Node(cl); :}
-                   | TRUE                   {: RESULT = new Node("true"); :}
-                   | FALSE                  {: RESULT = new Node("false"); :}
-                   | array_literal:al       {: RESULT = al; :};
-array_literal    ::= OPEN_BRACE literal_list CLOSE_BRACE;
-literal_list     ::= literal COMMA literal_list   //<-- for now, allow trailing commas
-                   | literal
-                   | nothing;
-method_call      ::= IDENTIFIER OPEN_PAREN expr_list CLOSE_PAREN;
-expr_list        ::= expr COMMA expr_list         //<-- for now, allow trailing commas
-                   | expr
-                   | nothing;
-return_statement ::= RETURN expr;
-length_statement ::= LENGTH OPEN_PAREN expr CLOSE_PAREN;
+                   | value:v                       {: RESULT = v; :}
+                   | method_call:mc                {: RESULT = mc; :}
+                   | length_statement:ls           {: RESULT = ls; :};
+
+/* ================= OPERATION ============================================== */
+unary_op         ::= NOT                     {: RESULT = new Node("!"); :}
+                   | MINUS                   {: RESULT = new Node("-"); :};
+binary_op        ::= PLUS                    {: RESULT = new Node("+"); :}
+                   | MINUS                   {: RESULT = new Node("-"); :}
+                   | TIMES                   {: RESULT = new Node("*"); :}
+                   | DIVIDE                  {: RESULT = new Node("/"); :}
+                   | MODULO                  {: RESULT = new Node("%"); :}
+                   | LT                      {: RESULT = new Node("<"); :}
+                   | GT                      {: RESULT = new Node(">"); :}
+                   | LEQ                     {: RESULT = new Node("<="); :}
+                   | GEQ                     {: RESULT = new Node(">="); :}
+                   | AND                     {: RESULT = new Node("&"); :}
+                   | OR                      {: RESULT = new Node("|"); :}
+                   | EQUAL                   {: RESULT = new Node("=="); :}
+                   | NOT_EQUAL               {: RESULT = new Node("!="); :}
+                   | TIMES_SHIFT             {: RESULT = new Node("*>>"); :};
+
+/* ================= LITERAL ================================================ */
+value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
+                   | index:i                 {: RESULT = i; :}
+                   | INTEGER_LITERAL:il      {: RESULT = new Node(il); :}
+                   | STRING_LITERAL:sl       {: RESULT = new Node("\"" + sl + "\""); :}
+                   | CHARACTER_LITERAL:cl    {: RESULT = new Node("\'" + cl + "\'"); :}
+                   | TRUE                    {: RESULT = new Node("true"); :}
+                   | FALSE                   {: RESULT = new Node("false"); :}
+                   | array_literal:al        {: RESULT = al; :};
+array_literal    ::= OPEN_BRACE expr_list:el CLOSE_BRACE
+                       {: RESULT = el; :};
+
+/* ================= IF/ELSE/WHILE ========================================== */
+if_statement     ::= IF expr:e stmt:s
+                       {: RESULT = new Node(new Node("if"), e.sub(), s); :}
+                   | IF expr:e stmt_cond:s else_statement:es
+                       {: RESULT = new Node(new Node("if"), e.sub(), s, es); :};
+else_statement   ::= ELSE stmt:s
+                       {: RESULT = s; :};
+while_statement  ::= WHILE expr:e stmt:s
+                       {: RESULT = new Node(new Node("while"), e.sub(), s); :};
+
+/* ================= OTHER STATEMENTS ======================================= */
+method_call      ::= IDENTIFIER:id OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {: RESULT = new Node(new Node(id)).addChildren(el); :};
+return_statement ::= return_statement:rs SEMICOLON {: RESULT = rs; :}
+                   | return_core:rc                {: RESULT = rc; :};
+return_core      ::= RETURN expr_list:el
+                       {: RESULT = new Node(new Node("return")).addChildren(el); :};
+length_statement ::= LENGTH OPEN_PAREN expr:e CLOSE_PAREN
+                       {: RESULT = new Node(new Node("length"), e); :};
 
 nothing          ::= /* placeholder for epsilon */;
