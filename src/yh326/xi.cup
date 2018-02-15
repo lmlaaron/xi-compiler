@@ -3,6 +3,7 @@
 package yh326;
 
 parser code  {:
+  public void p(String s) {System.out.println(s);}
   public void report_error(String message, Object info) {}
   public void report_expected_token_ids() {}
 
@@ -39,7 +40,8 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  expr_list, expr_rec, expr, var, var_init_list,
                  unary_op, binary_op, value, array_literal, index,
                  if_statement, while_statement, else_statement,
-                 length_statement, return_statement, return_core, method_call, nothing
+                 length_statement, return_statement, return_core, method_call,
+                 unary_expr, binary_expr, expr_no_binary, expr_end, nothing
                  ;
 
 /* precedence & associativity declarations */
@@ -49,8 +51,6 @@ precedence left EQUAL, NOT_EQUAL;
 precedence left GT, LT, GEQ, LEQ;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
-//precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
-precedence left unary_op;
 
 start with program;
 
@@ -148,12 +148,17 @@ expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
                    | expr:e                        {: RESULT = new Node(e); :};
-expr             ::= unary_op:uo expr:e            {: RESULT = new Node(uo, e); :}
-                   | expr:e1 binary_op:bo expr:e2  {: RESULT = new Node(bo, e1, e2); :}
-                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = new Node(e); :}
-                   | value:v                       {: RESULT = v; :}
+expr             ::= binary_expr:be                {: RESULT = be; :}
+                   | expr_no_binary:enb            {: RESULT = enb; :};
+expr_no_binary   ::= unary_expr:ue                 {: RESULT = ue; :}
+                   | expr_end:ee                   {: RESULT = ee; :};
+// it is necessary to introduce unary, binary expr so that we can set their precedence
+unary_expr       ::= unary_op:uo expr_end:e        {: RESULT = new Node(uo, e); :};
+binary_expr      ::= expr:e1 binary_op:bo expr:e2  {: RESULT = new Node(bo, e1, e2); :};
+expr_end         ::= value:v                       {: RESULT = v; :}
                    | method_call:mc                {: RESULT = mc; :}
-                   | length_statement:ls           {: RESULT = ls; :};
+                   | length_statement:ls           {: RESULT = ls; :}
+                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = new Node(e); :};
 
 /* ================= OPERATION ============================================== */
 unary_op         ::= NOT                     {: RESULT = new Node("!"); :}
