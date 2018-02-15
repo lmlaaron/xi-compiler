@@ -97,14 +97,26 @@ var_decl         ::= IDENTIFIER:id COLON type:type
                        {: RESULT = new Node(new Node(id), type); :};
 
 /* ================= TYPE =================================================== */
-type             ::= primitive_type:pt       {: RESULT = pt; :}
-                   | array_type:at           {: RESULT = at; :};
+//type             ::= primitive_type:pt       {: RESULT = pt; :}
+//                   | array_type:at           {: RESULT = at; :};
 primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
                    | BOOL                    {: RESULT = new Node("bool"); :};
-array_type       ::= type:t OPEN_BRACKET CLOSE_BRACKET
+type              ::= primitive_type:pt {: RESULT = pt; :}
+                   | primitive_type:t OPEN_BRACKET CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]"), t); :}
-                   | type:t OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]"), t, e); :};
+                   | primitive_type:t OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), t, e); :}
+                   | primitive_type:t OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), new Node(new Node("[]"),t) );:}
+                   | primitive_type:t OPEN_BRACKET expr:e CLOSE_BRACKET OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), new Node(new Node("[]"),t), e );:}
+                   | primitive_type:t OPEN_BRACKET CLOSE_BRACKET OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), new Node(new Node("[]"),t, e) );:}
+                   | primitive_type:t OPEN_BRACKET expr:e1 CLOSE_BRACKET OPEN_BRACKET expr:e2 CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]"), new Node(new Node("[]"),t, e2), e1 );:};
+ 
+
+
 
 /* ================= RETVAL ================================================= */
 method_retvals   ::= COLON retvals:rv   {: RESULT = rv; :}
