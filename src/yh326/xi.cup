@@ -5,12 +5,12 @@ package yh326;
 // You might want to add types to these declarations.
 terminal String IDENTIFIER;
 terminal String STRING_LITERAL;
-terminal Character CHARACTER_LITERAL;
-terminal UnsignedLong INTEGER_LITERAL;
+terminal String CHARACTER_LITERAL;
+terminal String INTEGER_LITERAL;
 terminal TRUE, FALSE;
 terminal INT, BOOL;
 
-terminal IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
+terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
   COLON, COMMA, SEMICOLON, UNDERSCORE;
@@ -34,7 +34,7 @@ precedence left EQUAL, NOT_EQUAL;
 precedence left GT, LT, GEQ, LEQ;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
-precedence left NOT; //<-- TODO: arithmetic negation (minus)
+precedence left NOT, MINUS; //<-- TODO: arithmetic negation (minus)
 
 
 start with program;
@@ -96,31 +96,34 @@ stmt             ::= stmt:st SEMICOLON      {: RESULT = st; :}
 assignment       ::= lhs:lhs GETS expr:expr {: RESULT = new Node(new Node("="), lhs, expr); :};
 lhs              ::= var_decl:vd            {: RESULT = vd; :}
                    | IDENTIFIER:id          {: RESULT = new Node(id); :}; //TODO: array index access?
-expr             ::= unary_op expr
-                   | expr binary_op expr
-                   | OPEN_PAREN expr CLOSE_PAREN
-                   | value;
-unary_op         ::= NOT;     //TODO: arithmetic negation (minus)
-binary_op        ::= PLUS
-                   | MINUS
-                   | TIMES
-                   | DIVIDE
-                   | MODULO
-                   | LT
-                   | GT
-                   | LEQ
-                   | GEQ
-                   | AND
-                   | OR
-                   | EQUAL
-                   | NOT_EQUAL
-                   | TIMES_SHIFT;
-value            ::= IDENTIFIER
-                   | literal;    //TODO: array index access?
-literal          ::= INTEGER_LITERAL
-                   | STRING_LITERAL
-                   | CHARACTER_LITERAL
-                   | array_literal;
+expr             ::= unary_op:uo expr:e            {: RESULT = new Node(uo, e); :}
+                   | expr:e1 binary_op:bo expr:e2  {: RESULT = new Node(bo, e1, e2); :}
+                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = new Node(e); :}
+                   | value:v                       {: RESULT = v; :};
+unary_op         ::= NOT                    {: RESULT = new Node("!"); :}
+                   | MINUS                  {: RESULT = new Node("-"); :};
+binary_op        ::= PLUS                   {: RESULT = new Node("+"); :}
+                   | MINUS                  {: RESULT = new Node("-"); :}
+                   | TIMES                  {: RESULT = new Node("*"); :}
+                   | DIVIDE                 {: RESULT = new Node("/"); :}
+                   | MODULO                 {: RESULT = new Node("%"); :}
+                   | LT                     {: RESULT = new Node("<"); :}
+                   | GT                     {: RESULT = new Node(">"); :}
+                   | LEQ                    {: RESULT = new Node("<="); :}
+                   | GEQ                    {: RESULT = new Node(">="); :}
+                   | AND                    {: RESULT = new Node("&"); :}
+                   | OR                     {: RESULT = new Node("|"); :}
+                   | EQUAL                  {: RESULT = new Node("=="); :}
+                   | NOT_EQUAL              {: RESULT = new Node("!="); :}
+                   | TIMES_SHIFT            {: RESULT = new Node("*>>"); :};
+value            ::= IDENTIFIER:id          {: RESULT = new Node(id); :}
+                   | literal:l              {: RESULT = l; :};    //TODO: array index access?
+literal          ::= INTEGER_LITERAL:il     {: RESULT = new Node(il); :}
+                   | STRING_LITERAL:sl      {: RESULT = new Node(sl); :}
+                   | CHARACTER_LITERAL:cl   {: RESULT = new Node(cl); :}
+                   | TRUE                   {: RESULT = new Node("true"); :}
+                   | FALSE                  {: RESULT = new Node("false"); :}
+                   | array_literal:al       {: RESULT = al; :};
 array_literal    ::= OPEN_BRACE literal_list CLOSE_BRACE;
 literal_list     ::= literal COMMA literal_list   //<-- for now, allow trailing commas
                    | literal
