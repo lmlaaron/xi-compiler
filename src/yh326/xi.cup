@@ -1,5 +1,3 @@
-// A stub for a Xi CUP specification.
-
 package yh326;
 
 parser code  {:
@@ -21,7 +19,6 @@ parser code  {:
   }
 :};
 
-// You might want to add types to these declarations.
 terminal String IDENTIFIER;
 terminal String STRING_LITERAL;
 terminal String CHARACTER_LITERAL;
@@ -34,15 +31,15 @@ terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
   COLON, COMMA, SEMICOLON, UNDERSCORE;
 
+// These two are not include in the give xi.cup
 terminal TIMES_SHIFT, ERROR;
 
-// You might want to add types to these declarations.
 nonterminal Node program, use_list, use, method_list, method, interface_list, interface,
                  method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
                  type, primitive_type, array_type, block, stmt_list,
                  stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
                  expr_list, expr_rec, expr, var, box, boxes,
-                 value, array_literal, subscription,
+                 value, array_literal, index, indexes,
                  if_statement, while_statement, else_statement,
                  length_statement, return_statement, return_core, method_call,
                  expr_atom, nothing,
@@ -50,6 +47,7 @@ nonterminal Node program, use_list, use, method_list, method, interface_list, in
                  t1op, t2op, t3op, t4op, t5op, t6op, t7op ;
 
 /* precedence & associativity declarations */
+// Note that precedence rules below are kept but are actually not helping the parser
 precedence left OR;
 precedence left AND;
 precedence left EQUAL, NOT_EQUAL;
@@ -79,7 +77,7 @@ method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
 method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
                        {: RESULT = vds; :};
 
-/*================== INTERFACE =========================================*/
+/*================== INTERFACE ============================================== */
 interface_list    ::= interface:i             {: RESULT = new Node(i); :}
                    | interface:i interface_list:il {: RESULT = new Node(i).addChildren(il); :};
 
@@ -87,7 +85,7 @@ interface        ::= IDENTIFIER:id method_args:args method_retvals:mr
                        {: RESULT = new Node(new Node(id), args, mr); :};
 
 
-/* ================= VARIABLE DECLARATION/INITIALIZATION ==================== */
+/* ================= VARIABLE DECLARATION =================================== */
 var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}
                    | nothing;
 var_decl_rec     ::= var_decl:vd COMMA var_decl_rec:vdr
@@ -101,6 +99,17 @@ type             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
 primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
                    | BOOL                    {: RESULT = new Node("bool"); :};
+
+// index: used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3]
+// box:   used for array declaration: a: int[1][][3]
+index            ::= OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = e; :}
+                   | OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = null; :};
+indexes          ::= indexes:is index:i
+                       {: RESULT = new Node(new Node("[]"), is).addNodes(i); :}
+                   | IDENTIFIER:id index:i
+                       {: RESULT = new Node(new Node("[]"), new Node(id)).addNodes(i); :};
 box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null, e); :}
                    | OPEN_BRACKET CLOSE_BRACKET
@@ -111,12 +120,13 @@ array_type       ::= primitive_type:pt boxes:bs
                        {: RESULT = bs.addHead(pt); :};
 
 /* ================= RETVAL ================================================= */
-method_retvals   ::= COLON retvals:rv   {: RESULT = rv; :}
+// retval: stands for return value
+method_retvals   ::= COLON retvals:rv        {: RESULT = rv; :}
                    | nothing;
 retvals          ::= type:t COMMA retvals:rv {: RESULT = new Node(t).addChildren(rv); :}
                    | type:t                  {: RESULT = new Node(t); :};
 
-/* ================= BLOCK ================================================== */
+/* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
                        {: RESULT = sl; :}
                    | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
@@ -124,7 +134,8 @@ block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
 stmt_list        ::= stmt:st stmt_list:sl
                        {: RESULT = new Node(st).addChildren(sl); :}
                    | nothing;
-// stmt_cond: make sure "else" statement always follows the inner-most "if"
+
+// stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
 stmt             ::= stmt_cond:sc            {: RESULT = sc; :}
                    | if_statement:is         {: RESULT = is; :}
                    | while_statement:ws      {: RESULT = ws; :};
@@ -137,15 +148,19 @@ stmt_semi        ::= stmt_semi:ss SEMICOLON  {: RESULT = ss; :}
                    | length_statement:ls     {: RESULT = ls; :};
 
 /* ================= ASSIGNMENT ============================================= */
+// lhs: stands for left hand side
+// var: stands for variable (cannot be a value or containing "[", "]", "{", "}")
 assignment       ::= lhs:lhs GETS expr:expr  {: RESULT = new Node(new Node("="), lhs.sub(), expr); :};
 lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren(lhs); :}
                    | var:v                   {: RESULT = new Node(v); :};
 var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
                    | var_decl:vd             {: RESULT = vd; :}
-                   | IDENTIFIER:id boxes:bs  {: RESULT = bs.addHead(new Node(id)); :};
+                   | indexes:i                 {: RESULT = i; :};
 
 /* ================= EXPRESSION ============================================= */
+// Grouped operator and corresponding expressions into sever tiers.
+// Tier 1 has the lowest precedency and tier 7 has the highest.
 expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
@@ -192,13 +207,13 @@ t7op             ::= MINUS:o                 {: RESULT = new Node("-"); :}
 
 /* ================= LITERAL ================================================ */
 value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
-                   | IDENTIFIER:id boxes:b   {: RESULT = b.addHead(new Node(id)); :}
                    | INTEGER_LITERAL:il      {: RESULT = new Node(il); :}
                    | STRING_LITERAL:sl       {: RESULT = new Node("\"" + sl + "\""); :}
                    | CHARACTER_LITERAL:cl    {: RESULT = new Node("\'" + cl + "\'"); :}
                    | TRUE                    {: RESULT = new Node("true"); :}
                    | FALSE                   {: RESULT = new Node("false"); :}
-                   | array_literal:al        {: RESULT = al; :};
+                   | array_literal:al        {: RESULT = al; :}
+                   | indexes:i                 {: RESULT = i; :};
 array_literal    ::= OPEN_BRACE expr_list:el CLOSE_BRACE
                        {: RESULT = el; :};
 
