@@ -117,18 +117,12 @@ array_type_emp   ::= primitive_type:pt boxes_emp:bs
                        {: RESULT = bs.addHead(pt); :};
 
 // NOTE:
-// index:   Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
-//          There must be an expression between the bracket.
 // box:     Used for array declaration: a: int[1][][3].
 //          Expression between the bracket is optional.
 // box_emp: Used for array declaration for function argument and return value.
 //          There must be NO expression between the bracket.
-index            ::= OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = e; :};
-indexes          ::= indexes:is index:i
-                       {: RESULT = new Node(new Node("[]"), is).addNodes(i); :}
-                   | IDENTIFIER:id index:i
-                       {: RESULT = new Node(new Node("[]"), new Node(id)).addNodes(i); :};
+// index:   Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
+//          There must be an expression between the bracket.
 box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null, e); :}
                    | OPEN_BRACKET CLOSE_BRACKET
@@ -139,6 +133,14 @@ box_emp          ::= OPEN_BRACKET CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
 boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b.addHead(bs); :}
                    | box_emp:b               {: RESULT = b; :};
+index            ::= OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {: RESULT = e; :};
+indexes          ::= indexes:is index:i
+                       {: RESULT = new Node(new Node("[]"), is).addNodes(i); :}
+                   | IDENTIFIER:id index:i
+                       {: RESULT = new Node(new Node("[]"), new Node(id)).addNodes(i); :}
+                   | method_call:mc index:i
+                       {: RESULT = new Node(new Node("[]"), new Node(mc)).addNodes(i); :};
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
@@ -180,7 +182,6 @@ expr_list        ::= expr_rec:er                   {: RESULT = er; :}
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
                    | expr:e                        {: RESULT = new Node(e); :};
 expr             ::= expr_t1:t                     {: RESULT = t; :};
-
 expr_t1          ::= expr_t1:e1 t1op:o expr_t2:e2  {: RESULT = new Node(o,e1,e2); :}
                    | expr_t2:ee                    {: RESULT = ee; :};
 expr_t2          ::= expr_t2:e1 t2op:o expr_t3:e2  {: RESULT = new Node(o,e1,e2); :}
