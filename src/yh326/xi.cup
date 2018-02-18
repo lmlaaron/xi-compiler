@@ -39,13 +39,12 @@ nonterminal Node interface_list, interface;
 nonterminal Node var_decl, var_decl_list, var_decl_rec, var_decl_emp;
 nonterminal Node method_retvals, retvals;
 nonterminal Node type, primitive_type, array_type, type_emp, array_type_emp;
-nonterminal Node index, indexes, box, boxes, box_emp, boxes_emp;
-nonterminal Node block, stmt_list, stmt, stmt_cond, stmt_semi;
+nonterminal Node box, boxes, box_emp, boxes_emp, subscript, subscripts, subscriptable;
+nonterminal Node block, stmt_list, stmt, stmt_cond, stmt_semi, stmt_core;
 nonterminal Node assignment, lhs, var;
 nonterminal Node expr_list, expr_rec, expr, expr_atom;
 nonterminal Node expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Node t1op, t2op, t3op, t4op, t5op, t6op, t7op;
-nonterminal Node value, array_literal;
 nonterminal Node if_statement, else_statement, while_statement;
 nonterminal Node method_call,return_statement, return_core, length_statement;
 nonterminal Node nothing;
@@ -117,12 +116,12 @@ array_type_emp   ::= primitive_type:pt boxes_emp:bs
                        {: RESULT = bs.addHead(pt); :};
 
 // NOTE:
-// box:     Used for array declaration: a: int[1][][3].
-//          Expression between the bracket is optional.
-// box_emp: Used for array declaration for function argument and return value.
-//          There must be NO expression between the bracket.
-// index:   Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
-//          There must be an expression between the bracket.
+// box:       Used for array declaration: a: int[1][][3].
+//            Expression between the bracket is optional.
+// box_emp:   Used for array declaration for function argument and return value.
+//            There must be NO expression between the bracket.
+// subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
+//            There must be an expression between the bracket.
 box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null, e); :}
                    | OPEN_BRACKET CLOSE_BRACKET
@@ -133,14 +132,15 @@ box_emp          ::= OPEN_BRACKET CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
 boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b.addHead(bs); :}
                    | box_emp:b               {: RESULT = b; :};
-index            ::= OPEN_BRACKET expr:e CLOSE_BRACKET
+subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = e; :};
-indexes          ::= indexes:is index:i
-                       {: RESULT = new Node(new Node("[]"), is).addNodes(i); :}
-                   | IDENTIFIER:id index:i
-                       {: RESULT = new Node(new Node("[]"), new Node(id)).addNodes(i); :}
-                   | method_call:mc index:i
-                       {: RESULT = new Node(new Node("[]"), new Node(mc)).addNodes(i); :};
+subscripts       ::= subscripts:ss subscript:s
+                       {: RESULT = new Node(new Node("[]"), ss).addNodes(s); :}
+                   | subscriptable:sb subscript:s
+                       {: RESULT = new Node(new Node("[]"), sb).addNodes(s); :};
+subscriptable    ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
+                   | method_call:mc          {: RESULT = new Node(mc); :}/*
+                   | array_literal:al        {: RESULT = new Node(al); :}*/;
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
@@ -157,8 +157,9 @@ stmt             ::= stmt_cond:sc            {: RESULT = sc; :}
                    | while_statement:ws      {: RESULT = ws; :};
 stmt_cond        ::= block:b                 {: RESULT = b; :}
                    | stmt_semi:ss            {: RESULT = ss; :};
-stmt_semi        ::= stmt_semi:ss SEMICOLON  {: RESULT = ss; :}
-                   | var_decl:vd             {: RESULT = vd; :} // without init
+stmt_semi        ::= stmt_core:sc            {: RESULT = sc; :}
+                   | stmt_core:sc SEMICOLON  {: RESULT = sc; :};
+stmt_core        ::= var_decl:vd             {: RESULT = vd; :} // without init
                    | assignment:as           {: RESULT = as; :}
                    | method_call:mc          {: RESULT = mc; :}
                    | length_statement:ls     {: RESULT = ls; :};
@@ -172,7 +173,7 @@ lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren
 var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
                    | var_decl:vd             {: RESULT = vd; :}
-                   | indexes:i               {: RESULT = i; :};
+                   | subscripts:ss           {: RESULT = ss; :};
 
 /* ================= EXPRESSION ============================================= */
 // Grouped operator and corresponding expressions into sever tiers.
@@ -197,40 +198,35 @@ expr_t6          ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2)
 expr_t7          ::= t7op:o expr_t7:e              {: RESULT = new Node(o,e); :}
                    | expr_atom:ee                  {: RESULT = ee; :};
 
-expr_atom        ::= value:v                       {: RESULT = v; :}
+expr_atom        ::= IDENTIFIER:id                 {: RESULT = new Node(id); :}
+                   | INTEGER_LITERAL:il            {: RESULT = new Node(il); :}
+                   | STRING_LITERAL:sl             {: RESULT = new Node("\"" + sl + "\""); :}
+                   | CHARACTER_LITERAL:cl          {: RESULT = new Node("\'" + cl + "\'"); :}
+                   | TRUE                          {: RESULT = new Node("true"); :}
+                   | FALSE                         {: RESULT = new Node("false"); :}
+                   | subscripts:ss                 {: RESULT = ss; :}
                    | method_call:mc                {: RESULT = mc; :}
                    | length_statement:ls           {: RESULT = ls; :}
-                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = e; :};
+                   | OPEN_PAREN expr:e CLOSE_PAREN {: RESULT = e; :}
+                   | OPEN_BRACE expr_list:el CLOSE_BRACE       {: RESULT = el; :};
 
 /* ================= OPERATION ============================================== */
-t1op             ::= OR:o                    {: RESULT = new Node("|"); :};
-t2op             ::= AND:o                   {: RESULT = new Node("&"); :};
-t3op             ::= EQUAL:o                 {: RESULT = new Node("=="); :}
-                   | NOT_EQUAL:o             {: RESULT = new Node("!="); :};
-t4op             ::= GT:o                    {: RESULT = new Node(">"); :}
-                   | LT:o                    {: RESULT = new Node("<"); :}
-                   | GEQ:o                   {: RESULT = new Node(">="); :}
-                   | LEQ:o                   {: RESULT = new Node("<="); :};
-t5op             ::= PLUS:o                  {: RESULT = new Node("+"); :}
-                   | MINUS:o                 {: RESULT = new Node("-"); :};
-t6op             ::= TIMES:o                 {: RESULT = new Node("*"); :}
-                   | DIVIDE:o                {: RESULT = new Node("/"); :}
-                   | MODULO:o                {: RESULT = new Node("%"); :}
-                   | TIMES_SHIFT:o           {: RESULT = new Node("*>>"); :};
-t7op             ::= MINUS:o                 {: RESULT = new Node("-"); :}
-                   | NOT:o                   {: RESULT = new Node("!"); :};
-
-/* ================= LITERAL ================================================ */
-value            ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
-                   | INTEGER_LITERAL:il      {: RESULT = new Node(il); :}
-                   | STRING_LITERAL:sl       {: RESULT = new Node("\"" + sl + "\""); :}
-                   | CHARACTER_LITERAL:cl    {: RESULT = new Node("\'" + cl + "\'"); :}
-                   | TRUE                    {: RESULT = new Node("true"); :}
-                   | FALSE                   {: RESULT = new Node("false"); :}
-                   | array_literal:al        {: RESULT = al; :}
-                   | indexes:i                 {: RESULT = i; :};
-array_literal    ::= OPEN_BRACE expr_list:el CLOSE_BRACE
-                       {: RESULT = el; :};
+t1op             ::= OR                      {: RESULT = new Node("|"); :};
+t2op             ::= AND                     {: RESULT = new Node("&"); :};
+t3op             ::= EQUAL                   {: RESULT = new Node("=="); :}
+                   | NOT_EQUAL               {: RESULT = new Node("!="); :};
+t4op             ::= GT                      {: RESULT = new Node(">"); :}
+                   | LT                      {: RESULT = new Node("<"); :}
+                   | GEQ                     {: RESULT = new Node(">="); :}
+                   | LEQ                     {: RESULT = new Node("<="); :};
+t5op             ::= PLUS                    {: RESULT = new Node("+"); :}
+                   | MINUS                   {: RESULT = new Node("-"); :};
+t6op             ::= TIMES                   {: RESULT = new Node("*"); :}
+                   | DIVIDE                  {: RESULT = new Node("/"); :}
+                   | MODULO                  {: RESULT = new Node("%"); :}
+                   | TIMES_SHIFT             {: RESULT = new Node("*>>"); :};
+t7op             ::= MINUS                   {: RESULT = new Node("-"); :}
+                   | NOT                     {: RESULT = new Node("!"); :};
 
 /* ================= IF/ELSE/WHILE ========================================== */
 if_statement     ::= IF expr:e stmt:s
