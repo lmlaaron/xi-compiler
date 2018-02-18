@@ -34,26 +34,21 @@ terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 // These two are not include in the give xi.cup
 terminal TIMES_SHIFT, ERROR;
 
-nonterminal Node program, use_list, use, method_list, method, interface_list, interface,
-                 method_args, var_decl_list, var_decl_rec, method_retvals, retvals,
-                 type, primitive_type, array_type, block, stmt_list,
-                 stmt, stmt_cond, stmt_semi, var_decl, assignment, lhs,
-                 expr_list, expr_rec, expr, var, box, boxes,
-                 value, array_literal, index, indexes,
-                 if_statement, while_statement, else_statement,
-                 length_statement, return_statement, return_core, method_call,
-                 expr_atom, nothing,
-                 expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7,
-                 t1op, t2op, t3op, t4op, t5op, t6op, t7op ;
-
-/* precedence & associativity declarations */
-// Note that precedence rules below are kept but are actually not helping the parser
-precedence left OR;
-precedence left AND;
-precedence left EQUAL, NOT_EQUAL;
-precedence left GT, LT, GEQ, LEQ;
-precedence left PLUS, MINUS;
-precedence left TIMES, DIVIDE, MODULO, TIMES_SHIFT;
+nonterminal Node program, use_list, use, method_list, method, method_args;
+nonterminal Node interface_list, interface;
+nonterminal Node var_decl, var_decl_list, var_decl_rec, var_decl_emp;
+nonterminal Node method_retvals, retvals;
+nonterminal Node type, primitive_type, array_type, type_emp, array_type_emp;
+nonterminal Node index, indexes, box, boxes, box_emp, boxes_emp;
+nonterminal Node block, stmt_list, stmt, stmt_cond, stmt_semi;
+nonterminal Node assignment, lhs, var;
+nonterminal Node expr_list, expr_rec, expr, expr_atom;
+nonterminal Node expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
+nonterminal Node t1op, t2op, t3op, t4op, t5op, t6op, t7op;
+nonterminal Node value, array_literal;
+nonterminal Node if_statement, else_statement, while_statement;
+nonterminal Node method_call,return_statement, return_core, length_statement;
+nonterminal Node nothing;
 
 start with program;
 
@@ -74,38 +69,62 @@ method_list      ::= method:m method_list:ml {: RESULT = new Node(m).addChildren
                    | method:m                {: RESULT = new Node(m); :};
 method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
                        {: RESULT = new Node(new Node(id), args, mr, b); :};
-method_args      ::= OPEN_PAREN var_decl_list:vds CLOSE_PAREN
-                       {: RESULT = vds; :};
+method_args      ::= OPEN_PAREN var_decl_list:vdel CLOSE_PAREN
+                       {: RESULT = vdel; :};
 
 /*================== INTERFACE ============================================== */
-interface_list    ::= interface:i             {: RESULT = new Node(i); :}
-                   | interface:i interface_list:il {: RESULT = new Node(i).addChildren(il); :};
+interface_list   ::= interface:i             {: RESULT = new Node(i); :}
+                   | interface:i interface_list:il
+                       {: RESULT = new Node(i).addChildren(il); :};
 
 interface        ::= IDENTIFIER:id method_args:args method_retvals:mr
                        {: RESULT = new Node(new Node(id), args, mr); :};
 
-
 /* ================= VARIABLE DECLARATION =================================== */
-var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}
-                   | nothing;
-var_decl_rec     ::= var_decl:vd COMMA var_decl_rec:vdr
-                       {: RESULT = new Node(vd).addChildren(vdr); :}
-                   | var_decl:vd             {: RESULT = new Node(vd); :};
+// var_decl is for variable declaration in statements.
+// Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
 var_decl         ::= IDENTIFIER:id COLON type:type
                        {: RESULT = new Node(new Node(id), type); :};
+
+// The following are for variable declaration in func args and retvals. Arrays
+// must be "type_emp"-"array_type_emp"-"boxes_emp" (bracket must be empty).
+var_decl_list    ::= var_decl_rec:vdr    {: RESULT = vdr; :}
+                   | nothing;
+var_decl_rec     ::= var_decl_emp:vd COMMA var_decl_rec:vdr
+                       {: RESULT = new Node(vd).addChildren(vdr); :}
+                   | var_decl_emp:vd         {: RESULT = new Node(vd); :};
+var_decl_emp     ::= IDENTIFIER:id COLON type_emp:type
+                       {: RESULT = new Node(new Node(id), type); :};
+
+/* ================= RETVAL ================================================= */
+// retval: stands for return value
+method_retvals   ::= COLON retvals:rv            {: RESULT = rv; :}
+                   | nothing;
+retvals          ::= type_emp:t COMMA retvals:rv {: RESULT = new Node(t).addChildren(rv); :}
+                   | type_emp:t                  {: RESULT = new Node(t); :};
 
 /* ================= TYPE =================================================== */
 type             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
 primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
                    | BOOL                    {: RESULT = new Node("bool"); :};
+array_type       ::= primitive_type:pt boxes:bs
+                       {: RESULT = bs.addHead(pt); :};
 
-// index: used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3]
-// box:   used for array declaration: a: int[1][][3]
+type_emp         ::= primitive_type:pt       {: RESULT = pt; :}
+                   | array_type_emp:at       {: RESULT = at; :};
+array_type_emp   ::= primitive_type:pt boxes_emp:bs
+                       {: RESULT = bs.addHead(pt); :};
+
+// NOTE:
+// index:   Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
+//          There must be an expression between the bracket.
+// box:     Used for array declaration: a: int[1][][3].
+//          Expression between the bracket is optional.
+// box_emp: Used for array declaration for function argument and return value.
+//          There must be NO expression between the bracket.
 index            ::= OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = e; :}
-                   | OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = null; :};
+                       {: RESULT = e; :};
 indexes          ::= indexes:is index:i
                        {: RESULT = new Node(new Node("[]"), is).addNodes(i); :}
                    | IDENTIFIER:id index:i
@@ -116,15 +135,10 @@ box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
 boxes            ::= box:b boxes:bs          {: RESULT = b.addHead(bs); :}
                    | box:b                   {: RESULT = b; :};
-array_type       ::= primitive_type:pt boxes:bs
-                       {: RESULT = bs.addHead(pt); :};
-
-/* ================= RETVAL ================================================= */
-// retval: stands for return value
-method_retvals   ::= COLON retvals:rv        {: RESULT = rv; :}
-                   | nothing;
-retvals          ::= type:t COMMA retvals:rv {: RESULT = new Node(t).addChildren(rv); :}
-                   | type:t                  {: RESULT = new Node(t); :};
+box_emp          ::= OPEN_BRACKET CLOSE_BRACKET
+                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
+boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b.addHead(bs); :}
+                   | box_emp:b               {: RESULT = b; :};
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
@@ -156,7 +170,7 @@ lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren
 var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
                    | var_decl:vd             {: RESULT = vd; :}
-                   | indexes:i                 {: RESULT = i; :};
+                   | indexes:i               {: RESULT = i; :};
 
 /* ================= EXPRESSION ============================================= */
 // Grouped operator and corresponding expressions into sever tiers.
