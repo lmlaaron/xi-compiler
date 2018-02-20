@@ -181,6 +181,7 @@ var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
 expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
+                   | expr:e COMMA                  {: RESULT = new Node(e); :}
                    | expr:e                        {: RESULT = new Node(e); :};
 expr             ::= expr_t1:t                     {: RESULT = t; :};
 expr_t1          ::= expr_t1:e1 t1op:o expr_t2:e2  {: RESULT = new Node(o,e1,e2); :}
