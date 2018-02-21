@@ -31,17 +31,23 @@ def print_stderr(stderr):
         old_print(bcolors['FAIL'] + stderr + bcolors['ENDC'])
 print = print_log
 
+# os utilities
+def parent_dir(path):
+    return os.path.dirname(os.path.normpath(path))
+
 # Runs a shell command and prints stdout, stderr #
 def run(cmd, print_results = True, end_on_error = False):
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out = result.stdout.decode()
+    err = result.stderr.decode()
     if print_results:
-        print_stdout(result.stdout)
-        print_stderr(result.stderr)
-    fail = (result.stderr != None and len(result.stderr) > 0) or (result.returncode !=0)
+        print_stdout(out)
+        print_stderr(err)
+    fail = (err != None and len(err) > 0) or (result.returncode !=0)
     if (fail and end_on_error):
         print("There was an error, exiting...")
         exit(1)
-    return fail, result.stdout, result.stderr
+    return fail, out, err
 
 # abstract test delegator
 def run_test_set(test_dir, grader_function):
@@ -58,8 +64,8 @@ def run_test_set(test_dir, grader_function):
 
 # utility function for loading up test cases
 def load_testcases(test_dir):
-    testcase_dir = os.path.join(LEXER_TESTS, "testcases")
-    answer_dir = os.path.join(LEXER_TESTS, "answers")
+    testcase_dir = os.path.join(test_dir, "testcases")
+    answer_dir = os.path.join(test_dir, "answers")
 
     testcases = {}
     answers = {}
@@ -86,7 +92,7 @@ def lex_grader(testcase_f, answer_f):
     run(['./xic', '--lex', testcase_f], print_results=False)
     # find the .lexed file
     # TODO: assumes .lexed files have been cleaned. this relies on the clean script which doesn't exist yet
-    _, lexfn, _ = run(['find', os.path.pardir(testcase_f), '*.lexed'], print_results=False)
+    _, lexfn, _ = run(['find', '.', '-name', '*.lexed'], print_results=False)
     lexfn = lexfn.strip()
     if len(lexfn) == 0:
         ret = (False, "couldn't find generated .lexed file")
@@ -103,6 +109,12 @@ def lex_grader(testcase_f, answer_f):
             else:
                 # pass
                 ret = (True, '')
+        else: # testcase should pass
+            if lexed_contents.find('error') >= 0:
+                ret = (False, "Lexer detected an error, but shouldn't have!")
+            else:
+                ret = (True, '')
+
     run(['rm', lexfn], print_results=False)
     return ret
 
@@ -116,17 +128,20 @@ def parse_grader(testcase_f, answer_f):
     run(['./xic', '--parse', testcase_f], print_results=False)
     # find the .parsed file
     # TODO: assumes .parsed files have been cleaned. this relies on the clean script which doesn't exist yet
-    _, lexfn, _ = run(['find', os.path.pardir(testcase_f), '*.parsed'], print_results=False)
+    _, lexfn, _ = run(['find', '.', '-name', '*.parsed'], print_results=False)
     lexfn = lexfn.strip()
     if len(lexfn) == 0:
         ret = (False, "couldn't find generated .parsed file")
     else:
         # examine results:
-        _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
-        _, testcase_contents, _ = run(['cat', answer_f])
-        lexed_contents = remove_whitespace(lexed_contents)
-        testcase_contents = remove_whitespace(testcase_contents)
-        if lexed_contents != testcase_contents:
+        _, result_contents, _ = run(['cat', lexfn], print_results=False)
+        _, answer_contents, _ = run(['cat', answer_f], print_results=False)
+        result_contents = remove_whitespace(result_contents)
+        answer_contents = remove_whitespace(answer_contents)
+        if result_contents != answer_contents:
+            ret = (False, "results {} don't match testcase {} {}".format(result_contents, answer_f, answer_contents))
+        else:
+            ret = (True, "")
 
     run(['rm', lexfn], print_results=False)
     return ret
@@ -176,16 +191,15 @@ def parse_grader(testcase_f, answer_f):
 
 
 def build():
-    # TODO: clean script!
-    # print("===CLEANING===")
-    # run(['./clean'])
+    print("===CLEANING===")
+    run(['./clean'])
     print("===BUILDING===")
     run(['./xic-build'], end_on_error=False) # TODO: SET TO TRUE
 
     print("===RUNNING LEX TESTS===")
     run_test_set(LEXER_TESTS, lex_grader)
     print("===RUNNING PARSE TESTS===")
-    parse_tests()
+    run_test_set(PARSER_TESTS, parse_grader)
 
 
 if __name__ == "__main__":
