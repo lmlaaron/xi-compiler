@@ -1,3 +1,4 @@
+#!/bin/bash
 rm -rf bin/
 find . -type f -name '*.lexed' -delete
 find . -type f -name '*.parsed' -delete
