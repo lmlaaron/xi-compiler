@@ -13,34 +13,42 @@ public class ParserWrapper {
 		REGULAR
 	};
 
-	public static void Parsing(String sourcePath, String destPath, String filename) {
-        String postfix = filename.substring(filename.lastIndexOf(".") + 1);
-
+	public static void Parsing(String source_path, String dest_path, String file_path) {
+		
+		// generate the output postfix
+        String postfix = file_path.substring(file_path.lastIndexOf(".") + 1);
 		PostfixType type;
-
-                String out_postfix=".parsed";
+        String out_postfix=".parsed";
 		if (postfix.equals("ixi")) {
 			type = PostfixType.INTERFACE;
-                        out_postfix=".iparsed";
+            out_postfix=".iparsed";
 		}
 		else if (postfix.equals("xi")) {
 			type = PostfixType.REGULAR;
-                        out_postfix=".parsed";
+            out_postfix=".parsed";
 		}
 		else {
 			System.out.println("file postfix isn't correct");
 			System.exit(1);
 		}
-
-		String filePath = sourcePath + "/" + filename;
-		String outputPath = destPath + "/" + filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf(".")) + out_postfix;
-		if (System.getProperty("os.name") == "Windows 10") {
-			outputPath = outputPath.replace('/', '\\');
+		
+		// generate the complete input and output path
+		String absolute_file_path;
+		String absolute_output_path;
+		File temp = new File(file_path);
+		if (temp.isAbsolute()) {
+			absolute_file_path = file_path;
 		}
+		else {
+			absolute_file_path = source_path + "/" + file_path;
+		}
+		absolute_output_path = dest_path + "/" + file_path.substring(file_path.lastIndexOf("/") + 1, file_path.lastIndexOf(".")) + out_postfix;
+		
+		// parse
 		try {
-			lexer x = new lexer(new FileReader(filePath));
+			lexer x = new lexer(new FileReader(absolute_file_path));
 			parser p = new parser(x);
-			System.setOut(new PrintStream(new File(outputPath)));
+			System.setOut(new PrintStream(new File(absolute_output_path)));
 			p.parse();
 			System.setOut(System.out);
 		}
@@ -48,6 +56,7 @@ public class ParserWrapper {
 			e.printStackTrace();
 			return;
 		}
+		
 		return;
 	}
 }

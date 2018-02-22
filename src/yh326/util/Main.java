@@ -1,4 +1,4 @@
-package yh326;
+package yh326.util;
 
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
@@ -17,6 +17,7 @@ public class Main {
 		String diag_dump_path = System.getProperty("user.dir");
 		diag_dump_path = diag_dump_path.replace('\\', '/');
 		String source_files = argv[argv.length - 1];
+		source_files = source_files.replace('\\', '/');
 		if (argv_alist.contains("--help")) {
 			System.out.println("option --help to show this synopsis.");
 			System.out.println("option --lex to show the result from lexical analysis.");
