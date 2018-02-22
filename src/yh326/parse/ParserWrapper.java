@@ -1,6 +1,11 @@
-package yh326;
+package yh326.parse;
 
-import java.io.*;
+import yh326.gen.lexer;
+import yh326.gen.parser;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.PrintStream;
 
 public class ParserWrapper {
 	enum PostfixType {

@@ -1,4 +1,7 @@
-package yh326;
+package yh326.gen;
+
+import yh326.util.Node;
+import yh326.util.XiSymbol;
 
 parser code  {:
   public void p(String s) {System.out.println(s);}

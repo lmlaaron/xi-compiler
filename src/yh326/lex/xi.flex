@@ -1,4 +1,9 @@
-import java_cup.runtime.*;
+package yh326.gen;
+
+import yh326.util.XiSymbol;
+
+import java_cup.runtime.Scanner;
+import java_cup.runtime.Symbol;
 
 %%
 

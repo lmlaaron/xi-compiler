@@ -1,6 +1,4 @@
 rm -rf bin/
+rm -rf src/yh326/gen/
 find . -type f -name '*.lexed' -delete
 find . -type f -name '*.parsed' -delete
-find . -type f -name 'lexer.java*' -delete
-find . -type f -name 'parser.java' -delete
-find . -type f -name 'sym.java' -delete

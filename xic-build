@@ -1,11 +1,11 @@
 #!/bin/bash
 dir=`cd $(dirname "$0"); pwd`
 pkg=yh326
-cp=$dir/lib/java_cup.jar:$dir/lib/src/:$dir/src/
+cp=$dir/lib/java_cup.jar:$dir/lib/src/:$dir/bin/:$dir/src/
 
-rm -rf $dir/src/$pkg/lexer.java*
-jflex $dir/src/$pkg/xi.flex
-sed -i "1s/^/package $pkg;\n\n/" $dir/src/$pkg/lexer.java
+rm -rf $dir/src/$pkg/gen/lexer.java*
+jflex -d $dir/src/$pkg/gen/ $dir/src/$pkg/lex/xi.flex
+#sed -i "1s/^/package $pkg.gen;\n\n/" $dir/src/$pkg/gen/lexer.java
 
-$dir/lib/cup -interface -destdir $dir/src/$pkg/ $dir/src/$pkg/xi.cup
-javac -cp $cp -d $dir/bin/ $dir/src/$pkg/Main.java
+$dir/lib/cup -interface -destdir $dir/src/$pkg/gen/ $dir/src/$pkg/parse/xi.cup
+javac -cp $cp -d $dir/bin/ $dir/src/$pkg/util/Main.java

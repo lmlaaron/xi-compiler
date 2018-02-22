@@ -1,4 +1,7 @@
-package yh326;
+package yh326.lex;
+
+import yh326.gen.lexer;
+import yh326.gen.sym;
 
 import java.io.FileReader;
 import java.io.FileWriter;
