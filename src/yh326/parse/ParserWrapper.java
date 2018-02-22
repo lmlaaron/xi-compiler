@@ -16,16 +16,16 @@ public class ParserWrapper {
 	public static void Parsing(String sourcePath, String destPath, String filename) {
         String postfix = filename.substring(filename.lastIndexOf(".") + 1);
 
-		PostfixType type;
+		//PostfixType type;
 
-                String out_postfix=".parsed";
+        String out_postfix=".parsed";
 		if (postfix.equals("ixi")) {
-			type = PostfixType.INTERFACE;
-                        out_postfix=".iparsed";
+			//type = PostfixType.INTERFACE;
+            out_postfix=".iparsed";
 		}
 		else if (postfix.equals("xi")) {
-			type = PostfixType.REGULAR;
-                        out_postfix=".parsed";
+			//type = PostfixType.REGULAR;
+            out_postfix=".parsed";
 		}
 		else {
 			System.out.println("file postfix isn't correct");

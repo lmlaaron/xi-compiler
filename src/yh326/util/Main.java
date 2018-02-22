@@ -1,4 +1,4 @@
-package yh326;
+package yh326.util;
 
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
