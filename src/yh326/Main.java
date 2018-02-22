@@ -1,4 +1,4 @@
-package yh326.util;
+package yh326;
 
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
-	private static final boolean INTERFACE = false;
-	private static final boolean REGULAR = true;
+	//private static final boolean INTERFACE = false;
+	//private static final boolean REGULAR = true;
 
 	public static void main(String[] argv) {
 		ArrayList<String> argv_alist = new ArrayList<String> (Arrays.asList(argv));
