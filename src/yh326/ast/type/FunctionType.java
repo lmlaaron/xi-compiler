@@ -25,6 +25,11 @@ public class FunctionType extends Type {
         this.rets = rets;
     }
     
+    /**
+     * @param otherArgs
+     * @throws WrongNumberOfArgumentsException
+     * @throws TypeErrorException
+     */
     public void checkArguments(List<VarType> otherArgs) 
             throws WrongNumberOfArgumentsException, TypeErrorException {
         if (args.size() != otherArgs.size()) {

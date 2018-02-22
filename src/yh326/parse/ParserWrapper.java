@@ -1,11 +1,11 @@
 package yh326.parse;
 
-import yh326.gen.lexer;
-import yh326.gen.parser;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintStream;
+
+import yh326.gen.lexer;
+import yh326.gen.parser;
 
 public class ParserWrapper {
 	enum PostfixType {
@@ -17,14 +17,14 @@ public class ParserWrapper {
 		
 		// generate the output postfix
         String postfix = file_path.substring(file_path.lastIndexOf(".") + 1);
-		PostfixType type;
+		//PostfixType type;
         String out_postfix=".parsed";
 		if (postfix.equals("ixi")) {
-			type = PostfixType.INTERFACE;
+			//type = PostfixType.INTERFACE;
             out_postfix=".iparsed";
 		}
 		else if (postfix.equals("xi")) {
-			type = PostfixType.REGULAR;
+			//type = PostfixType.REGULAR;
             out_postfix=".parsed";
 		}
 		else {

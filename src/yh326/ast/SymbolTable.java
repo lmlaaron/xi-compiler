@@ -4,11 +4,16 @@
 package yh326.ast;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import yh326.ast.exception.FunctionAlreadyDefinedException;
+import yh326.ast.exception.FunctionNotDefinedException;
+import yh326.ast.exception.TypeErrorException;
 import yh326.ast.exception.VariableAlreadyDefinedException;
+import yh326.ast.exception.VariableNotDefinedException;
+import yh326.ast.exception.WrongNumberOfArgumentsException;
 import yh326.ast.type.FunctionType;
 import yh326.ast.type.VarType;
 import yh326.util.Tuple;
@@ -51,7 +56,11 @@ public class SymbolTable {
                 return;
             }
             else {
-                varTable.get(last).pop();
+                Stack<Tuple<VarType, Integer>> value = varTable.get(last);
+                value.pop();
+                if (value.isEmpty()) {
+                    varTable.remove(last);
+                }
             }
         }
         level--;
@@ -82,11 +91,30 @@ public class SymbolTable {
      * @param funcType
      * @throws FunctionAlreadyDefinedException
      */
-    public void addFunc(String name, FunctionType funcType) throws FunctionAlreadyDefinedException {
+    public void addFunc(String name, FunctionType funcType) 
+            throws FunctionAlreadyDefinedException {
         if (funcTable.containsKey(name)) {
             throw new FunctionAlreadyDefinedException();
         } else {
             funcTable.put(name, funcType);
+        }
+    }
+    
+    public void checkVariableType(String varName, VarType actual) 
+            throws TypeErrorException, VariableNotDefinedException {
+        if (varTable.containsKey(varName)) {
+            varTable.get(varName).peek().t1.checkType(actual);
+        } else {
+            throw new VariableNotDefinedException(varName);
+        }
+    }
+    
+    public void checkFunctionArgumentType(String funcName, List<VarType> actual) 
+            throws TypeErrorException, WrongNumberOfArgumentsException, FunctionNotDefinedException {
+        if (funcTable.containsKey(funcName)) {
+            funcTable.get(funcName).checkArguments(actual);
+        } else {
+            throw new FunctionNotDefinedException(funcName);
         }
     }
 }

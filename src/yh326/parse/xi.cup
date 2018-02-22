@@ -3,6 +3,7 @@ package yh326.gen;
 import yh326.ast.node.*;
 import yh326.lex.XiSymbol;
 
+
 parser code  {:
   public void p(String s) {System.out.println(s);}
   public void report_error(String message, Object info) {}
@@ -20,6 +21,8 @@ parser code  {:
       System.out.println(p);
     }
   }
+
+  @SuppressWarnings("unused")
 :};
 
 terminal String IDENTIFIER;

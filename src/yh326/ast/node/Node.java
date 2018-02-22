@@ -9,12 +9,10 @@ import polyglot.util.OptimalCodeWriter;
 public class Node {
     private String value;
     private List<Node> children;
-    private boolean needParen;
 
     public Node(String value) {
         this.value = value;
         this.children = null;
-        this.needParen = false;
     }
 
     public Node(Node... nodes) {

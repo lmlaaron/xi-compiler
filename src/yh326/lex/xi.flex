@@ -2,8 +2,9 @@ package yh326.gen;
 
 import yh326.lex.XiSymbol;
 
-import java_cup.runtime.Scanner;
 import java_cup.runtime.Symbol;
+
+@SuppressWarnings("unused")
 
 %%
 

@@ -1,12 +1,12 @@
 package yh326.lex;
 
-import yh326.gen.lexer;
-import yh326.gen.sym;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java_cup.runtime.Symbol;
+
+import yh326.gen.lexer;
+import yh326.gen.sym;
 
 public class LexerWrapper {
 	public static void Lexing(String source_path, String dest_path, String file_path) {

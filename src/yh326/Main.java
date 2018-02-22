@@ -1,10 +1,10 @@
 package yh326;
 
-import yh326.lex.LexerWrapper;
-import yh326.parse.ParserWrapper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import yh326.lex.LexerWrapper;
+import yh326.parse.ParserWrapper;
 
 public class Main {
 	//private static final boolean INTERFACE = false;
