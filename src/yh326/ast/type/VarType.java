@@ -39,7 +39,8 @@ public class VarType extends Type {
      * @throws Exception 
      */
     public void checkType(VarType other) throws TypeErrorException {
-        if (this.type != other.type || this.level != other.level) {
+        // TODO: this is using reference equality, should use .equals?
+        if (!this.equals(other)) {
             throw new TypeErrorException(this, other);
         }
     }
@@ -65,6 +66,15 @@ public class VarType extends Type {
             typeString += "[]";
         }
         return typeString;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof VarType) {
+            VarType otherType = (VarType)other;
+            return otherType.getType()==getType() && otherType.getLevel()==getLevel();
+        }
+        else {return false;}
     }
     
     
