@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
-
+import yh326.typecheck.*;
 public class Main {
 	//private static final boolean INTERFACE = false;
 	//private static final boolean REGULAR = true;
@@ -53,6 +53,9 @@ public class Main {
 		if (argv_alist.contains("--parse")) {
 			ParserWrapper.Parsing(input_source, diag_dump_path, source_files);
 		}
+                if (argv_alist.contains("--typecheck")) {
+                        TypecheckerWrapper.Typechecking(input_source, diag_dump_path, source_files);
+                }
 		return;
 	}
 }
