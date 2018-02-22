@@ -1,3 +1,4 @@
+#!/bin/bash
 rm -rf bin/
 rm -rf src/yh326/gen/
 find . -type f -name '*.lexed' -delete
