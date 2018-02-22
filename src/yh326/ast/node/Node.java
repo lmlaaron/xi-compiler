@@ -5,17 +5,23 @@ import java.util.List;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import polyglot.util.OptimalCodeWriter;
+import yh326.ast.SymbolTable;
+import yh326.ast.exception.TypeErrorException;
+import yh326.ast.type.Type;
 
 public class Node {
-    private String value;
-    private List<Node> children;
+    protected String value;
+    protected List<Node> children;
+    protected NodeDecoration decoration;
 
     public Node(String value) {
+        this.decoration = new NodeDecoration();
         this.value = value;
         this.children = null;
     }
 
     public Node(Node... nodes) {
+        this.decoration = new NodeDecoration();
         this.value = null;
         this.children = new ArrayList<Node>();
         for (Node node : nodes) {
@@ -42,6 +48,15 @@ public class Node {
             children.add(child);
         }
         return this;
+    }
+
+    /**
+     * @param sTable the complete symbol table for the scope of this node
+     * @return the Type of the node
+     * @throws TypeErrorException if this or some child node has a type error
+     */
+    public Type typeCheck(SymbolTable sTable) throws TypeErrorException {
+        throw new RuntimeException("Type Check Not Implemented!");
     }
 
     /*
