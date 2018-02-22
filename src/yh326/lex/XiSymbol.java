@@ -1,4 +1,4 @@
-package yh326.util;
+package yh326.lex;
 
 import yh326.gen.sym;
 
