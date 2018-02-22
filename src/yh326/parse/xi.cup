@@ -1,6 +1,6 @@
 package yh326.gen;
 
-import yh326.util.Node;
+import yh326.ast.*;
 import yh326.util.XiSymbol;
 
 parser code  {:
