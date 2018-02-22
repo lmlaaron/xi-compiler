@@ -11,10 +11,6 @@ import yh326.ast.exception.TypeErrorException;
  *
  */
 public class VarType extends Type {
-    enum PrimitiveType {
-        INT,
-        BOOL
-    }
     
     private PrimitiveType type;
     private int level;

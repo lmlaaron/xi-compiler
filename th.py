@@ -45,7 +45,9 @@ def run(cmd, print_results = True, end_on_error = False):
         print_stderr(err)
     fail = (err != None and len(err) > 0) or (result.returncode !=0)
     if (fail and end_on_error):
-        print("There was an error, exiting...")
+        print("There was an error:")
+        print_stderr(err)
+        print("Exiting...")
         exit(1)
     return fail, out, err
 
@@ -128,7 +130,7 @@ def parse_grader(testcase_f, answer_f):
     run(['./xic', '--parse', testcase_f], print_results=False)
     # find the .parsed file
     # TODO: assumes .parsed files have been cleaned. this relies on the clean script which doesn't exist yet
-    _, lexfn, _ = run(['find', '.', '-name', '*.parsed'], print_results=False)
+    _, lexfn, _ = run(['find', '.', '-maxdepth', '1' ,'-name', '*.parsed'], print_results=False)
     lexfn = lexfn.strip()
     if len(lexfn) == 0:
         ret = (False, "couldn't find generated .parsed file")
@@ -194,7 +196,7 @@ def build():
     print("===CLEANING===")
     run(['./clean'])
     print("===BUILDING===")
-    run(['./xic-build'], end_on_error=False) # TODO: SET TO TRUE
+    run(['./xic-build'], print_results=False)
 
     print("===RUNNING LEX TESTS===")
     run_test_set(LEXER_TESTS, lex_grader)
