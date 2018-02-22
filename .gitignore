@@ -1,7 +1,5 @@
 /bin/
-
-*.classpath
-*.project
+.*
 *~
 *.lexed
 *.parsed

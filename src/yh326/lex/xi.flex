@@ -1,6 +1,6 @@
 package yh326.gen;
 
-import yh326.util.XiSymbol;
+import yh326.lex.XiSymbol;
 
 import java_cup.runtime.Scanner;
 import java_cup.runtime.Symbol;
