@@ -22,7 +22,8 @@ public class Use extends Node {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         File lib = new File(id + ".ixi");
         if (!lib.exists()) {
-            lib = new File(System.getProperty("user.id") + "/lib/xi/" + id + ".ixi");
+            System.out.println(System.getProperty("user.dir") + "/lib/xi/" + id + ".ixi");
+            lib = new File(System.getProperty("user.dir") + "/lib/xi/" + id + ".ixi");
         }
         if (!lib.exists()) {
             throw new RuntimeException("Interface file " + id + ".ixi not found.");
