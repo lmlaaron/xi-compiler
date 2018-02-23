@@ -2,7 +2,7 @@ package yh326.ast.node.operator;
 
 import yh326.ast.exception.TypeErrorException;
 import yh326.ast.node.Node;
-import yh326.ast.type.Type;
+import yh326.ast.type.NodeType;
 
 import java.util.Arrays;
 
@@ -25,7 +25,7 @@ public class Operator extends Node {
      * @throws  RuntimeException if operands' types were not initialized prior to
      *                           calling this
      */
-    public Type resultTypeFrom(Node... operands) throws TypeErrorException {
+    public NodeType resultTypeFrom(Node... operands) throws TypeErrorException {
         // validate number of arguments
         if (operands.length < 1)
             throw new RuntimeException("Must have at least one operand!");
@@ -38,7 +38,7 @@ public class Operator extends Node {
         }
 
         // make sure all operands have same type
-        Type type = operands[0].decoration.getType();
+        NodeType type = operands[0].decoration.getType();
         if (!Arrays.stream(operands).allMatch(operand -> operand.decoration.getType().equals(type))) {
             throw new TypeErrorException(this, "Operand types don't match!");
         }
@@ -50,7 +50,7 @@ public class Operator extends Node {
     protected boolean validNumOperands(int num) {
         throw new RuntimeException("validNumOperands not implemented for class!");
     }
-    protected Type returnTypeForOperandType(Type operandType) throws TypeErrorException {
+    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         throw new RuntimeException("returnTypeForOperandType not implemented for class!");
     }
 }

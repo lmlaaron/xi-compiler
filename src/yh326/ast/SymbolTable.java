@@ -9,8 +9,8 @@ import java.util.Stack;
 
 import yh326.ast.exception.FunctionAlreadyDefinedException;
 import yh326.ast.exception.VariableAlreadyDefinedException;
-import yh326.ast.type.FunctionType;
-import yh326.ast.type.VariableType;
+import yh326.ast.type.FunctionNodeType;
+import yh326.ast.type.VariableNodeType;
 import yh326.util.Tuple;
 
 /**
@@ -20,8 +20,8 @@ import yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
-    private Map<String, Stack<Tuple<VariableType, Integer>>> varTable;
-    private Map<String, FunctionType> funcTable;
+    private Map<String, Stack<Tuple<VariableNodeType, Integer>>> varTable;
+    private Map<String, FunctionNodeType> funcTable;
     private int level;
     
     /**
@@ -29,7 +29,7 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<String>();
-        varTable = new HashMap<String, Stack<Tuple<VariableType, Integer>>>();
+        varTable = new HashMap<String, Stack<Tuple<VariableNodeType, Integer>>>();
         level = 0;
     }
     
@@ -51,7 +51,7 @@ public class SymbolTable {
                 return;
             }
             else {
-                Stack<Tuple<VariableType, Integer>> value = varTable.get(last);
+                Stack<Tuple<VariableNodeType, Integer>> value = varTable.get(last);
                 value.pop();
                 if (value.isEmpty()) {
                     varTable.remove(last);
@@ -66,17 +66,17 @@ public class SymbolTable {
      * @param VariableType
      * @throws VariableAlreadyDefinedException
      */
-    public void addVar(String name, VariableType VariableType) throws VariableAlreadyDefinedException {
+    public void addVar(String name, VariableNodeType VariableType) throws VariableAlreadyDefinedException {
         logs.push(name);
         if (varTable.containsKey(name)) {
             if (varTable.get(name).peek().t2.intValue() == level) {
                 throw new VariableAlreadyDefinedException();
             } else {
-                varTable.get(name).push(new Tuple<VariableType, Integer>(VariableType, level));
+                varTable.get(name).push(new Tuple<VariableNodeType, Integer>(VariableType, level));
             }
         } else {
-            Stack<Tuple<VariableType, Integer>> value = new Stack<Tuple<VariableType, Integer>>();
-            value.push(new Tuple<VariableType, Integer>(VariableType, level));
+            Stack<Tuple<VariableNodeType, Integer>> value = new Stack<Tuple<VariableNodeType, Integer>>();
+            value.push(new Tuple<VariableNodeType, Integer>(VariableType, level));
             varTable.put(name, value);
         }
     }
@@ -86,7 +86,7 @@ public class SymbolTable {
      * @param funcType
      * @throws FunctionAlreadyDefinedException
      */
-    public void addFunc(String name, FunctionType funcType) 
+    public void addFunc(String name, FunctionNodeType funcType)
             throws FunctionAlreadyDefinedException {
         if (funcTable.containsKey(name)) {
             throw new FunctionAlreadyDefinedException();
@@ -101,7 +101,7 @@ public class SymbolTable {
      * @param varName The name of the variable
      * @return The type of the variable with the given name or null.
      */
-    public VariableType getVariableType(String varName) {
+    public VariableNodeType getVariableType(String varName) {
         if (varTable.containsKey(varName)) {
             return varTable.get(varName).peek().t1;
         } else {
@@ -115,7 +115,7 @@ public class SymbolTable {
      * @param funcName The name of the function
      * @return The type of the function with the given name or null.
      */
-    public FunctionType getFunctionType(String funcName) {
+    public FunctionNodeType getFunctionType(String funcName) {
         if (funcTable.containsKey(funcName)) {
             return funcTable.get(funcName);
         } else {

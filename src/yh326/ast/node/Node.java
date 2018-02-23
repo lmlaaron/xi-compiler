@@ -7,7 +7,7 @@ import edu.cornell.cs.cs4120.util.SExpPrinter;
 import polyglot.util.OptimalCodeWriter;
 import yh326.ast.SymbolTable;
 import yh326.ast.exception.TypeErrorException;
-import yh326.ast.type.Type;
+import yh326.ast.type.NodeType;
 
 /**
  * A abstract node in the AST of a program.
@@ -46,11 +46,11 @@ public class Node {
     /**
      * An abstract method that checks if the node has a valid type.
      * @param sTable the complete symbol table for the scope of this node
-     * @return the Type of the node
+     * @return the NodeType of the node
      * @throws TypeErrorException if this or some child node has a type error
      */
-    public Type typeCheck(SymbolTable sTable) throws TypeErrorException {
-        throw new RuntimeException("Type Check Not Implemented!");
+    public NodeType typeCheck(SymbolTable sTable) throws TypeErrorException {
+        throw new RuntimeException("NodeType Check Not Implemented!");
     }
 
     /**

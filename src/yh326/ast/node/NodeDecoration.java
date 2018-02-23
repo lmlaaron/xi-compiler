@@ -1,6 +1,6 @@
 package yh326.ast.node;
 
-import yh326.ast.type.Type;
+import yh326.ast.type.NodeType;
 
 /**
  * During lexical analysis, passes are made over the AST which
@@ -8,14 +8,14 @@ import yh326.ast.type.Type;
  * this class
  */
 public class NodeDecoration {
-    protected Type nodeType;
+    protected NodeType nodeType;
 
     public NodeDecoration() {
 
     }
 
     public boolean hasType() { return nodeType != null; }
-    public void setType(Type t) { nodeType = t; }
-    public Type getType() { return nodeType; }
+    public void setType(NodeType t) { nodeType = t; }
+    public NodeType getType() { return nodeType; }
 
 }

@@ -9,7 +9,7 @@ foo() {
     i = 1 + 2 + 3
     i = 1 - 2 - 3
 
-    // this would fail due to type rules
+    // this would fail due to typeNode rules
     b = 1 < 2 < 3
     b = 1 <= 2 <= 3
     b = 1 > 2 > 3

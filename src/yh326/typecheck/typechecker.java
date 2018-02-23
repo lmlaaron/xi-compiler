@@ -21,7 +21,7 @@ public class typechecker {
        try {
             root.typeCheck()       
         } catch(Exception e) {
-            throw new RuntimeExcepteion("Type error");
+            throw new RuntimeExcepteion("NodeType error");
         }*/
     }
     //private:

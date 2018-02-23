@@ -33,13 +33,13 @@ public class PRCALLUNIT extends Stmt {
          this.children = new ArrayList<Node>();
      }
      @Override
-     public Type typeCheck(SymbolTable st) throws TypeErrorException {
+     public NodeType typeCheck(SymbolTable st) throws TypeErrorException {
         try { 
             st.checkVariableType(identifier, );   
         } catch (Exception e) {
             throw new TypeErrorException(dd,);
         }
-        return new VarType(PrimitiveType.UNIT);
+        return new VarType(PrimitiveTypeNode.UNIT);
      }
 }
 

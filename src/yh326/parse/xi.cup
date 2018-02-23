@@ -3,7 +3,7 @@ package yh326.gen;
 import yh326.ast.node.*;
 import yh326.ast.node.interfc.*;
 import yh326.ast.node.retval.*;
-import yh326.ast.node.type.*;
+import yh326.ast.node.typeNode.*;
 import yh326.ast.node.use.*;
 import yh326.ast.node.vardecl.*;
 import yh326.lex.XiSymbol;
@@ -62,7 +62,7 @@ nonterminal VarDeclList var_decl_list, var_decl_rec;
 
 nonterminal RetvalList retvals_list, retvals;
 
-nonterminal Type type;
+nonterminal Type typeNode;
 nonterminal Type primitive_type;
 nonterminal Type array_type;
 nonterminal Type type_emp;
@@ -112,9 +112,9 @@ interface        ::= IDENTIFIER:id method_args:args retvals_list:mr
 
 /* ================= VARIABLE DECLARATION =================================== */
 // var_decl is for variable declaration in statements.
-// Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
-var_decl         ::= IDENTIFIER:id COLON type:type
-                       {: RESULT = new VarDecl(id, type); :};
+// Arrays must be "typeNode"-"array_type"-"boxes" (allows empty or non-empty bracket).
+var_decl         ::= IDENTIFIER:id COLON typeNode:typeNode
+                       {: RESULT = new VarDecl(id, typeNode); :};
 
 // The following are for variable declaration in func args and retvals. Arrays
 // must be "type_emp"-"array_type_emp"-"boxes_emp" (bracket must be empty).
@@ -124,8 +124,8 @@ var_decl_rec     ::= var_decl_emp:vd COMMA var_decl_rec:vdr
                        {: RESULT = new VarDeclList(vd); RESULT.addChildren(vdr); :}
                    | var_decl_emp:vd
                        {: RESULT = new VarDeclList(vd); :};
-var_decl_emp     ::= IDENTIFIER:id COLON type_emp:type
-                       {: RESULT = new VarDeclEmp(id, type); :};
+var_decl_emp     ::= IDENTIFIER:id COLON type_emp:typeNode
+                       {: RESULT = new VarDeclEmp(id, typeNode); :};
 
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
@@ -135,7 +135,7 @@ retvals          ::= type_emp:t COMMA retvals:rv {: RESULT = new RetvalList(t); 
                    | type_emp:t                  {: RESULT = new RetvalList(t); :};
 
 /* ================= TYPE =================================================== */
-type             ::= primitive_type:pt       {: RESULT = pt; :}
+typeNode             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
 primitive_type   ::= INT                     {: RESULT = new PrimitiveType("int"); :}
                    | BOOL                    {: RESULT = new PrimitiveType("bool"); :};

@@ -1,7 +1,7 @@
 package yh326.ast.node.retval;
 
 import yh326.ast.node.Node;
-import yh326.ast.node.type.Type;
+import yh326.ast.node.type.TypeNode;
 
 /**
  * A node that represents a list of return value types.
@@ -9,7 +9,7 @@ import yh326.ast.node.type.Type;
  *
  */
 public class RetvalList extends Node {
-    public RetvalList(Type t) {
+    public RetvalList(TypeNode t) {
         super(t);
     }
 }

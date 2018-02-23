@@ -5,10 +5,9 @@ import yh326.ast.exception.TypeErrorException;
 import yh326.ast.node.Expr;
 import yh326.ast.node.Node;
 import yh326.ast.node.NodeDecoration;
-import yh326.ast.node.stmt.Stmt;
-import yh326.ast.type.PrimitiveType;
-import yh326.ast.type.Type;
-import yh326.ast.type.VariableType;
+import yh326.ast.type.PrimitiveNodeType;
+import yh326.ast.type.NodeType;
+import yh326.ast.type.VariableNodeType;
 
 import java.util.ArrayList;
 
@@ -30,13 +29,13 @@ public class WHILE extends Stmt {
     }
 
     @Override
-    public Type typeCheck(SymbolTable st) throws TypeErrorException {
-        Type tg = guard.typeCheck(st);
-        Type boolType = new VariableType(PrimitiveType.BOOL);
+    public NodeType typeCheck(SymbolTable st) throws TypeErrorException {
+        NodeType tg = guard.typeCheck(st);
+        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         if (!tg.equals(boolType)) {
             throw new TypeErrorException(boolType, tg);
         }
-        Type tc = consequent.typeCheck(st);
-        return new VariableType(PrimitiveType.UNIT);
+        NodeType tc = consequent.typeCheck(st);
+        return new VariableNodeType(PrimitiveNodeType.UNIT);
     }
 }

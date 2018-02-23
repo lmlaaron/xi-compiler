@@ -156,7 +156,7 @@ def parse_grader(testcase_f, answer_f):
 # def lex_tests():
 #     testcase_dir, answer_dir, testcases, answers = load_testcases(LEXER_TESTS)
 #
-#     results = [] # elements of type (testcode, result[bool], error[str]) tuple
+#     results = [] # elements of typeNode (testcode, result[bool], error[str]) tuple
 #
 #     for k in testcases.keys():
 #         # run the lexer

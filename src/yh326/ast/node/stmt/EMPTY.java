@@ -1,15 +1,15 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.exception.TypeErrorException;
-import yh326.ast.type.PrimitiveType;
-import yh326.ast.type.Type;
-import yh326.ast.type.VariableType;
+import yh326.ast.type.NodeType;
+import yh326.ast.type.PrimitiveNodeType;
+import yh326.ast.type.VariableNodeType;
 
 public class EMPTY extends Stmt {
 
-    public Type typeCheck() throws TypeErrorException {
+    public NodeType typeCheck() throws TypeErrorException {
         if (this.value=="{}") {
-            return new VariableType(PrimitiveType.UNIT);
+            return new VariableNodeType(PrimitiveNodeType.UNIT);
         }
     }
 }

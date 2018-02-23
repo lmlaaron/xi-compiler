@@ -4,7 +4,7 @@ import yh326.ast.SymbolTable;
 import yh326.ast.exception.TypeErrorException;
 import yh326.ast.node.Node;
 import yh326.ast.node.NodeDecoration;
-import yh326.ast.type.Type;
+import yh326.ast.type.NodeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ public class SEQ extends Stmt {
     }
 
     @Override
-    public Type typeCheck(SymbolTable st) throws TypeErrorException {
-        Type retT = null;
+    public NodeType typeCheck(SymbolTable st) throws TypeErrorException {
+        NodeType retT = null;
         for (Node node : this.children) {
             retT = node.typeCheck(st);
         }
