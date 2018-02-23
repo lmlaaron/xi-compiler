@@ -31,7 +31,27 @@ public class VarType extends Type {
         this.type = type;
         this.level = level;
     }
-    
+
+    /**
+     * @param other
+     * @return unit type if a or b is unit type
+     * @throws exception
+     **/
+    public Type Lub(Type a, Type b) throws TypeErrorException { 
+        if ( a.equals(b)) {
+           return a;
+        } else if ( a instanceof varType ) { 
+           if ( a.equals(varType(PrimitiveType.UNIT)) {
+              return new varType(PrimitiveType.UNIT);
+           } 
+        } else if ( b instanceof varType ) {
+           if ( b.equals(varType(PrimitiveType.UNIT)) {
+              return new varType(PrimitiveType.UNIT);
+           } 
+        } else {
+           throw new TypeErrorException(a, b);
+        }
+    }    
     
     /**
      * @param other
