@@ -2,14 +2,9 @@ package yh326.ast.node;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
-import edu.cornell.cs.cs4120.util.SExpPrinter;
-import polyglot.util.OptimalCodeWriter;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.UnitNodeType;
-import yh326.exception.ParsingException;
 import yh326.exception.TypeErrorException;
 
 /**
