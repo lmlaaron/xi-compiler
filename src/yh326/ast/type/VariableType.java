@@ -1,5 +1,6 @@
 package yh326.ast.type;
 
+import yh326.ast.exception.*;
 /**
  * @author Syugen
  *
@@ -34,13 +35,13 @@ public class VariableType extends Type {
     public Type Lub(Type a, Type b) throws TypeErrorException { 
         if ( a.equals(b)) {
            return a;
-        } else if ( a instanceof varType ) { 
-           if ( a.equals(varType(PrimitiveType.UNIT)) {
-              return new varType(PrimitiveType.UNIT);
+        } else if ( a instanceof VariableType ) { 
+           if ( a.equals(VariableType(PrimitiveType.UNIT))) {
+              return new VariableType(PrimitiveType.UNIT);
            } 
-        } else if ( b instanceof varType ) {
-           if ( b.equals(varType(PrimitiveType.UNIT)) {
-              return new varType(PrimitiveType.UNIT);
+        } else if ( b instanceof VariableType ) {
+           if ( b.equals(VariableType(PrimitiveType.UNIT))) {
+              return new VariableType(PrimitiveType.UNIT);
            } 
         } else {
            throw new TypeErrorException(a, b);

@@ -2,7 +2,7 @@
  * author: ml2558
  **/
 package yh326.ast.node;
-import yh326.ast.type.*;
+import yh326.ast.type.*; //TODO should it be ast.node.type?
 public class Stmt extends Node {
 
 }
