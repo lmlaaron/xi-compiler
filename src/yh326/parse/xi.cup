@@ -3,9 +3,10 @@ package yh326.gen;
 import yh326.ast.node.*;
 import yh326.ast.node.interfc.*;
 import yh326.ast.node.retval.*;
-import yh326.ast.node.typeNode.*;
+import yh326.ast.node.type.*;
 import yh326.ast.node.use.*;
 import yh326.ast.node.vardecl.*;
+import yh326.exception.ParsingException;
 import yh326.lex.XiSymbol;
 
 
@@ -14,7 +15,7 @@ parser code  {:
   public void report_error(String message, Object info) {}
   public void report_expected_token_ids() {}
 
-  public void report_fatal_error(String message, Object info) {
+  public void report_fatal_error(String message, Object info) throws ParsingException {
     if (info instanceof XiSymbol) {
       XiSymbol s = (XiSymbol) info;
       String p = "" + s.getLine() + ":" + s.getColumn() + " ";
@@ -23,7 +24,7 @@ parser code  {:
         } else {
           p += "error: Unexpected token " + s.value;
         }
-      System.out.println(p);
+      throw new ParsingException(p);
     }
   }
 
@@ -62,13 +63,13 @@ nonterminal VarDeclList var_decl_list, var_decl_rec;
 
 nonterminal RetvalList retvals_list, retvals;
 
-nonterminal Type typeNode;
-nonterminal Type primitive_type;
-nonterminal Type array_type;
-nonterminal Type type_emp;
-nonterminal Type array_type_emp;
+nonterminal TypeNode typeNode;
+nonterminal TypeNode primitive_type;
+nonterminal TypeNode array_type;
+nonterminal TypeNode type_emp;
+nonterminal TypeNode array_type_emp;
 
-nonterminal Type box, boxes, box_emp, boxes_emp;
+nonterminal TypeNode box, boxes, box_emp, boxes_emp;
 
 nonterminal Node subscript, subscripts, subscriptable;
 
@@ -83,11 +84,11 @@ nonterminal Node nothing;
 
 start with program;
 
-program          ::= use_list:ul method_list:ml {: Node.write(new Node(ul, ml)); :}
-                   | method_list:ml             {: Node.write(new Node(null,ml)); :}
-                   | interface_list:il          {: Node.write(new Node(il)); :}
-                   | use_list:ul                {: Node.write(new Node(ul, null)); :}
-                   | nothing                    {: Node.write(new Node(null, null)); :};
+program          ::= use_list:ul method_list:ml {: RESULT = new Node(ul, ml); :}
+                   | method_list:ml             {: RESULT = new Node(null, ml); :}
+                   | interface_list:il          {: RESULT = new Node(il); :}
+                   | use_list:ul                {: RESULT = new Node(ul, null); :}
+                   | nothing                    {: RESULT = new Node(null, null); :};
 
 /* ================= USE ==================================================== */
 use_list         ::= use:u use_list:ul {: RESULT = new UseList(u); RESULT.addChildren(ul); :}
@@ -137,8 +138,8 @@ retvals          ::= type_emp:t COMMA retvals:rv {: RESULT = new RetvalList(t); 
 /* ================= TYPE =================================================== */
 typeNode             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
-primitive_type   ::= INT                     {: RESULT = new PrimitiveType("int"); :}
-                   | BOOL                    {: RESULT = new PrimitiveType("bool"); :};
+primitive_type   ::= INT                     {: RESULT = new PrimitiveTypeNode("int"); :}
+                   | BOOL                    {: RESULT = new PrimitiveTypeNode("bool"); :};
 array_type       ::= primitive_type:pt boxes:bs
                        {: RESULT = bs; RESULT.addHead(pt); :};
 
@@ -155,21 +156,21 @@ array_type_emp   ::= primitive_type:pt boxes_emp:bs
 // subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
 //            There must be an expression between the bracket.
 box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null, e); :}
+                       {: RESULT = new TypeNode(new TypeNode("[]")); RESULT.addNodes((Node) null, e); :}
                    | OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null); :};
+                       {: RESULT = new TypeNode(new TypeNode("[]")); RESULT.addNodes((Node) null); :};
 boxes            ::= box:b boxes:bs          {: RESULT = b; RESULT.addHead(bs); :}
                    | box:b                   {: RESULT = b; :};
 box_emp          ::= OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null); :};
+                       {: RESULT = new TypeNode(new TypeNode("[]")); RESULT.addNodes((Node) null); :};
 boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b; RESULT.addHead(bs); :}
                    | box_emp:b               {: RESULT = b; :};
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = e; :};
 subscripts       ::= subscripts:ss subscript:s
-                       {: RESULT = new Type(new Type("[]"), ss); RESULT.addNodes(s); :}
+                       {: RESULT = new TypeNode(new TypeNode("[]"), ss); RESULT.addNodes(s); :}
                    | subscriptable:sb subscript:s
-                       {: RESULT = new Type(new Type("[]"), sb); RESULT.addNodes(s); :};
+                       {: RESULT = new TypeNode(new TypeNode("[]"), sb); RESULT.addNodes(s); :};
 subscriptable    ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | method_call:mc          {: RESULT = new Node(mc); :}/*
                    | array_literal:al        {: RESULT = new Node(al); :}*/;

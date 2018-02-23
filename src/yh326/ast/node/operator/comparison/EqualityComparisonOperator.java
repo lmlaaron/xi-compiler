@@ -1,9 +1,9 @@
 package yh326.ast.node.operator.comparison;
 
-import yh326.ast.exception.TypeErrorException;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.TypeErrorException;
 
 public class EqualityComparisonOperator extends ComparisonOperator {
     public EqualityComparisonOperator(String repr) {

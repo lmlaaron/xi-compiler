@@ -1,4 +1,4 @@
-package yh326.ast.exception;
+package yh326.exception;
 
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
@@ -16,6 +16,10 @@ public class TypeErrorException extends Exception {
     }
 
     public TypeErrorException(Node n, String s) {
+        super(s);
+    }
+    
+    public TypeErrorException(String s) {
         super(s);
     }
 }

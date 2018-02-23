@@ -1,6 +1,6 @@
 package yh326.ast.type;
 
-import yh326.ast.exception.*;
+import yh326.exception.TypeErrorException;
 /**
  * @author Syugen
  *
@@ -32,19 +32,15 @@ public class VariableNodeType extends NodeType {
      * @return unit type if a or b is unit type
      * @throws exception
      **/
-    public NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
-        if ( a.equals(b)) {
-           return a;
-        } else if ( a instanceof VariableNodeType) {
-           if ( a.equals(VariableType(PrimitiveNodeType.UNIT))) {
-              return new VariableNodeType(PrimitiveNodeType.UNIT);
-           } 
-        } else if ( b instanceof VariableNodeType) {
-           if ( b.equals(VariableType(PrimitiveNodeType.UNIT))) {
-              return new VariableNodeType(PrimitiveNodeType.UNIT);
-           } 
+    public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
+        if (a.equals(b)) {
+            return a;
+        } else if (a instanceof UnitNodeType) {
+            return a;
+        } else if (b instanceof UnitNodeType) {
+            return b;
         } else {
-           throw new TypeErrorException(a, b);
+            throw new TypeErrorException(a, b); // TODO Wrong use of the Exception
         }
     }    
    

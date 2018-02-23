@@ -6,8 +6,11 @@ import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import polyglot.util.OptimalCodeWriter;
 import yh326.ast.SymbolTable;
-import yh326.ast.exception.TypeErrorException;
 import yh326.ast.type.NodeType;
+import yh326.ast.type.PrimitiveNodeType;
+import yh326.ast.type.UnitNodeType;
+import yh326.exception.ParsingException;
+import yh326.exception.TypeErrorException;
 
 /**
  * A abstract node in the AST of a program.
@@ -15,9 +18,9 @@ import yh326.ast.type.NodeType;
  *
  */
 public class Node {
-    protected String value;
-    protected List<Node> children;
-    protected NodeDecoration decoration;
+    public String value;
+    public List<Node> children;
+    public NodeDecoration decoration;
 
     /**
      * Use this constructor to construct a leaf node.
@@ -44,13 +47,26 @@ public class Node {
     }
 
     /**
-     * An abstract method that checks if the node has a valid type.
+     * Checks if the node has a valid type. Subclasses that involve variable 
+     * or function declaration or using should rewrite this method. Others
+     * (like "UseList", "Keyword" class, etc) don't need to rewrite.
      * @param sTable the complete symbol table for the scope of this node
      * @return the NodeType of the node
      * @throws TypeErrorException if this or some child node has a type error
+     * @throws Exception 
      */
-    public NodeType typeCheck(SymbolTable sTable) throws TypeErrorException {
-        throw new RuntimeException("NodeType Check Not Implemented!");
+    public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        System.out.println(this.getClass());
+        
+        if (this.children == null) {
+            System.out.println("    " + this.value);
+            return new UnitNodeType();
+        }
+        System.out.println("    " + this.children.size());
+        for (Node child : children) {
+            child.typeCheck(sTable);
+        }
+        return new UnitNodeType();
     }
 
     /**
@@ -105,37 +121,6 @@ public class Node {
             cur = cur.children.get(1);
         }
         cur.children.set(1, node);
-    }
-
-    /**
-     * Print the AST to System.out.
-     * @param node The root of the AST to be printed.
-     */
-    public static void write(Node node) {
-        OptimalCodeWriter writer = new OptimalCodeWriter(System.out, 40);
-        SExpPrinter printer = new CodeWriterSExpPrinter(writer);
-        writeRec(node, printer);
-        printer.close();
-    }
-
-    /**
-     * Helper function of write(Node).
-     * @param node The root of the AST to be printed.
-     * @param printer The printer.
-     */
-    private static void writeRec(Node node, SExpPrinter printer) {
-        if (node == null) {
-            printer.startList();
-            printer.endList();
-        } else if (node.children == null) {
-            printer.printAtom(node.value);
-        } else {
-            printer.startList();
-            for (Node child : node.children) {
-                writeRec(child, printer);
-            }
-            printer.endList();
-        }
     }
 
     @Override

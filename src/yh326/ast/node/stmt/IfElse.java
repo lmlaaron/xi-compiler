@@ -1,22 +1,22 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.exception.TypeErrorException;
 import yh326.ast.node.Expr;
 import yh326.ast.node.Node;
 import yh326.ast.node.NodeDecoration;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.TypeErrorException;
 
 import java.util.ArrayList;
 
-public class IFELSE extends Stmt {
+public class IfElse extends Stmt {
     protected Expr guard;
     protected Stmt consequent;
     protected Stmt alternative;
 
-    public IFELSE(Node... nodes) {
+    public IfElse(Node... nodes) {
         this.decoration = new NodeDecoration();
         this.value = null;
         this.children = new ArrayList<Node>();
@@ -31,7 +31,7 @@ public class IFELSE extends Stmt {
     }
 
     @Override
-    public NodeType typeCheck(SymbolTable st) throws TypeErrorException {
+    public NodeType typeCheck(SymbolTable st) throws Exception {
         NodeType tg = guard.typeCheck(st);
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         if (!tg.equals(boolType)) {
@@ -39,6 +39,6 @@ public class IFELSE extends Stmt {
         }
         NodeType tc = consequent.typeCheck(st);
         NodeType ta = alternative.typeCheck(st);
-        return new NodeType.Lub(tc, ta); // TODO: what is Lub????
+        return VariableNodeType.Lub(tc, ta); // TODO: what is Lub????
     }
 }

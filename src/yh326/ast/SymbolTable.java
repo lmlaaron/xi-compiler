@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import yh326.ast.exception.FunctionAlreadyDefinedException;
-import yh326.ast.exception.VariableAlreadyDefinedException;
 import yh326.ast.type.FunctionNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.FunctionAlreadyDefinedException;
+import yh326.exception.VariableAlreadyDefinedException;
 import yh326.util.Tuple;
 
 /**

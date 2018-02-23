@@ -2,8 +2,14 @@ package yh326.parse;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.PrintStream;
 
+import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
+import edu.cornell.cs.cs4120.util.SExpPrinter;
+import polyglot.util.OptimalCodeWriter;
+import yh326.ast.node.Node;
+import yh326.exception.ParsingException;
 import yh326.gen.lexer;
 import yh326.gen.parser;
 
@@ -46,11 +52,15 @@ public class ParserWrapper {
 		
 		// parse
 		try {
-			lexer x = new lexer(new FileReader(absolute_file_path));
+		    FileWriter writer = new FileWriter(absolute_output_path);
+            lexer x = new lexer(new FileReader(absolute_file_path));
 			parser p = new parser(x);
-			System.setOut(new PrintStream(new File(absolute_output_path)));
-			p.parse();
-			System.setOut(System.out);
+			try {
+			    write((Node) p.parse().value, writer);
+			} catch (ParsingException e) {
+			    writer.write(e.getMessage() + "\n");
+			}
+			writer.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -59,4 +69,35 @@ public class ParserWrapper {
 		
 		return;
 	}
+	
+	/**
+     * Print the AST to System.out.
+     * @param node The root of the AST to be printed.
+     */
+    public static void write(Node node, FileWriter fileWriter) {
+        OptimalCodeWriter writer = new OptimalCodeWriter(fileWriter, 40);
+        SExpPrinter printer = new CodeWriterSExpPrinter(writer);
+        writeRec(node, printer);
+        printer.close();
+    }
+
+    /**
+     * Helper function of write(Node).
+     * @param node The root of the AST to be printed.
+     * @param printer The printer.
+     */
+    private static void writeRec(Node node, SExpPrinter printer) {
+        if (node == null) {
+            printer.startList();
+            printer.endList();
+        } else if (node.children == null) {
+            printer.printAtom(node.value);
+        } else {
+            printer.startList();
+            for (Node child : node.children) {
+                writeRec(child, printer);
+            }
+            printer.endList();
+        }
+    }
 }

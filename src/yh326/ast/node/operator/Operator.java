@@ -1,8 +1,8 @@
 package yh326.ast.node.operator;
 
-import yh326.ast.exception.TypeErrorException;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
+import yh326.exception.TypeErrorException;
 
 import java.util.Arrays;
 

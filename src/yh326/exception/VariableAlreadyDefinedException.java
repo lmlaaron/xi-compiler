@@ -1,4 +1,4 @@
-package yh326.ast.exception;
+package yh326.exception;
 
 public class VariableAlreadyDefinedException extends Exception {
 

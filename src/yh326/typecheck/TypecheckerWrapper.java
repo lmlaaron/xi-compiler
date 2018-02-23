@@ -2,12 +2,14 @@ package yh326.typecheck;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.PrintStream;
 
+import yh326.ast.SymbolTable;
+import yh326.ast.node.Node;
+import yh326.exception.ParsingException;
 import yh326.gen.lexer;
 import yh326.gen.parser;
-import yh326.typecheck.typechecker;
-import yh326.gen.sym;
 
 public class TypecheckerWrapper {
 	enum PostfixType {
@@ -48,12 +50,19 @@ public class TypecheckerWrapper {
 		
 		// typecheckomg
 		try {
-			lexer x = new lexer(new FileReader(absolute_file_path));
+		    FileWriter writer = new FileWriter(absolute_output_path);
+            lexer x = new lexer(new FileReader(absolute_file_path));
 			parser p = new parser(x);
-                        typechecker tc = new typechecker(p);
-			System.setOut(new PrintStream(new File(absolute_output_path)));
-			tc.typecheck();
-			System.setOut(System.out);
+			try {
+			    Node ast = (Node) p.parse().value;
+			    SymbolTable sTable = new SymbolTable();
+	            ast.typeCheck(sTable);
+            } catch (ParsingException e) {
+                writer.write(e.getMessage() + "\n");
+            } catch (Exception e) { // TODO TypeChecking exception
+                writer.write(e.getMessage() + "\n");
+            }
+            writer.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

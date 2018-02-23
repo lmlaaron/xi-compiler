@@ -1,6 +1,4 @@
-package yh326.ast.node.operator.logical;
-
-import yh326.ast.node.operator.arithmetic.ArithmeticOperator;
+package yh326.ast.node.operator.arithmetic;
 
 public class ArithmeticNegation extends ArithmeticOperator {
     public ArithmeticNegation() {
