@@ -17,7 +17,7 @@ import yh326.ast.type.NodeType;
 public class Node {
     protected String value;
     protected List<Node> children;
-    protected NodeDecoration decoration;
+    public NodeDecoration decoration;
 
     /**
      * Use this constructor to construct a leaf node.

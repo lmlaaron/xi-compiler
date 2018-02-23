@@ -47,10 +47,10 @@ public class Operator extends Node {
         return returnTypeForOperandType(type);
     }
 
-    protected boolean validNumOperands(int num) {
+    public boolean validNumOperands(int num) {
         throw new RuntimeException("validNumOperands not implemented for class!");
     }
-    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         throw new RuntimeException("returnTypeForOperandType not implemented for class!");
     }
 }
