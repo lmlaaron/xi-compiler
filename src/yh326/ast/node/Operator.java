@@ -5,6 +5,7 @@ import yh326.ast.type.Type;
 
 import java.util.Arrays;
 
+//TODO: after modifying cup file, make this and other node super classes abstract
 public class Operator extends Node {
     public Operator(String repr) {
         super(repr);
