@@ -92,7 +92,7 @@ program          ::= use_list:ul method_list:ml {: RESULT = new Node(ul, ml); :}
 
 /* ================= USE ==================================================== */
 use_list         ::= use:u use_list:ul {: RESULT = new UseList(u); RESULT.addChildren(ul); :}
-                   | use:u             {: RESULT = new UseList(u); :};
+                   | use:u             {: RESULT = new UseList(u); System.out.println(uleft); :};
 use              ::= USE IDENTIFIER:id {: RESULT = new Use(id); :};
 
 /* ================= METHOD ================================================= */

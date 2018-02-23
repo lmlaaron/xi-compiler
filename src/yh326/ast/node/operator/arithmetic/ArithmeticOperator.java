@@ -12,7 +12,7 @@ public class ArithmeticOperator extends Operator {
     }
 
     @Override
-    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
         if (operandType.equals(intType)) {
             return intType;
@@ -23,7 +23,7 @@ public class ArithmeticOperator extends Operator {
     }
 
     @Override
-    protected boolean validNumOperands(int num) {
+    public boolean validNumOperands(int num) {
         return num == 2; // binary by default
     }
 }
