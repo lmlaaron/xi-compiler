@@ -1,4 +1,4 @@
-package yh326.ast.node;
+package yh326.ast.node.operator.logical;
 
 public class LogicNegation extends LogicalOperator {
     public LogicNegation() { super("-"); }

@@ -1,6 +1,7 @@
-package yh326.ast.node;
+package yh326.ast.node.operator;
 
 import yh326.ast.exception.TypeErrorException;
+import yh326.ast.node.Node;
 import yh326.ast.type.Type;
 
 import java.util.Arrays;

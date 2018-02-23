@@ -1,4 +1,4 @@
-package yh326.ast.node;
+package yh326.ast.node.operator;
 
 public class UnaryOp {
     protected Node node;

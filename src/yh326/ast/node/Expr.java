@@ -1,5 +1,7 @@
 package yh326.ast.node;
 
+import yh326.ast.node.Node;
+
 public class Expr extends Node {
     protected Node left;
     protected Node right;
