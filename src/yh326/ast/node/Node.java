@@ -13,6 +13,9 @@ import yh326.exception.TypeErrorException;
  *
  */
 public class Node {
+    int line;
+    int col;
+
     public String value;
     public List<Node> children;
     public NodeDecoration decoration;
@@ -22,7 +25,9 @@ public class Node {
      * It can be a variable, an integer, a keyword, an operator, etc.
      * @param value The string representation of the node.
      */
-    public Node(String value) {
+    public Node(int line, int col, String value) {
+        this.line = line;
+        this.col = col;
         this.decoration = new NodeDecoration();
         this.value = value;
         this.children = null;
@@ -32,7 +37,9 @@ public class Node {
      * Use this constructor to construct a non-leaf node.
      * @param nodes Children of the node to be constructed.
      */
-    public Node(Node... nodes) {
+    public Node(int line, int col, Node... nodes) {
+        this.line = line;
+        this.col = col;
         this.decoration = new NodeDecoration();
         this.value = null;
         this.children = new ArrayList<Node>();

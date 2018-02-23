@@ -13,13 +13,8 @@ public class Seq extends Stmt {
     protected List<Stmt> stmt_seq;
 
 
-    public Seq(Node... nodes) {
-        this.decoration = new NodeDecoration();
-        this.value = null;
-        this.children = new ArrayList<Node>();
-        for (Node node : nodes) {
-            this.children.add(node);
-        }
+    public Seq(int line, int col, Node... nodes) {
+        super(line, col, nodes);
     }
 
     @Override

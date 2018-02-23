@@ -14,8 +14,8 @@ import yh326.gen.parser;
 
 public class Use extends Node {
     String id;
-    public Use(String id) {
-        super(new Keyword("use"), new Identifier(id));
+    public Use(int line, int col, String id) {
+        super(line, col, new Keyword(-1,-1, "use"), new Identifier(-1,-1, id));
         this.id = id;
     }
     

@@ -9,7 +9,9 @@ import yh326.ast.type.*; //TODO should it be ast.node.type?
 
 
 public class Stmt extends Node {
-
+    public Stmt(int line, int col, Node... nodes) {
+        super(line,col,nodes);
+    }
 }
 
 
