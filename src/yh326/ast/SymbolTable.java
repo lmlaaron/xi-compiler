@@ -4,18 +4,13 @@
 package yh326.ast;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import yh326.ast.exception.FunctionAlreadyDefinedException;
-import yh326.ast.exception.FunctionNotDefinedException;
-import yh326.ast.exception.TypeErrorException;
 import yh326.ast.exception.VariableAlreadyDefinedException;
-import yh326.ast.exception.VariableNotDefinedException;
-import yh326.ast.exception.WrongNumberOfArgumentsException;
 import yh326.ast.type.FunctionType;
-import yh326.ast.type.VarType;
+import yh326.ast.type.VariableType;
 import yh326.util.Tuple;
 
 /**
@@ -25,7 +20,7 @@ import yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
-    private Map<String, Stack<Tuple<VarType, Integer>>> varTable;
+    private Map<String, Stack<Tuple<VariableType, Integer>>> varTable;
     private Map<String, FunctionType> funcTable;
     private int level;
     
@@ -34,7 +29,7 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<String>();
-        varTable = new HashMap<String, Stack<Tuple<VarType, Integer>>>();
+        varTable = new HashMap<String, Stack<Tuple<VariableType, Integer>>>();
         level = 0;
     }
     
@@ -56,7 +51,7 @@ public class SymbolTable {
                 return;
             }
             else {
-                Stack<Tuple<VarType, Integer>> value = varTable.get(last);
+                Stack<Tuple<VariableType, Integer>> value = varTable.get(last);
                 value.pop();
                 if (value.isEmpty()) {
                     varTable.remove(last);
@@ -68,20 +63,20 @@ public class SymbolTable {
     
     /**
      * @param name
-     * @param varType
+     * @param VariableType
      * @throws VariableAlreadyDefinedException
      */
-    public void addVar(String name, VarType varType) throws VariableAlreadyDefinedException {
+    public void addVar(String name, VariableType VariableType) throws VariableAlreadyDefinedException {
         logs.push(name);
         if (varTable.containsKey(name)) {
             if (varTable.get(name).peek().t2.intValue() == level) {
                 throw new VariableAlreadyDefinedException();
             } else {
-                varTable.get(name).push(new Tuple<VarType, Integer>(varType, level));
+                varTable.get(name).push(new Tuple<VariableType, Integer>(VariableType, level));
             }
         } else {
-            Stack<Tuple<VarType, Integer>> value = new Stack<Tuple<VarType, Integer>>();
-            value.push(new Tuple<VarType, Integer>(varType, level));
+            Stack<Tuple<VariableType, Integer>> value = new Stack<Tuple<VariableType, Integer>>();
+            value.push(new Tuple<VariableType, Integer>(VariableType, level));
             varTable.put(name, value);
         }
     }
@@ -100,21 +95,31 @@ public class SymbolTable {
         }
     }
     
-    public void checkVariableType(String varName, VarType actual) 
-            throws TypeErrorException, VariableNotDefinedException {
+    /**
+     * Given the name of a variable, return the type of that variable.
+     * Return null if the variable is not defined in the symbol table.
+     * @param varName The name of the variable
+     * @return The type of the variable with the given name or null.
+     */
+    public VariableType getVariableType(String varName) {
         if (varTable.containsKey(varName)) {
-            varTable.get(varName).peek().t1.checkType(actual);
+            return varTable.get(varName).peek().t1;
         } else {
-            throw new VariableNotDefinedException(varName);
+            return null;
         }
     }
     
-    public void checkFunctionArgumentType(String funcName, List<VarType> actual) 
-            throws TypeErrorException, WrongNumberOfArgumentsException, FunctionNotDefinedException {
+    /**
+     * Given the name of a function, return the type of that function.
+     * Return null if the function is not defined in the symbol table.
+     * @param funcName The name of the function
+     * @return The type of the function with the given name or null.
+     */
+    public FunctionType getFunctionType(String funcName) {
         if (funcTable.containsKey(funcName)) {
-            funcTable.get(funcName).checkArguments(actual);
+            return funcTable.get(funcName);
         } else {
-            throw new FunctionNotDefinedException(funcName);
+            return null;
         }
     }
 }

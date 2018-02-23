@@ -13,11 +13,15 @@ public class Main {
 	public static void main(String[] argv) {
 		ArrayList<String> argv_alist = new ArrayList<String> (Arrays.asList(argv));
 		String input_source = System.getProperty("user.dir");
-		input_source = input_source.replace('\\', '/');
+		input_source = input_source.replace('\\', '/'); // to support operations in Windows 10
 		String diag_dump_path = System.getProperty("user.dir");
-		diag_dump_path = diag_dump_path.replace('\\', '/');
-		String source_files = argv[argv.length - 1];
-		source_files = source_files.replace('\\', '/');
+		diag_dump_path = diag_dump_path.replace('\\', '/'); // to support operations in Windows 10
+		ArrayList<String> source_files = new ArrayList<String> ();
+		for (int i = 0; i < argv.length; i++) {
+			if (argv[i].indexOf(".xi") != -1 || argv[i].indexOf(".ixi") != -1) {
+				source_files.add(argv[i].replace('\\', '/')); // to support operations in Windows 10
+			}
+		}
 		if (argv_alist.contains("--help")) {
 			System.out.println("option --help to show this synopsis.");
 			System.out.println("option --lex to show the result from lexical analysis.");
@@ -48,14 +52,14 @@ public class Main {
 			}
 		}
 		if (argv_alist.contains("--lex")) {
-			LexerWrapper.Lexing(input_source, diag_dump_path, source_files);
+			for (String source_file : source_files) LexerWrapper.Lexing(input_source, diag_dump_path, source_file);
 		}
 		if (argv_alist.contains("--parse")) {
-			ParserWrapper.Parsing(input_source, diag_dump_path, source_files);
+			for (String source_file : source_files) ParserWrapper.Parsing(input_source, diag_dump_path, source_file);
 		}
-                if (argv_alist.contains("--typecheck")) {
-                        TypecheckerWrapper.Typechecking(input_source, diag_dump_path, source_files);
-                }
+        if (argv_alist.contains("--typecheck")) {
+            for (String source_file : source_files) TypecheckerWrapper.Typechecking(input_source, diag_dump_path, source_file);
+        }
 		return;
 	}
 }

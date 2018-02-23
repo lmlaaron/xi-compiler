@@ -4,7 +4,7 @@ import yh326.ast.SymbolTable;
 import yh326.ast.exception.TypeErrorException;
 import yh326.ast.type.PrimitiveType;
 import yh326.ast.type.Type;
-import yh326.ast.type.VarType;
+import yh326.ast.type.VariableType;
 
 public class ArithmeticOperator extends Operator {
     public ArithmeticOperator(String repr) {
@@ -13,7 +13,7 @@ public class ArithmeticOperator extends Operator {
 
     @Override
     protected Type returnTypeForOperandType(Type operandType) throws TypeErrorException {
-        Type intType = new VarType(PrimitiveType.INT, 0);
+        Type intType = new VariableType(PrimitiveType.INT, 0);
         if (operandType.equals(intType)) {
             return intType;
         }

@@ -1,6 +1,11 @@
 package yh326.gen;
 
 import yh326.ast.node.*;
+import yh326.ast.node.interfc.*;
+import yh326.ast.node.retval.*;
+import yh326.ast.node.type.*;
+import yh326.ast.node.use.*;
+import yh326.ast.node.vardecl.*;
 import yh326.lex.XiSymbol;
 
 
@@ -40,12 +45,33 @@ terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 // These two are not include in the give xi.cup
 terminal TIMES_SHIFT, ERROR;
 
-nonterminal Node program, use_list, use, method_list, method, method_args;
-nonterminal Node interface_list, interface;
-nonterminal Node var_decl, var_decl_list, var_decl_rec, var_decl_emp;
-nonterminal Node method_retvals, retvals;
-nonterminal Node type, primitive_type, array_type, type_emp, array_type_emp;
-nonterminal Node box, boxes, box_emp, boxes_emp, subscript, subscripts, subscriptable;
+nonterminal Node program;
+
+nonterminal UseList use_list;
+nonterminal Use use;
+
+nonterminal Node method_list, method;
+nonterminal VarDeclList method_args;
+
+nonterminal InterfaceList interface_list;
+nonterminal Interface interface;
+
+nonterminal VarDecl var_decl;
+nonterminal VarDeclEmp var_decl_emp;
+nonterminal VarDeclList var_decl_list, var_decl_rec;
+
+nonterminal RetvalList retvals_list, retvals;
+
+nonterminal Type type;
+nonterminal Type primitive_type;
+nonterminal Type array_type;
+nonterminal Type type_emp;
+nonterminal Type array_type_emp;
+
+nonterminal Type box, boxes, box_emp, boxes_emp;
+
+nonterminal Node subscript, subscripts, subscriptable;
+
 nonterminal Node block, stmt_list, stmt, stmt_cond, stmt_semi, stmt_core;
 nonterminal Node assignment, lhs, var;
 nonterminal Node expr_list, expr_rec, expr, expr_atom;
@@ -64,62 +90,62 @@ program          ::= use_list:ul method_list:ml {: Node.write(new Node(ul, ml));
                    | nothing                    {: Node.write(new Node(null, null)); :};
 
 /* ================= USE ==================================================== */
-use_list         ::= use:u use_list:ul {: RESULT = new Node(u).addChildren(ul); :}
-                   | use:u             {: RESULT = new Node(u); :};
-use              ::= USE IDENTIFIER:id
-                       {: RESULT = new Node(new Node("use"), new Node(id)); :};
+use_list         ::= use:u use_list:ul {: RESULT = new UseList(u); RESULT.addChildren(ul); :}
+                   | use:u             {: RESULT = new UseList(u); :};
+use              ::= USE IDENTIFIER:id {: RESULT = new Use(id); :};
 
 /* ================= METHOD ================================================= */
-method_list      ::= method:m method_list:ml {: RESULT = new Node(m).addChildren(ml); :}
+method_list      ::= method:m method_list:ml {: RESULT = new Node(m); RESULT.addChildren(ml); :}
                    | method:m                {: RESULT = new Node(m); :};
-method           ::= IDENTIFIER:id method_args:args method_retvals:mr block:b
+method           ::= IDENTIFIER:id method_args:args retvals_list:mr block:b
                        {: RESULT = new Node(new Node(id), args, mr, b); :};
 method_args      ::= OPEN_PAREN var_decl_list:vdel CLOSE_PAREN
                        {: RESULT = vdel; :};
 
 /*================== INTERFACE ============================================== */
-interface_list   ::= interface:i             {: RESULT = new Node(i); :}
+interface_list   ::= interface:i             {: RESULT = new InterfaceList(i); :}
                    | interface:i interface_list:il
-                       {: RESULT = new Node(i).addChildren(il); :};
+                       {: RESULT = new InterfaceList(i); RESULT.addChildren(il); :};
 
-interface        ::= IDENTIFIER:id method_args:args method_retvals:mr
-                       {: RESULT = new Node(new Node(id), args, mr); :};
+interface        ::= IDENTIFIER:id method_args:args retvals_list:mr
+                       {: RESULT = new Interface(id, args, mr); :};
 
 /* ================= VARIABLE DECLARATION =================================== */
 // var_decl is for variable declaration in statements.
 // Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
 var_decl         ::= IDENTIFIER:id COLON type:type
-                       {: RESULT = new Node(new Node(id), type); :};
+                       {: RESULT = new VarDecl(id, type); :};
 
 // The following are for variable declaration in func args and retvals. Arrays
 // must be "type_emp"-"array_type_emp"-"boxes_emp" (bracket must be empty).
-var_decl_list    ::= var_decl_rec:vdr    {: RESULT = vdr; :}
+var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}
                    | nothing;
 var_decl_rec     ::= var_decl_emp:vd COMMA var_decl_rec:vdr
-                       {: RESULT = new Node(vd).addChildren(vdr); :}
-                   | var_decl_emp:vd         {: RESULT = new Node(vd); :};
+                       {: RESULT = new VarDeclList(vd); RESULT.addChildren(vdr); :}
+                   | var_decl_emp:vd
+                       {: RESULT = new VarDeclList(vd); :};
 var_decl_emp     ::= IDENTIFIER:id COLON type_emp:type
-                       {: RESULT = new Node(new Node(id), type); :};
+                       {: RESULT = new VarDeclEmp(id, type); :};
 
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
-method_retvals   ::= COLON retvals:rv            {: RESULT = rv; :}
+retvals_list     ::= COLON retvals:rv            {: RESULT = rv; :}
                    | nothing;
-retvals          ::= type_emp:t COMMA retvals:rv {: RESULT = new Node(t).addChildren(rv); :}
-                   | type_emp:t                  {: RESULT = new Node(t); :};
+retvals          ::= type_emp:t COMMA retvals:rv {: RESULT = new RetvalList(t); RESULT.addChildren(rv); :}
+                   | type_emp:t                  {: RESULT = new RetvalList(t); :};
 
 /* ================= TYPE =================================================== */
 type             ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type:at           {: RESULT = at; :};
-primitive_type   ::= INT                     {: RESULT = new Node("int"); :}
-                   | BOOL                    {: RESULT = new Node("bool"); :};
+primitive_type   ::= INT                     {: RESULT = new PrimitiveType("int"); :}
+                   | BOOL                    {: RESULT = new PrimitiveType("bool"); :};
 array_type       ::= primitive_type:pt boxes:bs
-                       {: RESULT = bs.addHead(pt); :};
+                       {: RESULT = bs; RESULT.addHead(pt); :};
 
 type_emp         ::= primitive_type:pt       {: RESULT = pt; :}
                    | array_type_emp:at       {: RESULT = at; :};
 array_type_emp   ::= primitive_type:pt boxes_emp:bs
-                       {: RESULT = bs.addHead(pt); :};
+                       {: RESULT = bs; RESULT.addHead(pt); :};
 
 // NOTE:
 // box:       Used for array declaration: a: int[1][][3].
@@ -129,21 +155,21 @@ array_type_emp   ::= primitive_type:pt boxes_emp:bs
 // subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
 //            There must be an expression between the bracket.
 box              ::= OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null, e); :}
+                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null, e); :}
                    | OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
-boxes            ::= box:b boxes:bs          {: RESULT = b.addHead(bs); :}
+                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null); :};
+boxes            ::= box:b boxes:bs          {: RESULT = b; RESULT.addHead(bs); :}
                    | box:b                   {: RESULT = b; :};
 box_emp          ::= OPEN_BRACKET CLOSE_BRACKET
-                       {: RESULT = new Node(new Node("[]")).addNodes((Node) null); :};
-boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b.addHead(bs); :}
+                       {: RESULT = new Type(new Type("[]")); RESULT.addNodes((Node) null); :};
+boxes_emp        ::= box_emp:b boxes_emp:bs  {: RESULT = b; RESULT.addHead(bs); :}
                    | box_emp:b               {: RESULT = b; :};
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {: RESULT = e; :};
 subscripts       ::= subscripts:ss subscript:s
-                       {: RESULT = new Node(new Node("[]"), ss).addNodes(s); :}
+                       {: RESULT = new Type(new Type("[]"), ss); RESULT.addNodes(s); :}
                    | subscriptable:sb subscript:s
-                       {: RESULT = new Node(new Node("[]"), sb).addNodes(s); :};
+                       {: RESULT = new Type(new Type("[]"), sb); RESULT.addNodes(s); :};
 subscriptable    ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | method_call:mc          {: RESULT = new Node(mc); :}/*
                    | array_literal:al        {: RESULT = new Node(al); :}*/;
@@ -152,9 +178,9 @@ subscriptable    ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
                        {: RESULT = sl; :}
                    | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
-                       {: RESULT = sl.addNodes(rs); :};
+                       {: RESULT = sl; RESULT.addNodes(rs); :};
 stmt_list        ::= stmt:st stmt_list:sl
-                       {: RESULT = new Node(st).addChildren(sl); :}
+                       {: RESULT = new Node(st); RESULT.addChildren(sl); :}
                    | nothing;
 
 // stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
@@ -174,7 +200,7 @@ stmt_core        ::= var_decl:vd             {: RESULT = vd; :} // without init
 // lhs: stands for left hand side
 // var: stands for variable (cannot be a value or containing "[", "]", "{", "}")
 assignment       ::= lhs:lhs GETS expr:expr  {: RESULT = new Node(new Node("="), lhs.sub(), expr); :};
-lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v).addChildren(lhs); :}
+lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v); RESULT.addChildren(lhs); :}
                    | var:v                   {: RESULT = new Node(v); :};
 var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
@@ -186,7 +212,7 @@ var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
 // Tier 1 has the lowest precedency and tier 7 has the highest.
 expr_list        ::= expr_rec:er                   {: RESULT = er; :}
                    | nothing;
-expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e).addChildren(er); :}
+expr_rec         ::= expr:e COMMA expr_rec:er      {: RESULT = new Node(e); RESULT.addChildren(er); :}
                    | expr:e COMMA                  {: RESULT = new Node(e); :}
                    | expr:e                        {: RESULT = new Node(e); :};
 expr             ::= expr_t1:t                     {: RESULT = t; :};
@@ -247,11 +273,11 @@ while_statement  ::= WHILE expr:e stmt:s
 
 /* ================= OTHER STATEMENTS ======================================= */
 method_call      ::= IDENTIFIER:id OPEN_PAREN expr_list:el CLOSE_PAREN
-                       {: RESULT = new Node(new Node(id)).addChildren(el); :};
+                       {: RESULT = new Node(new Node(id)); RESULT.addChildren(el); :};
 return_statement ::= return_statement:rs SEMICOLON {: RESULT = rs; :}
                    | return_core:rc                {: RESULT = rc; :};
 return_core      ::= RETURN expr_list:el
-                       {: RESULT = new Node(new Node("return")).addChildren(el); :};
+                       {: RESULT = new Node(new Node("return")); RESULT.addChildren(el); :};
 length_statement ::= LENGTH OPEN_PAREN expr:e CLOSE_PAREN
                        {: RESULT = new Node(new Node("length"), e); :};
 

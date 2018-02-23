@@ -1,16 +1,10 @@
 package yh326.ast.type;
 
-import yh326.ast.exception.TypeErrorException;
-
 /**
  * @author Syugen
  *
  */
-/**
- * @author Syugen
- *
- */
-public class VarType extends Type {
+public class VariableType extends Type {
     
     private PrimitiveType type;
     private int level;
@@ -18,7 +12,7 @@ public class VarType extends Type {
     /**
      * @param type
      */
-    public VarType(PrimitiveType type) {
+    public VariableType(PrimitiveType type) {
         this.type = type;
         this.level = 0;
     }
@@ -27,7 +21,7 @@ public class VarType extends Type {
      * @param type
      * @param level
      */
-    public VarType(PrimitiveType type, int level) {
+    public VariableType(PrimitiveType type, int level) {
         this.type = type;
         this.level = level;
     }
@@ -52,19 +46,7 @@ public class VarType extends Type {
            throw new TypeErrorException(a, b);
         }
     }    
-    
-    /**
-     * @param other
-     * @return
-     * @throws Exception 
-     */
-    public void checkType(VarType other) throws TypeErrorException {
-        // TODO: this is using reference equality, should use .equals?
-        if (!this.equals(other)) {
-            throw new TypeErrorException(this, other);
-        }
-    }
-    
+   
     /**
      * @return
      */
@@ -90,11 +72,13 @@ public class VarType extends Type {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof VarType) {
-            VarType otherType = (VarType)other;
-            return otherType.getType()==getType() && otherType.getLevel()==getLevel();
+        if (other instanceof VariableType) {
+            VariableType otherType = (VariableType) other;
+            return otherType.getType() == getType() && 
+                   otherType.getLevel() == getLevel();
+        } else {
+            return false;
         }
-        else {return false;}
     }
     
     
