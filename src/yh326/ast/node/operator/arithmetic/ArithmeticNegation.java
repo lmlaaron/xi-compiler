@@ -6,7 +6,7 @@ public class ArithmeticNegation extends ArithmeticOperator {
     }
 
     @Override
-    protected boolean validNumOperands(int num) {
+    public boolean validNumOperands(int num) {
         return num == 1; // must override binary default
     }
 }
