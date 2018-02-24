@@ -13,7 +13,7 @@ public class LogicalOperator extends Operator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         if (operandType.equals(boolType)) {
             return boolType;
         }

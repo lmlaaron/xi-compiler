@@ -81,7 +81,9 @@ nonterminal ArrayTypeNodeFuncDecl array_type_func;
 nonterminal ArrayTypeNode box, boxes;
 nonterminal ArrayTypeNodeFuncDecl  box_func_decl, boxes_func_decl;
 
-//nonterminal Node subscript, subscripts, subscriptable;
+nonterminal Expr subscript;
+nonterminal Subscript subscripts;
+nonterminal Node subscriptable;
 
 nonterminal StmtList block, stmt_list;
 nonterminal Stmt stmt, stmt_cond, stmt_semi, stmt_core;
@@ -167,13 +169,16 @@ retvals          ::= type_func:t COMMA retvals:rv
                        {:RESULT = new RetvalList(tleft, tright, t);:};
 
 /* ================= TYPE =================================================== */
-type             ::= primitive_type:pt       {:RESULT = pt;:}
-                   | array_type:at           {:RESULT = at;:};
 primitive_type   ::= INT:a                   {:RESULT = new PrimitiveTypeNode(aleft, aright, "int");:}
                    | BOOL:a                  {:RESULT = new PrimitiveTypeNode(aleft, aright, "bool");:};
+
+type             ::= primitive_type:pt       {:RESULT = pt;:}
+                   | array_type:at           {:RESULT = at;:};
 array_type       ::= primitive_type:pt boxes:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
+// Types in function declaration and return types,
+// i.e. no expressions allowed in array brackets
 type_func        ::= primitive_type:pt       {:RESULT = pt;:}
                    | array_type_func:at      {:RESULT = at;:};
 array_type_func  ::= primitive_type:pt boxes_func_decl:bs
@@ -187,7 +192,6 @@ array_type_func  ::= primitive_type:pt boxes_func_decl:bs
 // subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
 //            There must be an expression between the bracket.
 
-/*
 box              ::= OPEN_BRACKET:a expr:e CLOSE_BRACKET
                        {:RESULT = new ArrayTypeNode(aleft, aright);
                          RESULT.addNodes((Node) null, e);:}
@@ -196,7 +200,6 @@ box              ::= OPEN_BRACKET:a expr:e CLOSE_BRACKET
                          RESULT.addNodes((Node) null);:};
 boxes            ::= box:b boxes:bs          {:RESULT = b; RESULT.addHead(bs);:}
                    | box:b                   {:RESULT = b;:};
-*/
 
 box_func_decl    ::= OPEN_BRACKET:a CLOSE_BRACKET
                        {:RESULT = new ArrayTypeNodeFuncDecl(aleft, aright);
@@ -204,17 +207,17 @@ box_func_decl    ::= OPEN_BRACKET:a CLOSE_BRACKET
 boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.addHead(bs);:}
                    | box_func_decl:b               {:RESULT = b;:};
 
-/*
+
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {:RESULT = e;:};
 subscripts       ::= subscripts:ss subscript:s
-                       {:RESULT = new TypeNode(new TypeNode("[]"), ss); RESULT.addNodes(s);:}
+                       {:RESULT = new Subscript(ssleft, ssright, ss); RESULT.addNodes(s);:}
                    | subscriptable:sb subscript:s
-                       {:RESULT = new TypeNode(new TypeNode("[]"), sb); RESULT.addNodes(s);:};
-subscriptable    ::= identifier:id           {:RESULT = id;:}
-                   | method_call:mc          {:RESULT = new Node(mc);:};
+                       {:RESULT = new Subscript(sbleft, sbright, sb); RESULT.addNodes(s);:};
+subscriptable    ::= identifier:id           {:RESULT = id;:};
+//                   | method_call:mc          {:RESULT = new Node(mc);:};
 // TODO            | array_literal:al        {:RESULT = new Node(al);:};
-*/
+
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
                        {:RESULT = sl;:};
@@ -303,7 +306,7 @@ expr_atom        ::= identifier:id                 {:RESULT = id;:}
                    | CHARACTER_LITERAL:cl          {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                        {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a                       {:RESULT = new FalseLiteral(aleft, aright);:}
- //                  | subscripts:ss                 {:RESULT = ss;:}
+                   | subscripts:ss                 {:RESULT = ss;:}
  //                  | method_call:mc                {:RESULT = mc;:}
  //                  | length_statement:ls           {:RESULT = ls;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:};

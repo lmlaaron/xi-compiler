@@ -17,13 +17,9 @@ public class VarDecl extends Stmt {
     }
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        NodeType t = typeNode.typeCheck(sTable);
-        if (t instanceof VariableNodeType) {
-            sTable.addVar(id.value, (VariableNodeType) t);
-            sTable.dumpTable();
-            return t;
-        } else {
-            throw new RuntimeException("Unexpected Error");
-        }
+        VariableNodeType t = (VariableNodeType) typeNode.typeCheck(sTable);
+        sTable.addVar(id.value, t);
+        sTable.dumpTable();
+        return t;
     }
 }

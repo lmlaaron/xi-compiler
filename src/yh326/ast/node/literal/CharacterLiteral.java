@@ -14,7 +14,7 @@ public class CharacterLiteral extends ExprAtom {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableNodeType(PrimitiveNodeType.INT, 0);
+        return new VariableNodeType(PrimitiveNodeType.INT);
     }
 
 }

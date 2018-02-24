@@ -13,7 +13,7 @@ public class ArithmeticOperator extends Operator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
+        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT);
         if (operandType.equals(intType)) {
             return intType;
         }

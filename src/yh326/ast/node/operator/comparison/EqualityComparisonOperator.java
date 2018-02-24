@@ -12,8 +12,8 @@ public class EqualityComparisonOperator extends ComparisonOperator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT);
+        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         // TODO: NodeType should have isArray function?
         boolean isArray = operandType instanceof VariableNodeType && ((VariableNodeType)operandType).getLevel() > 0;
         if (operandType.equals(intType) || operandType.equals(boolType)) {

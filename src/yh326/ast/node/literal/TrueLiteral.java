@@ -14,6 +14,6 @@ public class TrueLiteral extends ExprAtom {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+        return new VariableNodeType(PrimitiveNodeType.BOOL);
     }
 }

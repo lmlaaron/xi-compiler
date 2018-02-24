@@ -16,9 +16,9 @@ public class PrimitiveTypeNode extends TypeNode {
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         if (primitiveType == "int") {
-            return new VariableNodeType(PrimitiveNodeType.INT, 0);
+            return new VariableNodeType(PrimitiveNodeType.INT);
         } else if (primitiveType == "bool") {
-            return new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+            return new VariableNodeType(PrimitiveNodeType.BOOL);
         } else {
             throw new TypeErrorException("Primitive type has to be either int or bool");
         }

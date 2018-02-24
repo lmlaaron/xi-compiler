@@ -12,8 +12,8 @@ public class ArithmeticComparisonOperator extends ComparisonOperator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT);
+        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         if (operandType.equals(intType)) {
             return boolType;
         }

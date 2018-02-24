@@ -120,7 +120,7 @@ Comment = "//" {InputCharacter}* {LineTerminator}?
   \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
   \\x{HexDigit}{2}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
-  \\x{HexDigit}{4}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  \\u{HexDigit}{4}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
   (\\.|.)\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", yytext().substring(0, yylength()-1), yyline, column);}
   .[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 }
