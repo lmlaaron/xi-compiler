@@ -4,8 +4,8 @@ import yh326.ast.node.Node;
 
 public class ArrayTypeNodeEmp extends TypeNode { // TODO: document - what is Emp?
 
-    public ArrayTypeNodeEmp(Node... node) {
-        super(node);
+    public ArrayTypeNodeEmp(int line, int col, Node... node) {
+        super(line, col, node);
         // TODO Auto-generated constructor stub
     }
 

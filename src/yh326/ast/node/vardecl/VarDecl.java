@@ -5,7 +5,7 @@ import yh326.ast.node.Node;
 import yh326.ast.node.type.TypeNode;
 
 public class VarDecl extends Node {
-    public VarDecl(Identifier id, TypeNode typeNode) {
-        super(id, typeNode);
+    public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
+        super(line, col, id, typeNode);
     }
 }

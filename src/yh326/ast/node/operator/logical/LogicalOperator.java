@@ -7,12 +7,12 @@ import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
 public class LogicalOperator extends Operator {
-    public LogicalOperator(String repr) {
-        super(repr);
+    public LogicalOperator(int line, int col, String repr) {
+        super(line, col, repr);
     }
 
     @Override
-    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
         if (operandType.equals(boolType)) {
             return boolType;
@@ -23,7 +23,7 @@ public class LogicalOperator extends Operator {
     }
 
     @Override
-    protected boolean validNumOperands(int num) {
+    public boolean validNumOperands(int num) {
         return num == 2; // binary by default
     }
 }

@@ -1,8 +1,8 @@
 package yh326.ast.node.operator.arithmetic;
 
 public class ArithmeticNegation extends ArithmeticOperator {
-    public ArithmeticNegation() {
-        super("-");
+    public ArithmeticNegation(int line, int col) {
+        super(line, col, "-");
     }
 
     @Override

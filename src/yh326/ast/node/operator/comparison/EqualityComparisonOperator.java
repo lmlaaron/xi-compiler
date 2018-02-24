@@ -6,12 +6,12 @@ import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
 public class EqualityComparisonOperator extends ComparisonOperator {
-    public EqualityComparisonOperator(String repr) {
-        super(repr);
+    public EqualityComparisonOperator(int line, int col, String repr) {
+        super(line, col, repr);
     }
 
     @Override
-    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
         // TODO: NodeType should have isArray function?

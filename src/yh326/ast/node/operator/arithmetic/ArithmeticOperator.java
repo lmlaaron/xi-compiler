@@ -7,8 +7,8 @@ import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
 public class ArithmeticOperator extends Operator {
-    public ArithmeticOperator(String repr) {
-        super(repr);
+    public ArithmeticOperator(int line, int col, String repr) {
+        super(line, col, repr);
     }
 
     @Override

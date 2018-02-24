@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 //TODO: after modifying cup file, make this and other node super classes abstract
 public class Operator extends Node {
-    public Operator(String repr) {
-        super(repr);
+    public Operator(int line, int col, String repr) {
+        super(line, col, repr);
     }
 
     /**

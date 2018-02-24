@@ -17,8 +17,8 @@ public class Interface extends Node {
     private VarDeclList args;
     private RetvalList rets;
     
-    public Interface(Identifier id, VarDeclList args, RetvalList rets) {
-        super(id, args, rets);
+    public Interface(int line, int col, Identifier id, VarDeclList args, RetvalList rets) {
+        super(line, col, id, args, rets);
         this.id = id;
         this.args = args;
         this.rets = rets;

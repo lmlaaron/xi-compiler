@@ -9,11 +9,11 @@ import yh326.ast.node.type.TypeNode;
  *
  */
 public class RetvalList extends Node {
-    public RetvalList(TypeNode t) {
-        super(t);
+    public RetvalList(int line, int col, TypeNode t) {
+        super(line, col, t);
     }
     
-    public RetvalList() {
-        super();
+    public RetvalList(int line, int col) {
+        super(line, col);
     }
 }

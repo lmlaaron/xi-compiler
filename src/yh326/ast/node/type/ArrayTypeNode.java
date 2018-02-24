@@ -4,8 +4,8 @@ import yh326.ast.node.Node;
 
 public class ArrayTypeNode extends TypeNode {
 
-    public ArrayTypeNode(Node... node) {
-        super(node);
+    public ArrayTypeNode(int line, int col, Node... node) {
+        super(line, col, node);
         // TODO Auto-generated constructor stub
     }
 

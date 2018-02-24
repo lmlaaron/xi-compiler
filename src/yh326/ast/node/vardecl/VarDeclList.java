@@ -8,11 +8,11 @@ import yh326.ast.node.Node;
  *
  */
 public class VarDeclList extends Node {
-    public VarDeclList(VarDeclFunction varDecl) {
-        super(varDecl);
+    public VarDeclList(int line, int col, VarDeclFunction varDecl) {
+        super(line, col, varDecl);
     }
     
-    public VarDeclList() {
-        super();
+    public VarDeclList(int line, int col) {
+        super(line, col);
     }
 }

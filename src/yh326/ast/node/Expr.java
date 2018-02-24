@@ -6,24 +6,29 @@ import yh326.ast.node.Node;
 import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Expr extends Node {
     Operator operator;
     List<Node> operands;
 
-    public Expr(Node... nodes) {
-        super(nodes);
+    public Expr(int line, int col, Node... nodes) {
+        super(line, col, nodes);
         operator = (Operator)children.get(0);
         operands = children.subList(1, children.size());
     }
 
     @Override
-    public NodeType typeCheck(SymbolTable sTable) throws TypeErrorException {
+    public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // to work with the operator, first we need to know the types of the operands
+        List<NodeType> operandTypes = new ArrayList<>(operands.size());
         for (Node operand : operands) {
-            operand.typeCheck(sTable); // TODO: assuming operands set the 'type' value in their respective decorations
+            operandTypes.add(operand.typeCheck(sTable));
         }
+        // make sure those types are the same:
+
 
         if (operator.validNumOperands(operands.size())){ // ensure operator accepts the correct size
             // set operator's type

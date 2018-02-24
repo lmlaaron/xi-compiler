@@ -8,12 +8,12 @@ import yh326.ast.type.VariableNodeType;
 
 public class TypeNode extends Node {
 
-    public TypeNode(String string) {
-        super(string);
+    public TypeNode(int line, int col, String string) {
+        super(line, col, string);
     }
     
-    public TypeNode(Node... nodes) {
-        super(nodes);
+    public TypeNode(int line, int col, Node... nodes) {
+        super(line, col, nodes);
     }
     
     /* TODO DUMMY

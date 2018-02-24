@@ -6,12 +6,12 @@ import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
 public class ArithmeticComparisonOperator extends ComparisonOperator {
-    public ArithmeticComparisonOperator(String repr) {
-        super(repr);
+    public ArithmeticComparisonOperator(int line, int col, String repr) {
+        super(line, col, repr);
     }
 
     @Override
-    protected NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
         NodeType intType = new VariableNodeType(PrimitiveNodeType.INT, 0);
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL, 0);
         if (operandType.equals(intType)) {

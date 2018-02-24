@@ -16,13 +16,8 @@ public class IfElse extends Stmt {
     protected Stmt consequent;
     protected Stmt alternative;
 
-    public IfElse(Node... nodes) {
-        this.decoration = new NodeDecoration();
-        this.value = null;
-        this.children = new ArrayList<Node>();
-        for (Node node : nodes) {
-            this.children.add(node);
-        }
+    public IfElse(int line, int col, Node... nodes) {
+        super(line, col, nodes);
         if (nodes[0] instanceof Expr && nodes[1] instanceof Stmt && nodes[2] instanceof Stmt) {
             guard = (Expr)nodes[0];
             consequent = (Stmt)nodes[1];
