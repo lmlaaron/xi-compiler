@@ -6,17 +6,18 @@ import java.util.List;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
+import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
-import yh326.ast.node.vardecl.VarDeclList;
 import yh326.ast.type.FunctionNodeType;
 import yh326.ast.type.NodeType;
+import yh326.ast.type.VariableNodeType;
 
 public class Interface extends Node {
     private Identifier id;
-    private VarDeclList args;
+    private FunctionTypeDeclList args;
     private RetvalList rets;
     
-    public Interface(int line, int col, Identifier id, VarDeclList args, RetvalList rets) {
+    public Interface(int line, int col, Identifier id, FunctionTypeDeclList args, RetvalList rets) {
         super(line, col, id, args, rets);
         this.id = id;
         this.args = args;
@@ -24,16 +25,22 @@ public class Interface extends Node {
     }
     
     public void loadMethods(SymbolTable sTable) throws Exception {
-        List<NodeType> args = new ArrayList<NodeType>();
-        List<NodeType> rets = new ArrayList<NodeType>();
+        List<VariableNodeType> args = new ArrayList<VariableNodeType>();
+        List<VariableNodeType> rets = new ArrayList<VariableNodeType>();
         if (this.args != null) {
             for (Node varDecl : this.args.children) {
-                args.add(varDecl.typeCheck(sTable));
+                NodeType t = varDecl.typeCheck(sTable);
+                if (t instanceof VariableNodeType) {
+                    args.add((VariableNodeType) t);
+                }
             }
         }
         if (this.rets != null) {
             for (Node varDecl : this.rets.children) {
-                rets.add(varDecl.typeCheck(sTable));
+                NodeType t = varDecl.typeCheck(sTable);
+                if (t instanceof VariableNodeType) {
+                    rets.add((VariableNodeType) t);
+                }
             }
         }
             

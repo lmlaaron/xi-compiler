@@ -1,4 +1,4 @@
-package yh326.ast.node.vardecl;
+package yh326.ast.node.funcdecl;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
@@ -11,10 +11,10 @@ import yh326.ast.type.NodeType;
  * @author Syugen
  *
  */
-public class VarDeclFuncDecl extends Node {
+public class FunctionTypeDecl extends Node {
     private TypeNode typeNode;
     
-    public VarDeclFuncDecl(int line, int col, Identifier id, TypeNode typeNode) {
+    public FunctionTypeDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
         this.typeNode = typeNode;
     }

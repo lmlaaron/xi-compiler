@@ -3,6 +3,7 @@
  */
 package yh326.ast;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -49,9 +50,8 @@ public class SymbolTable {
         while (!logs.isEmpty()) {
             String last = logs.pop();
             if (last == null) {
-                return;
-            }
-            else {
+                break;
+            } else {
                 Stack<Tuple<VariableNodeType, Integer>> value = varTable.get(last);
                 value.pop();
                 if (value.isEmpty()) {
@@ -137,7 +137,9 @@ public class SymbolTable {
             System.out.println("  Variable table empty.");
         }
         for (String key : varTable.keySet()) {
-            System.out.println("  " + key + ": " + varTable.get(key).toArray());
+            System.out.println("  " + key + ": " + Arrays.toString(varTable.get(key).toArray()));
         }
+        System.out.println("Log:");
+        System.out.println("  " + Arrays.toString(logs.toArray()));
     }
 }

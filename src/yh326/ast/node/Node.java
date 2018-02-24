@@ -68,13 +68,12 @@ public class Node {
      */
     public void loadMethods(SymbolTable sTable) throws Exception {
         //System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
-        
-        if (this.children == null) {
-            //System.out.println("Exiting  " + this.getClass());
-            return;
-        }
-        for (Node child : children) {
-            child.loadMethods(sTable);
+        if (children != null) {
+            for (Node child : children) {
+                if (child != null) {
+                    child.loadMethods(sTable);
+                }
+            }
         }
         //System.out.println("Exiting  " + this.getClass());
     }
@@ -89,16 +88,17 @@ public class Node {
      * @throws Exception 
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        //System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
-        
-        if (this.children == null) {
-            //System.out.println("Exiting  " + this.getClass());
-            return new UnitNodeType();
+        System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
+        sTable.enterBlock();
+        if (children != null) {
+            for (Node child : children) {
+                if (child != null) {
+                    child.typeCheck(sTable);
+                }
+            }
         }
-        for (Node child : children) {
-            child.typeCheck(sTable);
-        }
-        //System.out.println("Exiting  " + this.getClass());
+        sTable.exitBlock();
+        System.out.println("Exiting  " + this.getClass());
         return new UnitNodeType();
     }
 

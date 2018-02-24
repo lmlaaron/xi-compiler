@@ -1,24 +1,5 @@
 
 
-                   | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
-                       {:RESULT = sl; RESULT.addNodes(rs);:};
-stmt_list        ::= stmt:st stmt_list:sl
-                       {:RESULT = new Node(st); RESULT.addChildren(sl);:}
-                   | nothing;
-
-// stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
-stmt             ::= stmt_cond:sc            {:RESULT = sc;:}
-                   | if_statement:is         {:RESULT = is;:}
-                   | while_statement:ws      {:RESULT = ws;:};
-stmt_cond        ::= block:b                 {:RESULT = b;:}
-                   | stmt_semi:ss            {:RESULT = ss;:};
-stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
-                   | stmt_core:sc SEMICOLON  {:RESULT = sc;:};
-stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
-                   | assignment:as           {:RESULT = as;:}
-                   | method_call:mc          {:RESULT = mc;:}
-                   | length_statement:ls     {:RESULT = ls;:};
-
 /* ================= ASSIGNMENT ============================================= */
 // lhs: stands for left hand side
 // var: stands for variable (cannot be a value or containing "[", "]", "{", "}")

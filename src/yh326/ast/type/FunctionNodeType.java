@@ -10,14 +10,14 @@ import java.util.List;
  *
  */
 public class FunctionNodeType extends NodeType {
-    private List<NodeType> args;
-    private List<NodeType> rets;
+    private List<VariableNodeType> args;
+    private List<VariableNodeType> rets;
     
     /**
      * @param args2
      * @param rets2
      */
-    public FunctionNodeType(List<NodeType> args2, List<NodeType> rets2) {
+    public FunctionNodeType(List<VariableNodeType> args2, List<VariableNodeType> rets2) {
         this.args = args2;
         this.rets = rets2;
     }
@@ -25,14 +25,14 @@ public class FunctionNodeType extends NodeType {
     /**
      * @return
      */
-    public List<NodeType> getArgs() {
+    public List<VariableNodeType> getArgs() {
         return args;
     }
 
     /**
      * @return
      */
-    public List<NodeType> getRets() {
+    public List<VariableNodeType> getRets() {
         return rets;
     }
     

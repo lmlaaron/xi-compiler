@@ -1,4 +1,4 @@
-package yh326.ast.node.vardecl;
+package yh326.ast.node.funcdecl;
 
 import yh326.ast.node.Node;
 
@@ -7,12 +7,12 @@ import yh326.ast.node.Node;
  * @author Syugen
  *
  */
-public class VarDeclList extends Node {
-    public VarDeclList(int line, int col, VarDeclFuncDecl varDecl) {
+public class FunctionTypeDeclList extends Node {
+    public FunctionTypeDeclList(int line, int col, FunctionTypeDecl varDecl) {
         super(line, col, varDecl);
     }
     
-    public VarDeclList(int line, int col) {
+    public FunctionTypeDeclList(int line, int col) {
         super(line, col);
     }
 }
