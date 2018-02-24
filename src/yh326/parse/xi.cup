@@ -60,17 +60,17 @@ nonterminal Interface interface;
 
 nonterminal VarDecl var_decl;
 nonterminal VarDeclList var_decl_list, var_decl_rec;
-nonterminal VarDeclFunction var_decl_func;
+nonterminal VarDeclFuncDecl var_decl_func;
 
 nonterminal RetvalList retvals_list, retvals;
 
 nonterminal TypeNode type;
 nonterminal TypeNode primitive_type;
 nonterminal TypeNode array_type;
-nonterminal TypeNode type_emp;
-nonterminal TypeNode array_type_emp;
+nonterminal TypeNode type_func;
+nonterminal TypeNode array_type_func;
 
-nonterminal TypeNode box, boxes, box_emp, boxes_emp;
+nonterminal TypeNode box, boxes, box_func_decl, boxes_func_decl;
 
 
 nonterminal Node nothing;
@@ -124,23 +124,23 @@ interface        ::= identifier:id method_args:args retvals_list:mr
 //                       {:RESULT = new VarDecl(id, t);:};
 
 // The following are for variable declaration in func args and retvals. Arrays
-// must be "type_emp"-"array_type_emp"-"boxes_emp" (bracket must be empty).
+// must be "type_func"-"array_type_func"-"boxes_func_decl" (bracket must be empty).
 var_decl_list    ::= var_decl_rec:vdr        {:RESULT = vdr;:}
                    | nothing;
 var_decl_rec     ::= var_decl_func:vd COMMA var_decl_rec:vdr
                        {:RESULT = new VarDeclList(vdleft, vdright, vd); RESULT.addChildren(vdr);:}
                    | var_decl_func:vd
                        {:RESULT = new VarDeclList(vdleft, vdright, vd);:};
-var_decl_func    ::= identifier:id COLON type_emp:t
-                       {:RESULT = new VarDeclFunction(idleft, idright, id, t);:};
+var_decl_func    ::= identifier:id COLON type_func:t
+                       {:RESULT = new VarDeclFuncDecl(idleft, idright, id, t);:};
 
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
 retvals_list     ::= COLON retvals:rv            {:RESULT = rv;:}
                    | nothing;
-retvals          ::= type_emp:t COMMA retvals:rv
+retvals          ::= type_func:t COMMA retvals:rv
                        {:RESULT = new RetvalList(tleft, tright, t); RESULT.addChildren(rv);:}
-                   | type_emp:t
+                   | type_func:t
                        {:RESULT = new RetvalList(tleft, tright, t);:};
 
 /* ================= TYPE =================================================== */
@@ -151,18 +151,20 @@ primitive_type   ::= INT:a                   {:RESULT = new PrimitiveTypeNode(al
 array_type       ::= primitive_type:pt boxes:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
-type_emp         ::= primitive_type:pt       {:RESULT = pt;:}
-                   | array_type_emp:at       {:RESULT = at;:};
-array_type_emp   ::= primitive_type:pt boxes_emp:bs
+type_func        ::= primitive_type:pt       {:RESULT = pt;:}
+                   | array_type_func:at       {:RESULT = at;:};
+array_type_func  ::= primitive_type:pt boxes_func_decl:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
 // NOTE:
 // box:       Used for array declaration: a: int[1][][3].
 //            Expression between the bracket is optional.
-// box_emp:   Used for array declaration for function argument and return value.
+// box_func_decl:   Used for array declaration for function argument and return value.
 //            There must be NO expression between the bracket.
 // subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
 //            There must be an expression between the bracket.
+
+/*
 box              ::= OPEN_BRACKET:a expr:e CLOSE_BRACKET
                        {:RESULT = new TypeNode(aleft, aright, new TypeNode(aleft, aright, "[]"));
                          RESULT.addNodes((Node) null, e);:}
@@ -171,11 +173,13 @@ box              ::= OPEN_BRACKET:a expr:e CLOSE_BRACKET
                          RESULT.addNodes((Node) null);:};
 boxes            ::= box:b boxes:bs          {:RESULT = b; RESULT.addHead(bs);:}
                    | box:b                   {:RESULT = b;:};
-box_emp          ::= OPEN_BRACKET:a CLOSE_BRACKET
-                       {:RESULT = new TypeNode(aleft, aright, new TypeNode(aleft, aright, "[]"));
+*/
+
+box_func_decl    ::= OPEN_BRACKET:a CLOSE_BRACKET
+                       {:RESULT = new ArrayTypeNodeFuncDecl(aleft, aright);
                          RESULT.addNodes((Node) null);:};
-boxes_emp        ::= box_emp:b boxes_emp:bs  {:RESULT = b; RESULT.addHead(bs);:}
-                   | box_emp:b               {:RESULT = b;:};
+boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.addHead(bs);:}
+                   | box_func_decl:b               {:RESULT = b;:};
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // SEE xi-backup.cup for the missing part
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

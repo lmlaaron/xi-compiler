@@ -57,7 +57,14 @@ public class VariableNodeType extends NodeType {
     public int getLevel() {
         return level;
     }
-
+    
+    /**
+     * @param i
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
+    
     @Override
     public String toString() {
         String typeString = type == PrimitiveNodeType.INT ? "int" : "bool";
@@ -77,6 +84,7 @@ public class VariableNodeType extends NodeType {
             return false;
         }
     }
+
     
     
 }

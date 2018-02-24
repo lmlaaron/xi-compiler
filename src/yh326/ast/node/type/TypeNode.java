@@ -3,8 +3,8 @@ package yh326.ast.node.type;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.TypeErrorException;
 
 public class TypeNode extends Node {
 
@@ -16,10 +16,16 @@ public class TypeNode extends Node {
         super(line, col, nodes);
     }
     
-    /* TODO DUMMY
-     */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableNodeType(PrimitiveNodeType.BOOL, 3);
+        System.out.println(this.children.get(0).getClass());
+        System.out.println(this.children.get(1).getClass());
+        NodeType t = children.get(1).typeCheck(sTable);
+        if (t instanceof VariableNodeType) {
+            ((VariableNodeType) t).setLevel(((VariableNodeType) t).getLevel() + 1);
+            return t;
+        } else {
+            throw new TypeErrorException("Unexpected Error");
+        }
     }
 
 }

@@ -4,16 +4,23 @@ import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.TypeErrorException;
 
 public class PrimitiveTypeNode extends TypeNode {
+    private String primitiveType;
 
-    public PrimitiveTypeNode(int line, int col, String string) {
-        super(line, col, string);
+    public PrimitiveTypeNode(int line, int col, String primitiveType) {
+        super(line, col, primitiveType);
+        this.primitiveType = primitiveType;
     }
     
-    /* TODO DUMMY
-     */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableNodeType(PrimitiveNodeType.INT, 3);
+        if (primitiveType == "int") {
+            return new VariableNodeType(PrimitiveNodeType.INT, 0);
+        } else if (primitiveType == "bool") {
+            return new VariableNodeType(PrimitiveNodeType.BOOL, 0);
+        } else {
+            throw new TypeErrorException("Primitive type has to be either int or bool");
+        }
     }
 }

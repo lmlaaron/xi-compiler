@@ -11,10 +11,10 @@ import yh326.ast.type.NodeType;
  * @author Syugen
  *
  */
-public class VarDeclFunction extends Node {
+public class VarDeclFuncDecl extends Node {
     private TypeNode typeNode;
     
-    public VarDeclFunction(int line, int col, Identifier id, TypeNode typeNode) {
+    public VarDeclFuncDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
         this.typeNode = typeNode;
     }
