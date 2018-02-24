@@ -47,6 +47,7 @@ terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
 terminal TIMES_SHIFT, ERROR;
 
 nonterminal Node program;
+nonterminal Identifier identifier;
 
 nonterminal UseList use_list;
 nonterminal Use use;
@@ -58,8 +59,8 @@ nonterminal InterfaceList interface_list;
 nonterminal Interface interface;
 
 nonterminal VarDecl var_decl;
-nonterminal VarDeclEmp var_decl_emp;
 nonterminal VarDeclList var_decl_list, var_decl_rec;
+nonterminal VarDeclFunction var_decl_func;
 
 nonterminal RetvalList retvals_list, retvals;
 
@@ -85,21 +86,22 @@ nonterminal Node nothing;
 start with program;
 
 program          ::= use_list:ul method_list:ml {: RESULT = new Node(ul, ml); :}
-                   | method_list:ml             {: RESULT = new Node(null, ml); :}
+                   | method_list:ml             {: RESULT = new Node(new Node(), ml); :}
                    | interface_list:il          {: RESULT = new Node(il); :}
-                   | use_list:ul                {: RESULT = new Node(ul, null); :}
-                   | nothing                    {: RESULT = new Node(null, null); :};
+                   | use_list:ul                {: RESULT = new Node(ul, new Node()); :}
+                   | nothing                    {: RESULT = new Node(new Node(), new Node()); :};
 
+identifier       ::= IDENTIFIER:id              {: RESULT = new Identifier(id); :};
 /* ================= USE ==================================================== */
 use_list         ::= use:u use_list:ul {: RESULT = new UseList(u); RESULT.addChildren(ul); :}
-                   | use:u             {: RESULT = new UseList(u); System.out.println(uleft); :};
-use              ::= USE IDENTIFIER:id {: RESULT = new Use(id); :};
+                   | use:u             {: RESULT = new UseList(u); :};
+use              ::= USE identifier:id {: RESULT = new Use(id); :};
 
 /* ================= METHOD ================================================= */
 method_list      ::= method:m method_list:ml {: RESULT = new Node(m); RESULT.addChildren(ml); :}
                    | method:m                {: RESULT = new Node(m); :};
-method           ::= IDENTIFIER:id method_args:args retvals_list:mr block:b
-                       {: RESULT = new Node(new Node(id), args, mr, b); :};
+method           ::= identifier:id method_args:args retvals_list:mr block:b
+                       {: RESULT = new Node(id, args, mr, b); :};
 method_args      ::= OPEN_PAREN var_decl_list:vdel CLOSE_PAREN
                        {: RESULT = vdel; :};
 
@@ -108,25 +110,25 @@ interface_list   ::= interface:i             {: RESULT = new InterfaceList(i); :
                    | interface:i interface_list:il
                        {: RESULT = new InterfaceList(i); RESULT.addChildren(il); :};
 
-interface        ::= IDENTIFIER:id method_args:args retvals_list:mr
+interface        ::= identifier:id method_args:args retvals_list:mr
                        {: RESULT = new Interface(id, args, mr); :};
 
 /* ================= VARIABLE DECLARATION =================================== */
 // var_decl is for variable declaration in statements.
 // Arrays must be "typeNode"-"array_type"-"boxes" (allows empty or non-empty bracket).
-var_decl         ::= IDENTIFIER:id COLON typeNode:typeNode
+var_decl         ::= identifier:id COLON typeNode:typeNode
                        {: RESULT = new VarDecl(id, typeNode); :};
 
 // The following are for variable declaration in func args and retvals. Arrays
 // must be "type_emp"-"array_type_emp"-"boxes_emp" (bracket must be empty).
 var_decl_list    ::= var_decl_rec:vdr        {: RESULT = vdr; :}
                    | nothing;
-var_decl_rec     ::= var_decl_emp:vd COMMA var_decl_rec:vdr
+var_decl_rec     ::= var_decl_func:vd COMMA var_decl_rec:vdr
                        {: RESULT = new VarDeclList(vd); RESULT.addChildren(vdr); :}
-                   | var_decl_emp:vd
+                   | var_decl_func:vd
                        {: RESULT = new VarDeclList(vd); :};
-var_decl_emp     ::= IDENTIFIER:id COLON type_emp:typeNode
-                       {: RESULT = new VarDeclEmp(id, typeNode); :};
+var_decl_func    ::= identifier:id COLON type_emp:t
+                       {: RESULT = new VarDeclFunction(id, t); :};
 
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
@@ -171,7 +173,7 @@ subscripts       ::= subscripts:ss subscript:s
                        {: RESULT = new TypeNode(new TypeNode("[]"), ss); RESULT.addNodes(s); :}
                    | subscriptable:sb subscript:s
                        {: RESULT = new TypeNode(new TypeNode("[]"), sb); RESULT.addNodes(s); :};
-subscriptable    ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
+subscriptable    ::= identifier:id           {: RESULT = id; :}
                    | method_call:mc          {: RESULT = new Node(mc); :}/*
                    | array_literal:al        {: RESULT = new Node(al); :}*/;
 
@@ -203,7 +205,7 @@ stmt_core        ::= var_decl:vd             {: RESULT = vd; :} // without init
 assignment       ::= lhs:lhs GETS expr:expr  {: RESULT = new Node(new Node("="), lhs.sub(), expr); :};
 lhs              ::= var:v COMMA lhs:lhs     {: RESULT = new Node(v); RESULT.addChildren(lhs); :}
                    | var:v                   {: RESULT = new Node(v); :};
-var              ::= IDENTIFIER:id           {: RESULT = new Node(id); :}
+var              ::= identifier:id           {: RESULT = id; :}
                    | UNDERSCORE              {: RESULT = new Node("_"); :}
                    | var_decl:vd             {: RESULT = vd; :}
                    | subscripts:ss           {: RESULT = ss; :};
@@ -232,7 +234,7 @@ expr_t6          ::= expr_t6:e1 t6op:o expr_t7:e2  {: RESULT = new Node(o,e1,e2)
 expr_t7          ::= t7op:o expr_t7:e              {: RESULT = new Node(o,e); :}
                    | expr_atom:ee                  {: RESULT = ee; :};
 
-expr_atom        ::= IDENTIFIER:id                 {: RESULT = new Node(id); :}
+expr_atom        ::= identifier:id                 {: RESULT = id; :}
                    | INTEGER_LITERAL:il            {: RESULT = new Node(il); :}
                    | STRING_LITERAL:sl             {: RESULT = new Node("\"" + sl + "\""); :}
                    | CHARACTER_LITERAL:cl          {: RESULT = new Node("\'" + cl + "\'"); :}
@@ -273,8 +275,8 @@ while_statement  ::= WHILE expr:e stmt:s
                        {: RESULT = new Node(new Node("while"), e.sub(), s); :};
 
 /* ================= OTHER STATEMENTS ======================================= */
-method_call      ::= IDENTIFIER:id OPEN_PAREN expr_list:el CLOSE_PAREN
-                       {: RESULT = new Node(new Node(id)); RESULT.addChildren(el); :};
+method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {: RESULT = new Node(id); RESULT.addChildren(el); :};
 return_statement ::= return_statement:rs SEMICOLON {: RESULT = rs; :}
                    | return_core:rc                {: RESULT = rc; :};
 return_core      ::= RETURN expr_list:el

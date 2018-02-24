@@ -12,4 +12,8 @@ public class RetvalList extends Node {
     public RetvalList(TypeNode t) {
         super(t);
     }
+    
+    public RetvalList() {
+        super();
+    }
 }

@@ -57,9 +57,14 @@ public class TypecheckerWrapper {
 			    Node ast = (Node) p.parse().value;
 			    SymbolTable sTable = new SymbolTable();
 	            ast.typeCheck(sTable);
+	            sTable.dumpTable();
             } catch (ParsingException e) {
+                System.out.println("Parsing error");
+                e.printStackTrace();
                 writer.write(e.getMessage() + "\n");
             } catch (Exception e) { // TODO TypeChecking exception
+                System.out.println("Typechecking error");
+                e.printStackTrace();
                 writer.write(e.getMessage() + "\n");
             }
             writer.close();

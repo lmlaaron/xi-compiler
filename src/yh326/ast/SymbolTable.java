@@ -30,6 +30,7 @@ public class SymbolTable {
     public SymbolTable() {
         logs = new Stack<String>();
         varTable = new HashMap<String, Stack<Tuple<VariableNodeType, Integer>>>();
+        funcTable = new HashMap<String, FunctionNodeType>();
         level = 0;
     }
     
@@ -120,6 +121,23 @@ public class SymbolTable {
             return funcTable.get(funcName);
         } else {
             return null;
+        }
+    }
+    
+    public void dumpTable() {
+        System.out.println("Function table:");
+        if (funcTable.keySet().size() == 0) {
+            System.out.println("  Function table empty.");
+        }
+        for (String key : funcTable.keySet()) {
+            System.out.println("  " + key + ": " + funcTable.get(key));
+        }
+        System.out.println("Variable table:");
+        if (varTable.keySet().size() == 0) {
+            System.out.println("  Variable table empty.");
+        }
+        for (String key : varTable.keySet()) {
+            System.out.println("  " + key + ": " + varTable.get(key).toArray());
         }
     }
 }

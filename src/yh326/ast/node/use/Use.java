@@ -9,24 +9,25 @@ import yh326.ast.node.Identifier;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
+import yh326.exception.ParsingException;
 import yh326.gen.lexer;
 import yh326.gen.parser;
 
 public class Use extends Node {
-    String id;
-    public Use(String id) {
-        super(new Keyword("use"), new Identifier(id));
+    private Identifier id;
+    
+    public Use(Identifier id) {
+        super(new Keyword("use"), id);
         this.id = id;
     }
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         File lib = new File(id + ".ixi");
         if (!lib.exists()) {
-            System.out.println(System.getProperty("user.dir") + "/lib/xi/" + id + ".ixi");
-            lib = new File(System.getProperty("user.dir") + "/lib/xi/" + id + ".ixi");
+            lib = new File(System.getProperty("user.dir") + "/lib/xi/" + id.value + ".ixi");
         }
         if (!lib.exists()) {
-            throw new RuntimeException("Interface file " + id + ".ixi not found.");
+            throw new RuntimeException("Interface file " + id.value + ".ixi not found.");
         }
         
         lexer x;
@@ -37,7 +38,7 @@ public class Use extends Node {
                 Node ast = (Node) p.parse().value;
                 ast.typeCheck(sTable);
             } catch (Exception e) {
-                throw new Exception(e.getMessage());
+                throw new ParsingException(e.getMessage());
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -40,6 +40,15 @@ public class Node {
             this.children.add(node);
         }
     }
+    
+    /**
+     * Special case for Node(Node... nodes).
+     */
+    public Node() {
+        this.decoration = new NodeDecoration();
+        this.value = null;
+        this.children = new ArrayList<Node>();
+    }
 
     /**
      * Checks if the node has a valid type. Subclasses that involve variable 
@@ -51,16 +60,16 @@ public class Node {
      * @throws Exception 
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        System.out.println(this.getClass());
+        System.out.println(this.getClass() + " " + this.value);
         
         if (this.children == null) {
-            System.out.println("    " + this.value);
+            System.out.println("Exiting " + this.getClass() + " " + this.value);
             return new UnitNodeType();
         }
-        System.out.println("    " + this.children.size());
         for (Node child : children) {
             child.typeCheck(sTable);
         }
+        System.out.println("Exiting " + this.getClass() + " " + this.value);
         return new UnitNodeType();
     }
 

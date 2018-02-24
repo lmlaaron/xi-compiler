@@ -10,29 +10,42 @@ import java.util.List;
  *
  */
 public class FunctionNodeType extends NodeType {
-    private List<VariableNodeType> args;
-    private List<VariableNodeType> rets;
+    private List<NodeType> args;
+    private List<NodeType> rets;
     
     /**
-     * @param args
-     * @param rets
+     * @param args2
+     * @param rets2
      */
-    public FunctionNodeType(List<VariableNodeType> args, List<VariableNodeType> rets) {
-        this.args = args;
-        this.rets = rets;
+    public FunctionNodeType(List<NodeType> args2, List<NodeType> rets2) {
+        this.args = args2;
+        this.rets = rets2;
     }
 
     /**
      * @return
      */
-    public List<VariableNodeType> getArgs() {
+    public List<NodeType> getArgs() {
         return args;
     }
 
     /**
      * @return
      */
-    public List<VariableNodeType> getRets() {
+    public List<NodeType> getRets() {
         return rets;
+    }
+    
+    @Override
+    public String toString() {
+        String rs = "(";
+        for (NodeType node : args) {
+            rs += node;
+        }
+        rs += ") -> (";
+        for (NodeType node : rets) {
+            rs += node;
+        }
+        return rs + ")";
     }
 }
