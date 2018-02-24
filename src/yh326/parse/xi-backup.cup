@@ -2,23 +2,7 @@
 
 
 
-/* ================= OPERATION ============================================== */
-t1op             ::= OR                      {:RESULT = new Node("|");:};
-t2op             ::= AND                     {:RESULT = new Node("&");:};
-t3op             ::= EQUAL                   {:RESULT = new Node("==");:}
-                   | NOT_EQUAL               {:RESULT = new Node("!=");:};
-t4op             ::= GT                      {:RESULT = new Node(">");:}
-                   | LT                      {:RESULT = new Node("<");:}
-                   | GEQ                     {:RESULT = new Node(">=");:}
-                   | LEQ                     {:RESULT = new Node("<=");:};
-t5op             ::= PLUS                    {:RESULT = new Node("+");:}
-                   | MINUS                   {:RESULT = new Node("-");:};
-t6op             ::= TIMES                   {:RESULT = new Node("*");:}
-                   | DIVIDE                  {:RESULT = new Node("/");:}
-                   | MODULO                  {:RESULT = new Node("%");:}
-                   | TIMES_SHIFT             {:RESULT = new Node("*>>");:};
-t7op             ::= MINUS                   {:RESULT = new Node("-");:}
-                   | NOT                     {:RESULT = new Node("!");:};
+
 
 /* ================= IF/ELSE/WHILE ========================================== */
 if_statement     ::= IF expr:e stmt:s
