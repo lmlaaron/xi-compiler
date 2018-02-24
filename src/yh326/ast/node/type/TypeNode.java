@@ -17,8 +17,6 @@ public class TypeNode extends Node {
     }
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        System.out.println(this.children.get(0).getClass());
-        System.out.println(this.children.get(1).getClass());
         NodeType t = children.get(1).typeCheck(sTable);
         if (t instanceof VariableNodeType) {
             ((VariableNodeType) t).setLevel(((VariableNodeType) t).getLevel() + 1);

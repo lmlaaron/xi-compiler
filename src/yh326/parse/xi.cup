@@ -2,7 +2,9 @@ package yh326.gen;
 
 import yh326.ast.node.*;
 import yh326.ast.node.interfc.*;
+import yh326.ast.node.method.*;
 import yh326.ast.node.retval.*;
+import yh326.ast.node.stmt.*;
 import yh326.ast.node.type.*;
 import yh326.ast.node.use.*;
 import yh326.ast.node.vardecl.*;
@@ -72,6 +74,17 @@ nonterminal TypeNode array_type_func;
 
 nonterminal TypeNode box, boxes, box_func_decl, boxes_func_decl;
 
+//nonterminal Node subscript, subscripts, subscriptable;
+
+nonterminal Block block;//, stmt_list, stmt, stmt_cond, stmt_semi, stmt_core;
+/*
+nonterminal Node assignment, lhs, var;
+nonterminal Node expr_list, expr_rec, expr, expr_atom;
+nonterminal Node expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
+nonterminal Node t1op, t2op, t3op, t4op, t5op, t6op, t7op;
+nonterminal Node if_statement, else_statement, while_statement;
+nonterminal Node method_call,return_statement, return_core, length_statement;
+*/
 
 nonterminal Node nothing;
 
@@ -99,12 +112,14 @@ use              ::= USE:u identifier:id
                        {:RESULT = new Use(uleft, uright, id);:};
 
 /* ================= METHOD ================================================= */
-/*
-method_list      ::= method:m method_list:ml {:RESULT = new Node(m); RESULT.addChildren(ml);:}
-                   | method:m                {:RESULT = new Node(m);:};
-method           ::= identifier:id method_args:args retvals_list:mr block:b
-                       {:RESULT = new Node(id, args, mr, b);:};
-*/
+
+method_list      ::= method:m method_list:ml
+                       {:RESULT = new MethodList(mleft, mright, m); RESULT.addChildren(ml);:}
+                   | method:m
+                       {:RESULT = new MethodList(mleft, mright, m);:};
+method           ::= identifier:id method_args:args retvals_list:rets block:b
+                       {:RESULT = new Method(idleft, idright, id, args, rets, b);:};
+
 method_args      ::= OPEN_PAREN var_decl_list:vdel CLOSE_PAREN
                        {:RESULT = vdel;:};
 
@@ -180,7 +195,25 @@ box_func_decl    ::= OPEN_BRACKET:a CLOSE_BRACKET
                          RESULT.addNodes((Node) null);:};
 boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.addHead(bs);:}
                    | box_func_decl:b               {:RESULT = b;:};
+
+/*
+subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
+                       {:RESULT = e;:};
+subscripts       ::= subscripts:ss subscript:s
+                       {:RESULT = new TypeNode(new TypeNode("[]"), ss); RESULT.addNodes(s);:}
+                   | subscriptable:sb subscript:s
+                       {:RESULT = new TypeNode(new TypeNode("[]"), sb); RESULT.addNodes(s);:};
+subscriptable    ::= identifier:id           {:RESULT = id;:}
+                   | method_call:mc          {:RESULT = new Node(mc);:};
+// TODO            | array_literal:al        {:RESULT = new Node(al);:};
+*/
+/* ================= BLOCK/STATEMENT ======================================== */
+//block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
+block            ::= OPEN_BRACE:a CLOSE_BRACE
+                       {:RESULT = new Block(aleft, aright);:};
+
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // SEE xi-backup.cup for the missing part
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 nothing          ::= /* placeholder for epsilon */;

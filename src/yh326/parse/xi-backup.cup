@@ -1,26 +1,5 @@
-nonterminal Node subscript, subscripts, subscriptable;
 
-nonterminal Node block, stmt_list, stmt, stmt_cond, stmt_semi, stmt_core;
-nonterminal Node assignment, lhs, var;
-nonterminal Node expr_list, expr_rec, expr, expr_atom;
-nonterminal Node expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
-nonterminal Node t1op, t2op, t3op, t4op, t5op, t6op, t7op;
-nonterminal Node if_statement, else_statement, while_statement;
-nonterminal Node method_call,return_statement, return_core, length_statement;
 
-subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
-                       {:RESULT = e;:};
-subscripts       ::= subscripts:ss subscript:s
-                       {:RESULT = new TypeNode(new TypeNode("[]"), ss); RESULT.addNodes(s);:}
-                   | subscriptable:sb subscript:s
-                       {:RESULT = new TypeNode(new TypeNode("[]"), sb); RESULT.addNodes(s);:};
-subscriptable    ::= identifier:id           {:RESULT = id;:}
-                   | method_call:mc          {:RESULT = new Node(mc);:}/*
-                   | array_literal:al        {:RESULT = new Node(al);:}*/;
-
-/* ================= BLOCK/STATEMENT ======================================== */
-block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
-                       {:RESULT = sl;:}
                    | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
                        {:RESULT = sl; RESULT.addNodes(rs);:};
 stmt_list        ::= stmt:st stmt_list:sl

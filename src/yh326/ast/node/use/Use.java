@@ -21,7 +21,7 @@ public class Use extends Node {
         this.id = id;
     }
     
-    public NodeType typeCheck(SymbolTable sTable) throws Exception {
+    public void loadMethods(SymbolTable sTable) throws Exception {
         File lib = new File(id + ".ixi");
         if (!lib.exists()) {
             lib = new File(System.getProperty("user.dir") + "/lib/xi/" + id.value + ".ixi");
@@ -30,20 +30,17 @@ public class Use extends Node {
             throw new RuntimeException("Interface file " + id.value + ".ixi not found.");
         }
         
-        lexer x;
         try {
-            x = new lexer(new FileReader(lib));
+            lexer x = new lexer(new FileReader(lib));
             parser p = new parser(x);
             try {
                 Node ast = (Node) p.parse().value;
-                ast.typeCheck(sTable);
+                ast.loadMethods(sTable);
             } catch (Exception e) {
                 throw new ParsingException(e.getMessage());
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return null;
-        
     }
 }

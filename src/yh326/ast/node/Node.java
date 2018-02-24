@@ -60,25 +60,45 @@ public class Node {
     }
 
     /**
+     * Load methods in use statements and methods defined in the file into
+     * the symbol table. This must be called before typeCheck is called.
+     * "Use", "Interface", and "Method" class should override this method.
+     * @param sTable the complete symbol table for the scope of this node
+     * @throws Exception
+     */
+    public void loadMethods(SymbolTable sTable) throws Exception {
+        //System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
+        
+        if (this.children == null) {
+            //System.out.println("Exiting  " + this.getClass());
+            return;
+        }
+        for (Node child : children) {
+            child.loadMethods(sTable);
+        }
+        //System.out.println("Exiting  " + this.getClass());
+    }
+
+    /**
      * Checks if the node has a valid type. Subclasses that involve variable 
      * or function declaration or using should rewrite this method. Others
      * (like "UseList", "Keyword" class, etc) don't need to rewrite.
+     * NOTE: THIS METHOD MUST BE CALLED WHEN loadMethods HAS ALREADY BEEN CALLED.
      * @param sTable the complete symbol table for the scope of this node
      * @return the NodeType of the node
-     * @throws TypeErrorException if this or some child node has a type error
      * @throws Exception 
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        System.out.println(this.getClass() + " " + this.value);
+        //System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
         
         if (this.children == null) {
-            System.out.println("Exiting " + this.getClass() + " " + this.value);
+            //System.out.println("Exiting  " + this.getClass());
             return new UnitNodeType();
         }
         for (Node child : children) {
             child.typeCheck(sTable);
         }
-        System.out.println("Exiting " + this.getClass() + " " + this.value);
+        //System.out.println("Exiting  " + this.getClass());
         return new UnitNodeType();
     }
 

@@ -56,6 +56,9 @@ public class TypecheckerWrapper {
 			try {
 			    Node ast = (Node) p.parse().value;
 			    SymbolTable sTable = new SymbolTable();
+			    System.out.println("Loading methods...");
+			    ast.loadMethods(sTable);
+			    System.out.println("Type-checking...");
 	            ast.typeCheck(sTable);
 	            sTable.dumpTable();
             } catch (ParsingException e) {

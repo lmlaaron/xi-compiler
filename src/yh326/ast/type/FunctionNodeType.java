@@ -38,13 +38,13 @@ public class FunctionNodeType extends NodeType {
     
     @Override
     public String toString() {
-        String rs = "(";
-        for (NodeType node : args) {
-            rs += node;
+        String rs = "(" + (args.size() == 0 ? "" : args.get(0));
+        for (int i = 1; i < args.size(); i++) {
+            rs += ", " + args.get(i);
         }
-        rs += ") -> (";
-        for (NodeType node : rets) {
-            rs += node;
+        rs += ") -> (" + (rets.size() == 0 ? "" : rets.get(0));
+        for (int i = 1; i < rets.size(); i++) {
+            rs += ", " + rets.get(i);
         }
         return rs + ")";
     }
