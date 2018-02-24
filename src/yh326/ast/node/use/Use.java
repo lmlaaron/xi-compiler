@@ -21,6 +21,7 @@ public class Use extends Node {
         this.id = id;
     }
     
+    @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
         File lib = new File(id + ".ixi");
         if (!lib.exists()) {
@@ -33,12 +34,13 @@ public class Use extends Node {
         try {
             lexer x = new lexer(new FileReader(lib));
             parser p = new parser(x);
+            Node ast;
             try {
-                Node ast = (Node) p.parse().value;
-                ast.loadMethods(sTable);
+                ast = (Node) p.parse().value;
             } catch (Exception e) {
                 throw new ParsingException(e.getMessage());
             }
+            ast.loadMethods(sTable);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

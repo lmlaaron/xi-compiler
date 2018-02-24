@@ -11,7 +11,9 @@ import java.util.Stack;
 import yh326.ast.type.FunctionNodeType;
 import yh326.ast.type.VariableNodeType;
 import yh326.exception.FunctionAlreadyDefinedException;
+import yh326.exception.FunctionNotDefinedException;
 import yh326.exception.VariableAlreadyDefinedException;
+import yh326.exception.VariableNotDefinedException;
 import yh326.util.Tuple;
 
 /**
@@ -101,12 +103,13 @@ public class SymbolTable {
      * Return null if the variable is not defined in the symbol table.
      * @param varName The name of the variable
      * @return The type of the variable with the given name or null.
+     * @throws VariableNotDefinedException 
      */
-    public VariableNodeType getVariableType(String varName) {
+    public VariableNodeType getVariableType(String varName) throws VariableNotDefinedException {
         if (varTable.containsKey(varName)) {
             return varTable.get(varName).peek().t1;
         } else {
-            return null;
+            throw new VariableNotDefinedException(varName);
         }
     }
     
@@ -115,12 +118,13 @@ public class SymbolTable {
      * Return null if the function is not defined in the symbol table.
      * @param funcName The name of the function
      * @return The type of the function with the given name or null.
+     * @throws FunctionNotDefinedException 
      */
-    public FunctionNodeType getFunctionType(String funcName) {
+    public FunctionNodeType getFunctionType(String funcName) throws FunctionNotDefinedException {
         if (funcTable.containsKey(funcName)) {
             return funcTable.get(funcName);
         } else {
-            return null;
+            throw new FunctionNotDefinedException(funcName);
         }
     }
     

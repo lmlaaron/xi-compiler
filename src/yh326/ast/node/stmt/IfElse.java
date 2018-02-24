@@ -1,9 +1,9 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Expr;
 import yh326.ast.node.Node;
 import yh326.ast.node.NodeDecoration;
+import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;

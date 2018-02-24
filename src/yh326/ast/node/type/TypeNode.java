@@ -22,7 +22,7 @@ public class TypeNode extends Node {
             ((VariableNodeType) t).setLevel(((VariableNodeType) t).getLevel() + 1);
             return t;
         } else {
-            throw new TypeErrorException("Unexpected Error");
+            throw new RuntimeException("Unexpected Error");
         }
     }
 

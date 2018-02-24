@@ -2,9 +2,9 @@
  * author: ml2558
  **/
 package yh326.ast.node.stmt;
-import yh326.ast.node.Expr;
 import yh326.ast.node.Node;
 import yh326.ast.node.NodeDecoration;
+import yh326.ast.node.expr.Expr;
 import yh326.ast.type.*; //TODO should it be ast.node.type?
 
 

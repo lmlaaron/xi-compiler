@@ -1,18 +1,15 @@
 package yh326.ast.node.method;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
+import yh326.ast.node.funcdecl.FunctionTypeDecl;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
-import yh326.ast.type.FunctionNodeType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.VariableNodeType;
-import yh326.exception.TypeErrorException;
+import yh326.ast.util.LoadMethod;
 
 public class Method extends Node {
     private Identifier id;
@@ -28,27 +25,31 @@ public class Method extends Node {
         this.block = b;
     }
 
+    @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        List<VariableNodeType> args = new ArrayList<VariableNodeType>();
-        List<VariableNodeType> rets = new ArrayList<VariableNodeType>();
+        // Interface and Method class share the same loadMethod method.
+        // So it is moved to util package.
+        LoadMethod.loadMethod(sTable, id.value, args, rets);
+    }
+    
+    @Override
+    public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        sTable.enterBlock();
         for (Node varDecl : this.args.children) {
-            NodeType t = varDecl.typeCheck(sTable);
-            if (t instanceof VariableNodeType) {
-                args.add((VariableNodeType) t);
-            } else {
-                throw new TypeErrorException("Unexpected Error.");
+            if (varDecl instanceof FunctionTypeDecl) {
+                FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
+                NodeType t = funcVarDecl.typeCheck(sTable);
+                if (t instanceof VariableNodeType) {
+                    sTable.addVar(funcVarDecl.getId().value, (VariableNodeType) t);
+                } else {
+                    sTable.exitBlock();
+                    throw new RuntimeException("Unexpected Error.");
+                }
             }
-        }
-        for (Node varDecl : this.rets.children) {
-            NodeType t = varDecl.typeCheck(sTable);
-            if (t instanceof VariableNodeType) {
-                rets.add((VariableNodeType) t);
-            } else {
-                throw new TypeErrorException("Unexpected Error.");
-            }
-        }
             
-        FunctionNodeType funcType = new FunctionNodeType(args, rets);
-        sTable.addFunc(id.value, funcType);
+        }
+        NodeType type = block.typeCheck(sTable);
+        sTable.exitBlock();
+        return type;
     }
 }

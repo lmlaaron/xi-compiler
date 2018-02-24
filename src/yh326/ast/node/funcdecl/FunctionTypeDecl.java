@@ -12,14 +12,20 @@ import yh326.ast.type.NodeType;
  *
  */
 public class FunctionTypeDecl extends Node {
+    private Identifier id;
     private TypeNode typeNode;
     
     public FunctionTypeDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
+        this.id = id;
         this.typeNode = typeNode;
     }
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         return typeNode.typeCheck(sTable);
+    }
+    
+    public Identifier getId() {
+        return id;
     }
 }

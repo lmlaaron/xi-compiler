@@ -1,16 +1,11 @@
 package yh326.ast.node.interfc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
-import yh326.ast.type.FunctionNodeType;
-import yh326.ast.type.NodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.util.LoadMethod;
 
 public class Interface extends Node {
     private Identifier id;
@@ -25,26 +20,8 @@ public class Interface extends Node {
     }
     
     public void loadMethods(SymbolTable sTable) throws Exception {
-        List<VariableNodeType> args = new ArrayList<VariableNodeType>();
-        List<VariableNodeType> rets = new ArrayList<VariableNodeType>();
-        if (this.args != null) {
-            for (Node varDecl : this.args.children) {
-                NodeType t = varDecl.typeCheck(sTable);
-                if (t instanceof VariableNodeType) {
-                    args.add((VariableNodeType) t);
-                }
-            }
-        }
-        if (this.rets != null) {
-            for (Node varDecl : this.rets.children) {
-                NodeType t = varDecl.typeCheck(sTable);
-                if (t instanceof VariableNodeType) {
-                    rets.add((VariableNodeType) t);
-                }
-            }
-        }
-            
-        FunctionNodeType funcType = new FunctionNodeType(args, rets);
-        sTable.addFunc(id.value, funcType);
+        // Interface and Method class share the same loadMethod method.
+        // So it is moved to util package.
+        LoadMethod.loadMethod(sTable, id.value, args, rets);
     }
 }
