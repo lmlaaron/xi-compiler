@@ -4,8 +4,8 @@ import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class TypeNode extends Node {
@@ -20,15 +20,15 @@ public class TypeNode extends Node {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        VariableNodeType t = (VariableNodeType) children.get(1).typeCheck(sTable);
+        VariableType t = (VariableType) children.get(1).typeCheck(sTable);
 
         if (children.size() <= 2) {
             // Size of array not given
             t.increaseLevel();
         } else {
             // Size of array given. Check if size (expr) is integer.
-            VariableNodeType expr = (VariableNodeType) children.get(2).typeCheck(sTable);
-            VariableNodeType integer = new VariableNodeType(PrimitiveNodeType.INT);
+            VariableType expr = (VariableType) children.get(2).typeCheck(sTable);
+            VariableType integer = new VariableType(Primitives.INT);
             if (expr.equals(integer)) {
                 t.increaseLevel((Expr) children.get(2));
             } else {

@@ -3,10 +3,14 @@ package yh326.ast.node.stmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.UnitNodeType;
+import yh326.ast.type.UnitType;
 
 public class StmtList extends Stmt {
 
+    public StmtList(int line, int col) {
+        super(line, col);
+    }
+    
     public StmtList(int line, int col, Stmt stmt) {
         super(line, col, stmt);
     }
@@ -14,7 +18,7 @@ public class StmtList extends Stmt {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
-        NodeType type = new UnitNodeType();
+        NodeType type = new UnitType();
         if (children != null) {
             for (Node child : children) {
                 if (child != null) {

@@ -97,10 +97,12 @@ nonterminal ExprList expr_list, expr_rec;
 nonterminal Expr expr, expr_atom;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
+nonterminal ArrayLiteral array_literal;
+
 nonterminal Stmt if_statement, else_statement;
 nonterminal While while_statement;
 nonterminal MethodCall method_call;
-nonterminal Return return_statement, return_core;
+nonterminal Return return_statement;
 nonterminal Length length_statement;
 
 nonterminal Node nothing;
@@ -227,7 +229,7 @@ block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
                        {:RESULT = sl; RESULT.addNodes(rs);:};
 stmt_list        ::= stmt:st stmt_list:sl
                        {:RESULT = new StmtList(stleft, stright, st); RESULT.addChildren(sl);:}
-                   | nothing;
+                   | nothing:a               {:RESULT = new StmtList(aleft, aright);:};
 
 // stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
 // stmt_semi: a statement with a potential semicolon
@@ -312,8 +314,10 @@ expr_atom        ::= identifier:id         {:RESULT = id;:}
                    | method_call:mc        {:RESULT = mc;:}
                    | length_statement:ls   {:RESULT = ls;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:}
-                   | OPEN_BRACE:a expr_list:el CLOSE_BRACE
-                       {:RESULT = new ExprAtom(aleft, aright); RESULT.addChildren(el);:};
+                   | array_literal:al      {:RESULT = al;:};
+
+array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
+                       {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:};
  
 /* ================= OPERATION ============================================== */
 t1op             ::= OR:a           {:RESULT = new LogicOr(aleft, aright);:};
@@ -348,9 +352,7 @@ while_statement  ::= WHILE:a expr:e stmt:s
 method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
                        {:RESULT = new MethodCall(idleft, idright, id);
                          RESULT.addChildren(el);:};
-return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
-                   | return_core:rc                {:RESULT = rc;:};
-return_core      ::= RETURN:a expr_list:el
+return_statement ::= RETURN:a expr_list:el
                        {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
 length_statement ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};

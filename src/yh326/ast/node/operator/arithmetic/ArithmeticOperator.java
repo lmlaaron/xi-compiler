@@ -2,8 +2,8 @@ package yh326.ast.node.operator.arithmetic;
 
 import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class ArithmeticOperator extends Operator {
@@ -13,7 +13,7 @@ public class ArithmeticOperator extends Operator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT);
+        NodeType intType = new VariableType(Primitives.INT);
         if (operandType.equals(intType)) {
             return intType;
         }

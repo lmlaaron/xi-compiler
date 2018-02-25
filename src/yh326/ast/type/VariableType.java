@@ -10,16 +10,16 @@ import yh326.exception.TypeErrorException;
  * @author Syugen
  *
  */
-public class VariableNodeType extends NodeType {
+public class VariableType extends NodeType {
     
-    private PrimitiveNodeType type;
+    private Primitives type;
     private int level;
     private List<Expr> sizes;
     
     /**
      * @param type
      */
-    public VariableNodeType(PrimitiveNodeType type) {
+    public VariableType(Primitives type) {
         this.type = type;
         this.level = 0;
         this.sizes = new ArrayList<Expr>();
@@ -28,7 +28,7 @@ public class VariableNodeType extends NodeType {
     /**
      * @return
      */
-    public PrimitiveNodeType getType() {
+    public Primitives getType() {
         return type;
     }
 
@@ -61,7 +61,7 @@ public class VariableNodeType extends NodeType {
     
     @Override
     public String toString() {
-        String typeString = type == PrimitiveNodeType.INT ? "int" : "bool";
+        String typeString = type == Primitives.INT ? "int" : "bool";
         for (int i = 0; i < level; i++) {
             typeString += "[";
             Expr sizeNode = sizes.get(i);
@@ -80,10 +80,12 @@ public class VariableNodeType extends NodeType {
     @Override
     public boolean equals(Object other) {
         // Note that sizes are not checked!
-        if (other instanceof VariableNodeType) {
-            VariableNodeType otherType = (VariableNodeType) other;
-            return otherType.getType() == getType() && 
-                   otherType.getLevel() == getLevel();
+        if (other instanceof VariableType) {
+            VariableType otherType = (VariableType) other;
+            return type == otherType.getType() && 
+                   level == otherType.getLevel() ||
+                   type == Primitives.ANY ||
+                   otherType.getType() == Primitives.ANY;
         } else {
             return false;
         }

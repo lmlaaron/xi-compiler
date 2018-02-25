@@ -2,8 +2,8 @@ package yh326.ast.node.operator.logical;
 
 import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class LogicalOperator extends Operator {
@@ -13,7 +13,7 @@ public class LogicalOperator extends Operator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
+        NodeType boolType = new VariableType(Primitives.BOOL);
         if (operandType.equals(boolType)) {
             return boolType;
         }

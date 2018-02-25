@@ -1,8 +1,8 @@
 package yh326.ast.node.operator.comparison;
 
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class ArithmeticComparisonOperator extends ComparisonOperator {
@@ -12,8 +12,8 @@ public class ArithmeticComparisonOperator extends ComparisonOperator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
-        NodeType intType = new VariableNodeType(PrimitiveNodeType.INT);
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
+        NodeType intType = new VariableType(Primitives.INT);
+        NodeType boolType = new VariableType(Primitives.BOOL);
         if (operandType.equals(intType)) {
             return boolType;
         }
