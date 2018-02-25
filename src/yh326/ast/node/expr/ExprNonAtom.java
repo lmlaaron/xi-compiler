@@ -26,22 +26,7 @@ public class ExprNonAtom extends Expr {
         for (Node operand : operands) {
             operandTypes.add(operand.typeCheck(sTable));
         }
-        // make sure those types are the same:
 
-
-        if (operator.validNumOperands(operands.size())){ // ensure operator accepts the correct size
-            // set operator's type
-            operator.decoration.setType(
-                operator.resultTypeFrom(
-                    operands.toArray(new Node[operands.size()])
-                )
-            );
-            // set this node's type
-            decoration.setType(operator.decoration.getType());
-            return decoration.getType();
-        }
-        else {
-            throw new TypeErrorException(operator, "Operator " + operator.value + "does not accept " + operands.size() + " operands");
-        }
+        return operator.resultTypeFrom(operandTypes.toArray(new NodeType[operands.size()]));
     }
 }
