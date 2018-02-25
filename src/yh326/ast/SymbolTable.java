@@ -146,4 +146,8 @@ public class SymbolTable {
         System.out.println("Log:");
         System.out.println("  " + Arrays.toString(logs.toArray()));
     }
+    
+    public int getLevel() {
+        return level;
+    }
 }

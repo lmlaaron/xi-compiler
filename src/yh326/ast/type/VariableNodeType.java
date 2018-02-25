@@ -24,23 +24,6 @@ public class VariableNodeType extends NodeType {
         this.level = 0;
         this.sizes = new ArrayList<Expr>();
     }
-    
-    /**
-     * @param other
-     * @return unit type if a or b is unit type
-     * @throws exception
-     **/
-    public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
-        if (a.equals(b)) {
-            return a;
-        } else if (a instanceof UnitNodeType) {
-            return a;
-        } else if (b instanceof UnitNodeType) {
-            return b;
-        } else {
-            throw new TypeErrorException(a, b); // TODO Wrong use of the Exception
-        }
-    }    
    
     /**
      * @return

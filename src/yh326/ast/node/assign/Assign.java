@@ -30,7 +30,6 @@ public class Assign extends Stmt {
             return new UnitNodeType();
         }
         
-        sTable.enterBlock();
         NodeType leftType = null;
         if (lhs instanceof Identifier) {
             leftType = ((Identifier) lhs).typeCheck(sTable);
@@ -41,7 +40,6 @@ public class Assign extends Stmt {
         }
         
         NodeType rightType = expr.typeCheck(sTable);
-        sTable.exitBlock();
         if (leftType == null) {
             throw new RuntimeException("Unexpected Error.");
         } else if (leftType.equals(rightType)) {

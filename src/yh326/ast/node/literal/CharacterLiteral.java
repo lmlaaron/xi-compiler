@@ -9,7 +9,7 @@ import yh326.ast.type.VariableNodeType;
 public class CharacterLiteral extends ExprAtom {
 
     public CharacterLiteral(int line, int col, String ch) {
-        super(line, col, ch);
+        super(line, col, "\'" + ch + "\'");
     }
     
     @Override

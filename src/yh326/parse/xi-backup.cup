@@ -4,22 +4,3 @@
 
 
 
-/* ================= IF/ELSE/WHILE ========================================== */
-if_statement     ::= IF expr:e stmt:s
-                       {:RESULT = new Node(new Node("if"), e.sub(), s);:}
-                   | IF expr:e stmt_cond:s else_statement:es
-                       {:RESULT = new Node(new Node("if"), e.sub(), s, es);:};
-else_statement   ::= ELSE stmt:s
-                       {:RESULT = s;:};
-while_statement  ::= WHILE expr:e stmt:s
-                       {:RESULT = new Node(new Node("while"), e.sub(), s);:};
-
-/* ================= OTHER STATEMENTS ======================================= */
-method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
-                       {:RESULT = new Node(id); RESULT.addChildren(el);:};
-return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
-                   | return_core:rc                {:RESULT = rc;:};
-return_core      ::= RETURN expr_list:el
-                       {:RESULT = new Node(new Node("return")); RESULT.addChildren(el);:};
-length_statement ::= LENGTH OPEN_PAREN expr:e CLOSE_PAREN
-                       {:RESULT = new Node(new Node("length"), e);:};

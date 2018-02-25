@@ -1,8 +1,9 @@
 package yh326.ast.node.expr;
 
 import yh326.ast.node.Node;
+import yh326.ast.node.stmt.Stmt;
 
-public class Expr extends Node {
+public class Expr extends Stmt {
     /**
      * This operator is used when creating an ExprAtom of IntegerLiteral,
      * StringLiteral, CharacterLiteral, TrueLiteral, and FalseLiteral.

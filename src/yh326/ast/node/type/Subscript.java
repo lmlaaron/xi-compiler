@@ -18,14 +18,12 @@ public class Subscript extends Expr {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        sTable.enterBlock();
         VariableNodeType t = (VariableNodeType) children.get(1).typeCheck(sTable);
         
         // Check if size (expr) is integer.
         VariableNodeType expr = (VariableNodeType) children.get(2).typeCheck(sTable);
         VariableNodeType integer = new VariableNodeType(PrimitiveNodeType.INT);
         
-        sTable.exitBlock();
         if (expr.equals(integer)) {
             t.decreaseLevel();
             return t;

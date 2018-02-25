@@ -1,37 +1,32 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Node;
-import yh326.ast.node.NodeDecoration;
+import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.UnitNodeType;
 import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
-import java.util.ArrayList;
-
 public class If extends Stmt {
-    protected Expr guard;
-    protected Stmt consequent;
+    protected Expr condition;
+    protected Stmt then;
 
-    public If(int line, int col, Node... nodes) {
-        super(line, col, nodes);
-        if (nodes[0] instanceof Expr && nodes[1] instanceof Stmt) {
-            guard = (Expr)nodes[0];
-            consequent = (Stmt)nodes[1];
-        }
+    public If(int line, int col, Expr condition, Stmt then) {
+        super(line, col, new Keyword(line, col, "if"), condition, then);
+        this.condition = condition;
+        this.then = then;
     }
 
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = guard.typeCheck(st);
+        NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
+        
         if (!tg.equals(boolType)) {
             throw new TypeErrorException(boolType, tg);
         }
-        NodeType tc = consequent.typeCheck(st);
-        return new UnitNodeType();
+        NodeType tc =  then.typeCheck(st);
+        return tc; // TODO not sure about this
     }
 }

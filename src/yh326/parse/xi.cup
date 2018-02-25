@@ -97,9 +97,12 @@ nonterminal Node assign_to;
 nonterminal Expr expr, expr_atom;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
-/*nonterminal Node if_statement, else_statement, while_statement;
-nonterminal Node method_call,return_statement, return_core, length_statement;
-*/
+nonterminal Stmt if_statement, else_statement;
+nonterminal While while_statement;
+nonterminal MethodCall method_call;
+nonterminal Return return_statement, return_core;
+nonterminal Length length_statement;
+
 
 nonterminal Node nothing;
 
@@ -214,15 +217,15 @@ subscripts       ::= subscripts:ss subscript:s
                        {:RESULT = new Subscript(ssleft, ssright, ss); RESULT.addNodes(s);:}
                    | subscriptable:sb subscript:s
                        {:RESULT = new Subscript(sbleft, sbright, sb); RESULT.addNodes(s);:};
-subscriptable    ::= identifier:id           {:RESULT = id;:};
-//                   | method_call:mc          {:RESULT = new Node(mc);:};
+subscriptable    ::= identifier:id           {:RESULT = id;:}
+                   | method_call:mc          {:RESULT = new Node(mcleft, mcright, mc);:};//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CHANGE!!!!!!!!!!!
 // TODO            | array_literal:al        {:RESULT = new Node(al);:};
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
-                       {:RESULT = sl;:};
-//                   | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
-//                       {:RESULT = sl; RESULT.addNodes(rs);:};
+                       {:RESULT = sl;:}
+                   | OPEN_BRACE stmt_list:sl return_statement:rs CLOSE_BRACE
+                       {:RESULT = sl; RESULT.addNodes(rs);:};
 stmt_list        ::= stmt:st stmt_list:sl
                        {:RESULT = new StmtList(stleft, stright, st); RESULT.addChildren(sl);:}
                    | nothing;
@@ -230,17 +233,17 @@ stmt_list        ::= stmt:st stmt_list:sl
 // stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
 // stmt_semi: a statement with a potential semicolon
 // stmt_core: the statement itself
-stmt             ::= stmt_cond:sc            {:RESULT = sc;:};
-//                   | if_statement:is         {:RESULT = is;:}
-//                   | while_statement:ws      {:RESULT = ws;:};
+stmt             ::= stmt_cond:sc            {:RESULT = sc;:}
+                   | if_statement:is         {:RESULT = is;:}
+                   | while_statement:ws      {:RESULT = ws;:};
 stmt_cond        ::= block:b                 {:RESULT = b;:}
                    | stmt_semi:ss            {:RESULT = ss;:};
 stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
                    | stmt_core:sc SEMICOLON  {:RESULT = sc;:};
 stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
-                   | assignment:as           {:RESULT = as;:};
-//                   | method_call:mc          {:RESULT = mc;:}
-//                   | length_statement:ls     {:RESULT = ls;:};
+                   | assignment:as           {:RESULT = as;:}
+                   | method_call:mc          {:RESULT = mc;:}
+                   | length_statement:ls     {:RESULT = ls;:};
 
 // var_decl is for variable declaration in statements.
 // Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
@@ -307,8 +310,8 @@ expr_atom        ::= identifier:id                 {:RESULT = id;:}
                    | TRUE:a                        {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a                       {:RESULT = new FalseLiteral(aleft, aright);:}
                    | subscripts:ss                 {:RESULT = ss;:}
- //                  | method_call:mc                {:RESULT = mc;:}
- //                  | length_statement:ls           {:RESULT = ls;:}
+                   | method_call:mc                {:RESULT = mc;:}
+                   | length_statement:ls           {:RESULT = ls;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:};
  //                  | OPEN_BRACE expr_list:el CLOSE_BRACE       {:RESULT = el;:};
  
@@ -329,5 +332,27 @@ t6op             ::= TIMES:a        {:RESULT = new Times(aleft, aright);:}
                    | TIMES_SHIFT:a  {:RESULT = new ShiftTimes(aleft, aright);:};
 t7op             ::= MINUS:a        {:RESULT = new ArithmeticNegation(aleft, aright);:}
                    | NOT:a          {:RESULT = new LogicNegation(aleft, aright);:};
+
+/* ================= IF/ELSE/WHILE ========================================== */
+
+if_statement     ::= IF:a expr:e stmt:s
+                       {:RESULT = new If(aleft, aright, (Expr) e.sub(), s);:}
+                   | IF:a expr:e stmt_cond:s else_statement:es
+                       {:RESULT = new IfElse(aleft, aright, (Expr) e.sub(), s, es);:};
+else_statement   ::= ELSE stmt:s
+                       {:RESULT = s;:};
+while_statement  ::= WHILE:a expr:e stmt:s
+                       {:RESULT = new While(aleft, aright, (Expr) e.sub(), s);:};
+
+/* ================= OTHER STATEMENTS ======================================= */
+method_call      ::= identifier:id OPEN_PAREN expr/*expr_list*/:el CLOSE_PAREN
+                       {:RESULT = new MethodCall(idleft, idright, id);
+                         RESULT.addChildren(el);:};
+return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
+                   | return_core:rc                {:RESULT = rc;:};
+return_core      ::= RETURN:a expr/*expr_list*/:el
+                       {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
+length_statement ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
+                       {:RESULT = new Length(aleft, aright, e);:};
 
 nothing          ::= /* placeholder for epsilon */;

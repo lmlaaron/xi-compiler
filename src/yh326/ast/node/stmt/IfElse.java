@@ -1,39 +1,52 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Node;
-import yh326.ast.node.NodeDecoration;
+import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
+import yh326.ast.type.UnitNodeType;
 import yh326.ast.type.VariableNodeType;
 import yh326.exception.TypeErrorException;
 
-import java.util.ArrayList;
-
 public class IfElse extends Stmt {
-    protected Expr guard;
-    protected Stmt consequent;
-    protected Stmt alternative;
+    protected Expr condition;
+    protected Stmt then;
+    protected Stmt otherwise;
 
-    public IfElse(int line, int col, Node... nodes) {
-        super(line, col, nodes);
-        if (nodes[0] instanceof Expr && nodes[1] instanceof Stmt && nodes[2] instanceof Stmt) {
-            guard = (Expr)nodes[0];
-            consequent = (Stmt)nodes[1];
-            alternative = (Stmt)nodes[2];
-        }
+    public IfElse(int line, int col, Expr condition, Stmt then, Stmt otherwise) {
+        super(line, col, new Keyword(line, col, "if"), condition, then, otherwise);
+        this.condition = condition;
+        this.then = then;
+        this.otherwise = otherwise;
     }
 
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = guard.typeCheck(st);
+        NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
         if (!tg.equals(boolType)) {
             throw new TypeErrorException(boolType, tg);
         }
-        NodeType tc = consequent.typeCheck(st);
-        NodeType ta = alternative.typeCheck(st);
-        return VariableNodeType.Lub(tc, ta); // TODO: what is Lub????
+        NodeType tc = then.typeCheck(st);
+        NodeType ta = otherwise.typeCheck(st);
+        return Lub(tc, ta);
     }
+    
+    /**
+     * @param other
+     * @return unit type if a or b is unit type
+     * @throws exception
+     **/
+    public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
+        if (a.equals(b)) {
+            return a;
+        } else if (a instanceof UnitNodeType) {
+            return a;
+        } else if (b instanceof UnitNodeType) {
+            return b;
+        } else {
+            throw new TypeErrorException(a, b); // TODO Wrong use of the Exception
+        }
+    }    
 }

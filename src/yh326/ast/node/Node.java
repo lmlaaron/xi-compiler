@@ -89,17 +89,16 @@ public class Node {
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
-        sTable.enterBlock();
+        NodeType type = new UnitNodeType();
         if (children != null) {
             for (Node child : children) {
                 if (child != null) {
-                    child.typeCheck(sTable);
+                    type = child.typeCheck(sTable);
                 }
             }
         }
-        sTable.exitBlock();
         System.out.println("Exiting  " + this.getClass());
-        return new UnitNodeType();
+        return type;
     }
 
     /**
