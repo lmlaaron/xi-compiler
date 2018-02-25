@@ -4,8 +4,8 @@ import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class If extends Stmt {
@@ -21,7 +21,7 @@ public class If extends Stmt {
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
         NodeType tg = condition.typeCheck(st);
-        NodeType boolType = new VariableNodeType(PrimitiveNodeType.BOOL);
+        NodeType boolType = new VariableType(Primitives.BOOL);
         
         if (!tg.equals(boolType)) {
             throw new TypeErrorException(boolType, tg);

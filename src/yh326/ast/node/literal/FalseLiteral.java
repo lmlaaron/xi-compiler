@@ -3,8 +3,8 @@ package yh326.ast.node.literal;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 
 public class FalseLiteral extends ExprAtom {
 
@@ -14,6 +14,6 @@ public class FalseLiteral extends ExprAtom {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableNodeType(PrimitiveNodeType.BOOL);
+        return new VariableType(Primitives.BOOL);
     }
 }

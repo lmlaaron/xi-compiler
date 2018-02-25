@@ -1,5 +1,8 @@
 package yh326.ast.node.assign;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
@@ -9,8 +12,12 @@ import yh326.ast.node.operator.Get;
 import yh326.ast.node.stmt.Stmt;
 import yh326.ast.node.stmt.VarDecl;
 import yh326.ast.node.type.Subscript;
+import yh326.ast.node.type.TypeNode;
+import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.UnitNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.UnitType;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class Assign extends Stmt {
@@ -25,27 +32,47 @@ public class Assign extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        NodeType rightType = expr.typeCheck(sTable);
+        if (lhs instanceof AssignToList) {
+            List<VariableType> types = new ArrayList<VariableType>();
+            for (Node child : lhs.children) {
+                types.add(getLhsType(sTable, child));
+            }
+            ListVariableType leftType = new ListVariableType(types);
+            if (rightType instanceof ListVariableType &&
+                    (leftType).equals((ListVariableType) rightType)) {
+                return new UnitType();
+            } else {
+                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+            }
+        } else {
+            VariableType leftType = getLhsType(sTable, lhs);
+            if (rightType instanceof VariableType &&
+                    (leftType).equals((VariableType) rightType)) {
+                return new UnitType();
+            } else {
+                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+            }
+        }
+    }
+
+    private VariableType getLhsType(SymbolTable sTable, Node lhs) throws Exception {
         // If LHS is underscore, don't need to check
         if (lhs instanceof Underscore) {
-            return new UnitNodeType();
+            return new VariableType(Primitives.ANY);
         }
         
-        NodeType leftType = null;
+        VariableType leftType = null;
         if (lhs instanceof Identifier) {
-            leftType = ((Identifier) lhs).typeCheck(sTable);
+            leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
         } else if (lhs instanceof VarDecl) {
-            leftType = ((VarDecl) lhs).typeCheck(sTable);
+            leftType = (VariableType) ((VarDecl) lhs).typeCheck(sTable);
         } else if (lhs instanceof Subscript) {
-            leftType = ((Subscript) lhs).typeCheck(sTable);
+            leftType = (VariableType) ((Subscript) lhs).typeCheck(sTable);
         }
-        
-        NodeType rightType = expr.typeCheck(sTable);
         if (leftType == null) {
             throw new RuntimeException("Unexpected Error.");
-        } else if (leftType.equals(rightType)) {
-            return new UnitNodeType();
-        } else {
-            throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
         }
+        return leftType;
     }
 }

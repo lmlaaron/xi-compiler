@@ -2,8 +2,8 @@ package yh326.ast.node.type;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.PrimitiveNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.Primitives;
+import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
 
 public class PrimitiveTypeNode extends TypeNode {
@@ -16,9 +16,9 @@ public class PrimitiveTypeNode extends TypeNode {
     
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         if (primitiveType == "int") {
-            return new VariableNodeType(PrimitiveNodeType.INT);
+            return new VariableType(Primitives.INT);
         } else if (primitiveType == "bool") {
-            return new VariableNodeType(PrimitiveNodeType.BOOL);
+            return new VariableType(Primitives.BOOL);
         } else {
             throw new TypeErrorException("Primitive type has to be either int or bool");
         }

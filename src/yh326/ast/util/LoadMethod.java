@@ -8,43 +8,30 @@ import yh326.ast.node.Node;
 import yh326.ast.node.funcdecl.FunctionTypeDecl;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
-import yh326.ast.type.FunctionNodeType;
-import yh326.ast.type.NodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.node.type.TypeNode;
+import yh326.ast.type.VariableType;
 
 public class LoadMethod {
     public static void loadMethod(SymbolTable sTable, String id, 
             FunctionTypeDeclList args, RetvalList rets) throws Exception {
-        List<VariableNodeType> argList = new ArrayList<VariableNodeType>();
-        List<VariableNodeType> retList = new ArrayList<VariableNodeType>();
+        List<VariableType> argList = new ArrayList<VariableType>();
+        List<VariableType> retList = new ArrayList<VariableType>();
         if (args != null) {
             for (Node varDecl : args.children) {
                 if (varDecl instanceof FunctionTypeDecl) {
-                    NodeType t = ((FunctionTypeDecl) varDecl).typeCheck(sTable);
-                    if (t instanceof VariableNodeType) {
-                        argList.add((VariableNodeType) t);
-                    } else {
-                        throw new RuntimeException("Unexpected Error.");
-                    }
+                    argList.add((VariableType) ((FunctionTypeDecl) varDecl).typeCheck(sTable));
                 }
-                
             }
         }
         if (rets != null) {
             for (Node varDecl : rets.children) {
-                if (varDecl instanceof FunctionTypeDecl) {
-                    NodeType t = ((FunctionTypeDecl) varDecl).typeCheck(sTable);
-                    if (t instanceof VariableNodeType) {
-                        retList.add((VariableNodeType) t);
-                    } else {
-                        throw new RuntimeException("Unexpected Error.");
-                    }
+                if (varDecl instanceof TypeNode) {
+                    retList.add((VariableType) ((TypeNode) varDecl).typeCheck(sTable));
                 }
                 
             }
         }
-            
-        FunctionNodeType funcType = new FunctionNodeType(argList, retList);
-        sTable.addFunc(id, funcType);
+
+        sTable.addFunc(id, argList, retList);
     }
 }

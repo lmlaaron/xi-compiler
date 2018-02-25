@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.UnitNodeType;
+import yh326.ast.type.UnitType;
 import yh326.exception.TypeErrorException;
 
 /**
@@ -89,7 +89,7 @@ public class Node {
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
-        NodeType type = new UnitNodeType();
+        NodeType type = new UnitType();
         if (children != null) {
             for (Node child : children) {
                 if (child != null) {

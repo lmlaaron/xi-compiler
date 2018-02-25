@@ -7,10 +7,12 @@ import yh326.ast.node.funcdecl.FunctionTypeDecl;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
+import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.UnitNodeType;
-import yh326.ast.type.VariableNodeType;
+import yh326.ast.type.UnitType;
+import yh326.ast.type.VariableType;
 import yh326.ast.util.LoadMethod;
+import yh326.exception.TypeErrorException;
 
 public class Method extends Node {
     private Identifier id;
@@ -40,16 +42,38 @@ public class Method extends Node {
             for (Node varDecl : args.children) {
                 if (varDecl instanceof FunctionTypeDecl) {
                     FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
-                    VariableNodeType t = (VariableNodeType) funcVarDecl.typeCheck(sTable);
+                    VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
                     sTable.addVar(funcVarDecl.getId().value, t);
                 }
             }
         }
-        NodeType type = new UnitNodeType();
+        NodeType actual = new UnitType();
         if (block != null) {
-            type = block.typeCheck(sTable);
+            actual = block.typeCheck(sTable);
         }
         sTable.exitBlock();
-        return type;
+        sTable.dumpTable();
+        NodeType expected = sTable.getFunctionType(id.value).t2;
+        
+        if (actual.getClass() != expected.getClass()) {
+            throw new TypeErrorException(expected, actual);
+        } else {
+            // Procedure
+            if (actual instanceof UnitType) {
+                return new UnitType();
+            } else if (actual instanceof VariableType) {
+                if (((VariableType) actual).equals((VariableType) expected)) {
+                    return new UnitType();
+                } else {
+                    throw new TypeErrorException(expected, actual);
+                }
+            } else { // ListVariableType
+                if (((ListVariableType) actual).equals((ListVariableType) expected)) {
+                    return new UnitType();
+                } else {
+                    throw new TypeErrorException(expected, actual);
+                }
+            }
+        }
     }
 }

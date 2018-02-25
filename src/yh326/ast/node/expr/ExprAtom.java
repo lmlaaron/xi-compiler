@@ -1,14 +1,25 @@
 package yh326.ast.node.expr;
 
-
 public class ExprAtom extends Expr {
 
+    /**
+     * Constructor for Character/Integer/String/True/FalseLiteral.
+     * @param line
+     * @param col
+     * @param value
+     */
     public ExprAtom(int line, int col, String value) {
         super(line, col, value);
     }
     
-    public ExprAtom(int line, int col, Expr... exprs) {
-        super(line, col, exprs);
+    /**
+     * Constructor for ArrayLiteral.
+     * @param line
+     * @param col
+     * @param exprs
+     */
+    public ExprAtom(int line, int col) {
+        super(line, col);
     }
     
     @Override
