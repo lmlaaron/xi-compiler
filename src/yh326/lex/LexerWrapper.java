@@ -9,17 +9,18 @@ import yh326.gen.lexer;
 import yh326.gen.sym;
 
 public class LexerWrapper {
-	public static void Lexing(String source_path, String dest_path, String file_path) {
-		String absolute_file_path;
-		String absolute_output_path;
-		File temp = new File(file_path);
-		if (temp.isAbsolute()) {
-			absolute_file_path = file_path;
-		}
-		else {
-			absolute_file_path = source_path + "/" + file_path;
-		}
-		absolute_output_path = dest_path + "/" + file_path.substring(file_path.lastIndexOf("/") + 1, file_path.lastIndexOf(".")) + ".lexed";
+	/**
+	 * 
+	 * @param absolute_file_path, an absolute path to the input file
+	 * @param dest_path, an absolute path to the output directory
+	 */
+	public static void Lexing(String absolute_file_path, String dest_path) {
+		// generate the complete output path
+		String absolute_output_path = 
+				dest_path + 
+				"/" + 
+				absolute_file_path.substring(absolute_file_path.lastIndexOf("/") + 1, absolute_file_path.lastIndexOf(".")) + "lexed";
+		
 		try {
 			lexer xiLexer = new lexer(new FileReader(absolute_file_path));
 			FileWriter writer = new FileWriter(absolute_output_path);

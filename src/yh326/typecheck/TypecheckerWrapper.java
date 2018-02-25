@@ -17,10 +17,15 @@ public class TypecheckerWrapper {
 		REGULAR
 	};
 
-	public static void Typechecking(String source_path, String dest_path, String file_path) {
+	/**
+	 * 
+	 * @param absolute_file_path, an absolute path to the input file
+	 * @param dest_path, an absolute path to the output directory
+	 */
+	public static void Typechecking(String absolute_file_path, String dest_path) {
 		
 		// generate the output postfix
-        String postfix = file_path.substring(file_path.lastIndexOf(".") + 1);
+        String postfix = absolute_file_path.substring(absolute_file_path.lastIndexOf(".") + 1);
 		//PostfixType type;
         String out_postfix=".typed";
 		if (postfix.equals("ixi")) {
@@ -36,19 +41,13 @@ public class TypecheckerWrapper {
 			System.exit(1);
 		}
 		
-		// generate the complete input and output path
-		String absolute_file_path;
-		String absolute_output_path;
-		File temp = new File(file_path);
-		if (temp.isAbsolute()) {
-			absolute_file_path = file_path;
-		}
-		else {
-			absolute_file_path = source_path + "/" + file_path;
-		}
-		absolute_output_path = dest_path + "/" + file_path.substring(file_path.lastIndexOf("/") + 1, file_path.lastIndexOf(".")) + out_postfix;
+		// generate the complete output path
+		String absolute_output_path = 
+				dest_path + 
+				"/" + 
+				absolute_file_path.substring(absolute_file_path.lastIndexOf("/") + 1, absolute_file_path.lastIndexOf(".")) + out_postfix;
 		
-		// typecheckomg
+		// typechecking
 		try {
 		    FileWriter writer = new FileWriter(absolute_output_path);
             lexer x = new lexer(new FileReader(absolute_file_path));

@@ -1,5 +1,6 @@
 package yh326;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,6 +27,7 @@ public class Main {
 			System.out.println("option --help to show this synopsis.");
 			System.out.println("option --lex to show the result from lexical analysis.");
 			System.out.println("option --parse to show the result from syntatical analysis.");
+			System.out.println("option --typecheck to show the result from type checking.");
 			System.out.println("option -sourcepath <path> specifies where to find input source files.");
 			System.out.println("option -D <path> specifies where to place generated diagnostic files.");
 		}
@@ -52,14 +54,32 @@ public class Main {
 			}
 		}
 		if (argv_alist.contains("--lex")) {
-			for (String source_file : source_files) LexerWrapper.Lexing(input_source, diag_dump_path, source_file);
+			for (String source_file : source_files) LexerWrapper.Lexing(combine(input_source, source_file), diag_dump_path);
 		}
 		if (argv_alist.contains("--parse")) {
-			for (String source_file : source_files) ParserWrapper.Parsing(input_source, diag_dump_path, source_file);
+			for (String source_file : source_files) ParserWrapper.Parsing(combine(input_source, source_file), diag_dump_path);
 		}
         if (argv_alist.contains("--typecheck")) {
-            for (String source_file : source_files) TypecheckerWrapper.Typechecking(input_source, diag_dump_path, source_file);
+            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path);
         }
 		return;
+	}
+	
+	/**
+	 * Combine the input_source and source_file from the argument into a single string, 
+	 * that directly points to the location of the file, and would ignore the input_source if
+	 * the source_file is an absolute path already.
+	 * @param input_souce
+	 * @param source_file
+	 * @return an absolute path that points to the file
+	 */
+	public static String combine(String input_source, String source_file) {
+		File temp = new File(source_file);
+		if (temp.isAbsolute()) {
+			return source_file;
+		}
+		else {
+			return input_source + '/' + source_file;
+		}
 	}
 }
