@@ -7,6 +7,7 @@ import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.PrimitiveNodeType;
 import yh326.ast.type.VariableNodeType;
+import yh326.exception.NotSubscriptableException;
 import yh326.exception.TypeErrorException;
 
 public class Subscript extends Expr {
@@ -25,7 +26,9 @@ public class Subscript extends Expr {
         VariableNodeType integer = new VariableNodeType(PrimitiveNodeType.INT);
         
         if (expr.equals(integer)) {
-            t.decreaseLevel();
+            if (!t.decreaseLevel()) {
+                throw new NotSubscriptableException(t);
+            }
             return t;
         } else {
             throw new TypeErrorException(integer, expr);

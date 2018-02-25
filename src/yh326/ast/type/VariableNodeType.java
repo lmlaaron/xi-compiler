@@ -45,9 +45,14 @@ public class VariableNodeType extends NodeType {
         sizes.add(0, expr);
     }
     
-    public void decreaseLevel() {
-        level--;
-        sizes.remove(0);
+    public boolean decreaseLevel() {
+        if (level > 0) {
+            level--;
+            sizes.remove(0);
+            return true;
+        } else {
+            return false;
+        }
     }
     
     public int getLevel() {

@@ -7,6 +7,10 @@ public class ExprAtom extends Expr {
         super(line, col, value);
     }
     
+    public ExprAtom(int line, int col, Expr... exprs) {
+        super(line, col, exprs);
+    }
+    
     @Override
     public String toString() {
         return value;

@@ -8,6 +8,7 @@ import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
 import yh326.ast.type.NodeType;
+import yh326.ast.type.UnitNodeType;
 import yh326.ast.type.VariableNodeType;
 import yh326.ast.util.LoadMethod;
 
@@ -35,20 +36,19 @@ public class Method extends Node {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
-        for (Node varDecl : this.args.children) {
-            if (varDecl instanceof FunctionTypeDecl) {
-                FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
-                NodeType t = funcVarDecl.typeCheck(sTable);
-                if (t instanceof VariableNodeType) {
-                    sTable.addVar(funcVarDecl.getId().value, (VariableNodeType) t);
-                } else {
-                    sTable.exitBlock();
-                    throw new RuntimeException("Unexpected Error.");
+        if (args != null) {
+            for (Node varDecl : args.children) {
+                if (varDecl instanceof FunctionTypeDecl) {
+                    FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
+                    VariableNodeType t = (VariableNodeType) funcVarDecl.typeCheck(sTable);
+                    sTable.addVar(funcVarDecl.getId().value, t);
                 }
             }
-            
         }
-        NodeType type = block.typeCheck(sTable);
+        NodeType type = new UnitNodeType();
+        if (block != null) {
+            type = block.typeCheck(sTable);
+        }
         sTable.exitBlock();
         return type;
     }
