@@ -1,0 +1,4 @@
+// involde empty stmt
+foo() {
+    {}
+}
