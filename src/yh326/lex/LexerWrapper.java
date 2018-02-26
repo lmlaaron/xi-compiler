@@ -19,8 +19,7 @@ public class LexerWrapper {
 		String absolute_output_path = 
 				dest_path + 
 				"/" + 
-				absolute_file_path.substring(absolute_file_path.lastIndexOf("/") + 1, absolute_file_path.lastIndexOf(".")) + "lexed";
-		
+				absolute_file_path.substring(absolute_file_path.lastIndexOf("/") + 1, absolute_file_path.lastIndexOf(".")) + ".lexed";		
 		try {
 			lexer xiLexer = new lexer(new FileReader(absolute_file_path));
 			FileWriter writer = new FileWriter(absolute_output_path);
