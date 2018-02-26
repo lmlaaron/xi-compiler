@@ -5,7 +5,9 @@ foo: int {
   a: int = 1
   if true {
     return a
-  } else {
+  } else if {
     return a - 1
+  } else {
+    return a - 2
   }
 }
