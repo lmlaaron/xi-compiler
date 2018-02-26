@@ -1,3 +1,3 @@
 #!/bin/bash
-pa=pa2
+pa=pa3
 xth --compilerpath . --testpath ~/xth/tests/$pa/ ~/xth/tests/$pa/xthScript

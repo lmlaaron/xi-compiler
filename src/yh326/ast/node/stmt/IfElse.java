@@ -39,14 +39,12 @@ public class IfElse extends Stmt {
      * @throws exception
      **/
     public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
-        if (a.equals(b)) {
+        if (a instanceof UnitType || b instanceof UnitType) {
+            return new UnitType();
+        } else if (a.equals(b)) {
             return a;
-        } else if (a instanceof UnitType) {
-            return a;
-        } else if (b instanceof UnitType) {
-            return b;
         } else {
-            throw new TypeErrorException(a, b); // TODO Wrong use of the Exception
+            throw new TypeErrorException("If/else return inconsistent");
         }
     }    
 }

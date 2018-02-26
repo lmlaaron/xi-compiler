@@ -5,7 +5,6 @@ import java.util.List;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
-import yh326.exception.TypeErrorException;
 
 /**
  * A abstract node in the AST of a program.
@@ -88,7 +87,6 @@ public class Node {
      * @throws Exception 
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
         NodeType type = new UnitType();
         if (children != null) {
             for (Node child : children) {
@@ -97,7 +95,6 @@ public class Node {
                 }
             }
         }
-        System.out.println("Exiting  " + this.getClass());
         return type;
     }
 

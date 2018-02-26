@@ -19,7 +19,6 @@ public class VarDecl extends Stmt {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
         sTable.addVar(id.value, t);
-        sTable.dumpTable();
         return t;
     }
 }

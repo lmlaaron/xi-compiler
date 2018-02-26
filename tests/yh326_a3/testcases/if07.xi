@@ -1,8 +1,10 @@
-//if statemtent return type should be void
-// should be type error
+//If else statement
+// check  boolean guard
 foo() {
-  a: int = 0
-  if (true) {
-     return a 
-  }
+    a: bool = true
+    if a {
+      a = true
+    } else {
+      a = false
+    }
 }

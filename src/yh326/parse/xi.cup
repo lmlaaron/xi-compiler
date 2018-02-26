@@ -102,7 +102,7 @@ nonterminal ArrayLiteral array_literal;
 nonterminal Stmt if_statement, else_statement;
 nonterminal While while_statement;
 nonterminal MethodCall method_call;
-nonterminal Return return_statement;
+nonterminal Return return_statement, return_core;
 nonterminal Length length_statement;
 
 nonterminal Node nothing;
@@ -352,7 +352,9 @@ while_statement  ::= WHILE:a expr:e stmt:s
 method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
                        {:RESULT = new MethodCall(idleft, idright, id);
                          RESULT.addChildren(el);:};
-return_statement ::= RETURN:a expr_list:el
+return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
+                   | return_core:rc                {:RESULT = rc;:};
+return_core      ::= RETURN:a expr_list:el
                        {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
 length_statement ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};

@@ -19,10 +19,12 @@ public class StmtList extends Stmt {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
         NodeType type = new UnitType();
-        if (children != null) {
-            for (Node child : children) {
-                if (child != null) {
+        for (Node child : children) {
+            if (child != null) {
+                if (child instanceof Return) {
                     type = child.typeCheck(sTable);
+                } else {
+                    child.typeCheck(sTable);
                 }
             }
         }

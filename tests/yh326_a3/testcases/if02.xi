@@ -1,10 +1,6 @@
-//sequential statements
-// should be type error
-foo(): int {
-  bar()
-  return 1
+//If statement
+// guard not boolean
+foo() {
+    if (1) {
+    } 
 }
-bar(): int {
-  return 1
-}
-

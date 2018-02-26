@@ -52,7 +52,6 @@ public class Method extends Node {
             actual = block.typeCheck(sTable);
         }
         sTable.exitBlock();
-        sTable.dumpTable();
         NodeType expected = sTable.getFunctionType(id.value).t2;
         
         if (actual.getClass() != expected.getClass()) {

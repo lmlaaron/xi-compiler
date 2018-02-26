@@ -4,6 +4,7 @@ import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.Primitives;
+import yh326.ast.type.UnitType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.VariableType;
 import yh326.exception.TypeErrorException;
@@ -25,7 +26,7 @@ public class While extends Stmt {
         if (!tg.equals(boolType)) {
             throw new TypeErrorException(boolType, tg);
         }
-        NodeType tc = then.typeCheck(st);
-        return tc;
+        then.typeCheck(st);
+        return new UnitType();
     }
 }

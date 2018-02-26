@@ -1,7 +1,8 @@
-// guard is boolean type
-foo () {
-    a: bool = true
-    if a {
-       a = false
-    }
+//if statemtent return type should be void
+// should be type error
+foo() {
+  a: int = 0
+  if (true) {
+     return a 
+  }
 }

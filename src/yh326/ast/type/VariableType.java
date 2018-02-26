@@ -5,7 +5,6 @@ import java.util.List;
 
 import yh326.ast.node.expr.Expr;
 import yh326.ast.node.expr.ExprAtom;
-import yh326.exception.TypeErrorException;
 /**
  * @author Syugen
  *
@@ -61,7 +60,12 @@ public class VariableType extends NodeType {
     
     @Override
     public String toString() {
-        String typeString = type == Primitives.INT ? "int" : "bool";
+        String typeString = "";
+        switch (type) {
+        case INT:   typeString += "int";   break;
+        case BOOL:  typeString += "bool";  break;
+        default:    typeString += "?";     break;
+        }
         for (int i = 0; i < level; i++) {
             typeString += "[";
             Expr sizeNode = sizes.get(i);
@@ -82,10 +86,18 @@ public class VariableType extends NodeType {
         // Note that sizes are not checked!
         if (other instanceof VariableType) {
             VariableType otherType = (VariableType) other;
-            return type == otherType.getType() && 
-                   level == otherType.getLevel() ||
-                   type == Primitives.ANY ||
-                   otherType.getType() == Primitives.ANY;
+            if (type == otherType.getType() && level == otherType.getLevel()) {
+                return true;
+            } else if (type == Primitives.ANY || 
+                    otherType.getType() == Primitives.ANY) {
+                return true;
+            } else if ((type == Primitives.EMPTY || 
+                    otherType.getType() == Primitives.EMPTY) &&
+                    level == otherType.getLevel()) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

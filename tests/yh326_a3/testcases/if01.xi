@@ -1,10 +1,4 @@
-//sequential statements
-
-foo(): int {
-  bar()
-  return 1
+// involde empty stmt
+foo() {
+    {}
 }
-bar() {
-  return
-}
-
