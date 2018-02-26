@@ -1,3 +1,5 @@
 // varable declaration no shadow
-a:int
-a = 1
+foo() {
+    a:int
+    a = 1
+}

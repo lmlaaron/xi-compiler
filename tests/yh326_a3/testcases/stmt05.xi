@@ -1,5 +1,7 @@
 // guard is boolean type
-a: bool = true
-if a {
-   a = false
+foo () {
+    a: bool = true
+    if a {
+       a = false
+    }
 }

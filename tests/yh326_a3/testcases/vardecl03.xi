@@ -1,3 +1,5 @@
 //variable declaration same id different type
-a:int
-a:bool
+foo() {
+    a:int
+    a:bool
+}

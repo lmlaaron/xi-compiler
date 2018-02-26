@@ -1,3 +1,5 @@
 //assignment test
-a: int
-a = 2
+foo() {
+    a: int
+    a = 2
+}

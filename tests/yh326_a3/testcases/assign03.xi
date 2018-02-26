@@ -1,2 +1,7 @@
 //non assignable lhs
-3 = a
+bar(): int {
+    return 1
+}
+foo() {
+    bar() = a
+}

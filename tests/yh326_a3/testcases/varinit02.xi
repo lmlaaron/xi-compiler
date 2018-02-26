@@ -1,3 +1,5 @@
 // var decl and init
 // wrong init type
-a:int = false
+foo() {
+    a:int = false
+}

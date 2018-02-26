@@ -1,3 +1,5 @@
 // non assignable type
-a: int
-a*a = 2
+foo() {
+  a: int
+  a*a = 2
+}

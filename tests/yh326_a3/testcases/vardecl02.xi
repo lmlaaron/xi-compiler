@@ -1,4 +1,6 @@
 //variable declaration shadow
-a:int 
-a:int
-a = 1
+foo() {
+    a:int 
+    a:int
+    a = 1
+}

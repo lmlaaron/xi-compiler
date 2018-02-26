@@ -2,7 +2,7 @@
 // the following should pass type check
 foo() {
     while true {
-       return 1
+       return 
     }
 }
 

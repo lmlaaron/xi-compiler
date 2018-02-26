@@ -1,3 +1,3 @@
 foo() {
-    i : int = 3
+    i:int=3
 }
