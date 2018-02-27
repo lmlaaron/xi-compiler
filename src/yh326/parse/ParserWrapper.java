@@ -1,9 +1,7 @@
 package yh326.parse;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintStream;
 
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
@@ -28,16 +26,9 @@ public class ParserWrapper {
 		
 		// generate the output postfix
         String postfix = absolute_file_path.substring(absolute_file_path.lastIndexOf(".") + 1);
-		//PostfixType type;
         String out_postfix=".parsed";
-		if (postfix.equals("ixi")) {
-			//type = PostfixType.INTERFACE;
-            out_postfix=".iparsed";
-		}
-		else if (postfix.equals("xi")) {
-			//type = PostfixType.REGULAR;
-            out_postfix=".parsed";
-		}
+		if (postfix.equals("ixi")) out_postfix=".iparsed";
+		else if (postfix.equals("xi")) out_postfix=".parsed";
 		else {
 			System.out.println("file postfix isn't correct");
 			System.exit(1);
@@ -53,7 +44,8 @@ public class ParserWrapper {
 		try {
 		    FileWriter writer = new FileWriter(absolute_output_path);
             lexer x = new lexer(new FileReader(absolute_file_path));
-			parser p = new parser(x);
+			@SuppressWarnings("deprecation")
+            parser p = new parser(x);
 			try {
 			    write((Node) p.parse().value, writer);
 			} catch (ParsingException e) {

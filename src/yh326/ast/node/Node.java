@@ -12,8 +12,8 @@ import yh326.ast.type.UnitType;
  *
  */
 public class Node {
-    int line;
-    int col;
+    protected int line;
+    protected int col;
 
     public String value;
     public List<Node> children;
@@ -65,16 +65,20 @@ public class Node {
      * @param sTable the complete symbol table for the scope of this node
      * @throws Exception
      */
-    public void loadMethods(SymbolTable sTable) throws Exception {
-        //System.out.println("Entering " + this.getClass() + " " + this.line + " " + this.col);
-        if (children != null) {
-            for (Node child : children) {
-                if (child != null) {
-                    child.loadMethods(sTable);
-                }
+    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
+        for (Node child : children) {
+            if (child != null) {
+                child.loadMethods(sTable, libPath);
             }
         }
-        //System.out.println("Exiting  " + this.getClass());
+    }
+    
+    public void loadMethods(SymbolTable sTable) throws Exception {
+        for (Node child : children) {
+            if (child != null) {
+                child.loadMethods(sTable);
+            }
+        }
     }
 
     /**

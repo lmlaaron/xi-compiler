@@ -1,7 +1,6 @@
 package yh326.gen;
 
 import yh326.ast.node.*;
-import yh326.ast.node.assign.*;
 import yh326.ast.node.expr.*;
 import yh326.ast.node.funcdecl.*;
 import yh326.ast.node.interfc.*;
@@ -103,7 +102,7 @@ nonterminal Stmt if_statement, else_statement;
 nonterminal While while_statement;
 nonterminal MethodCall method_call;
 nonterminal Return return_statement, return_core;
-nonterminal Length length_statement;
+nonterminal Length length_expr;
 
 nonterminal Node nothing;
 
@@ -112,14 +111,14 @@ start with program;
 program          ::= use_list:ul method_list:ml
                        {:RESULT = new Node(ulleft, ulright, ul, ml);:}
                    | method_list:ml
-                       {:RESULT = new Node(mlleft, mlright, new Node(mlleft, mlright), ml);:}
+                       {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
                    | interface_list:il
                        {:RESULT = new Node(illeft, ilright, il);:}
                    | use_list:ul
-                       {:RESULT = new Node(ulleft, ulright, ul, new Node(ulleft, ulright));:}
+                       {:RESULT = new Node(ulleft, ulright, ul, new MethodList(ulleft, ulright));:}
                    | nothing:n
                        {:RESULT = new Node(nleft, nright, 
-                                           new Node(nleft, nright), new Node(nleft, nright));:};
+                         new UseList(nleft, nright), new MethodList(nleft, nright));:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
 /* ================= USE ==================================================== */
@@ -244,7 +243,7 @@ stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
 stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
                    | assignment:as           {:RESULT = as;:}
                    | method_call:mc          {:RESULT = mc;:}
-                   | length_statement:ls     {:RESULT = ls;:};
+                   | length_expr:ls     {:RESULT = ls;:};
 
 // var_decl is for variable declaration in statements.
 // Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
@@ -312,10 +311,12 @@ expr_atom        ::= identifier:id         {:RESULT = id;:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
                    | subscripts:ss         {:RESULT = ss;:}
                    | method_call:mc        {:RESULT = mc;:}
-                   | length_statement:ls   {:RESULT = ls;:}
+                   | length_expr:ls   {:RESULT = ls;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:}
                    | array_literal:al      {:RESULT = al;:};
 
+length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
+                       {:RESULT = new Length(aleft, aright, e);:};
 array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:};
  
@@ -356,7 +357,5 @@ return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
                    | return_core:rc                {:RESULT = rc;:};
 return_core      ::= RETURN:a expr_list:el
                        {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
-length_statement ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
-                       {:RESULT = new Length(aleft, aright, e);:};
 
 nothing          ::= /* placeholder for epsilon */;

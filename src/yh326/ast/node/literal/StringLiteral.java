@@ -14,8 +14,7 @@ public class StringLiteral extends ExprAtom {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        VariableType t = new VariableType(Primitives.INT);
-        t.increaseLevel();
+        VariableType t = new VariableType(Primitives.INT, 1);
         return t;
     }
 }

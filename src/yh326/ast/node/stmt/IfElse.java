@@ -7,7 +7,9 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.ast.type.VoidType;
+import yh326.exception.MatchTypeException;
+import yh326.exception.TypeInconsistentException;
 
 public class IfElse extends Stmt {
     protected Expr condition;
@@ -26,11 +28,16 @@ public class IfElse extends Stmt {
         NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableType(Primitives.BOOL);
         if (!tg.equals(boolType)) {
-            throw new TypeErrorException(boolType, tg);
+            throw new MatchTypeException(line, col, boolType, tg);
         }
         NodeType tc = then.typeCheck(st);
         NodeType ta = otherwise.typeCheck(st);
-        return Lub(tc, ta);
+        NodeType result = Lub(tc, ta);
+        if (result == null) {
+            throw new TypeInconsistentException(line, col, "If-else return");
+        } else {
+            return result;
+        }
     }
     
     /**
@@ -38,13 +45,13 @@ public class IfElse extends Stmt {
      * @return unit type if a or b is unit type
      * @throws exception
      **/
-    public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
+    public static NodeType Lub(NodeType a, NodeType b) {
         if (a instanceof UnitType || b instanceof UnitType) {
             return new UnitType();
-        } else if (a.equals(b)) {
-            return a;
+        } else if (a instanceof VoidType && b instanceof VoidType) {
+            return new VoidType();
         } else {
-            throw new TypeErrorException("If/else return inconsistent");
+            return null;
         }
     }    
 }

@@ -4,7 +4,7 @@ import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.OperandTypeException;
 
 public class ArithmeticOperator extends Operator {
     public ArithmeticOperator(int line, int col, String repr) {
@@ -12,13 +12,13 @@ public class ArithmeticOperator extends Operator {
     }
 
     @Override
-    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         NodeType intType = new VariableType(Primitives.INT);
         if (operandType.equals(intType)) {
             return intType;
         }
         else {
-            throw new TypeErrorException(this, "Arithmetic operator only works on int");
+            throw new OperandTypeException(line, col, value, "int");
         }
     }
 

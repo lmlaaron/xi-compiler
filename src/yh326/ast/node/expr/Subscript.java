@@ -1,14 +1,13 @@
-package yh326.ast.node.type;
+package yh326.ast.node.expr;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
 import yh326.ast.node.Node;
-import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.NotSubscriptableException;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
+import yh326.exception.OtherException;
 
 public class Subscript extends Expr {
 
@@ -26,12 +25,14 @@ public class Subscript extends Expr {
         VariableType integer = new VariableType(Primitives.INT);
         
         if (expr.equals(integer)) {
-            if (!t.decreaseLevel()) {
-                throw new NotSubscriptableException(t);
+            if (t.getLevel() == 0) {
+                throw new OtherException(line, col, t + " is not subscriptable");
+            } else {
+                // Need to recursively restore the original level
+                return new VariableType(t.getType(), t.getLevel() - 1);
             }
-            return t;
         } else {
-            throw new TypeErrorException(integer, expr);
+            throw new MatchTypeException(line,col, integer, expr);
         }
     }
 

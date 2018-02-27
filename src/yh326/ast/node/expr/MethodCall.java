@@ -1,16 +1,18 @@
-package yh326.ast.node.stmt;
+package yh326.ast.node.expr;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
-import yh326.ast.node.expr.Expr;
 import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
+import yh326.exception.MismatchNumberException;
+import yh326.exception.NotDefinedException;
+import yh326.exception.OtherException;
 import yh326.util.Tuple;
 
 public class MethodCall extends Expr {
@@ -23,12 +25,18 @@ public class MethodCall extends Expr {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        // This method combined method call and procedure call.
+        if (sTable.getVariableType(id.value) != null) {
+            throw new OtherException(line, col, id.value + " is not a function");
+        }
         Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(id.value);
-        if (funcType.t1 instanceof UnitType) {
+        if (funcType == null) {
+            throw new NotDefinedException(line, col, id.value);
+        } else if (funcType.t1 instanceof UnitType) {
             if (children.size() == 1) {
                 return funcType.t2;
             } else {
-                throw new TypeErrorException("Expecting 0 argument, but got " + (children.size() - 1) + ".");
+                throw new MismatchNumberException(line, col, 0, children.size() - 1);
             }
         } else if (funcType.t1 instanceof VariableType) {
             if (children.size() == 2) {
@@ -36,10 +44,10 @@ public class MethodCall extends Expr {
                 if (type.equals(funcType.t1)) {
                     return funcType.t2;
                 } else {
-                    throw new TypeErrorException(funcType.t1, type);
+                    throw new MatchTypeException(line, col, funcType.t1, type);
                 }
             } else {
-                throw new TypeErrorException("Expecting 1 argument, but got " + (children.size() - 1) + ".");
+                throw new MismatchNumberException(line, col, 1, children.size() - 1);
             }
         } else {
             List<VariableType> expected = ((ListVariableType) funcType.t1).getVariableTypes();
@@ -48,11 +56,11 @@ public class MethodCall extends Expr {
                 actual.add((VariableType) children.get(i).typeCheck(sTable));
             }
             if (actual.size() != expected.size()) {
-                throw new TypeErrorException("Expecting " + expected.size() + " arguments, but got " + actual.size() + ".");
+                throw new MismatchNumberException(line, col, expected.size(), children.size() - 1);
             } else {
                 for (int i = 0; i < actual.size(); i++) {
                     if (!actual.get(i).equals(expected.get(i))) {
-                        throw new TypeErrorException(expected.get(i), actual.get(i));
+                        throw new MatchTypeException(line, col, expected.get(i), actual.get(i));
                     }
                 }
             }

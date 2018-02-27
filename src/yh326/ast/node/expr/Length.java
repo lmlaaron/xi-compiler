@@ -1,12 +1,11 @@
-package yh326.ast.node.stmt;
+package yh326.ast.node.expr;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
-import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
 
 public class Length extends Expr {
     private Expr expr;
@@ -22,7 +21,7 @@ public class Length extends Expr {
         if (type.getLevel() >= 1) {
             return new VariableType(Primitives.INT);
         } else {
-            throw new TypeErrorException(expr + " should be an array.");
+            throw new MatchTypeException(line, col, "int or bool array of any dimension", type);
         }
     }
 }

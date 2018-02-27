@@ -7,7 +7,6 @@ import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
-import yh326.exception.TypeErrorException;
 
 public class ExprNonAtom extends Expr {
     private Operator operator;

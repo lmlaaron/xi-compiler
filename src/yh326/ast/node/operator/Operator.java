@@ -2,11 +2,11 @@ package yh326.ast.node.operator;
 
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.OperandTypeException;
+import yh326.exception.OtherException;
+import yh326.exception.TypeInconsistentException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 //TODO: after modifying cup file, make this and other node super classes abstract
 public class Operator extends Node {
@@ -27,14 +27,14 @@ public class Operator extends Node {
      * @throws  RuntimeException if operands' types were not initialized prior to
      *                           calling this
      */
-    public NodeType resultTypeFrom(NodeType... operandTypes) throws TypeErrorException {
+    public NodeType resultTypeFrom(NodeType... operandTypes) throws Exception {
         //ensure all types are the same
         boolean typesAreSame= Arrays.stream(operandTypes).allMatch(type -> type.equals(operandTypes[0]));
         if (!typesAreSame)
-            throw new TypeErrorException(this, "Operator doesn't accept operands of different types");
+            throw new TypeInconsistentException(line, col, "Operands");
         // ensure operator accepts given operand types
         if (!validNumOperands(operandTypes.length))
-            throw new TypeErrorException(this, "Operator " + this.value + "does not accept " + operandTypes.length + " operands");
+            throw new OtherException(line, col, "Operator " + this.value + "does not accept " + operandTypes.length + " operands");
 
 
         // function implementation checks whether operand type is valid
@@ -44,7 +44,7 @@ public class Operator extends Node {
     public boolean validNumOperands(int num) {
         throw new RuntimeException("validNumOperands not implemented for class!");
     }
-    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         throw new RuntimeException("returnTypeForOperandType not implemented for class!");
     }
 }

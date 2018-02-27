@@ -7,12 +7,11 @@ import yh326.ast.node.funcdecl.FunctionTypeDecl;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
-import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.ast.util.LoadMethod;
-import yh326.exception.TypeErrorException;
+import yh326.exception.AlreadyDefinedException;
 
 public class Method extends Node {
     private Identifier id;
@@ -32,47 +31,37 @@ public class Method extends Node {
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.
         // So it is moved to util package.
-        LoadMethod.loadMethod(sTable, id.value, args, rets);
+        if (LoadMethod.loadMethod(sTable, id.value, args, rets) == false) {
+            throw new AlreadyDefinedException(line, col, id.value);
+        }
     }
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        sTable.enterBlock();
+        // Loading arguments into the symbol table
         if (args != null) {
             for (Node varDecl : args.children) {
                 if (varDecl instanceof FunctionTypeDecl) {
                     FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
                     VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
-                    sTable.addVar(funcVarDecl.getId().value, t);
+                    // Check if function argument variable name has been defined
+                    // as some function name.
+                    String varId = funcVarDecl.getId().value;
+                    if (sTable.getFunctionType(varId) != null ||
+                            sTable.addVar(varId, t) == false) {
+                        throw new AlreadyDefinedException(line, col, id.value);
+                    }
                 }
             }
         }
-        NodeType actual = new UnitType();
+
+        sTable.setCurFunction(id.value);
         if (block != null) {
-            actual = block.typeCheck(sTable);
+            block.typeCheck(sTable);
+            
+            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         }
-        sTable.exitBlock();
-        NodeType expected = sTable.getFunctionType(id.value).t2;
-        
-        if (actual.getClass() != expected.getClass()) {
-            throw new TypeErrorException(expected, actual);
-        } else {
-            // Procedure
-            if (actual instanceof UnitType) {
-                return new UnitType();
-            } else if (actual instanceof VariableType) {
-                if (((VariableType) actual).equals((VariableType) expected)) {
-                    return new UnitType();
-                } else {
-                    throw new TypeErrorException(expected, actual);
-                }
-            } else { // ListVariableType
-                if (((ListVariableType) actual).equals((ListVariableType) expected)) {
-                    return new UnitType();
-                } else {
-                    throw new TypeErrorException(expected, actual);
-                }
-            }
-        }
+        sTable.setCurFunction(null);
+        return new UnitType();
     }
 }

@@ -1,4 +1,4 @@
-package yh326.ast.node.assign;
+package yh326.ast.node.stmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,17 +8,15 @@ import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
 import yh326.ast.node.Underscore;
 import yh326.ast.node.expr.Expr;
+import yh326.ast.node.expr.Subscript;
 import yh326.ast.node.operator.Get;
-import yh326.ast.node.stmt.Stmt;
-import yh326.ast.node.stmt.VarDecl;
-import yh326.ast.node.type.Subscript;
-import yh326.ast.node.type.TypeNode;
 import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.AssignTypeException;
+import yh326.exception.OtherException;
 
 public class Assign extends Stmt {
     private Node lhs;
@@ -36,42 +34,57 @@ public class Assign extends Stmt {
         if (lhs instanceof AssignToList) {
             List<VariableType> types = new ArrayList<VariableType>();
             for (Node child : lhs.children) {
-                types.add(getLhsType(sTable, child));
+                types.add(getLhsType(sTable, child, true));
             }
             ListVariableType leftType = new ListVariableType(types);
             if (rightType instanceof ListVariableType &&
                     (leftType).equals((ListVariableType) rightType)) {
                 return new UnitType();
             } else {
-                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+                throw new AssignTypeException(line, col, rightType, leftType);
             }
         } else {
-            VariableType leftType = getLhsType(sTable, lhs);
+            // Single assign on LHS, including assigning to subscript.
+            VariableType leftType = getLhsType(sTable, lhs, false);
             if (rightType instanceof VariableType &&
                     (leftType).equals((VariableType) rightType)) {
                 return new UnitType();
             } else {
-                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+                throw new AssignTypeException(line, col, rightType, leftType);
             }
         }
     }
 
-    private VariableType getLhsType(SymbolTable sTable, Node lhs) throws Exception {
+    /**
+     * @param sTable
+     * @param lhs
+     * @param declOnly 
+     * @return
+     * @throws Exception
+     */
+    private VariableType getLhsType(SymbolTable sTable, Node lhs, boolean declOnly)
+            throws Exception {
         // If LHS is underscore, don't need to check
+        // TODO: this is actually not following the type system, where are are asked
+        // to return UnitType for underscore.
         if (lhs instanceof Underscore) {
             return new VariableType(Primitives.ANY);
         }
         
         VariableType leftType = null;
-        if (lhs instanceof Identifier) {
-            leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
-        } else if (lhs instanceof VarDecl) {
-            leftType = (VariableType) ((VarDecl) lhs).typeCheck(sTable);
-        } else if (lhs instanceof Subscript) {
-            leftType = (VariableType) ((Subscript) lhs).typeCheck(sTable);
+        if (lhs instanceof VarDecl) {   // VarInit in the Xi type system
+            leftType = (VariableType) ((VarDecl) lhs).typeCheckAndReturn(sTable);
+        }
+        
+        if (!declOnly) {
+            if (lhs instanceof Identifier) {       // Assign in the Xi type system
+                leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
+            } else if (lhs instanceof Subscript) { // ArrAssign in the Xi type system
+                leftType = (VariableType) ((Subscript) lhs).typeCheck(sTable);
+            }
         }
         if (leftType == null) {
-            throw new RuntimeException("Unexpected Error.");
+            throw new OtherException(line, col, "LHS of multi-assign can only be vardecl or _");
         }
         return leftType;
     }

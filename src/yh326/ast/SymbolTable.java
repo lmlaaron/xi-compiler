@@ -13,10 +13,6 @@ import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.FunctionAlreadyDefinedException;
-import yh326.exception.FunctionNotDefinedException;
-import yh326.exception.VariableAlreadyDefinedException;
-import yh326.exception.VariableNotDefinedException;
 import yh326.util.Tuple;
 
 /**
@@ -28,6 +24,7 @@ public class SymbolTable {
     private Stack<String> logs;
     private Map<String, Stack<Tuple<VariableType, Integer>>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
+    private String curFunc;
     private int level;
     
     /**
@@ -37,7 +34,19 @@ public class SymbolTable {
         logs = new Stack<String>();
         varTable = new HashMap<String, Stack<Tuple<VariableType, Integer>>>();
         funcTable = new HashMap<String, Tuple<NodeType, NodeType>>();
+        curFunc = null;
         level = 0;
+    }
+    
+    public NodeType getCurFuncReturnType() {
+        if (curFunc == null) {
+            throw new RuntimeException("Unexpected error.");
+        }
+        return funcTable.get(curFunc).t2;
+    }
+    
+    public void setCurFunction(String curFunc) {
+        this.curFunc = curFunc;
     }
     
     /**
@@ -70,13 +79,12 @@ public class SymbolTable {
     /**
      * @param name
      * @param VariableType
-     * @throws VariableAlreadyDefinedException
      */
-    public void addVar(String name, VariableType VariableType) throws VariableAlreadyDefinedException {
+    public boolean addVar(String name, VariableType VariableType) {
         logs.push(name);
         if (varTable.containsKey(name)) {
             if (varTable.get(name).peek().t2.intValue() == level) {
-                throw new VariableAlreadyDefinedException();
+                return false;
             } else {
                 varTable.get(name).push(new Tuple<VariableType, Integer>(VariableType, level));
             }
@@ -85,17 +93,16 @@ public class SymbolTable {
             value.push(new Tuple<VariableType, Integer>(VariableType, level));
             varTable.put(name, value);
         }
+        return true;
     }
     
     /**
      * @param name
      * @param funcType
-     * @throws FunctionAlreadyDefinedException
      */
-    public void addFunc(String name, List<VariableType> args, List<VariableType> rets)
-            throws FunctionAlreadyDefinedException {
+    public boolean addFunc(String name, List<VariableType> args, List<VariableType> rets) {
         if (funcTable.containsKey(name)) {
-            throw new FunctionAlreadyDefinedException();
+            return false;
         } else {
             NodeType arg, ret;
             if (args.size() == 0) {
@@ -113,6 +120,7 @@ public class SymbolTable {
                 ret = new ListVariableType(rets);
             }
             funcTable.put(name, new Tuple<NodeType, NodeType>(arg, ret));
+            return true;
         }
     }
     
@@ -121,13 +129,12 @@ public class SymbolTable {
      * Return null if the variable is not defined in the symbol table.
      * @param varName The name of the variable
      * @return The type of the variable with the given name or null.
-     * @throws VariableNotDefinedException 
      */
-    public VariableType getVariableType(String varName) throws VariableNotDefinedException {
+    public VariableType getVariableType(String varName) {
         if (varTable.containsKey(varName)) {
             return varTable.get(varName).peek().t1;
         } else {
-            throw new VariableNotDefinedException(varName);
+            return null;
         }
     }
     
@@ -138,11 +145,11 @@ public class SymbolTable {
      * @return The type of the function with the given name or null.
      * @throws FunctionNotDefinedException 
      */
-    public Tuple<NodeType, NodeType> getFunctionType(String funcName) throws FunctionNotDefinedException {
+    public Tuple<NodeType, NodeType> getFunctionType(String funcName) {
         if (funcTable.containsKey(funcName)) {
             return funcTable.get(funcName);
         } else {
-            throw new FunctionNotDefinedException(funcName);
+            return null;
         }
     }
     

@@ -1,11 +1,10 @@
-package yh326.ast.node.literal;
+package yh326.ast.node.expr;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.TypeInconsistentException;
 
 public class ArrayLiteral extends ExprAtom {
 
@@ -15,6 +14,7 @@ public class ArrayLiteral extends ExprAtom {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        // The following is not specified in the Xi type system
         VariableType type;
         if (children.size() == 0) {
             type = new VariableType(Primitives.EMPTY);
@@ -23,7 +23,7 @@ public class ArrayLiteral extends ExprAtom {
         }
         for (int i = 1; i < children.size(); i++) {
             if (!type.equals(children.get(i).typeCheck(sTable))) {
-                throw new TypeErrorException("Array literal type inconsistent");
+                throw new TypeInconsistentException(line, col, "Array literal");
             }
         }
         type.increaseLevel();

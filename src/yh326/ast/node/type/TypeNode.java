@@ -6,7 +6,7 @@ import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
 
 public class TypeNode extends Node {
 
@@ -32,7 +32,7 @@ public class TypeNode extends Node {
             if (expr.equals(integer)) {
                 t.increaseLevel((Expr) children.get(2));
             } else {
-                throw new TypeErrorException(integer, expr);
+                throw new MatchTypeException(line, col, integer, expr);
             }
         }
         

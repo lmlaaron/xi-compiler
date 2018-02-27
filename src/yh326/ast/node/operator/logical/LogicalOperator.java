@@ -4,7 +4,7 @@ import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.OperandTypeException;
 
 public class LogicalOperator extends Operator {
     public LogicalOperator(int line, int col, String repr) {
@@ -12,18 +12,18 @@ public class LogicalOperator extends Operator {
     }
 
     @Override
-    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         NodeType boolType = new VariableType(Primitives.BOOL);
         if (operandType.equals(boolType)) {
             return boolType;
         }
         else {
-            throw new TypeErrorException(this, "Arithmetic operator only works on int");
+            throw new OperandTypeException(line, col, value, "bool");
         }
     }
 
     @Override
     public boolean validNumOperands(int num) {
-        return num == 2; // binary by default
+        return num == 2; // binary by default. LogicNegation should override this method
     }
 }
