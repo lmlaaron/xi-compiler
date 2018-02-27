@@ -24,6 +24,15 @@ public class VariableType extends NodeType {
         this.sizes = new ArrayList<Expr>();
     }
    
+    public VariableType(Primitives type, int level) {
+        this.type = type;
+        this.level = 0;
+        this.sizes = new ArrayList<Expr>();
+        for (int i = 0; i < level; i++) {
+            increaseLevel();
+        }
+    }
+
     /**
      * @return
      */

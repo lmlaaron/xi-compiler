@@ -3,7 +3,7 @@ package yh326.ast.node.stmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
 
 public class StmtList extends Stmt {
 
@@ -24,7 +24,7 @@ public class StmtList extends Stmt {
         for (int i = 0; i < children.size() - 1; i++) {
             NodeType actual = children.get(i).typeCheck(sTable);
             if (!(actual instanceof UnitType)) {
-                throw new TypeErrorException(type, actual);
+                throw new MatchTypeException(line, col, type, actual);
             }
         }
         

@@ -7,7 +7,7 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
 
 public class If extends Stmt {
     protected Expr condition;
@@ -25,7 +25,7 @@ public class If extends Stmt {
         NodeType boolType = new VariableType(Primitives.BOOL);
         
         if (!tg.equals(boolType)) {
-            throw new TypeErrorException(boolType, tg);
+            throw new MatchTypeException(line, col, boolType, tg);
         }
         then.typeCheck(st);
         return new UnitType();

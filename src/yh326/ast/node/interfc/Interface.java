@@ -6,6 +6,7 @@ import yh326.ast.node.Node;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.util.LoadMethod;
+import yh326.exception.AlreadyDefinedException;
 
 public class Interface extends Node {
     private Identifier id;
@@ -23,6 +24,8 @@ public class Interface extends Node {
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.
         // So it is moved to util package.
-        LoadMethod.loadMethod(sTable, id.value, args, rets);
+        if (LoadMethod.loadMethod(sTable, id.value, args, rets) == false) {
+            throw new AlreadyDefinedException(line, col, id.value);
+        }
     }
 }

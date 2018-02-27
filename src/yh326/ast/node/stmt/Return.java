@@ -10,7 +10,8 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.ast.type.VoidType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.MatchTypeException;
+import yh326.exception.MismatchNumberException;
 
 public class Return extends Stmt {
 
@@ -37,7 +38,7 @@ public class Return extends Stmt {
         }
         
         if (actual.getClass() != expected.getClass()) {
-            throw new TypeErrorException(expected, actual);
+            throw new MatchTypeException(line, col, expected, actual);
         } else {
             // Procedure
             if (actual instanceof UnitType) {
@@ -46,13 +47,18 @@ public class Return extends Stmt {
                 if (((VariableType) actual).equals((VariableType) expected)) {
                     return new VoidType();
                 } else {
-                    throw new TypeErrorException(expected, actual);
+                    throw new MatchTypeException(line, col, expected, actual);
                 }
             } else { // ListVariableType
-                if (((ListVariableType) actual).equals((ListVariableType) expected)) {
+                ListVariableType act = (ListVariableType) actual;
+                ListVariableType exp = (ListVariableType) expected;
+                if (act.getVariableTypes().size() != exp.getVariableTypes().size()) {
+                    throw new MismatchNumberException(line, col,
+                            exp.getVariableTypes().size(), act.getVariableTypes().size());
+                } else if (act.equals(exp)) {
                     return new VoidType();
                 } else {
-                    throw new TypeErrorException(expected, actual);
+                    throw new MatchTypeException(line, col, expected, actual);
                 }
             }
         }

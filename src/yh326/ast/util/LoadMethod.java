@@ -23,7 +23,7 @@ public class LoadMethod {
      * @param rets
      * @throws Exception
      */
-    public static void loadMethod(SymbolTable sTable, String id, 
+    public static boolean loadMethod(SymbolTable sTable, String id, 
             FunctionTypeDeclList args, RetvalList rets) throws Exception {
         List<VariableType> argList = new ArrayList<VariableType>();
         List<VariableType> retList = new ArrayList<VariableType>();
@@ -43,6 +43,6 @@ public class LoadMethod {
             }
         }
 
-        sTable.addFunc(id, argList, retList);
+        return sTable.addFunc(id, argList, retList);
     }
 }

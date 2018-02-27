@@ -4,7 +4,6 @@ import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
 
 public class PrimitiveTypeNode extends TypeNode {
     private String primitiveType;
@@ -20,7 +19,7 @@ public class PrimitiveTypeNode extends TypeNode {
         } else if (primitiveType == "bool") {
             return new VariableType(Primitives.BOOL);
         } else {
-            throw new TypeErrorException("Primitive type has to be either int or bool");
+            throw new RuntimeException("Unexpected error: primitive type has to be either int or bool");
         }
     }
 }

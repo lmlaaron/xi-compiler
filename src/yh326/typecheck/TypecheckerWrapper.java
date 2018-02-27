@@ -1,13 +1,12 @@
 package yh326.typecheck;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintStream;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.exception.ParsingException;
+import yh326.exception.SemanticCheckException;
 import yh326.gen.lexer;
 import yh326.gen.parser;
 
@@ -44,19 +43,18 @@ public class TypecheckerWrapper {
 		try {
 		    FileWriter writer = new FileWriter(absolute_output_path);
             lexer x = new lexer(new FileReader(absolute_file_path));
-			parser p = new parser(x);
+			@SuppressWarnings("deprecation")
+            parser p = new parser(x);
 			try {
 			    Node ast = (Node) p.parse().value;
 			    SymbolTable sTable = new SymbolTable();
 			    ast.loadMethods(sTable, libPath);
 			    ast.typeCheck(sTable);
-			    System.out.println("Valid Xi Program");
 	            writer.write("Valid Xi Program");
             } catch (ParsingException e) {
-                e.printStackTrace();
                 writer.write(e.getMessage() + "\n");
-            } catch (Exception e) { // TODO TypeChecking exception
-                e.printStackTrace();
+            } catch (SemanticCheckException e) {
+                //e.printStackTrace(); // TODO delete this
                 writer.write(e.getMessage() + "\n");
             }
             writer.close();

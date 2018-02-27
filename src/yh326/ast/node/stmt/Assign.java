@@ -15,7 +15,8 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.AssignTypeException;
+import yh326.exception.OtherException;
 
 public class Assign extends Stmt {
     private Node lhs;
@@ -40,7 +41,7 @@ public class Assign extends Stmt {
                     (leftType).equals((ListVariableType) rightType)) {
                 return new UnitType();
             } else {
-                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+                throw new AssignTypeException(line, col, rightType, leftType);
             }
         } else {
             // Single assign on LHS, including assigning to subscript.
@@ -49,7 +50,7 @@ public class Assign extends Stmt {
                     (leftType).equals((VariableType) rightType)) {
                 return new UnitType();
             } else {
-                throw new TypeErrorException("Cannot assign " + rightType + " to " + leftType + ".");
+                throw new AssignTypeException(line, col, rightType, leftType);
             }
         }
     }
@@ -72,7 +73,7 @@ public class Assign extends Stmt {
         
         VariableType leftType = null;
         if (lhs instanceof VarDecl) {   // VarInit in the Xi type system
-            leftType = (VariableType) ((VarDecl) lhs).typeCheck(sTable);
+            leftType = (VariableType) ((VarDecl) lhs).typeCheckAndReturn(sTable);
         }
         
         if (!declOnly) {
@@ -83,7 +84,7 @@ public class Assign extends Stmt {
             }
         }
         if (leftType == null) {
-            throw new TypeErrorException("LHS of multi-assign can only be vardecl or _");
+            throw new OtherException(line, col, "LHS of multi-assign can only be vardecl or _");
         }
         return leftType;
     }

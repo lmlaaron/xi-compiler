@@ -1,9 +1,7 @@
 package yh326.parse;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintStream;
 
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
@@ -46,7 +44,8 @@ public class ParserWrapper {
 		try {
 		    FileWriter writer = new FileWriter(absolute_output_path);
             lexer x = new lexer(new FileReader(absolute_file_path));
-			parser p = new parser(x);
+			@SuppressWarnings("deprecation")
+            parser p = new parser(x);
 			try {
 			    write((Node) p.parse().value, writer);
 			} catch (ParsingException e) {

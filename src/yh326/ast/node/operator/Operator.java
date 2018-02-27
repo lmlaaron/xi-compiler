@@ -2,7 +2,9 @@ package yh326.ast.node.operator;
 
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
-import yh326.exception.TypeErrorException;
+import yh326.exception.OperandTypeException;
+import yh326.exception.OtherException;
+import yh326.exception.TypeInconsistentException;
 
 import java.util.Arrays;
 
@@ -25,15 +27,14 @@ public class Operator extends Node {
      * @throws  RuntimeException if operands' types were not initialized prior to
      *                           calling this
      */
-    public NodeType resultTypeFrom(NodeType... operandTypes) throws TypeErrorException {
+    public NodeType resultTypeFrom(NodeType... operandTypes) throws Exception {
         //ensure all types are the same
-        System.out.println(operandTypes[1]);
         boolean typesAreSame= Arrays.stream(operandTypes).allMatch(type -> type.equals(operandTypes[0]));
         if (!typesAreSame)
-            throw new TypeErrorException(this, "Operator doesn't accept operands of different types");
+            throw new TypeInconsistentException(line, col, "Operands");
         // ensure operator accepts given operand types
         if (!validNumOperands(operandTypes.length))
-            throw new TypeErrorException(this, "Operator " + this.value + "does not accept " + operandTypes.length + " operands");
+            throw new OtherException(line, col, "Operator " + this.value + "does not accept " + operandTypes.length + " operands");
 
 
         // function implementation checks whether operand type is valid
@@ -43,7 +44,7 @@ public class Operator extends Node {
     public boolean validNumOperands(int num) {
         throw new RuntimeException("validNumOperands not implemented for class!");
     }
-    public NodeType returnTypeForOperandType(NodeType operandType) throws TypeErrorException {
+    public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         throw new RuntimeException("returnTypeForOperandType not implemented for class!");
     }
 }

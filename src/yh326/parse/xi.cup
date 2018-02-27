@@ -1,7 +1,6 @@
 package yh326.gen;
 
 import yh326.ast.node.*;
-import yh326.ast.node.assign.*;
 import yh326.ast.node.expr.*;
 import yh326.ast.node.funcdecl.*;
 import yh326.ast.node.interfc.*;
@@ -112,14 +111,14 @@ start with program;
 program          ::= use_list:ul method_list:ml
                        {:RESULT = new Node(ulleft, ulright, ul, ml);:}
                    | method_list:ml
-                       {:RESULT = new Node(mlleft, mlright, new Node(mlleft, mlright), ml);:}
+                       {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
                    | interface_list:il
                        {:RESULT = new Node(illeft, ilright, il);:}
                    | use_list:ul
-                       {:RESULT = new Node(ulleft, ulright, ul, new Node(ulleft, ulright));:}
+                       {:RESULT = new Node(ulleft, ulright, ul, new MethodList(ulleft, ulright));:}
                    | nothing:n
                        {:RESULT = new Node(nleft, nright, 
-                                           new Node(nleft, nright), new Node(nleft, nright));:};
+                         new UseList(nleft, nright), new MethodList(nleft, nright));:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
 /* ================= USE ==================================================== */

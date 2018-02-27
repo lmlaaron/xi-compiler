@@ -1,7 +1,6 @@
 package yh326;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +8,7 @@ import java.util.Arrays;
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
 import yh326.typecheck.*;
+
 public class Main {
 	//private static final boolean INTERFACE = false;
 	//private static final boolean REGULAR = true;
@@ -33,7 +33,8 @@ public class Main {
 			System.out.println("option --parse to show the result from syntatical analysis.");
 			System.out.println("option --typecheck to show the result from type checking.");
 			System.out.println("option -sourcepath <path> specifies where to find input source files.");
-			System.out.println("option -D <path> specifies where to place generated diagnostic files.");
+			System.out.println("option -libpath <path> specify where to find library interface files.");
+            System.out.println("option -D <path> specifies where to place generated diagnostic files.");
 		}
 		if (argv_alist.contains("-sourcepath")) {
 			try {
@@ -57,12 +58,10 @@ public class Main {
 				System.exit(1);
 			}
 		}
-		if (argv_alist.contains("--libpath")) {
+		if (argv_alist.contains("-libpath")) {
         	try {
-        		String tail = argv[argv_alist.indexOf("--libpath") + 1];
-        		Path temp = Paths.get(tail);
-        		if (temp.isAbsolute()) lib_path = tail;
-        		else lib_path += tail;
+        		String tail = argv[argv_alist.indexOf("-libpath") + 1];
+        		lib_path = Paths.get(tail).toAbsolutePath().toString();
         		lib_path = lib_path.replace('\\', '/');
         	}
         	catch (IndexOutOfBoundsException e){
@@ -78,7 +77,7 @@ public class Main {
 			for (String source_file : source_files) ParserWrapper.Parsing(combine(input_source, source_file), diag_dump_path);
 		}
         if (argv_alist.contains("--typecheck")) {
-            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path, lib_path);
+            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path, lib_path + "/");
         }
 		return;
 	}
