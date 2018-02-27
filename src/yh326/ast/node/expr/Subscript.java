@@ -1,9 +1,8 @@
-package yh326.ast.node.type;
+package yh326.ast.node.expr;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
 import yh326.ast.node.Node;
-import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;

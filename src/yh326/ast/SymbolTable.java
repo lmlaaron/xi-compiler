@@ -28,6 +28,7 @@ public class SymbolTable {
     private Stack<String> logs;
     private Map<String, Stack<Tuple<VariableType, Integer>>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
+    private String curFunc;
     private int level;
     
     /**
@@ -37,7 +38,19 @@ public class SymbolTable {
         logs = new Stack<String>();
         varTable = new HashMap<String, Stack<Tuple<VariableType, Integer>>>();
         funcTable = new HashMap<String, Tuple<NodeType, NodeType>>();
+        curFunc = null;
         level = 0;
+    }
+    
+    public NodeType getCurFuncReturnType() {
+        if (curFunc == null) {
+            throw new RuntimeException("Unexpected error.");
+        }
+        return funcTable.get(curFunc).t2;
+    }
+    
+    public void setCurFunction(String curFunc) {
+        this.curFunc = curFunc;
     }
     
     /**

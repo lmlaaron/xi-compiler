@@ -37,7 +37,7 @@ public class Method extends Node {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        sTable.enterBlock();
+        // Loading arguments into the symbol table
         if (args != null) {
             for (Node varDecl : args.children) {
                 if (varDecl instanceof FunctionTypeDecl) {
@@ -47,32 +47,12 @@ public class Method extends Node {
                 }
             }
         }
+        NodeType expected = sTable.getFunctionType(id.value).t2;
         NodeType actual = new UnitType();
         if (block != null) {
             actual = block.typeCheck(sTable);
         }
-        sTable.exitBlock();
-        NodeType expected = sTable.getFunctionType(id.value).t2;
         
-        if (actual.getClass() != expected.getClass()) {
-            throw new TypeErrorException(expected, actual);
-        } else {
-            // Procedure
-            if (actual instanceof UnitType) {
-                return new UnitType();
-            } else if (actual instanceof VariableType) {
-                if (((VariableType) actual).equals((VariableType) expected)) {
-                    return new UnitType();
-                } else {
-                    throw new TypeErrorException(expected, actual);
-                }
-            } else { // ListVariableType
-                if (((ListVariableType) actual).equals((ListVariableType) expected)) {
-                    return new UnitType();
-                } else {
-                    throw new TypeErrorException(expected, actual);
-                }
-            }
-        }
+        return new UnitType();
     }
 }

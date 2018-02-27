@@ -24,6 +24,6 @@ public class LogicalOperator extends Operator {
 
     @Override
     public boolean validNumOperands(int num) {
-        return num == 2; // binary by default
+        return num == 2; // binary by default. LogicNegation should override this method
     }
 }

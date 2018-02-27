@@ -1,11 +1,10 @@
-package yh326.ast.node.stmt;
+package yh326.ast.node.expr;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
-import yh326.ast.node.expr.Expr;
 import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
@@ -23,6 +22,7 @@ public class MethodCall extends Expr {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        // This method combined method call and procedure call.
         Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(id.value);
         if (funcType.t1 instanceof UnitType) {
             if (children.size() == 1) {

@@ -1,9 +1,9 @@
 package yh326.ast.node.stmt;
 
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
+import yh326.exception.TypeErrorException;
 
 public class StmtList extends Stmt {
 
@@ -19,14 +19,18 @@ public class StmtList extends Stmt {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
         NodeType type = new UnitType();
-        for (Node child : children) {
-            if (child != null) {
-                if (child instanceof Return) {
-                    type = child.typeCheck(sTable);
-                } else {
-                    child.typeCheck(sTable);
-                }
+        
+        // Check if all statement except for the last one has unit type.
+        for (int i = 0; i < children.size() - 1; i++) {
+            NodeType actual = children.get(i).typeCheck(sTable);
+            if (!(actual instanceof UnitType)) {
+                throw new TypeErrorException(type, actual);
             }
+        }
+        
+        // Use the last statement's type as the return value.
+        if (children.size() > 0) {
+            type = children.get(children.size() - 1).typeCheck(sTable);
         }
         sTable.exitBlock();
         return type;

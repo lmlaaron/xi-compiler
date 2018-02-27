@@ -7,6 +7,7 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
+import yh326.ast.type.VoidType;
 import yh326.exception.TypeErrorException;
 
 public class IfElse extends Stmt {
@@ -41,8 +42,8 @@ public class IfElse extends Stmt {
     public static NodeType Lub(NodeType a, NodeType b) throws TypeErrorException {
         if (a instanceof UnitType || b instanceof UnitType) {
             return new UnitType();
-        } else if (a.equals(b)) {
-            return a;
+        } else if (a instanceof VoidType && b instanceof VoidType) {
+            return new VoidType();
         } else {
             throw new TypeErrorException("If/else return inconsistent");
         }

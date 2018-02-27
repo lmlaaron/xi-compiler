@@ -4,9 +4,7 @@ import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.exception.TypeErrorException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 //TODO: after modifying cup file, make this and other node super classes abstract
 public class Operator extends Node {
@@ -29,6 +27,7 @@ public class Operator extends Node {
      */
     public NodeType resultTypeFrom(NodeType... operandTypes) throws TypeErrorException {
         //ensure all types are the same
+        System.out.println(operandTypes[1]);
         boolean typesAreSame= Arrays.stream(operandTypes).allMatch(type -> type.equals(operandTypes[0]));
         if (!typesAreSame)
             throw new TypeErrorException(this, "Operator doesn't accept operands of different types");
