@@ -19,6 +19,7 @@ public class Interface extends Node {
         this.rets = rets;
     }
     
+    @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.
         // So it is moved to util package.

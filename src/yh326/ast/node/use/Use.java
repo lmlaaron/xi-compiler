@@ -22,10 +22,10 @@ public class Use extends Node {
     }
     
     @Override
-    public void loadMethods(SymbolTable sTable) throws Exception {
+    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         File lib = new File(id + ".ixi");
         if (!lib.exists()) {
-            lib = new File(System.getProperty("user.dir") + "/lib/xi/" + id.value + ".ixi");
+            lib = new File(libPath + id.value + ".ixi");
         }
         if (!lib.exists()) {
             throw new RuntimeException("Interface file " + id.value + ".ixi not found.");
