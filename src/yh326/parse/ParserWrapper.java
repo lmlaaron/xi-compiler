@@ -28,16 +28,9 @@ public class ParserWrapper {
 		
 		// generate the output postfix
         String postfix = absolute_file_path.substring(absolute_file_path.lastIndexOf(".") + 1);
-		//PostfixType type;
         String out_postfix=".parsed";
-		if (postfix.equals("ixi")) {
-			//type = PostfixType.INTERFACE;
-            out_postfix=".iparsed";
-		}
-		else if (postfix.equals("xi")) {
-			//type = PostfixType.REGULAR;
-            out_postfix=".parsed";
-		}
+		if (postfix.equals("ixi")) out_postfix=".iparsed";
+		else if (postfix.equals("xi")) out_postfix=".parsed";
 		else {
 			System.out.println("file postfix isn't correct");
 			System.exit(1);

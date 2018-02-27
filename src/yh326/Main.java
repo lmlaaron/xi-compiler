@@ -1,6 +1,8 @@
 package yh326;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -17,6 +19,8 @@ public class Main {
 		input_source = input_source.replace('\\', '/'); // to support operations in Windows 10
 		String diag_dump_path = System.getProperty("user.dir");
 		diag_dump_path = diag_dump_path.replace('\\', '/'); // to support operations in Windows 10
+		String lib_path = System.getProperty("user.dir");
+		lib_path = lib_path.replace('\\', '/'); // to support operations in Windows 10
 		ArrayList<String> source_files = new ArrayList<String> ();
 		for (int i = 0; i < argv.length; i++) {
 			if (argv[i].indexOf(".xi") != -1 || argv[i].indexOf(".ixi") != -1) {
@@ -53,6 +57,20 @@ public class Main {
 				System.exit(1);
 			}
 		}
+		if (argv_alist.contains("--libpath")) {
+        	try {
+        		String tail = argv[argv_alist.indexOf("--libpath") + 1];
+        		Path temp = Paths.get(tail);
+        		if (temp.isAbsolute()) lib_path = tail;
+        		else lib_path += tail;
+        		lib_path = lib_path.replace('\\', '/');
+        	}
+        	catch (IndexOutOfBoundsException e){
+        		System.out.println("input format incorrect");
+        		e.printStackTrace();
+        		System.exit(1);
+        	}
+        }
 		if (argv_alist.contains("--lex")) {
 			for (String source_file : source_files) LexerWrapper.Lexing(combine(input_source, source_file), diag_dump_path);
 		}
@@ -60,7 +78,7 @@ public class Main {
 			for (String source_file : source_files) ParserWrapper.Parsing(combine(input_source, source_file), diag_dump_path);
 		}
         if (argv_alist.contains("--typecheck")) {
-            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path);
+            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path, lib_path);
         }
 		return;
 	}
