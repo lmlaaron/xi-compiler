@@ -5,6 +5,7 @@ import os
 
 LEXER_TESTS = "./tests/yh326_a1"
 PARSER_TESTS = "./tests/yh326_a2"
+TYPECHECKER_TESTS = "./tests/yh326_a3"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -31,12 +32,32 @@ def print_stderr(stderr):
         old_print(bcolors['FAIL'] + stderr + bcolors['ENDC'])
 print = print_log
 
+
+
+
+
+# returns contents of file matching regex, or None if no matches are found
+def file_contents_in_dir(fname, dir='.', split_lines=False):
+    file = find_file_in_dir(fname, dir)
+    if file == None:
+        return None
+    if split_lines:
+        return list(open(file))
+    else:
+        return ''.join(open(file))
+
 # os utilities
 def parent_dir(path):
     return os.path.dirname(os.path.normpath(path))
 
+def find_file_in_dir(fname, dir='.'):
+    for file in filter(os.path.isfile, os.listdir(dir)):
+        file = str(file)
+        if file == fname:
+            return os.path.join(dir, file)
+
 # Runs a shell command and prints stdout, stderr #
-def run(cmd, print_results = True, end_on_error = False):
+def run_shell(cmd, print_results = True, end_on_error = False):
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out = result.stdout.decode()
     err = result.stderr.decode()
@@ -51,6 +72,53 @@ def run(cmd, print_results = True, end_on_error = False):
         exit(1)
     return fail, out, err
 
+def remove_whitespace(s):
+    return ''.join(s.split())
+
+
+
+
+
+
+
+def rm_extension(path):
+    return os.path.splitext(path)[0]
+
+def rm_path(path):
+    return os.path.split(path)[1]
+
+# utility function for loading up test cases
+def load_testcases(test_dir):
+    testcase_dir = os.path.join(test_dir, "testcases")
+    answer_dir = os.path.join(test_dir, "answers")
+
+    testcases = {}
+    answers = {}
+    for f in os.listdir(testcase_dir):
+        if f.endswith(".xi"):
+            fullpath = os.path.join(testcase_dir, f)
+            testcases[rm_extension(f)] = fullpath
+    for f in os.listdir(answer_dir):
+        answers[rm_extension(f)] = os.path.join(answer_dir, f)
+
+    bad_keys = []
+    for k in testcases.keys():
+        if k not in answers:
+            print_stderr("Testcase {} has no corresponding solution!".format(k))
+            bad_keys.append(k)
+    for k in bad_keys:
+        del testcases[k]
+
+    return testcase_dir, answer_dir, testcases, answers
+
+def last_line(str):
+    return str.split('\n')[-1]
+
+
+
+
+
+
 # abstract test delegator
 def run_test_set(test_dir, grader_function):
     testcase_dir, answer_dir, testcases, answers = load_testcases(test_dir)
@@ -64,148 +132,93 @@ def run_test_set(test_dir, grader_function):
         else:
             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
 
-# utility function for loading up test cases
-def load_testcases(test_dir):
-    testcase_dir = os.path.join(test_dir, "testcases")
-    answer_dir = os.path.join(test_dir, "answers")
+# grader function returns (success, reason) tuple
+def parse_grader(testcase_f, answer_f):
+    run_shell(['./xic', '--parse', testcase_f], print_results=False)
+    result_file = rm_extension(rm_path(testcase_f)) + ".parsed"
+    try:
+        result_contents = ''.join(open(result_file))
+    except FileNotFoundError:
+        return (False, "couldn't find generated .parsed file")
+    run_shell(['rm', result_file], print_results=False)
+    answer_contents = ''.join(open(answer_f))
 
-    testcases = {}
-    answers = {}
-    for f in os.listdir(testcase_dir):
-        testcases[f[:2]] = os.path.join(testcase_dir, f)
-    for f in os.listdir(answer_dir):
-        answers[f[:2]] = os.path.join(answer_dir, f)
-
-    bad_keys = []
-    for k in testcases.keys():
-        if k not in answers:
-            print_stderr("Testcase {} has no corresponding solution!".format(k))
-            bad_keys.append(k)
-    # TODO: uncomment below!
-    for k in bad_keys:
-        del testcases[k]
-
-    return testcase_dir, answer_dir, testcases, answers
+    result_contents = remove_whitespace(result_contents)
+    answer_contents = remove_whitespace(answer_contents)
+    if result_contents == answer_contents:
+        return (True, "")
+    else:
+        return (False, "\nresults -> {}\ncorrect -> {}".format(result_contents, answer_contents))
 
 # grader function returns (success, reason) tuple
 def lex_grader(testcase_f, answer_f):
-    ret = None
-    # run the lexer
-    run(['./xic', '--lex', testcase_f], print_results=False)
-    # find the .lexed file
-    # TODO: assumes .lexed files have been cleaned. this relies on the clean script which doesn't exist yet
-    _, lexfn, _ = run(['find', '.', '-name', '*.lexed'], print_results=False)
-    lexfn = lexfn.strip()
-    if len(lexfn) == 0:
-        ret = (False, "couldn't find generated .lexed file")
+    run_shell(['./xic', '--lex', testcase_f], print_results=False)
+    result_file = rm_extension(rm_path(testcase_f)) + ".lexed"
+    try:
+        result_contents = ''.join(open(result_file))
+    except FileNotFoundError:
+        return (False, "couldn't find generated .lexed file")
+
+    run_shell(['rm', result_file], print_results=False)
+
+    answer_contents = ''.join(open(answer_f))
+
+    result_error = 'error' in last_line(result_contents)
+    answer_error = 'error' in last_line(answer_contents)
+    if result_error == answer_error:
+        return (True, '')
     else:
-        # examine results:
-        _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
-        _, testcase_contents, _ = run(['cat', answer_f])
-        if testcase_contents.find('error') != -1:
-            # correct answer is for lexer to detect error
-            lexed_lastline = lexed_contents.split['\n'][-1]
-            if lexed_lastline.find('error') == -1:
-                # fail
-                ret = (False, "Last line should have been an error. Instead, found '{}'".format(lexed_lastline))
-            else:
-                # pass
-                ret = (True, '')
-        else: # testcase should pass
-            if lexed_contents.find('error') >= 0:
-                ret = (False, "Lexer detected an error, but shouldn't have!")
-            else:
-                ret = (True, '')
-
-    run(['rm', lexfn], print_results=False)
-    return ret
-
-def remove_whitespace(s):
-    return ''.join(s.split())
+        if (answer_error):
+            message = "Result should have been an error, but wasn't"
+        else:
+            message = "Result shouldn't have been an error, but was"
+        return (False, message)
 
 # grader function returns (success, reason) tuple
-def parse_grader(testcase_f, answer_f):
-    ret = None
-    # run the lexer
-    run(['./xic', '--parse', testcase_f], print_results=False)
-    # find the .parsed file
-    # TODO: assumes .parsed files have been cleaned. this relies on the clean script which doesn't exist yet
-    _, lexfn, _ = run(['find', '.', '-maxdepth', '1' ,'-name', '*.parsed'], print_results=False)
-    lexfn = lexfn.strip()
-    if len(lexfn) == 0:
-        ret = (False, "couldn't find generated .parsed file")
+def typecheck_grader(testcase_f, answer_f):
+    run_shell(['./xic', '--typecheck', testcase_f], print_results=False)
+    result_file = rm_extension(rm_path(testcase_f)) + ".typed"
+    try:
+        result_contents = ''.join(open(result_file))
+    except FileNotFoundError:
+        return (False, "couldn't find generated .typed file")
+
+    run_shell(['rm', result_file], print_results=False)
+
+    answer_contents = ''.join(open(answer_f))
+
+    answer_valid = 'valid xi program' in answer_contents.lower()
+    result_valid = 'valid xi program' in answer_contents.lower()
+
+    if answer_valid == result_valid:
+        return (True, '')
     else:
-        # examine results:
-        _, result_contents, _ = run(['cat', lexfn], print_results=False)
-        _, answer_contents, _ = run(['cat', answer_f], print_results=False)
-        result_contents = remove_whitespace(result_contents)
-        answer_contents = remove_whitespace(answer_contents)
-        if result_contents != answer_contents:
-            ret = (False, "results {} don't match testcase {} {}".format(result_contents, answer_f, answer_contents))
+        if answer_valid:
+            message = "Result should have been valid, but wasn't"
         else:
-            ret = (True, "")
-
-    run(['rm', lexfn], print_results=False)
-    return ret
-
-
-
-
-
-# # runs PA1 tests
-# def lex_tests():
-#     testcase_dir, answer_dir, testcases, answers = load_testcases(LEXER_TESTS)
-#
-#     results = [] # elements of typeNode (testcode, result[bool], error[str]) tuple
-#
-#     for k in testcases.keys():
-#         # run the lexer
-#         run(['./xic', '--lex', testcases[k]])
-#
-#         # find the .lexed file
-#         _, lexfn, _ = run(['find', testcase_dir, '{}*.lexed'.format(k)], print_results=False)
-#         lexfn = lexfn.strip()
-#         if len(lexfn) == 0:
-#             results.append( (k, False, "couldn't find generated .lexed file") )
-#         else:
-#             # examine results:
-#             _, lexed_contents, _ = run(['cat', lexfn], print_results=False)
-#             _, testcase_contents, _ = run(['cat', answers[k]])
-#             if testcase_contents.find('error') != -1:
-#                 # correct answer is for lexer to detect error
-#                 lexed_lastline = lexed_contents.split['\n'][-1]
-#                 if lexed_lastline.find('error') == -1:
-#                     # fail
-#                     results[k] = (k, False, "Last line should have been an error. Instead, found '{}'".format(lexed_lastline))
-#                 else:
-#                     # pass
-#                     results[k] = (k, True, '')
-#         run(['rm', lexfn], print_results=False)
-#
-#     for case, passed, reason in results:
-#         if passed:
-#             print_log("Case {} : {} : {}".format(case, "PASS", reason))
-#         else:
-#             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
-
-
+            message = "Result shouldn't hae been valid, but was"
+        return (False, message)
 
 
 
 def build():
     print("===CLEANING===")
-    run(['./clean'])
+    run_shell(['./clean'])
     print("===BUILDING===")
-    run(['./xic-build'], print_results=False)
+    run_shell(['./xic-build'], print_results=False)
+
+
+if __name__ == "__main__":
+    print("Test Harness Begin")
+
+    build()
 
     print("===RUNNING LEX TESTS===")
     run_test_set(LEXER_TESTS, lex_grader)
     print("===RUNNING PARSE TESTS===")
     run_test_set(PARSER_TESTS, parse_grader)
+    print("====RUNNING TYPECHECK TESTS===")
+    run_test_set(TYPECHECKER_TESTS, typecheck_grader)
 
-
-if __name__ == "__main__":
-    print("Test Harness Begin")
-    build()
     print("Test Harness End!")
 
