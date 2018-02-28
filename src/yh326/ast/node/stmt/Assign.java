@@ -8,6 +8,7 @@ import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
 import yh326.ast.node.Underscore;
 import yh326.ast.node.expr.Expr;
+import yh326.ast.node.expr.MethodCall;
 import yh326.ast.node.expr.Subscript;
 import yh326.ast.node.operator.Get;
 import yh326.ast.type.ListVariableType;
@@ -37,6 +38,9 @@ public class Assign extends Stmt {
                 types.add(getLhsType(sTable, child, true));
             }
             ListVariableType leftType = new ListVariableType(types);
+            
+            // RHS is ListVarType means RHS must be a method call that returns
+            // multiple results. It cannot be anything other expression.
             if (rightType instanceof ListVariableType &&
                     (leftType).equals((ListVariableType) rightType)) {
                 return new UnitType();
@@ -46,6 +50,10 @@ public class Assign extends Stmt {
         } else {
             // Single assign on LHS, including assigning to subscript.
             VariableType leftType = getLhsType(sTable, lhs, false);
+            if (leftType.getType() == Primitives.ANY &&
+                    !(expr instanceof MethodCall)) {
+                throw new OtherException(line, col, "Expected function call");
+            }
             if (rightType instanceof VariableType &&
                     (leftType).equals((VariableType) rightType)) {
                 return new UnitType();

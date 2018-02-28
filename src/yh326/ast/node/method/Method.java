@@ -12,6 +12,7 @@ import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.ast.util.LoadMethod;
 import yh326.exception.AlreadyDefinedException;
+import yh326.exception.OtherException;
 
 public class Method extends Node {
     private Identifier id;
@@ -56,12 +57,15 @@ public class Method extends Node {
         }
 
         sTable.setCurFunction(id.value);
+        NodeType actual = new UnitType();
+        NodeType expected = sTable.getFunctionType(id.value).t2;
         if (block != null) {
-            block.typeCheck(sTable);
-            
-            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+            actual = block.typeCheck(sTable);
         }
         sTable.setCurFunction(null);
+        if (actual instanceof UnitType && !(expected instanceof UnitType)) {
+            throw new OtherException(line, col, "Missing return statement");
+        }
         return new UnitType();
     }
 }
