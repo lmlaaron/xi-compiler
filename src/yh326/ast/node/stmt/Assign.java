@@ -10,7 +10,7 @@ import yh326.ast.node.Underscore;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.node.expr.MethodCall;
 import yh326.ast.node.expr.Subscript;
-import yh326.ast.node.operator.Get;
+import yh326.ast.node.Get;
 import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
