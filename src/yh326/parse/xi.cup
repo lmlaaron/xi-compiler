@@ -82,7 +82,11 @@ nonterminal ArrayTypeNodeFuncDecl  box_func_decl, boxes_func_decl;
 
 nonterminal Expr subscript;
 nonterminal Subscript subscripts;
+nonterminal Subscript_lhs subscripts_lhs;
+nonterminal Subscript_rhs subscripts_rhs;
 nonterminal Node subscriptable;
+nonterminal Node subscriptable_lhs;
+nonterminal Node subscriptable_rhs;
 
 nonterminal StmtList block, stmt_list;
 nonterminal Stmt stmt, stmt_cond, stmt_semi, stmt_core;
@@ -213,13 +217,24 @@ boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.ad
 
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {:RESULT = e;:};
+subscripts_lhs   ::= subscripts_lhs:slhs subscript:s
+                       {:RESULT = new Subscript_lhs(ssleft, ssright, slhs); RESULT.addNodes(s);:}
+                   | subscriptable_lhs:sblhs subscript:s
+                       {:RESULT = new Subscript_lhs(ssleft, ssright, sblhs); RESULT.addNodes(s);:};
+subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
+                       {:RESULT = new Subscript_rhs(ssleft, ssright, srhs); RESULT.addNodes(s);:}
+                   | subscriptable_rhs:sbrhs subscript:s
+                       {:RESULT = new Subscript_rhs(ssleft, ssright, sbrhs); RESULT.addNodes(s);:};
 subscripts       ::= subscripts:ss subscript:s
                        {:RESULT = new Subscript(ssleft, ssright, ss); RESULT.addNodes(s);:}
                    | subscriptable:sb subscript:s
                        {:RESULT = new Subscript(sbleft, sbright, sb); RESULT.addNodes(s);:};
-subscriptable    ::= identifier:id           {:RESULT = id;:}
+subscriptable_lhs::= identifier:id           {:RESULT = id;:}
                    | method_call:mc          {:RESULT = mc;:};
-//                   | array_literal:al        {:RESULT = new Node(al);:};
+subscriptable_rhs::= identifier:id           {:RESULT = id;:}
+                   | method_call:mc          {:RESULT = mc;:}
+                   | array_literal:al        {:RESULT = new Node(al);:};
+
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
@@ -262,7 +277,7 @@ assign_to_list   ::= assign_to:a COMMA assign_to_list:al
 assign_to        ::= identifier:id           {:RESULT = id;:}
                    | UNDERSCORE:u            {:RESULT = new Underscore(uleft, uright);:}
                    | var_decl:vd             {:RESULT = vd;:}
-                   | subscripts:ss           {:RESULT = ss;:};
+                   | subscripts_lhs:ss       {:RESULT = ss;:};
 
 /* ================= EXPRESSION ============================================= */
 // Grouped operator and corresponding expressions into sever tiers.
@@ -309,15 +324,15 @@ expr_atom        ::= identifier:id         {:RESULT = id;:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
-                   | subscripts:ss         {:RESULT = ss;:}
+                   | subscripts_rhs:ss     {:RESULT = ss;:}
                    | method_call:mc        {:RESULT = mc;:}
-                   | length_expr:ls   {:RESULT = ls;:}
+                   | length_expr:ls        {:RESULT = ls;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:}
                    | array_literal:al      {:RESULT = al;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};
-array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
+array_literal    ::= OPEN_BRACE expr_list:el CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:};
  
 /* ================= OPERATION ============================================== */
