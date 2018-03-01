@@ -1,4 +1,4 @@
-//vardecl shadowing in block
+//vardecl array, wrong level
 foo() {
    a:int[][][];
    a={{{1,2},{"???"},{}}}

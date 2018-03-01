@@ -39,19 +39,19 @@ public class Method extends Node {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        // Check if this function has been implemented
+        if (sTable.setImplemented(id.value) == false) {
+            throw new OtherException(line, col, "This function has been implemented");
+        }
+        
+        
         // Loading arguments into the symbol table
         if (args != null) {
             for (Node varDecl : args.children) {
                 if (varDecl instanceof FunctionTypeDecl) {
                     FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
                     VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
-                    // Check if function argument variable name has been defined
-                    // as some function name.
-                    String varId = funcVarDecl.getId().value;
-                    if (sTable.getFunctionType(varId) != null ||
-                            sTable.addVar(varId, t) == false) {
-                        throw new AlreadyDefinedException(line, col, id.value);
-                    }
+                    sTable.addVar(funcVarDecl.getId().value, t);
                 }
             }
         }

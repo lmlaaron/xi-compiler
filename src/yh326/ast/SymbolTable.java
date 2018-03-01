@@ -5,8 +5,10 @@ package yh326.ast;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import yh326.ast.type.ListVariableType;
@@ -22,8 +24,9 @@ import yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
-    private Map<String, Stack<Tuple<VariableType, Integer>>> varTable;
+    private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
+    private Set<String> funcImplemented;
     private String curFunc;
     private int level;
     
@@ -32,8 +35,9 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<String>();
-        varTable = new HashMap<String, Stack<Tuple<VariableType, Integer>>>();
+        varTable = new HashMap<String, Tuple<VariableType, Integer>>();
         funcTable = new HashMap<String, Tuple<NodeType, NodeType>>();
+        funcImplemented = new HashSet<String>();
         curFunc = null;
         level = 0;
     }
@@ -47,6 +51,15 @@ public class SymbolTable {
     
     public void setCurFunction(String curFunc) {
         this.curFunc = curFunc;
+    }
+    
+    public boolean setImplemented(String name) {
+        if (funcImplemented.contains(name)) {
+            return false;
+        } else {
+            funcImplemented.add(name);
+            return true;
+        }
     }
     
     /**
@@ -66,11 +79,7 @@ public class SymbolTable {
             if (last == null) {
                 break;
             } else {
-                Stack<Tuple<VariableType, Integer>> value = varTable.get(last);
-                value.pop();
-                if (value.isEmpty()) {
-                    varTable.remove(last);
-                }
+                varTable.remove(last);
             }
         }
         level--;
@@ -81,19 +90,14 @@ public class SymbolTable {
      * @param VariableType
      */
     public boolean addVar(String name, VariableType VariableType) {
-        logs.push(name);
-        if (varTable.containsKey(name)) {
-            if (varTable.get(name).peek().t2.intValue() == level) {
-                return false;
-            } else {
-                varTable.get(name).push(new Tuple<VariableType, Integer>(VariableType, level));
-            }
+        if (funcTable.containsKey(name) || varTable.containsKey(name)) {
+            return false;
         } else {
-            Stack<Tuple<VariableType, Integer>> value = new Stack<Tuple<VariableType, Integer>>();
-            value.push(new Tuple<VariableType, Integer>(VariableType, level));
+            Tuple<VariableType, Integer> value = new Tuple<VariableType, Integer>(VariableType, level);
             varTable.put(name, value);
+            logs.push(name);
+            return true;
         }
-        return true;
     }
     
     /**
@@ -101,24 +105,31 @@ public class SymbolTable {
      * @param funcType
      */
     public boolean addFunc(String name, List<VariableType> args, List<VariableType> rets) {
-        if (funcTable.containsKey(name)) {
-            return false;
+        NodeType arg, ret;
+        if (args.size() == 0) {
+            arg = new UnitType();
+        } else if (args.size() == 1) {
+            arg = args.get(0);
         } else {
-            NodeType arg, ret;
-            if (args.size() == 0) {
-                arg = new UnitType();
-            } else if (args.size() == 1) {
-                arg = args.get(0);
+            arg = new ListVariableType(args);
+        }
+        if (rets.size() == 0) {
+            ret = new UnitType();
+        } else if (rets.size() == 1) {
+            ret = rets.get(0);
+        } else {
+            ret = new ListVariableType(rets);
+        }
+        
+        if (funcTable.containsKey(name)) {
+            // Functions with same name can appear, but must have same signature
+            Tuple<NodeType, NodeType> type = funcTable.get(name);
+            if (type.t1.equals(arg) && type.t2.equals(ret)) {
+                return true;
             } else {
-                arg = new ListVariableType(args);
+                return false;
             }
-            if (rets.size() == 0) {
-                ret = new UnitType();
-            } else if (rets.size() == 1) {
-                ret = rets.get(0);
-            } else {
-                ret = new ListVariableType(rets);
-            }
+        } else {
             funcTable.put(name, new Tuple<NodeType, NodeType>(arg, ret));
             return true;
         }
@@ -132,7 +143,7 @@ public class SymbolTable {
      */
     public VariableType getVariableType(String varName) {
         if (varTable.containsKey(varName)) {
-            return varTable.get(varName).peek().t1;
+            return varTable.get(varName).t1;
         } else {
             return null;
         }
@@ -166,7 +177,7 @@ public class SymbolTable {
             System.out.println("  Variable table empty.");
         }
         for (String key : varTable.keySet()) {
-            System.out.println("  " + key + ": " + Arrays.toString(varTable.get(key).toArray()));
+            System.out.println("  " + key + ": " + varTable.get(key));
         }
         System.out.println("Log:");
         System.out.println("  " + Arrays.toString(logs.toArray()));
