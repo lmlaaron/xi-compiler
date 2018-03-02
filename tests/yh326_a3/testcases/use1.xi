@@ -1,1 +1,2 @@
 use io
+foo(){}
