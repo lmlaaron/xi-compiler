@@ -241,14 +241,14 @@ stmt_list        ::= stmt:st stmt_list:sl
 // stmt_core: the statement itself
 stmt             ::= stmt_noif:sc            {:RESULT = sc;:}
                    | if_statement:is         {:RESULT = is;:}
-                   | while_if:ws      {:RESULT = ws;:};
-stmt_noif        ::= block:b                 {:RESULT = b;:}
-                   | if_else:is              {:RESULT = is;:}
+                   | while_if:ws             {:RESULT = ws;:};
+stmt_noif        ::= if_else:is              {:RESULT = is;:}
                    | while_noif:wn           {:RESULT = wn;:}
                    | stmt_semi:ss            {:RESULT = ss;:};
 stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
                    | stmt_core:sc SEMICOLON  {:RESULT = sc;:};
-stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
+stmt_core        ::= block:b                 {:RESULT = b;:}
+                   | var_decl:vd             {:RESULT = vd;:} // without init
                    | assignment:as           {:RESULT = as;:}
                    | method_call:mc          {:RESULT = mc;:};
 
@@ -346,12 +346,18 @@ t7op             ::= MINUS:a        {:RESULT = new ArithmeticNegation(aleft, ari
                    | NOT:a          {:RESULT = new LogicNegation(aleft, aright);:};
 
 /* ================= IF/ELSE/WHILE ========================================== */
+// if_statement: if x stmt            - Anything can be in "stmt"
+// if_else     : if x stmt else stmt  - "if_statement" and "while_if" cannot be in both "stmt"
+// while_if    : (while x)+ if x stmt - Anything can be in "stmt" (There can be more than one "while x")
+// while_noif  : while x stmt_noif    - "if_statement" and "while_if" cannot be in both "stmt"
 
 if_statement     ::= IF:a expr:e stmt:s
                        {:RESULT = new If(aleft, aright, (Expr) e.sub(), s);:};
 if_else          ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
                        {:RESULT = new IfElse(aleft, aright, (Expr) e.sub(), s1, s2);:};
 while_if         ::= WHILE:a expr:e if_statement:s
+                       {:RESULT = new While(aleft, aright, (Expr) e.sub(), s);:}
+                   | WHILE:a expr:e while_if:s
                        {:RESULT = new While(aleft, aright, (Expr) e.sub(), s);:};
 while_noif       ::= WHILE:a expr:e stmt_noif:s
                        {:RESULT = new While(aleft, aright, (Expr) e.sub(), s);:};

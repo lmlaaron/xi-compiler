@@ -7,7 +7,15 @@ cp=$dir/lib/java_cup.jar:$dir/lib/src/:$dir/bin/:$dir/src/
 
 rm -rf $dir/src/$pkg/gen/lexer.java*
 jflex -d $dir/src/$pkg/gen/ $dir/src/$pkg/lex/xi.flex
-#sed -i "1s/^/package $pkg.gen;\n\n/" $dir/src/$pkg/gen/lexer.java
+if [ ! -f $dir/src/$pkg/gen/lexer.java ]; then
+    echo "Failed to build lexer."
+    exit 1
+fi
 
 $dir/lib/cup -interface -destdir $dir/src/$pkg/gen/ $dir/src/$pkg/parse/xi.cup
+if [ ! -f $dir/src/$pkg/gen/parser.java ]; then
+    echo "Failed to build parser."
+    exit 1
+fi
+
 javac -cp $cp -d $dir/bin/ $dir/src/$pkg/Main.java
