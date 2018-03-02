@@ -33,6 +33,7 @@ public class Assign extends Stmt {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType rightType = expr.typeCheck(sTable);
         if (lhs instanceof AssignToList) {
+            // Multi-assign: LHS can only be comma separated varDecl or underscores.
             List<VariableType> types = new ArrayList<VariableType>();
             for (Node child : lhs.children) {
                 types.add(getLhsType(sTable, child, true));
@@ -66,11 +67,11 @@ public class Assign extends Stmt {
     /**
      * @param sTable
      * @param lhs
-     * @param declOnly 
+     * @param multiAssign 
      * @return
      * @throws Exception
      */
-    private VariableType getLhsType(SymbolTable sTable, Node lhs, boolean declOnly)
+    private VariableType getLhsType(SymbolTable sTable, Node lhs, boolean multiAssign)
             throws Exception {
         // If LHS is underscore, don't need to check
         // TODO: this is actually not following the type system, where are are asked
@@ -84,7 +85,7 @@ public class Assign extends Stmt {
             leftType = (VariableType) ((VarDecl) lhs).typeCheckAndReturn(sTable);
         }
         
-        if (!declOnly) {
+        if (!multiAssign) {
             if (lhs instanceof Identifier) {       // Assign in the Xi type system
                 leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
             } else if (lhs instanceof Subscript) { // ArrAssign in the Xi type system
@@ -92,7 +93,11 @@ public class Assign extends Stmt {
             }
         }
         if (leftType == null) {
-            throw new OtherException(line, col, "LHS of multi-assign can only be vardecl or _");
+            if (multiAssign) {
+                throw new OtherException(line, col, "LHS of multi-assign can only be vardecl or _");
+            } else {
+                throw new RuntimeException("Unexpected Error.");
+            }
         }
         return leftType;
     }

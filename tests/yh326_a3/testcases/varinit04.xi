@@ -1,5 +1,5 @@
 // var decl and init
-// wrong init type
+// array
 foo() {
     a:bool[] = {true, true, false};
 }

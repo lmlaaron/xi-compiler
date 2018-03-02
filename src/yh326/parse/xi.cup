@@ -81,12 +81,8 @@ nonterminal ArrayTypeNode box, boxes;
 nonterminal ArrayTypeNodeFuncDecl  box_func_decl, boxes_func_decl;
 
 nonterminal Expr subscript;
-nonterminal Subscript subscripts;
-nonterminal Subscript_lhs subscripts_lhs;
-nonterminal Subscript_rhs subscripts_rhs;
-nonterminal Node subscriptable;
-nonterminal Node subscriptable_lhs;
-nonterminal Node subscriptable_rhs;
+nonterminal Subscript subscripts, subscripts_lhs, subscripts_rhs;
+nonterminal Node subscriptable, subscriptable_lhs, subscriptable_rhs;
 
 nonterminal StmtList block, stmt_list;
 nonterminal Stmt stmt, stmt_cond, stmt_semi, stmt_core;
@@ -218,13 +214,13 @@ boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.ad
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {:RESULT = e;:};
 subscripts_lhs   ::= subscripts_lhs:slhs subscript:s
-                       {:RESULT = new Subscript_lhs(slhsleft, slhsright, slhs); RESULT.addNodes(s);:}
+                       {:RESULT = new Subscript(slhsleft, slhsright, slhs); RESULT.addNodes(s);:}
                    | subscriptable_lhs:sblhs subscript:s
-                       {:RESULT = new Subscript_lhs(sblhsleft, sblhsright, sblhs); RESULT.addNodes(s);:};
+                       {:RESULT = new Subscript(sblhsleft, sblhsright, sblhs); RESULT.addNodes(s);:};
 subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
-                       {:RESULT = new Subscript_rhs(srhsleft, srhsright, srhs); RESULT.addNodes(s);:}
+                       {:RESULT = new Subscript(srhsleft, srhsright, srhs); RESULT.addNodes(s);:}
                    | subscriptable_rhs:sbrhs subscript:s
-                       {:RESULT = new Subscript_rhs(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
+                       {:RESULT = new Subscript(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
 subscripts       ::= subscripts:ss subscript:s
                        {:RESULT = new Subscript(ssleft, ssright, ss); RESULT.addNodes(s);:}
                    | subscriptable:sb subscript:s

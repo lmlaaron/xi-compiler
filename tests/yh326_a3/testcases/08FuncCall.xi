@@ -1,10 +1,10 @@
 foo(): int {
     return 2
 }
-bar(a:int): bool {
+bar(x:int): bool {
     return false
 }
-foobar(a:int, b:bool): bool, int {
+foobar(y:int, z:bool): bool, int {
     return true, 1
 }
 
@@ -12,12 +12,11 @@ barfoo() {
     a:int = 0
     a = foo()
     b:bool
-    b = bar()
-    b, a = foobar(a,b)
-    _, a = foobar(a,b)
-    b, _ = foobar(a,b)
+    b = bar(a)
+    b':bool, a':int = foobar(a,b)
+    _, a'':int = foobar(a,b)
+    b'':bool, _ = foobar(a,b)
     _, _ = foobar(a,b)
-    _ = foobar(a,b)
+    // The following will be invalid, but tested in "methodcall10.xi"
+    //_ = foobar(a,b)
 }
-
-

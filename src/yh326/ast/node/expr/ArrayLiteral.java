@@ -15,18 +15,17 @@ public class ArrayLiteral extends ExprAtom {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // The following is not specified in the Xi type system
-        VariableType type;
+        VariableType t;
         if (children.size() == 0) {
-            type = new VariableType(Primitives.EMPTY);
+            t = new VariableType(Primitives.EMPTY);
         } else {
-            type = (VariableType) children.get(0).typeCheck(sTable);
+            t = (VariableType) children.get(0).typeCheck(sTable);
         }
         for (int i = 1; i < children.size(); i++) {
-            if (!type.equals(children.get(i).typeCheck(sTable))) {
+            if (!t.equals(children.get(i).typeCheck(sTable))) {
                 throw new TypeInconsistentException(line, col, "Array literal");
             }
         }
-        type.increaseLevel();
-        return type;
+        return new VariableType(t.getType(), t.getLevel() + 1);
     }
 }
