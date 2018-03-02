@@ -3,6 +3,7 @@
 import subprocess
 import os
 
+# Parent directories for each test category
 LEXER_TESTS = "./tests/yh326_a1"
 PARSER_TESTS = "./tests/yh326_a2"
 TYPECHECKER_TESTS = "./tests/yh326_a3"
@@ -49,7 +50,6 @@ def file_contents_in_dir(fname, dir='.', split_lines=False):
 # os utilities
 def parent_dir(path):
     return os.path.dirname(os.path.normpath(path))
-
 def find_file_in_dir(fname, dir='.'):
     for file in filter(os.path.isfile, os.listdir(dir)):
         file = str(file)
@@ -72,22 +72,26 @@ def run_shell(cmd, print_results = True, end_on_error = False):
         exit(1)
     return fail, out, err
 
-def remove_whitespace(s):
-    return ''.join(s.split())
-
-
-
-
-
-
-
 def rm_extension(path):
     return os.path.splitext(path)[0]
 
 def rm_path(path):
     return os.path.split(path)[1]
 
+
+# misc. utilities
+def remove_whitespace(s):
+    return ''.join(s.split())
+def last_line(str):
+    return str.split('\n')[-1]
+
+
 # utility function for loading up test cases
+#
+# returns the parent directories of the testcase and answer files.
+# For each, a mapping of filename (without extension) to that file's
+# path is also returned. These maps are used to match corresponding
+# testcases and solutions
 def load_testcases(test_dir):
     testcase_dir = os.path.join(test_dir, "testcases")
     answer_dir = os.path.join(test_dir, "answers")
@@ -111,28 +115,32 @@ def load_testcases(test_dir):
 
     return testcase_dir, answer_dir, testcases, answers
 
-def last_line(str):
-    return str.split('\n')[-1]
 
 
 
-
-
-
-# abstract test delegator
+# abstract test delegator. given a parent directory and a grader function,
+# runs the grader function on each testcase-solution pair and prints the results
 def run_test_set(test_dir, grader_function):
     testcase_dir, answer_dir, testcases, answers = load_testcases(test_dir)
     results = []
     for k in testcases.keys():
         # grader function returns (success, reason) tuple
         results.append( (k,) + grader_function(testcases[k], answers[k]) )
+    correct = 0
     for case, passed, reason in results:
         if passed:
             print_log("Case {} : {} : {}".format(case, "PASS", reason))
         else:
             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
+            correct += 1
+    print_log("{} of {} tests passed".format(correct, len(results)))
 
-# grader function returns (success, reason) tuple
+
+# GRADER FUNCTIONS
+# all grader functions return (success:bool, reason:str) tuple
+
+# parse tests pass only if the output file's contents (besides whitespace)
+# completely match the given solution
 def parse_grader(testcase_f, answer_f):
     run_shell(['./xic', '--parse', testcase_f], print_results=False)
     result_file = rm_extension(rm_path(testcase_f)) + ".parsed"
@@ -150,7 +158,8 @@ def parse_grader(testcase_f, answer_f):
     else:
         return (False, "\nresults -> {}\ncorrect -> {}".format(result_contents, answer_contents))
 
-# grader function returns (success, reason) tuple
+# lex tests pass if both the output and the solution found errors,
+# or if neither did. More specific analysis isn't attempted
 def lex_grader(testcase_f, answer_f):
     run_shell(['./xic', '--lex', testcase_f], print_results=False)
     result_file = rm_extension(rm_path(testcase_f)) + ".lexed"
@@ -174,7 +183,8 @@ def lex_grader(testcase_f, answer_f):
             message = "Result shouldn't have been an error, but was"
         return (False, message)
 
-# grader function returns (success, reason) tuple
+# similar to lex_grader, this grader just tests for the presence of
+# 'valid xi program'
 def typecheck_grader(testcase_f, answer_f):
     run_shell(['./xic', '--typecheck', testcase_f], print_results=False)
     result_file = rm_extension(rm_path(testcase_f)) + ".typed"

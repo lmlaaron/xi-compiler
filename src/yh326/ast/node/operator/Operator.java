@@ -18,14 +18,12 @@ public class Operator extends Node {
      * A utility function for subclasses. Expression Nodes should delegate
      * to this function after typechecking operands.
      *
-     * @param operands the inputs for the operator
+     * @param operandTypes the type for each operand
      * @return the return type of the operation on the given operands
      *
-     * @throws  TypeErrorException if operands are not of valid types for this operator,
+     * @throws  OperandTypeException if operands are not of valid types for this operator,
      *                             or if there are an invalid number of operands, or
      *                             if the types of the operands are not the same
-     * @throws  RuntimeException if operands' types were not initialized prior to
-     *                           calling this
      */
     public NodeType resultTypeFrom(NodeType... operandTypes) throws Exception {
         //ensure all types are the same
@@ -41,9 +39,25 @@ public class Operator extends Node {
         return returnTypeForOperandType(operandTypes[0]);
     }
 
+    /**
+     * function for specifying unary/binary-ness in subclasses
+     *
+     * @param num the number of operands attempted for the given operator
+     * @returns whether num is an acceptable number of operands
+     * @throws RuntimeException if not implemented by subclasses
+     */
     public boolean validNumOperands(int num) {
         throw new RuntimeException("validNumOperands not implemented for class!");
     }
+
+    /**
+     * function for mapping acceptable operand types to corresponding
+     * return types
+     *
+     * @param operandType the type of ALL operands
+     * @return the type of the return value of the operation
+     * @throws OperandTypeException if the operand type is not accepted by this operator
+     */
     public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         throw new RuntimeException("returnTypeForOperandType not implemented for class!");
     }
