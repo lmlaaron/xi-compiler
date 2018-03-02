@@ -106,10 +106,9 @@ SingleCharacter = [^\r\n\'\\]
   \'                { yybegin(CHARLITERAL); column = yycolumn; }
 
   {Identifier}      { return symbol(IDENTIFIER,      "id",      yytext()); }
-  {Integer}         {  
-		       String intliteral = yytext();
+  {Integer}         {  String intliteral = yytext();
                        try {
-                           Long.parseLong(intliteral,10);
+                           Long.parseUnsignedLong(intliteral, 10);
                        } catch (NumberFormatException e) {
                            return symbol(ERROR, "error: Integer " +intliteral + " range overflow", yyline, yycolumn);
                        }

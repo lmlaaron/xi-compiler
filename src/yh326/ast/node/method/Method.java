@@ -39,6 +39,9 @@ public class Method extends Node {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        sTable.enterBlock();
+        sTable.setCurFunction(id.value);
+        
         // Check if this function has been implemented
         if (sTable.setImplemented(id.value) == false) {
             throw new OtherException(line, col, "This function has been implemented");
@@ -56,16 +59,17 @@ public class Method extends Node {
             }
         }
 
-        sTable.setCurFunction(id.value);
         NodeType actual = new UnitType();
         NodeType expected = sTable.getFunctionType(id.value).t2;
         if (block != null) {
             actual = block.typeCheck(sTable);
         }
-        sTable.setCurFunction(null);
         if (actual instanceof UnitType && !(expected instanceof UnitType)) {
             throw new OtherException(line, col, "Missing return statement");
         }
+        
+        sTable.setCurFunction(null);
+        sTable.exitBlock();
         return new UnitType();
     }
 }

@@ -81,8 +81,8 @@ nonterminal ArrayTypeNode box, boxes;
 nonterminal ArrayTypeNodeFuncDecl  box_func_decl, boxes_func_decl;
 
 nonterminal Expr subscript;
-nonterminal Subscript subscripts, subscripts_lhs, subscripts_rhs;
-nonterminal Node subscriptable, subscriptable_lhs, subscriptable_rhs;
+nonterminal Subscript subscripts_lhs, subscripts_rhs;
+nonterminal Node subscriptable_lhs, subscriptable_rhs;
 
 nonterminal StmtList block, stmt_list;
 nonterminal Stmt stmt, stmt_cond, stmt_semi, stmt_core;
@@ -113,12 +113,7 @@ program          ::= use_list:ul method_list:ml
                    | method_list:ml
                        {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
                    | interface_list:il
-                       {:RESULT = new Node(illeft, ilright, il);:}
-                   | use_list:ul
-                       {:RESULT = new Node(ulleft, ulright, ul, new MethodList(ulleft, ulright));:}
-                   | nothing:n
-                       {:RESULT = new Node(nleft, nright, 
-                         new UseList(nleft, nright), new MethodList(nleft, nright));:};
+                       {:RESULT = new Node(illeft, ilright, il);:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
 /* ================= USE ==================================================== */
@@ -127,6 +122,8 @@ use_list         ::= use:u use_list:ul
                    | use:u
                        {:RESULT = new UseList(uleft, uright, u);:};
 use              ::= USE:u identifier:id
+                       {:RESULT = new Use(uleft, uright, id);:}
+                   | USE:u identifier:id SEMICOLON
                        {:RESULT = new Use(uleft, uright, id);:};
 
 /* ================= METHOD ================================================= */
@@ -221,14 +218,12 @@ subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
                        {:RESULT = new Subscript(srhsleft, srhsright, srhs); RESULT.addNodes(s);:}
                    | subscriptable_rhs:sbrhs subscript:s
                        {:RESULT = new Subscript(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
-subscripts       ::= subscripts:ss subscript:s
-                       {:RESULT = new Subscript(ssleft, ssright, ss); RESULT.addNodes(s);:}
-                   | subscriptable:sb subscript:s
-                       {:RESULT = new Subscript(sbleft, sbright, sb); RESULT.addNodes(s);:};
 subscriptable_lhs::= identifier:id           {:RESULT = id;:}
-                   | method_call:mc          {:RESULT = mc;:};
+                   | method_call:mc          {:RESULT = mc;:}
+                   | STRING_LITERAL:sl       {:RESULT = new StringLiteral(slleft, slright, sl);:};
 subscriptable_rhs::= identifier:id           {:RESULT = id;:}
                    | method_call:mc          {:RESULT = mc;:}
+                   | STRING_LITERAL:sl       {:RESULT = new StringLiteral(slleft, slright, sl);:}
                    | array_literal:al        {:RESULT = al;:};
 
 
@@ -253,8 +248,7 @@ stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
                    | stmt_core:sc SEMICOLON  {:RESULT = sc;:};
 stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
                    | assignment:as           {:RESULT = as;:}
-                   | method_call:mc          {:RESULT = mc;:}
-                   | length_expr:ls     {:RESULT = ls;:};
+                   | method_call:mc          {:RESULT = mc;:};
 
 // var_decl is for variable declaration in statements.
 // Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
