@@ -13,6 +13,14 @@ public class Interface extends Node {
     private FunctionTypeDeclList args;
     private RetvalList rets;
     
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param id
+     * @param args
+     * @param rets
+     */
     public Interface(int line, int col, Identifier id, FunctionTypeDeclList args, RetvalList rets) {
         super(line, col, id, args, rets);
         this.id = id;

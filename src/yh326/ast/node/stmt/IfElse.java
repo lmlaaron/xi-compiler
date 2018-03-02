@@ -30,8 +30,14 @@ public class IfElse extends Stmt {
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
+        st.enterBlock();
         NodeType tc = then.typeCheck(st);
+        st.exitBlock();
+        
+        st.enterBlock();
         NodeType ta = otherwise.typeCheck(st);
+        st.exitBlock();
+       
         NodeType result = Lub(tc, ta);
         if (result == null) {
             throw new TypeInconsistentException(line, col, "If-else return");

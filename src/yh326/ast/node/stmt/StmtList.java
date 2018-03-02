@@ -3,6 +3,7 @@ package yh326.ast.node.stmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
+import yh326.ast.type.VoidType;
 import yh326.exception.MatchTypeException;
 
 public class StmtList extends Stmt {
@@ -31,6 +32,9 @@ public class StmtList extends Stmt {
         // Use the last statement's type as the return value.
         if (children.size() > 0) {
             type = children.get(children.size() - 1).typeCheck(sTable);
+            if (!(type instanceof UnitType) && !(type instanceof VoidType)) {
+                throw new MatchTypeException(line, col, "Unit or Void", type);
+            }
         }
         sTable.exitBlock();
         return type;

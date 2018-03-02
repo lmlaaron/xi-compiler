@@ -8,10 +8,21 @@ import yh326.ast.node.Node;
  *
  */
 public class FunctionTypeDeclList extends Node {
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param varDecl
+     */
     public FunctionTypeDeclList(int line, int col, FunctionTypeDecl varDecl) {
         super(line, col, varDecl);
     }
     
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     */
     public FunctionTypeDeclList(int line, int col) {
         super(line, col);
     }

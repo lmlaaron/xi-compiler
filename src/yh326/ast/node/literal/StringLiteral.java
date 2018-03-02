@@ -8,6 +8,12 @@ import yh326.ast.type.VariableType;
 
 public class StringLiteral extends ExprAtom {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param str
+     */
     public StringLiteral(int line, int col, String str) {
         super(line, col, "\"" + str + "\"");
     }

@@ -8,6 +8,11 @@ import yh326.ast.type.VariableType;
 
 public class TrueLiteral extends ExprAtom {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     */
     public TrueLiteral(int line, int col) {
         super(line, col, "true");
     }

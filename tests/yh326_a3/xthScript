@@ -111,6 +111,8 @@ return11.xi;
 return12.xi;
 stmt01.xi;
 stmt02.xi;
+stmt03.xi;
+stmt04.xi;
 toplevel1.xi;
 toplevel2.xi;
 toplevel3.xi;

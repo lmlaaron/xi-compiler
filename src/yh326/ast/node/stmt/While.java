@@ -26,7 +26,11 @@ public class While extends Stmt {
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
+        
+        st.enterBlock();
         then.typeCheck(st);
+        st.exitBlock();
+        
         return new UnitType();
     }
 }

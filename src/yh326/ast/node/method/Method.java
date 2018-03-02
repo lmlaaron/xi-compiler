@@ -20,6 +20,15 @@ public class Method extends Node {
     private RetvalList rets;
     private StmtList block;
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param id
+     * @param args
+     * @param rets
+     * @param b
+     */
     public Method(int line, int col, Identifier id, FunctionTypeDeclList args, RetvalList rets, StmtList b) {
         super(line, col, id, args, rets, b);
         this.id = id;
@@ -59,6 +68,7 @@ public class Method extends Node {
             }
         }
 
+        // Type check the statement list
         NodeType actual = new UnitType();
         NodeType expected = sTable.getFunctionType(id.value).t2;
         if (block != null) {

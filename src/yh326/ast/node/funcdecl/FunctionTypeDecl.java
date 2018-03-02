@@ -17,12 +17,20 @@ public class FunctionTypeDecl extends Node {
     private Identifier id;
     private TypeNode typeNode;
     
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param id
+     * @param typeNode
+     */
     public FunctionTypeDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
         this.id = id;
         this.typeNode = typeNode;
     }
     
+    @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
         if (sTable.getFunctionType(id.value) != null ||

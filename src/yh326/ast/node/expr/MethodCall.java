@@ -18,6 +18,12 @@ import yh326.util.Tuple;
 public class MethodCall extends Expr {
     private Identifier id;
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param id
+     */
     public MethodCall(int line, int col, Identifier id) {
         super(line, col, id);
         this.id = id;
@@ -26,19 +32,25 @@ public class MethodCall extends Expr {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // This method combined method call and procedure call.
+        
+        // First check if id is defined as a variable.
         if (sTable.getVariableType(id.value) != null) {
             throw new OtherException(line, col, id.value + " is not a function");
         }
+        
         Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(id.value);
         if (funcType == null) {
+            // Function not found
             throw new NotDefinedException(line, col, id.value);
         } else if (funcType.t1 instanceof UnitType) {
+            // Function is a procedure
             if (children.size() == 1) {
                 return funcType.t2;
             } else {
                 throw new MismatchNumberException(line, col, 0, children.size() - 1);
             }
         } else if (funcType.t1 instanceof VariableType) {
+            // Function returns one value
             if (children.size() == 2) {
                 VariableType type = (VariableType) children.get(1).typeCheck(sTable);
                 if (type.equals(funcType.t1)) {
@@ -50,6 +62,7 @@ public class MethodCall extends Expr {
                 throw new MismatchNumberException(line, col, 1, children.size() - 1);
             }
         } else {
+            // Function returns multiple values
             List<VariableType> expected = ((ListVariableType) funcType.t1).getVariableTypes();
             List<VariableType> actual = new ArrayList<VariableType>();
             for (int i = 1; i < children.size(); i++) {
