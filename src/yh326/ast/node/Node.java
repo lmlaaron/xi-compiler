@@ -18,6 +18,7 @@ public class Node {
     public String value;
     public List<Node> children;
     public NodeDecoration decoration;
+    public boolean isInterface;
 
     /**
      * Use this constructor to construct a leaf node.
@@ -30,6 +31,7 @@ public class Node {
         this.decoration = new NodeDecoration();
         this.value = value;
         this.children = null;
+        this.isInterface = false;
     }
 
     /**
@@ -42,6 +44,7 @@ public class Node {
         this.decoration = new NodeDecoration();
         this.value = null;
         this.children = new ArrayList<Node>();
+        this.isInterface = false;
         for (Node node : nodes) {
             this.children.add(node);
         }
@@ -55,6 +58,7 @@ public class Node {
         this.col = col;
         this.decoration = new NodeDecoration();
         this.value = null;
+        this.isInterface = false;
         this.children = new ArrayList<Node>();
     }
 

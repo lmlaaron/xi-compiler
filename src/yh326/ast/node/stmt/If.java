@@ -21,7 +21,7 @@ public class If extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = condition.typeCheck(st);
+    	NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableType(Primitives.BOOL);
         
         if (!tg.equals(boolType)) {

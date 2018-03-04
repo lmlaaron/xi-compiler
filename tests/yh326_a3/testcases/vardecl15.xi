@@ -5,7 +5,7 @@ foo() {
 
     c:int[]
     d:int[][]
-    e:int[][a]
+    e:int[][][]
     f:int[b][]
     g:int[][]
 }

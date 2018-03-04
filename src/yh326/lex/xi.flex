@@ -148,14 +148,14 @@ SingleCharacter = [^\r\n\'\\]
   //.[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 
   /* escape sequences */
-  "\\b"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\b', yyline, column ); }
-  "\\t"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\t', yyline, column ); }
-  "\\n"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\n', yyline, column ); }
-  "\\f"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\f', yyline, column ); }
-  "\\r"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\r', yyline, column ); }
-  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\"', yyline, column ); }
-  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\'', yyline, column ); }
-  "\\\\"\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\\', yyline, column ); }
+  "\\b"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\b", yyline, column ); }
+  "\\t"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\t", yyline, column ); }
+  "\\n"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\n", yyline, column ); }
+  "\\f"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\f", yyline, column ); }
+  "\\r"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\r", yyline, column ); }
+  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\"", yyline, column ); }
+  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\'", yyline, column ); }
+  "\\\\"\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\", yyline, column ); }
   [^]                  { yybegin(YYINITIAL); return symbol(ERROR, "error: unrecongized character literal" , yyline, column); }
 }
 

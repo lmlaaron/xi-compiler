@@ -18,6 +18,10 @@ public class VarDecl extends Stmt {
         this.typeNode = typeNode;
     }
     
+    public Identifier getId() {
+    	return id;
+    }
+    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         addVarToTable(sTable, id.value);

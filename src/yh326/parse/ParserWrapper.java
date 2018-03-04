@@ -33,9 +33,17 @@ public class ParserWrapper {
 		    FileWriter writer = new FileWriter(realOutputFile);
             @SuppressWarnings("deprecation")
             parser p = new parser(x);
-			try {
-			    write((Node) p.parse().value, writer);
-			} catch (ParsingException e) {
+            Node node;
+            try {
+            	node = (Node) p.parse().value;
+            	if (postfix.equals("xi") && node.isInterface) {
+            		writer.write("1:1 error: Expected Xi program, found Xi interface.\n");
+                } else if (postfix.equals("ixi") && !node.isInterface) {
+                	writer.write("1:1 error: Expected Xi interface, found Xi program.\n");
+                } else {
+                	write(node, writer);
+                }
+            } catch (ParsingException e) {
 			    writer.write(e.getMessage() + "\n");
 			}
 			writer.close();

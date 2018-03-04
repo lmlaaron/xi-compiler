@@ -1,6 +1,7 @@
 package yh326.ast.node.funcdecl;
 
 import yh326.ast.node.Node;
+import yh326.ast.node.stmt.VarDecl;
 
 /**
  * A node that represents a list of return variable declarations.
@@ -14,7 +15,7 @@ public class FunctionTypeDeclList extends Node {
      * @param col
      * @param varDecl
      */
-    public FunctionTypeDeclList(int line, int col, FunctionTypeDecl varDecl) {
+    public FunctionTypeDeclList(int line, int col, VarDecl varDecl) {
         super(line, col, varDecl);
     }
     

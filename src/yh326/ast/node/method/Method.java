@@ -3,10 +3,10 @@ package yh326.ast.node.method;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
-import yh326.ast.node.funcdecl.FunctionTypeDecl;
 import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
+import yh326.ast.node.stmt.VarDecl;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
@@ -60,11 +60,9 @@ public class Method extends Node {
         // Loading arguments into the symbol table
         if (args != null) {
             for (Node varDecl : args.children) {
-                if (varDecl instanceof FunctionTypeDecl) {
-                    FunctionTypeDecl funcVarDecl = (FunctionTypeDecl) varDecl;
-                    VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
-                    sTable.addVar(funcVarDecl.getId().value, t);
-                }
+                VarDecl funcVarDecl = (VarDecl) varDecl;
+                VariableType t = (VariableType) funcVarDecl.typeCheckAndReturn(sTable);
+                sTable.addVar(funcVarDecl.getId().value, t);
             }
         }
 
