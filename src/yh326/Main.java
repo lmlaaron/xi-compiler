@@ -10,24 +10,18 @@ import yh326.parse.ParserWrapper;
 import yh326.typecheck.*;
 
 public class Main {
-	//private static final boolean INTERFACE = false;
-	//private static final boolean REGULAR = true;
-
-	public static void main(String[] argv) {
-		ArrayList<String> argv_alist = new ArrayList<String> (Arrays.asList(argv));
-		String input_source = System.getProperty("user.dir");
-		input_source = input_source.replace('\\', '/'); // to support operations in Windows 10
-		String diag_dump_path = System.getProperty("user.dir");
-		diag_dump_path = diag_dump_path.replace('\\', '/'); // to support operations in Windows 10
-		String lib_path = System.getProperty("user.dir");
-		lib_path = lib_path.replace('\\', '/'); // to support operations in Windows 10
-		ArrayList<String> source_files = new ArrayList<String> ();
-		for (int i = 0; i < argv.length; i++) {
-			if (argv[i].indexOf(".xi") != -1 || argv[i].indexOf(".ixi") != -1) {
-				source_files.add(argv[i].replace('\\', '/')); // to support operations in Windows 10
-			}
-		}
-		if (argv_alist.contains("--help")) {
+    
+    public static void main(String[] argv) {
+	    // Note: all ".replace('\\', '/')" is to support Windows 10 path convention.
+		ArrayList<String> argvArray = new ArrayList<String> (Arrays.asList(argv));
+		
+		// Source, output, library file location (relative pwd by default)
+		String inputSourcePath = ".";
+		String outputPath = ".";
+		String libPath = ".";
+		
+		// Detect options
+		if (argvArray.contains("--help")) {
 			System.out.println("option --help to show this synopsis.");
 			System.out.println("option --lex to show the result from lexical analysis.");
 			System.out.println("option --parse to show the result from syntatical analysis.");
@@ -36,67 +30,83 @@ public class Main {
 			System.out.println("option -libpath <path> specify where to find library interface files.");
             System.out.println("option -D <path> specifies where to place generated diagnostic files.");
 		}
-		if (argv_alist.contains("-sourcepath")) {
-			try {
-				input_source = argv[argv_alist.indexOf("-sourcepath") + 1];
-				input_source = input_source.replace('\\', '/');
-			}
-			catch (IndexOutOfBoundsException e){
-				System.out.println("input format incorrect");
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		if (argv_alist.contains("-D")) {
-			try {
-				diag_dump_path = argv[argv_alist.indexOf("-D") + 1];
-				diag_dump_path = diag_dump_path.replace('\\', '/');
-			}
-			catch (IndexOutOfBoundsException e){
-				System.out.println("input format incorrect");
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		if (argv_alist.contains("-libpath")) {
-        	try {
-        		String tail = argv[argv_alist.indexOf("-libpath") + 1];
-        		lib_path = Paths.get(tail).toAbsolutePath().toString();
-        		lib_path = lib_path.replace('\\', '/');
-        	}
-        	catch (IndexOutOfBoundsException e){
-        		System.out.println("input format incorrect");
-        		e.printStackTrace();
-        		System.exit(1);
-        	}
+		try {
+		    if (argvArray.contains("-sourcepath")) {
+		        inputSourcePath = argv[argvArray.indexOf("-sourcepath") + 1].replace('\\', '/');
+		    }
+		    if (argvArray.contains("-D")) {
+				outputPath = argv[argvArray.indexOf("-D") + 1].replace('\\', '/');
+		    }
+		    if (argvArray.contains("-libpath")) {
+		        libPath = argv[argvArray.indexOf("-libpath") + 1].replace('\\', '/');
+		    }
+		} catch (IndexOutOfBoundsException e){
+            System.out.println("input format incorrect");
+            e.printStackTrace();
+            System.exit(1);
         }
-		if (argv_alist.contains("--lex")) {
-			for (String source_file : source_files) LexerWrapper.Lexing(combine(input_source, source_file), diag_dump_path);
-		}
-		if (argv_alist.contains("--parse")) {
-			for (String source_file : source_files) ParserWrapper.Parsing(combine(input_source, source_file), diag_dump_path);
-		}
-        if (argv_alist.contains("--typecheck")) {
-            for (String source_file : source_files) TypecheckerWrapper.Typechecking(combine(input_source, source_file), diag_dump_path, lib_path + "/");
+		
+		// Convert to absolute path
+		inputSourcePath = Paths.get(inputSourcePath).toAbsolutePath().toString();
+		outputPath = Paths.get(outputPath).toAbsolutePath().toString();
+		libPath = Paths.get(libPath).toAbsolutePath().toString();
+		
+		// Add all source files (.xi or .ixi file)
+		ArrayList<String> sourceFiles = new ArrayList<String> ();
+        for (int i = 0; i < argv.length; i++) {
+            if (argv[i].indexOf(".xi") != -1 || argv[i].indexOf(".ixi") != -1) {
+                sourceFiles.add(argv[i].replace('\\', '/')); // to support operations in Windows 10
+            }
+        }
+        
+        //System.out.println("Source:  " + inputSourcePath);
+        //System.out.println("Output:  " + outputPath);
+        //System.out.println("Library: " + libPath);
+        //System.out.println("Source Files: ");
+        //for (String sourceFile : sourceFiles) {
+        //    System.out.println(sourceFile);
+        //}
+        
+        // For each file, diagnose.
+		for (String sourceFile : sourceFiles) {
+		    // Get real source path and output path. For example, if
+		    // inputSourcePath is "./a/b" and sourceFile is "c/d.xi", then
+		    // the real source path is "./a/b/c". Same for real ourput path.
+		    String realInputFile = realPath(inputSourcePath, sourceFile);
+		    String realOutputDir = realPath(outputPath, sourceFile);
+		    realOutputDir = realOutputDir.substring(0, realOutputDir.lastIndexOf("/"));
+		    String fileName = sourceFile.substring(sourceFile.lastIndexOf("/") + 1);
+            //System.out.println("Real Source: " + realInputFile);
+	        //System.out.println("Real Output: " + realOutputDir);
+	        
+	        if (argvArray.contains("--lex")) {
+			    LexerWrapper.Lexing(realInputFile, realOutputDir, fileName);
+			}
+		    if (argvArray.contains("--parse")) {
+			    ParserWrapper.Parsing(realInputFile, realOutputDir, fileName);
+			}
+		    if (argvArray.contains("--typecheck") && sourceFile.endsWith(".xi")) {
+                TypecheckerWrapper.Typechecking(realInputFile, realOutputDir, fileName,
+                        libPath + "/");
+            }
         }
 		return;
 	}
 	
 	/**
-	 * Combine the input_source and source_file from the argument into a single string, 
-	 * that directly points to the location of the file, and would ignore the input_source if
-	 * the source_file is an absolute path already.
-	 * @param input_souce
-	 * @param source_file
+	 * Combine the "path" and sourceFile from the argument into a single string, 
+	 * that directly points to the location of the file, and would ignore the "path" if
+	 * the sourceFile is an absolute path already.
+	 * @param path Absolute path of input source or destination
+	 * @param sourceFile Relative or absolute .xi or .ixi file path
 	 * @return an absolute path that points to the file
 	 */
-	public static String combine(String input_source, String source_file) {
-		File temp = new File(source_file);
-		if (temp.isAbsolute()) {
-			return source_file;
+	public static String realPath(String path, String sourceFile) {
+	    if (new File(sourceFile).isAbsolute()) {
+			return sourceFile;
 		}
 		else {
-			return input_source + '/' + source_file;
+			return Paths.get(path, sourceFile).toString();
 		}
 	}
 }

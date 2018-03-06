@@ -2,6 +2,7 @@ package yh326.parse;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Paths;
 
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
@@ -12,52 +13,43 @@ import yh326.gen.lexer;
 import yh326.gen.parser;
 
 public class ParserWrapper {
-	enum PostfixType {
-		INTERFACE,
-		REGULAR
-	};
-
 	/**
 	 * 
-	 * @param absolute_file_path, an absolute path to the input file
-	 * @param dest_path, an absolute path to the output directory
+	 * @param realInputFile, an absolute path to the input file
+	 * @param realOutputDir, an absolute path to the output directory
 	 */
-	public static void Parsing(String absolute_file_path, String dest_path) {
-		
+	public static void Parsing(String realInputFile, String realOutputDir, String fileName) {
 		// generate the output postfix
-        String postfix = absolute_file_path.substring(absolute_file_path.lastIndexOf(".") + 1);
-        String out_postfix=".parsed";
-		if (postfix.equals("ixi")) out_postfix=".iparsed";
-		else if (postfix.equals("xi")) out_postfix=".parsed";
-		else {
-			System.out.println("file postfix isn't correct");
-			System.exit(1);
-		}
+        String postfix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String outPostfix = postfix.equals("xi") ? ".parsed" : ".iparsed";
 		
 		// generate the complete output path
-		String absolute_output_path = 
-				dest_path + 
-				"/" + 
-				absolute_file_path.substring(absolute_file_path.lastIndexOf("/") + 1, absolute_file_path.lastIndexOf(".")) + out_postfix;
-		
+        String outputFileName = fileName.substring(0, fileName.lastIndexOf(".")) + outPostfix;
+        String realOutputFile = Paths.get(realOutputDir, outputFileName).toString(); 
+        
 		// parse
 		try {
-		    FileWriter writer = new FileWriter(absolute_output_path);
-            lexer x = new lexer(new FileReader(absolute_file_path));
-			@SuppressWarnings("deprecation")
+		    lexer x = new lexer(new FileReader(realInputFile));
+		    FileWriter writer = new FileWriter(realOutputFile);
+            @SuppressWarnings("deprecation")
             parser p = new parser(x);
-			try {
-			    write((Node) p.parse().value, writer);
-			} catch (ParsingException e) {
+            Node node;
+            try {
+            	node = (Node) p.parse().value;
+            	if (postfix.equals("xi") && node.isInterface) {
+            		writer.write("1:1 error: Expected Xi program, found Xi interface.\n");
+                } else if (postfix.equals("ixi") && !node.isInterface) {
+                	writer.write("1:1 error: Expected Xi interface, found Xi program.\n");
+                } else {
+                	write(node, writer);
+                }
+            } catch (ParsingException e) {
 			    writer.write(e.getMessage() + "\n");
 			}
 			writer.close();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return;
 		}
-		
 		return;
 	}
 	

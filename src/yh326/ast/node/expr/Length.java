@@ -10,6 +10,12 @@ import yh326.exception.MatchTypeException;
 public class Length extends Expr {
     private Expr expr;
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param expr
+     */
     public Length(int line, int col, Expr expr) {
         super(line, col, new Keyword(line, col, "length"), expr);
         this.expr = expr;

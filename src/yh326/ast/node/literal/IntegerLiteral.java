@@ -8,6 +8,12 @@ import yh326.ast.type.VariableType;
 
 public class IntegerLiteral extends ExprAtom {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param value
+     */
     public IntegerLiteral(int line, int col, String value) {
         super(line, col, value);
     }

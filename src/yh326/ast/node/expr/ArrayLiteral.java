@@ -8,6 +8,11 @@ import yh326.exception.TypeInconsistentException;
 
 public class ArrayLiteral extends ExprAtom {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     */
     public ArrayLiteral(int line, int col) {
         super(line, col);
     }

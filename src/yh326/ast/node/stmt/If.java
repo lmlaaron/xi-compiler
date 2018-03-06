@@ -21,13 +21,17 @@ public class If extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = condition.typeCheck(st);
+    	NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableType(Primitives.BOOL);
         
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
+        
+        st.enterBlock();
         then.typeCheck(st);
+        st.exitBlock();
+        
         return new UnitType();
     }
 }

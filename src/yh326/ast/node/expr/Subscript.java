@@ -11,6 +11,12 @@ import yh326.exception.OtherException;
 
 public class Subscript extends Expr {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param node
+     */
     public Subscript(int line, int col, Node node) {
         // Node can only be identifier, method call, subscript.
         super(line, col, new Bracket(line, col), node);

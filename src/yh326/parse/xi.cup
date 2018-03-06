@@ -68,38 +68,34 @@ nonterminal InterfaceList interface_list;
 nonterminal Interface interface;
 
 nonterminal FunctionTypeDeclList func_type_list, func_type_rec;
-nonterminal FunctionTypeDecl func_type;
+nonterminal VarDecl var_decl_empty, var_decl_array;
 
 nonterminal RetvalList retvals_list, retvals;
 
-nonterminal TypeNode type, type_func;
+nonterminal TypeNode type_empty;
 nonterminal PrimitiveTypeNode primitive_type;
-nonterminal ArrayTypeNode array_type;
-nonterminal ArrayTypeNodeFuncDecl array_type_func;
+nonterminal ArrayTypeNode array_type, array_type_empty;
 
-nonterminal ArrayTypeNode box, boxes;
-nonterminal ArrayTypeNodeFuncDecl  box_func_decl, boxes_func_decl;
+nonterminal ArrayTypeNode box, boxes, box_empty, boxes_empty;
 
 nonterminal Expr subscript;
 nonterminal Subscript subscripts_lhs, subscripts_rhs;
-nonterminal Node subscriptable_lhs, subscriptable_rhs;
 
 nonterminal StmtList block, stmt_list;
-nonterminal Stmt stmt, stmt_cond, stmt_semi, stmt_core;
-nonterminal VarDecl var_decl;
+nonterminal Stmt stmt, stmt_noif, stmt_semi, stmt_core;
 
-nonterminal Assign assignment;
+nonterminal Stmt assignment;
 nonterminal AssignToList assign_to_list;
-nonterminal Node assign_to;
+nonterminal Node assign_to_mult, assign_to_single;
 
 nonterminal ExprList expr_list, expr_rec;
-nonterminal Expr expr, expr_atom;
+nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_no_paren;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
 nonterminal ArrayLiteral array_literal;
 
-nonterminal Stmt if_statement, else_statement;
-nonterminal While while_statement;
+nonterminal Stmt if_statement, if_else;
+nonterminal While while_if, while_noif;
 nonterminal MethodCall method_call;
 nonterminal Return return_statement, return_core;
 nonterminal Length length_expr;
@@ -113,7 +109,8 @@ program          ::= use_list:ul method_list:ml
                    | method_list:ml
                        {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
                    | interface_list:il
-                       {:RESULT = new Node(illeft, ilright, il);:};
+                       {:RESULT = new Node(illeft, ilright, il);
+                         RESULT.isInterface = true;:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
 /* ================= USE ==================================================== */
@@ -149,82 +146,79 @@ interface        ::= identifier:id method_args:args retvals_list:mr
 
 /* ================= FUNCTION TYPE DECLARATION ============================== */
 // The following are for variable declaration in func args and retvals. Arrays
-// must be "type_func"-"array_type_func"-"boxes_func_decl" (bracket must be empty).
+// must be "type_empty"-"array_type_empty"-"boxes_empty" (bracket must be empty).
 func_type_list   ::= func_type_rec:vdr        {:RESULT = vdr;:}
                    | nothing;
-func_type_rec    ::= func_type:vd COMMA func_type_rec:vdr
+func_type_rec    ::= var_decl_empty:vd COMMA func_type_rec:vdr
                        {:RESULT = new FunctionTypeDeclList(vdleft, vdright, vd); RESULT.addChildren(vdr);:}
-                   | func_type:vd
+                   | var_decl_empty:vd
                        {:RESULT = new FunctionTypeDeclList(vdleft, vdright, vd);:};
-func_type        ::= identifier:id COLON type_func:t
-                       {:RESULT = new FunctionTypeDecl(idleft, idright, id, t);:};
+
+
+/* ================= VARIABLE DECLARATION =================================== */
+var_decl_empty   ::= identifier:id COLON type_empty:t
+                       {:RESULT = new VarDecl(idleft, idright, id, t);:};
+
+// var_decl_array is ONLY use in stmt. e.g. a: int[3][]
+var_decl_array   ::= identifier:id COLON array_type:t
+                       {:RESULT = new VarDecl(idleft, idright, id, t);:};
 
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
 retvals_list     ::= COLON retvals:rv        {:RESULT = rv;:}
                    | nothing;
-retvals          ::= type_func:t COMMA retvals:rv
+retvals          ::= type_empty:t COMMA retvals:rv
                        {:RESULT = new RetvalList(tleft, tright, t); RESULT.addChildren(rv);:}
-                   | type_func:t
+                   | type_empty:t
                        {:RESULT = new RetvalList(tleft, tright, t);:};
 
 /* ================= TYPE =================================================== */
 primitive_type   ::= INT:a                   {:RESULT = new PrimitiveTypeNode(aleft, aright, "int");:}
                    | BOOL:a                  {:RESULT = new PrimitiveTypeNode(aleft, aright, "bool");:};
 
-type             ::= primitive_type:pt       {:RESULT = pt;:}
-                   | array_type:at           {:RESULT = at;:};
+// Expressions allowed in array brackets, but once empty, cannot be non-empty again
 array_type       ::= primitive_type:pt boxes:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
-// Types in function declaration and return types,
-// i.e. no expressions allowed in array brackets
-type_func        ::= primitive_type:pt       {:RESULT = pt;:}
-                   | array_type_func:at      {:RESULT = at;:};
-array_type_func  ::= primitive_type:pt boxes_func_decl:bs
+// No expressions allowed in array brackets
+type_empty       ::= primitive_type:pt        {:RESULT = pt;:}
+                   | array_type_empty:at      {:RESULT = at;:};
+array_type_empty ::= primitive_type:pt boxes_empty:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
 // NOTE:
-// box:       Used for array declaration: a: int[1][][3].
+// box:       Used for array declaration without initialization: a: int[1][][].
 //            Expression between the bracket is optional.
-// box_func_decl:   Used for array declaration for function argument and return value.
+// box_empty: Used for array declaration.
 //            There must be NO expression between the bracket.
 // subscript: Used for getting or setting array element: a[1][2][3] = 4, x = a[1][2][3].
 //            There must be an expression between the bracket.
 
 box              ::= OPEN_BRACKET:a expr:e CLOSE_BRACKET
                        {:RESULT = new ArrayTypeNode(aleft, aright);
-                         RESULT.addNodes((Node) null, e);:}
-                   | OPEN_BRACKET:a CLOSE_BRACKET
-                       {:RESULT = new ArrayTypeNode(aleft, aright);
-                         RESULT.addNodes((Node) null);:};
+                         RESULT.addNodes((Node) null, e);:};
 boxes            ::= box:b boxes:bs          {:RESULT = b; RESULT.addHead(bs);:}
+                   | box:b boxes_empty:bs    {:RESULT = b; RESULT.addHead(bs);:}
                    | box:b                   {:RESULT = b;:};
 
-box_func_decl    ::= OPEN_BRACKET:a CLOSE_BRACKET
-                       {:RESULT = new ArrayTypeNodeFuncDecl(aleft, aright);
+box_empty        ::= OPEN_BRACKET:a CLOSE_BRACKET
+                       {:RESULT = new ArrayTypeNode(aleft, aright);
                          RESULT.addNodes((Node) null);:};
-boxes_func_decl  ::= box_func_decl:b boxes_func_decl:bs  {:RESULT = b; RESULT.addHead(bs);:}
-                   | box_func_decl:b               {:RESULT = b;:};
+boxes_empty      ::= box_empty:b boxes_empty:bs  {:RESULT = b; RESULT.addHead(bs);:}
+                   | box_empty:b               {:RESULT = b;:};
 
-
+// On RHS, all expr_atom (except for subscript, otherwise ambiguous) are subscriptable
+// On LHS, all expr_atom (except for subscript and PAREN/BRACE) are subscriptable
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {:RESULT = e;:};
 subscripts_lhs   ::= subscripts_lhs:slhs subscript:s
                        {:RESULT = new Subscript(slhsleft, slhsright, slhs); RESULT.addNodes(s);:}
-                   | subscriptable_lhs:sblhs subscript:s
+                   | expr_no_paren:sblhs subscript:s
                        {:RESULT = new Subscript(sblhsleft, sblhsright, sblhs); RESULT.addNodes(s);:};
 subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
                        {:RESULT = new Subscript(srhsleft, srhsright, srhs); RESULT.addNodes(s);:}
-                   | subscriptable_rhs:sbrhs subscript:s
+                   | expr_atom_nosub:sbrhs subscript:s
                        {:RESULT = new Subscript(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
-subscriptable_lhs::= identifier:id           {:RESULT = id;:}
-                   | method_call:mc          {:RESULT = mc;:}
-                   | STRING_LITERAL:sl       {:RESULT = new StringLiteral(slleft, slright, sl);:};
-subscriptable_rhs::= identifier:id           {:RESULT = id;:}
-                   | method_call:mc          {:RESULT = mc;:}
-                   | STRING_LITERAL:sl       {:RESULT = new StringLiteral(slleft, slright, sl);:}
-                   | array_literal:al        {:RESULT = al;:};
 
 
 /* ================= BLOCK/STATEMENT ======================================== */
@@ -236,37 +230,40 @@ stmt_list        ::= stmt:st stmt_list:sl
                        {:RESULT = new StmtList(stleft, stright, st); RESULT.addChildren(sl);:}
                    | nothing:a               {:RESULT = new StmtList(aleft, aright);:};
 
-// stmt_cond: purpose is to make sure "else" statement always follows the inner-most "if"
+// stmt_noif: purpose is to make sure "else" statement always follows the inner-most "if"
 // stmt_semi: a statement with a potential semicolon
 // stmt_core: the statement itself
-stmt             ::= stmt_cond:sc            {:RESULT = sc;:}
+stmt             ::= stmt_noif:sc            {:RESULT = sc;:}
                    | if_statement:is         {:RESULT = is;:}
-                   | while_statement:ws      {:RESULT = ws;:};
-stmt_cond        ::= block:b                 {:RESULT = b;:}
+                   | while_if:ws             {:RESULT = ws;:};
+stmt_noif        ::= if_else:is              {:RESULT = is;:}
+                   | while_noif:wn           {:RESULT = wn;:}
                    | stmt_semi:ss            {:RESULT = ss;:};
 stmt_semi        ::= stmt_core:sc            {:RESULT = sc;:}
                    | stmt_core:sc SEMICOLON  {:RESULT = sc;:};
-stmt_core        ::= var_decl:vd             {:RESULT = vd;:} // without init
+stmt_core        ::= block:b                 {:RESULT = b;:}
+                   | var_decl_array:vd       {:RESULT = vd;:} // a:int[3][] or a:int[3]
+                   | var_decl_empty:vd       {:RESULT = vd;:} // a:int[][]
                    | assignment:as           {:RESULT = as;:}
                    | method_call:mc          {:RESULT = mc;:};
 
-// var_decl is for variable declaration in statements.
-// Arrays must be "type"-"array_type"-"boxes" (allows empty or non-empty bracket).
-var_decl         ::= identifier:id COLON type:t
-                       {:RESULT = new VarDecl(idleft, idright, id, t);:};
-
 /* ================= ASSIGNMENT ============================================= */
-// assign_to_list: left hand side
-// assign_to: cannot be a value or containing "[", "]", "{", "}"
-assignment       ::= assign_to_list:al GETS expr:expr
-                       {:RESULT = new Assign(alleft, alright, al.sub(), expr);:};
-assign_to_list   ::= assign_to:a COMMA assign_to_list:al
+// assign_to_single_list: left hand side
+// assign_to_single: cannot be a value or containing "[", "]", "{", "}"
+assignment       ::= assign_to_list:al GETS method_call:mc
+                       {:RESULT = new AssignMult(alleft, alright, al, mc);:}
+                   | UNDERSCORE:u GETS method_call:mc
+                       {:RESULT = new AssignSingle(uleft, uright, new Underscore(uleft, uright), mc);:}
+                   | assign_to_single:at GETS expr:expr
+                       {:RESULT = new AssignSingle(atleft, atright, at, expr);:};
+assign_to_list   ::= assign_to_mult:a COMMA assign_to_list:al
                        {:RESULT = new AssignToList(aleft, aright, a); RESULT.addChildren(al);:}
-                   | assign_to:a
-                       {:RESULT = new AssignToList(aleft, aright, a);:};
-assign_to        ::= identifier:id           {:RESULT = id;:}
-                   | UNDERSCORE:u            {:RESULT = new Underscore(uleft, uright);:}
-                   | var_decl:vd             {:RESULT = vd;:}
+                   | assign_to_mult:a COMMA assign_to_mult:a2
+                       {:RESULT = new AssignToList(aleft, aright, a, a2);:};
+assign_to_mult   ::= var_decl_empty:vd       {:RESULT = vd;:}
+                   | UNDERSCORE:u            {:RESULT = new Underscore(uleft, uright);:};
+assign_to_single ::= identifier:id           {:RESULT = id;:}
+                   | var_decl_empty:vd       {:RESULT = vd;:}
                    | subscripts_lhs:ss       {:RESULT = ss;:};
 
 /* ================= EXPRESSION ============================================= */
@@ -308,23 +305,25 @@ expr_t7          ::= t7op:o expr_t7:e
                    | expr_atom:ee
                        {:RESULT = ee;:};
 
-expr_atom        ::= identifier:id         {:RESULT = id;:}
+expr_atom        ::= subscripts_rhs:ss     {:RESULT = ss;:}
+                   | expr_atom_nosub:e     {:RESULT = e;:};
+expr_atom_nosub  ::= expr_no_paren:e       {:RESULT = e;:}
+                   | array_literal:al      {:RESULT = al;:}
+                   | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:};
+expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | INTEGER_LITERAL:il    {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
                    | STRING_LITERAL:sl     {:RESULT = new StringLiteral(slleft, slright, sl);:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
-                   | subscripts_rhs:ss     {:RESULT = ss;:}
                    | method_call:mc        {:RESULT = mc;:}
-                   | length_expr:ls        {:RESULT = ls;:}
-                   | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:}
-                   | array_literal:al      {:RESULT = al;:};
+                   | length_expr:ls        {:RESULT = ls;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};
 array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:};
- 
+
 /* ================= OPERATION ============================================== */
 t1op             ::= OR:a           {:RESULT = new LogicOr(aleft, aright);:};
 t2op             ::= AND:a          {:RESULT = new LogicAnd(aleft, aright);:};
@@ -344,15 +343,21 @@ t7op             ::= MINUS:a        {:RESULT = new ArithmeticNegation(aleft, ari
                    | NOT:a          {:RESULT = new LogicNegation(aleft, aright);:};
 
 /* ================= IF/ELSE/WHILE ========================================== */
+// if_statement: if x stmt            - Anything can be in "stmt"
+// if_else     : if x stmt else stmt  - "if_statement" and "while_if" cannot be in both "stmt"
+// while_if    : (while x)+ if x stmt - Anything can be in "stmt" (There can be more than one "while x")
+// while_noif  : while x stmt_noif    - "if_statement" and "while_if" cannot be in both "stmt"
 
 if_statement     ::= IF:a expr:e stmt:s
-                       {:RESULT = new If(aleft, aright, (Expr) e.sub(), s);:}
-                   | IF:a expr:e stmt_cond:s else_statement:es
-                       {:RESULT = new IfElse(aleft, aright, (Expr) e.sub(), s, es);:};
-else_statement   ::= ELSE stmt:s
-                       {:RESULT = s;:};
-while_statement  ::= WHILE:a expr:e stmt:s
-                       {:RESULT = new While(aleft, aright, (Expr) e.sub(), s);:};
+                       {:RESULT = new If(aleft, aright, (Expr) e, s);:};
+if_else          ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
+                       {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
+while_if         ::= WHILE:a expr:e if_statement:s
+                       {:RESULT = new While(aleft, aright, (Expr) e, s);:}
+                   | WHILE:a expr:e while_if:s
+                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
+while_noif       ::= WHILE:a expr:e stmt_noif:s
+                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
 
 /* ================= OTHER STATEMENTS ======================================= */
 method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN

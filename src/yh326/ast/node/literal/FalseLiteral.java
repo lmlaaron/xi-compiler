@@ -8,6 +8,11 @@ import yh326.ast.type.VariableType;
 
 public class FalseLiteral extends ExprAtom {
 
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     */
     public FalseLiteral(int line, int col) {
         super(line, col, "false");
     }

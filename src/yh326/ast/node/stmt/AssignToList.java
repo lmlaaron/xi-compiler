@@ -12,5 +12,9 @@ public class AssignToList extends Node {
     public AssignToList(int line, int col, Node node) {
         super(line, col, node);
     }
+    
+    public AssignToList(int line, int col, Node... node) {
+        super(line, col, node);
+    }
 
 }

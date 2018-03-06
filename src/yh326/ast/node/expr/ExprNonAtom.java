@@ -12,6 +12,12 @@ public class ExprNonAtom extends Expr {
     private Operator operator;
     private List<Node> operands;
     
+    /**
+     * Constructor
+     * @param line
+     * @param col
+     * @param nodes
+     */
     public ExprNonAtom(int line, int col, Node... nodes) {
         super(line, col, nodes);
         operator = (Operator)children.get(0);
