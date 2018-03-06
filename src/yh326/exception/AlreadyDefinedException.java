@@ -1,6 +1,6 @@
 package yh326.exception;
 
-public class AlreadyDefinedException extends SemanticCheckException {
+public class AlreadyDefinedException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
 

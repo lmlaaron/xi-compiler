@@ -1,6 +1,6 @@
 package yh326.exception;
 
-public class NotDefinedException extends SemanticCheckException {
+public class NotDefinedException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
     

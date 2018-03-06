@@ -2,7 +2,7 @@ package yh326.exception;
 
 import yh326.ast.type.NodeType;
 
-public class AssignTypeException extends SemanticCheckException {
+public class AssignTypeException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
 

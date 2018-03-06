@@ -1,6 +1,5 @@
 package yh326.parse;
 
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Paths;
 
@@ -9,8 +8,10 @@ import edu.cornell.cs.cs4120.util.SExpPrinter;
 import polyglot.util.OptimalCodeWriter;
 import yh326.ast.node.Node;
 import yh326.exception.ParsingException;
+import yh326.exception.XiException;
 import yh326.gen.lexer;
 import yh326.gen.parser;
+import yh326.lex.LexerWrapper;
 
 public class ParserWrapper {
 	/**
@@ -20,37 +21,42 @@ public class ParserWrapper {
 	 */
 	public static void Parsing(String realInputFile, String realOutputDir, String fileName) {
 		// generate the output postfix
-        String postfix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String postfix = realInputFile.substring(realInputFile.lastIndexOf(".") + 1);
         String outPostfix = postfix.equals("xi") ? ".parsed" : ".iparsed";
 		
-		// generate the complete output path
+        // generate the complete output path
         String outputFileName = fileName.substring(0, fileName.lastIndexOf(".")) + outPostfix;
         String realOutputFile = Paths.get(realOutputDir, outputFileName).toString(); 
         
 		// parse
 		try {
-		    lexer x = new lexer(new FileReader(realInputFile));
 		    FileWriter writer = new FileWriter(realOutputFile);
-            @SuppressWarnings("deprecation")
-            parser p = new parser(x);
-            Node node;
-            try {
-            	node = (Node) p.parse().value;
-            	if (postfix.equals("xi") && node.isInterface) {
-            		writer.write("1:1 error: Expected Xi program, found Xi interface.\n");
-                } else if (postfix.equals("ixi") && !node.isInterface) {
-                	writer.write("1:1 error: Expected Xi interface, found Xi program.\n");
-                } else {
-                	write(node, writer);
-                }
-            } catch (ParsingException e) {
-			    writer.write(e.getMessage() + "\n");
+		    try {
+		    		Node ast = getParsed(realInputFile);
+		    		write(ast, writer);
+            } catch (XiException e) {
+            		e.print(fileName);
+            		writer.write(e.getMessage() + "\n");
 			}
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return;
+	}
+	
+	public static Node getParsed(String realInputFile) throws Exception {
+		lexer x = LexerWrapper.getLexer(realInputFile);
+		@SuppressWarnings("deprecation")
+        parser p = new parser(x);
+        Node node = (Node) p.parse().value;
+        String postfix = realInputFile.substring(realInputFile.lastIndexOf(".") + 1);
+        if (postfix.equals("xi") && node.isInterface) {
+        		throw new ParsingException(1, 1, "Expected Xi program, found Xi interface.\n");
+        } else if (postfix.equals("ixi") && !node.isInterface) {
+        		throw new ParsingException(1, 1, "Expected Xi interface, found Xi program.\n");
+        }
+        return node;
 	}
 	
 	/**

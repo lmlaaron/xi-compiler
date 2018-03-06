@@ -1,6 +1,6 @@
 package yh326.exception;
 
-public class OperandTypeException extends SemanticCheckException {
+public class OperandTypeException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
 

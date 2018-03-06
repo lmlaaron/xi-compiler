@@ -2,7 +2,7 @@ package yh326.exception;
 
 import yh326.ast.type.NodeType;
 
-public class MatchTypeException extends SemanticCheckException {
+public class MatchTypeException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
 

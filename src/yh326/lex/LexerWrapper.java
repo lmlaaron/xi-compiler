@@ -1,5 +1,6 @@
 package yh326.lex;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Paths;
@@ -20,7 +21,7 @@ public class LexerWrapper {
 	    String outputFileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".lexed";
 		String realOutputFile = Paths.get(realOutputDir, outputFileName).toString();	
 		try {
-			lexer xiLexer = new lexer(new FileReader(realInputFile));
+			lexer xiLexer = getLexer(realInputFile);
 			FileWriter writer = new FileWriter(realOutputFile);
 			Symbol s = xiLexer.next_token();
 			while (s.sym != sym.EOF) {
@@ -33,5 +34,9 @@ public class LexerWrapper {
 			e.printStackTrace();
 		}
 		return;
+	}
+	
+	public static lexer getLexer(String realInputFile) throws FileNotFoundException {
+		return new lexer(new FileReader(realInputFile));
 	}
 }

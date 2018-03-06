@@ -14,7 +14,9 @@ import yh326.ast.node.retval.*;
 import yh326.ast.node.stmt.*;
 import yh326.ast.node.type.*;
 import yh326.ast.node.use.*;
+import yh326.exception.LexingException;
 import yh326.exception.ParsingException;
+import yh326.exception.XiException;
 import yh326.lex.XiSymbol;
 
 
@@ -23,16 +25,15 @@ parser code  {:
   public void report_error(String message, Object info) {}
   public void report_expected_token_ids() {}
 
-  public void report_fatal_error(String message, Object info) throws ParsingException {
+  public void report_fatal_error(String message, Object info) throws XiException {
     if (info instanceof XiSymbol) {
       XiSymbol s = (XiSymbol) info;
-      String p = "" + s.getLine() + ":" + s.getColumn() + " ";
-        if (s.sym == sym.ERROR) {
-          p += s.value;
-        } else {
-          p += "error: Unexpected token " + s.value;
-        }
-      throw new ParsingException(p);
+      if (s.sym == sym.ERROR) { // Lexing error
+        throw new LexingException(s.getLine(), s.getColumn(), s.value.toString());
+      } else {
+        throw new ParsingException(s.getLine(), s.getColumn(), 
+            "Unexpected token " + s.value);
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 package yh326.exception;
 
-public class MismatchNumberException extends SemanticCheckException {
+public class MismatchNumberException extends TypecheckingException {
 
     private static final long serialVersionUID = 1L;
 

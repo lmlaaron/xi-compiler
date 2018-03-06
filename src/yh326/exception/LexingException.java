@@ -1,10 +1,10 @@
 package yh326.exception;
 
-public class ParsingException extends XiException {
+public class LexingException extends XiException {
 
     private static final long serialVersionUID = 1L;
 
-    public ParsingException(int line, int col, String message) {
+    public LexingException(int line, int col, String message) {
     		super(line, col, message);
     }
 }

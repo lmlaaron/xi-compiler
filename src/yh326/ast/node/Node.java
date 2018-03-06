@@ -21,6 +21,7 @@ public class Node {
     public List<Node> children;
     public NodeDecoration decoration;
     public boolean isInterface;
+    public String filename;
 
     /**
      * Use this constructor to construct a leaf node.

@@ -5,21 +5,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import yh326.ir.IRWrapper;
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
-import yh326.typecheck.*;
+import yh326.typecheck.TypecheckerWrapper;
 
 public class Main {
-    
+
     public static void main(String[] argv) {
 	    // Note: all ".replace('\\', '/')" is to support Windows 10 path convention.
 		ArrayList<String> argvArray = new ArrayList<String> (Arrays.asList(argv));
-		
+
 		// Source, output, library file location (relative pwd by default)
 		String inputSourcePath = ".";
 		String outputPath = ".";
 		String libPath = ".";
-		
+        boolean optimization = true;
+
 		// Detect options
 		if (argvArray.contains("--help")) {
 			System.out.println("option --help to show this synopsis.");
@@ -40,17 +42,20 @@ public class Main {
 		    if (argvArray.contains("-libpath")) {
 		        libPath = argv[argvArray.indexOf("-libpath") + 1].replace('\\', '/');
 		    }
+            if (argvArray.contains("-O")) {
+		        optimization = false;
+		    }
 		} catch (IndexOutOfBoundsException e){
             System.out.println("input format incorrect");
             e.printStackTrace();
             System.exit(1);
         }
-		
+
 		// Convert to absolute path
 		inputSourcePath = Paths.get(inputSourcePath).toAbsolutePath().toString();
 		outputPath = Paths.get(outputPath).toAbsolutePath().toString();
 		libPath = Paths.get(libPath).toAbsolutePath().toString();
-		
+
 		// Add all source files (.xi or .ixi file)
 		ArrayList<String> sourceFiles = new ArrayList<String> ();
         for (int i = 0; i < argv.length; i++) {
@@ -58,7 +63,7 @@ public class Main {
                 sourceFiles.add(argv[i].replace('\\', '/')); // to support operations in Windows 10
             }
         }
-        
+
         //System.out.println("Source:  " + inputSourcePath);
         //System.out.println("Output:  " + outputPath);
         //System.out.println("Library: " + libPath);
@@ -66,7 +71,7 @@ public class Main {
         //for (String sourceFile : sourceFiles) {
         //    System.out.println(sourceFile);
         //}
-        
+
         // For each file, diagnose.
 		for (String sourceFile : sourceFiles) {
 		    // Get real source path and output path. For example, if
@@ -78,7 +83,7 @@ public class Main {
 		    String fileName = sourceFile.substring(sourceFile.lastIndexOf("/") + 1);
             //System.out.println("Real Source: " + realInputFile);
 	        //System.out.println("Real Output: " + realOutputDir);
-	        
+
 	        if (argvArray.contains("--lex")) {
 			    LexerWrapper.Lexing(realInputFile, realOutputDir, fileName);
 			}
@@ -87,14 +92,18 @@ public class Main {
 			}
 		    if (argvArray.contains("--typecheck") && sourceFile.endsWith(".xi")) {
                 TypecheckerWrapper.Typechecking(realInputFile, realOutputDir, fileName,
-                        libPath + "/");
+                        libPath);
+            }
+            if (argvArray.contains("--irgen") && sourceFile.endsWith(".xi")) {
+                IRWrapper.IRGeneration(realInputFile, realOutputDir, fileName,
+                        libPath, optimization);
             }
         }
 		return;
 	}
-	
+
 	/**
-	 * Combine the "path" and sourceFile from the argument into a single string, 
+	 * Combine the "path" and sourceFile from the argument into a single string,
 	 * that directly points to the location of the file, and would ignore the "path" if
 	 * the sourceFile is an absolute path already.
 	 * @param path Absolute path of input source or destination

@@ -3,6 +3,7 @@ package yh326.ast.node.use;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.nio.file.Paths;
 
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
@@ -15,19 +16,19 @@ import yh326.gen.parser;
 
 public class Use extends Node {
     private Identifier id;
-    
+
     public Use(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "use"), id);
         this.id = id;
     }
-    
+
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
-        File lib = new File(libPath + id.value + ".ixi");
+        File lib = new File(Paths.get(libPath, id.value + ".ixi").toString());
         if (!lib.exists()) {
             throw new OtherException(line, col, "Interface file " + id.value + ".ixi not found.");
         }
-        
+
         try {
             lexer x = new lexer(new FileReader(lib));
             @SuppressWarnings("deprecation")
@@ -36,7 +37,7 @@ public class Use extends Node {
             try {
                 ast = (Node) p.parse().value;
             } catch (Exception e) {
-                throw new ParsingException(e.getMessage());
+                throw (ParsingException) e;
             }
             ast.loadMethods(sTable);
         } catch (FileNotFoundException e) {
