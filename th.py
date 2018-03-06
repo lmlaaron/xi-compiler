@@ -130,10 +130,11 @@ def run_test_set(test_dir, grader_function):
     for case, passed, reason in results:
         if passed:
             print_log("Case {} : {} : {}".format(case, "PASS", reason))
+            correct += 1
         else:
             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
-            correct += 1
-    print_log("{} of {} tests passed".format(correct, len(results)))
+
+    print_log("{} out of {} tests passed".format(correct, len(results)))
 
 
 # GRADER FUNCTIONS
