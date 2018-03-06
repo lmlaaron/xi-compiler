@@ -1,5 +1,7 @@
 package yh326.ast.node.literal;
 
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
@@ -15,6 +17,11 @@ public class FalseLiteral extends ExprAtom {
      */
     public FalseLiteral(int line, int col) {
         super(line, col, "false");
+    }
+
+    @Override
+    public IRNode translate() {
+        return new IRConst(0);
     }
     
     @Override

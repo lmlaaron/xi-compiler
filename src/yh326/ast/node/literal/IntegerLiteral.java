@@ -1,5 +1,7 @@
 package yh326.ast.node.literal;
 
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
@@ -16,6 +18,11 @@ public class IntegerLiteral extends ExprAtom {
      */
     public IntegerLiteral(int line, int col, String value) {
         super(line, col, value);
+    }
+
+    @Override
+    public IRNode translate() {
+        return new IRConst(Integer.parseInt(this.value));
     }
 
     @Override

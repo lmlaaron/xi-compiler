@@ -2,6 +2,8 @@ package yh326.ast.node;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
@@ -60,6 +62,10 @@ public class Node {
         this.value = null;
         this.isInterface = false;
         this.children = new ArrayList<Node>();
+    }
+
+    public IRNode translate() {
+        throw new RuntimeException("translate() not implemented for given subclass");
     }
 
     /**

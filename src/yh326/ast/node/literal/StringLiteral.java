@@ -1,5 +1,7 @@
 package yh326.ast.node.literal;
 
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
@@ -16,6 +18,11 @@ public class StringLiteral extends ExprAtom {
      */
     public StringLiteral(int line, int col, String str) {
         super(line, col, "\"" + str + "\"");
+    }
+
+    @Override
+    public IRNode translate() {
+        throw new RuntimeException("Unknown translation for String Literal");
     }
 
     @Override
