@@ -1,0 +1,8 @@
+#!/bin/bash
+./clean
+
+dir=`cd $(dirname "$0"); pwd`
+pkg=yh326
+cp=$dir/lib/java_cup.jar:$dir/lib/src/:$dir/bin/:$dir/src/
+
+javac -cp $cp -d $dir/bin/ $dir/src/edu/cornell/cs/cs4120/xic/ir/interpret/Main.java

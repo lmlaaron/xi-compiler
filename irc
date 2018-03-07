@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -cp lib/java_cup.jar:bin/ edu.cornell.cs.cs4120.xic.ir.interpret.Main
