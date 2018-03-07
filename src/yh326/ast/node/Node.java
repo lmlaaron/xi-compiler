@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
+import yh326.ast.node.method.MethodList;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 
@@ -21,7 +22,7 @@ public class Node {
     public List<Node> children;
     public NodeDecoration decoration;
     public boolean isInterface;
-    public String filename;
+    public String fileName;
 
     /**
      * Use this constructor to construct a leaf node.
@@ -63,10 +64,6 @@ public class Node {
         this.value = null;
         this.isInterface = false;
         this.children = new ArrayList<Node>();
-    }
-
-    public IRNode translate() {
-        throw new RuntimeException("translate() not implemented for given subclass");
     }
 
     /**
@@ -112,6 +109,28 @@ public class Node {
         }
         return type;
     }
+
+    /**
+     * Subclasses should override this method if it needs translation.
+     * @return IRNode
+     */
+    protected IRNode translate() {
+    		throw new RuntimeException("translate() not implemented for given subclass");
+    }
+    
+    /**
+     * This method should only be called by IRWrapper.
+     * @return IRNode
+     */
+    public IRNode translateProgram() {
+		for (Node child : children) {
+	        if (child != null && child instanceof MethodList) {
+	        		child.fileName = fileName;
+	            return child.translate();
+	        }
+	    }
+	    return null;
+	}
 
     /**
      * Add given nodes as children of this node.

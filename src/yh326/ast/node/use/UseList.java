@@ -1,5 +1,6 @@
 package yh326.ast.node.use;
 
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
@@ -27,6 +28,11 @@ public class UseList extends Node {
                 child.loadMethods(sTable, libPath);
             }
         }
+    }
+    
+    @Override
+    public IRNode translate() {
+    		return null;
     }
     
 }
