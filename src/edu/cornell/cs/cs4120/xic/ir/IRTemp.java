@@ -1,6 +1,7 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
+import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 
 /**
  * An intermediate representation for a temporary register
@@ -32,5 +33,10 @@ public class IRTemp extends IRExpr_c {
         p.printAtom("TEMP");
         p.printAtom(name);
         p.endList();
+    }
+    
+    @Override
+    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
+    		return this;
     }
 }
