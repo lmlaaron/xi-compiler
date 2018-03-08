@@ -1,7 +1,11 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
+import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
@@ -61,5 +65,20 @@ public class IRMove extends IRStmt {
         target.printSExp(p);
         src.printSExp(p);
         p.endList();
+    }
+    
+    @Override 
+    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
+    		IRStmt s = ((IRESeq) this.src.Canonicalize(v)).stmt();
+    		IRExpr e = ((IRESeq) this.src.Canonicalize(v)).expr();
+    		if (this.target() instanceof IRTemp) {
+    			      List<IRStmt> st = new ArrayList<IRStmt>();
+    			      st.add(s);
+    			      st.add(new IRMove(this.target(),e ));
+    			      return new IRSeq(st);
+    		} else if ( this.target() instanceof IRMem) {
+    			return this;//TODO not implemented
+    		}
+    		return this;
     }
 }

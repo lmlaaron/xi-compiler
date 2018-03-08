@@ -45,8 +45,4 @@ public class IRConst extends IRExpr_c {
         p.endList();
     }
     
-    @Override
-    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
-    		return this;
-    }
 }

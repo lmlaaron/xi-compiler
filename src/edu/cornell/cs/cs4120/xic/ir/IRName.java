@@ -35,11 +35,4 @@ public class IRName extends IRExpr_c {
         p.endList();
     }
     
-    @Override
-    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
-    		if (name != null ) {
-    			return this;
-    		}
-    		return null;
-    }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
+import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
@@ -80,8 +81,21 @@ public class IRSeq extends IRStmt {
     public void printSExp(SExpPrinter p) {
         p.startUnifiedList();
         p.printAtom("SEQ");
-        for (IRStmt stmt : stmts)
-            stmt.printSExp(p);
+        for (IRStmt stmt : stmts) {
+        		if (stmt != null) {
+        	stmt.printSExp(p);
+        		}
+        }
         p.endList();
+    }
+    
+    @Override
+    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
+    	 	List<IRStmt> results = new ArrayList<IRStmt>();
+         for (IRStmt stmt : stmts) {
+             IRStmt newStmt = (IRStmt) stmt.Canonicalize(v);        
+             results.add(newStmt);
+         }
+         return new IRSeq(results);
     }
 }

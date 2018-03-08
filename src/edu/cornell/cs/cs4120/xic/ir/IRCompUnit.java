@@ -1,16 +1,19 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
+import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
  * An intermediate representation for a compilation unit
+ * @param <E>
  */
-public class IRCompUnit extends IRNode_c {
+public class IRCompUnit<E> extends IRNode_c {
     private String name;
     private Map<String, IRFuncDecl> functions;
 
@@ -77,5 +80,15 @@ public class IRCompUnit extends IRNode_c {
         for (IRFuncDecl func : functions.values())
             func.printSExp(p);
         p.endList();
+    }
+    
+    @Override
+    public  IRNode Canonicalize(CanonicalizeIRVisitor v) {
+    		Iterator it = functions.entrySet().iterator();
+    		while (it.hasNext()) {
+    			Map.Entry<String, IRFuncDecl> pair = (Map.Entry) it.next();
+    			pair.setValue((IRFuncDecl) pair.getValue().Canonicalize(v));
+    		}
+    		return this;
     }
 }

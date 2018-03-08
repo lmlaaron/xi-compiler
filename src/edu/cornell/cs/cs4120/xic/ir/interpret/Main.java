@@ -46,12 +46,12 @@ public class Main {
         String ret0 = Configuration.ABSTRACT_RET_PREFIX + 0;
         String ret1 = Configuration.ABSTRACT_RET_PREFIX + 1;
 
-        IRStmt aBody = new IRSeq( new IRSeq(new IRMove(new IRTemp("i"), new IRTemp(arg0)),
-                                 new IRMove(new IRTemp("j"), new IRTemp(arg1)),
+        IRStmt aBody =  new IRSeq(new IRMove(new IRTemp("i"), new IRTemp(arg0)),
+                               new IRMove(new IRTemp("j"), new IRTemp(arg1)),
                                  new IRReturn(new IRTemp("i"),
                                          new IRBinOp(OpType.MUL,
                                                  new IRConst(2),
-                                                 new IRTemp("j"))))); 
+                                                 new IRTemp("j")))); 
 
         IRFuncDecl aFunc = new IRFuncDecl("a", aBody);
 
@@ -84,7 +84,7 @@ public class Main {
         }
         System.out.println(sw);
 
-        // IR canonicalization demo
+        /*// IR canonicalization demo
         {
         	   System.out.println("Canonicalized Code");
         		CanonicalizeIRVisitor cv = new CanonicalizeIRVisitor();
@@ -96,7 +96,7 @@ public class Main {
                        canonicalizedCompUnit.printSExp(sp);
                    }
                    System.out.println(sw);
-        }
+        }*/
       
         // IR interpreter demo
         {

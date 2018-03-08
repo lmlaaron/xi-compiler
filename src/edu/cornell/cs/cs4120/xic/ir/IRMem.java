@@ -3,6 +3,7 @@ package edu.cornell.cs.cs4120.xic.ir;
 import edu.cornell.cs.cs4120.util.InternalCompilerError;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
+import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
@@ -77,4 +78,10 @@ public class IRMem extends IRExpr_c {
         expr.printSExp(p);
         p.endList();
     }
+    
+    @Override
+    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
+    		return this;
+    }
+    
 }
