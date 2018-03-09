@@ -1,5 +1,7 @@
 package yh326.ast.node.stmt;
 
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.type.TypeNode;
@@ -42,5 +44,10 @@ public class VarDecl extends Stmt {
             throw new AlreadyDefinedException(line, col, id);
         }
         return t;
+    }
+    
+    @Override
+    public IRNode translate() {
+    	return new IRTemp(id + "L" + line + "C" + col);
     }
 }

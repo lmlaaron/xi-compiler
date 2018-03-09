@@ -1,6 +1,13 @@
 package yh326.ast.node.stmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
+import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VoidType;
@@ -38,6 +45,15 @@ public class StmtList extends Stmt {
         }
         sTable.exitBlock();
         return type;
+    }
+    
+    @Override
+    public IRNode translate() {
+    	List<IRStmt> stmts = new ArrayList<> ();
+    	for (Node child : children) {
+    		stmts.add((IRStmt) child.translate());
+    	}
+    	return new IRSeq(stmts);
     }
 
 }

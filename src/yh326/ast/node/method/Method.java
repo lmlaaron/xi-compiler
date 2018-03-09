@@ -1,5 +1,12 @@
 package yh326.ast.node.method;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
@@ -79,5 +86,15 @@ public class Method extends Node {
         sTable.setCurFunction(null);
         sTable.exitBlock();
         return new UnitType();
+    }
+    
+    @Override
+    public IRNode translate() {
+    	String name = id.getId();
+    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
+    	stmts.addAll(((IRSeq) args.translate()).stmts());
+    	stmts.addAll(((IRSeq) block.translate()).stmts());
+    	stmts.addAll(((IRSeq) rets.translate()).stmts());
+    	return new IRFuncDecl(name, new IRSeq(stmts));
     }
 }

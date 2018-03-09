@@ -1,5 +1,16 @@
 package yh326.ast.node.stmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRJump;
+import edu.cornell.cs.cs4120.xic.ir.IRLabel;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
@@ -32,5 +43,26 @@ public class While extends Stmt {
         st.exitBlock();
         
         return new UnitType();
+    }
+    
+    @Override
+    public IRNode translate() {
+    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
+    	String headName = "while_head_" + "L" + line + "C" + col;
+    	String trueName = "while_true_" + "L" + line + "C" + col;
+    	String falseName = "while_false" + "L" + line + "C" + col;
+    	IRLabel headLabel = new IRLabel(headName);
+    	IRLabel trueLabel = new IRLabel(trueName);
+    	IRLabel falseLabel = new IRLabel(falseName);
+    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), trueName, falseName);
+    	IRStmt thenStmt = (IRStmt) then.translate();
+    	IRJump jump = new IRJump(new IRName(headName));
+    	stmts.add(headLabel);
+    	stmts.add(irCJump);
+    	stmts.add(trueLabel);
+    	stmts.add(thenStmt);
+    	stmts.add(jump);
+    	stmts.add(falseLabel);
+    	return new IRSeq(stmts);
     }
 }

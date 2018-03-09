@@ -1,5 +1,11 @@
 package yh326.ast.node.funcdecl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.node.Node;
 import yh326.ast.node.stmt.VarDecl;
 
@@ -26,5 +32,14 @@ public class FunctionTypeDeclList extends Node {
      */
     public FunctionTypeDeclList(int line, int col) {
         super(line, col);
+    }
+    
+    @Override
+    public IRNode translate() {
+    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
+    	for (Node child : children) {
+    		stmts.add((IRStmt) child.translate());
+    	}
+    	return new IRSeq(stmts);
     }
 }

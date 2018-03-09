@@ -14,6 +14,10 @@ public class Identifier extends Expr {
         this.id = id;
     }
     
+    public String getId() {
+    	return id;
+    }
+    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType type = sTable.getVariableType(id);

@@ -114,8 +114,8 @@ public class Node {
      * Subclasses should override this method if it needs translation.
      * @return IRNode
      */
-    protected IRNode translate() {
-    		throw new RuntimeException("translate() not implemented for given subclass");
+    public IRNode translate() {
+    	throw new RuntimeException("translate() not implemented for given subclass");
     }
     
     /**

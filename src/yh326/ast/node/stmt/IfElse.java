@@ -1,5 +1,16 @@
 package yh326.ast.node.stmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRJump;
+import edu.cornell.cs.cs4120.xic.ir.IRLabel;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
@@ -59,5 +70,26 @@ public class IfElse extends Stmt {
         } else {
             return null;
         }
-    }    
+    }
+    
+    // TODO: need to run InsnMapsBuiilder to construct the mapping from irName to headLabel
+    // TODO: need to run InsnMapsBuilder to construct the mapping from "head" to headLabel
+    @Override
+    public IRNode translate() {
+    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
+    	IRLabel headLabel = new IRLabel("head");
+    	IRLabel trueLabel = new IRLabel("then");
+    	IRLabel falseLabel = new IRLabel("otherwise");
+    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), trueLabel.name(), falseLabel.name());
+    	IRStmt trueStmts = (IRStmt) then.translate();
+    	IRName irName = new IRName(headLabel.name());
+    	IRJump irJump = new IRJump(irName);
+    	stmts.add(headLabel);
+    	stmts.add(irCJump);
+    	stmts.add(trueLabel);
+    	stmts.add(trueStmts);
+    	stmts.add(irJump);
+    	stmts.add(falseLabel);
+    	return new IRSeq(stmts);
+    }
 }

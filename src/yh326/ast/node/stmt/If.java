@@ -1,5 +1,14 @@
 package yh326.ast.node.stmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRLabel;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.node.expr.Expr;
@@ -33,5 +42,20 @@ public class If extends Stmt {
         st.exitBlock();
         
         return new UnitType();
+    }
+    
+    @Override
+    // TODO: need to run insnMapsBuilder to construct the mapping from "then" to isTrueLabel
+    public IRNode translate() {
+    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
+    	IRLabel irTrueLabel = new IRLabel("then");
+    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), irTrueLabel.name());
+    	IRStmt irStmt = (IRStmt) then.translate();
+    	IRLabel irFalseLabel = new IRLabel("fall through (false)");
+    	stmts.add(irCJump);
+    	stmts.add(irTrueLabel);
+    	stmts.add(irStmt);
+    	stmts.add(irFalseLabel);
+    	return new IRSeq(stmts);
     }
 }

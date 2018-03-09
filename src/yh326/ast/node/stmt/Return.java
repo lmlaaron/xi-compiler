@@ -3,6 +3,7 @@ package yh326.ast.node.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.type.ListVariableType;
@@ -63,5 +64,11 @@ public class Return extends Stmt {
             }
         }
         
+    }
+    
+    @Override
+    public IRNode translate() {
+    	// TODO: need to look into the structure of this return node
+    	return null;
     }
 }
