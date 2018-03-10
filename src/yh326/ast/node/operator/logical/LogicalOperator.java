@@ -1,12 +1,15 @@
 package yh326.ast.node.operator.logical;
 
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.node.operator.Operator;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
 import yh326.exception.OperandTypeException;
 
-public class LogicalOperator extends Operator {
+public abstract class LogicalOperator extends Operator {
     public LogicalOperator(int line, int col, String repr) {
         super(line, col, repr);
     }

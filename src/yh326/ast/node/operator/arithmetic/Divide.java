@@ -10,8 +10,9 @@ public class Divide extends ArithmeticOperator {
         super(line, col, "/");
     }
     
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.DIV, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.DIV, operands[0], operands[1]);
     }
 }

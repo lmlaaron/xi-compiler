@@ -10,9 +10,9 @@ public class LEQ extends ArithmeticComparisonOperator {
     public LEQ(int line, int col) {
         super(line, col, "<=");
     }
-    
+
     @Override
-	public IRNode translate() {
-		return new IRBinOp(OpType.LEQ, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2));
-	}
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.LEQ, operands[0], operands[1]);
+    }
 }

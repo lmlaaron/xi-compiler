@@ -1,5 +1,6 @@
 package yh326.ast.node.expr;
 
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
@@ -16,6 +17,23 @@ public class ArrayLiteral extends ExprAtom {
     public ArrayLiteral(int line, int col) {
         super(line, col);
     }
+
+//    @Override
+//    public IRNode translate() {
+//        // The children attribute must be an expression list, per the cup file
+//        // TODO: implement the following:
+//        /*
+//        SEQ{
+//            CALL {
+//                _xi_alloc,
+//                *** arrlen*8 + 8 ***
+//            },
+//            SEQ {
+//                *** assignment of each individual value here ***
+//            }
+//        }
+//         */
+//    }
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {

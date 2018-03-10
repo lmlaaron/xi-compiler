@@ -1,12 +1,12 @@
 package yh326.ast.node.expr;
 
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.node.Node;
 import yh326.ast.node.stmt.Stmt;
 
-public class Expr extends Stmt {
+public abstract class Expr extends Stmt {
     /**
-     * This operator is used when creating an ExprAtom of IntegerLiteral,
-     * StringLiteral, CharacterLiteral, TrueLiteral, and FalseLiteral.
      * @param line
      * @param col
      * @param string

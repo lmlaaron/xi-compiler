@@ -10,9 +10,9 @@ public class GEQ extends ArithmeticComparisonOperator {
     public GEQ(int line, int col) {
         super(line, col, ">=");
     }
-    
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.GEQ, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2));
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.GEQ, operands[0], operands[1]);
     }
 }

@@ -10,10 +10,11 @@ public class ShiftTimes extends ArithmeticOperator {
     public ShiftTimes(int line, int col) {
         super(line, col, "*>>");
     }
-    
+
     @Override
-    public IRNode translate() {
-    	// TODO: need to double check if HMUL refers to high multiplication, if true, then "ShiftTimes" is a bad name.
-    	return new IRBinOp(OpType.HMUL, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        // TODO: need to double check if HMUL refers to high multiplication, if true, then "ShiftTimes" is a bad name.
+        return new IRBinOp(OpType.HMUL, operands[0], operands[1]);
     }
+
 }

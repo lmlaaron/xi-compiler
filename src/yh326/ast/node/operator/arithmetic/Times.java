@@ -10,9 +10,9 @@ public class Times extends ArithmeticOperator {
     public Times(int line, int col) {
         super(line, col, "*");
     }
-    
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.MUL, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.MUL, operands[0], operands[1]);
     }
 }

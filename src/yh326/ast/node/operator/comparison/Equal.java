@@ -9,6 +9,12 @@ public class Equal extends EqualityComparisonOperator {
     public Equal(int line, int col) {
         super(line, col, "==");
     }
+
+    @Override
+    public IRNode translateWithOperands(IRExpr... operands) {
+        // TODO: won't work on arrays
+        return new IRBinOp(OpType.EQ, operands[0], operands[1]);
+    }
     
     @Override
     public IRNode translate() {

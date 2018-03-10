@@ -10,9 +10,9 @@ public class Minus extends ArithmeticOperator {
     public Minus(int line, int col) {
         super(line, col, "-");
     }
-    
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.SUB, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.SUB, operands[0], operands[1]);
     }
 }

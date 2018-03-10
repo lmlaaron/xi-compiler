@@ -6,7 +6,7 @@ import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
 import yh326.exception.OperandTypeException;
 
-public class ArithmeticOperator extends Operator {
+public abstract class ArithmeticOperator extends Operator {
     public ArithmeticOperator(int line, int col, String repr) {
         super(line, col, repr);
     }

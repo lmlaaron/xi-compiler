@@ -22,10 +22,9 @@ public class Plus extends ArithmeticOperator {
         }
         return super.returnTypeForOperandType(operandType);
     }
-    
+
     @Override
-    // TODO: double check if the assumption that child0 is left and child1 is right
-    public IRNode translate() {
-    	return new IRBinOp(OpType.ADD, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.ADD, operands[0], operands[1]);
     }
 }

@@ -1,5 +1,7 @@
 package yh326.ast.node.operator;
 
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.exception.OperandTypeException;
@@ -9,7 +11,7 @@ import yh326.exception.TypeInconsistentException;
 import java.util.Arrays;
 
 //TODO: after modifying cup file, make this and other node super classes abstract
-public class Operator extends Node {
+public abstract class Operator extends Node {
     public Operator(int line, int col, String repr) {
         super(line, col, repr);
     }
@@ -37,6 +39,18 @@ public class Operator extends Node {
 
         // function implementation checks whether operand type is valid
         return returnTypeForOperandType(operandTypes[0]);
+    }
+
+    /**
+     * Similar to Node.translate, translates the given operator and operands into
+     * IR representation. This separate function, like others of this class, is
+     * needed because an operator's operands are siblings rather than children
+     *
+     * @param operands all operands for the given operator
+     * @return the IR subtree corresponding the this operation
+     */
+    public IRNode translateWithOperands(IRExpr... operands) {
+        throw new RuntimeException("translateWithOperands not implemented for given subclass");
     }
 
     /**

@@ -5,7 +5,7 @@ import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
 import yh326.exception.OperandTypeException;
 
-public class ArithmeticComparisonOperator extends ComparisonOperator {
+public abstract class ArithmeticComparisonOperator extends ComparisonOperator {
     public ArithmeticComparisonOperator(int line, int col, String repr) {
         super(line, col, repr);
     }

@@ -10,9 +10,9 @@ public class Modulus extends ArithmeticOperator {
     public Modulus(int line, int col) {
         super(line, col, "%");
     }
-    
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.MOD, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.MOD, operands[0], operands[1]);
     }
 }

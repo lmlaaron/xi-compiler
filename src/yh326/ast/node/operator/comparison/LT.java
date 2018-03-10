@@ -10,9 +10,9 @@ public class LT extends ArithmeticComparisonOperator {
     public LT(int line, int col) {
         super(line, col, "<");
     }
-    
+
     @Override
-	public IRNode translate() {
-		return new IRBinOp(OpType.LT, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2));
-	}
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.LT, operands[0], operands[1]);
+    }
 }

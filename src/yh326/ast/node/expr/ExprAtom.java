@@ -1,6 +1,8 @@
 package yh326.ast.node.expr;
 
-public class ExprAtom extends Expr {
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+
+public abstract class ExprAtom extends Expr {
 
     /**
      * Constructor for Character/Integer/String/True/FalseLiteral.
@@ -16,7 +18,6 @@ public class ExprAtom extends Expr {
      * Constructor for ArrayLiteral.
      * @param line
      * @param col
-     * @param exprs
      */
     public ExprAtom(int line, int col) {
         super(line, col);

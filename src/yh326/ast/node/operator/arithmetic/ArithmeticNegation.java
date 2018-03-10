@@ -15,9 +15,9 @@ public class ArithmeticNegation extends ArithmeticOperator {
     public boolean validNumOperands(int num) {
         return num == 1; // must override binary default
     }
-    
+
     @Override
-    public IRNode translate() {
-    	return new IRBinOp(OpType.SUB, new IRConst(0), (IRExpr) children.get(1).translate());
+    public IRNode translateWithOperands(IRExpr... operands) {
+        return new IRBinOp(OpType.SUB, new IRConst(0), operands[1]);
     }
 }
