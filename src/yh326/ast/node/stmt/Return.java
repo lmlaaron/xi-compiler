@@ -3,7 +3,9 @@ package yh326.ast.node.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.type.ListVariableType;
@@ -69,6 +71,19 @@ public class Return extends Stmt {
     @Override
     public IRNode translate() {
     	// TODO: need to look into the structure of this return node
-    	return null;
+    	if (children.size() == 1) {
+    		return new IRReturn(new ArrayList<IRExpr> ());
+    	}
+    	else if (children.size() >= 2) {
+    		List<IRExpr> exprs = new ArrayList<IRExpr> ();
+    		for (int i = 1; i < children.size(); i++) {
+    			exprs.add((IRExpr) children.get(i).translate());
+    		}
+    		return new IRReturn(exprs);
+    	}
+    	else {
+    		// Should have thrown an exception during type check
+    		throw new RuntimeException("return node has zero children.");
+    	}
     }
 }

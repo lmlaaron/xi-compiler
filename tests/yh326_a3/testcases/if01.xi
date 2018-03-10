@@ -1,4 +1,0 @@
-// involde empty stmt
-foo() {
-    {}
-}

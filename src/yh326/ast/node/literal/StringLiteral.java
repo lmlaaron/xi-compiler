@@ -22,6 +22,7 @@ public class StringLiteral extends ExprAtom {
 
     @Override
     public IRNode translate() {
+    	// TODO: what is the translation for a string literal?
         throw new RuntimeException("Unknown translation for String Literal");
     }
 

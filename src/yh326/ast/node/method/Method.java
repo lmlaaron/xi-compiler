@@ -94,7 +94,7 @@ public class Method extends Node {
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
     	stmts.addAll(((IRSeq) args.translate()).stmts());
     	stmts.addAll(((IRSeq) block.translate()).stmts());
-    	stmts.addAll(((IRSeq) rets.translate()).stmts());
+    	//stmts.addAll(((IRSeq) rets.translate()).stmts());
     	return new IRFuncDecl(name, new IRSeq(stmts));
     }
 }

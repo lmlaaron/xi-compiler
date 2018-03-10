@@ -1,5 +1,7 @@
 package yh326.ast.node;
 
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.expr.Expr;
 import yh326.ast.type.NodeType;
@@ -28,5 +30,10 @@ public class Identifier extends Expr {
         } else {
             throw new NotDefinedException(line, col, id);
         }
+    }
+    
+    @Override
+    public IRNode translate() {
+    	return new IRTemp(id + "_L" + line + "C" + col);
     }
 }

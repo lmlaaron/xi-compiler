@@ -23,6 +23,7 @@ public class RetvalList extends Node {
         super(line, col);
     }
     
+    /*
     @Override
     public IRNode translate() {
     	List<IRExpr> exprs = new ArrayList<IRExpr> ();
@@ -31,4 +32,5 @@ public class RetvalList extends Node {
     	}
     	return new IRReturn(exprs);
     }
+    */
 }
