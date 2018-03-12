@@ -1,7 +1,6 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 
 /**
  * An intermediate representation for a 64-bit integer constant.
@@ -44,5 +43,4 @@ public class IRConst extends IRExpr_c {
         p.printAtom(String.valueOf(value));
         p.endList();
     }
-    
 }

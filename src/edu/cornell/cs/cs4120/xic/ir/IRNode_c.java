@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckConstFoldedIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
@@ -44,16 +43,6 @@ public abstract class IRNode_c implements IRNode {
         return v;
     }
 
-    @Override
-    public CanonicalizeIRVisitor canonicalizeIRVisitor(CanonicalizeIRVisitor v) {
-    		return v;
-    }
-    
-    @Override
-    public IRNode Canonicalize(CanonicalizeIRVisitor v) {
-        return this;	
-    }
-    
     @Override
     public boolean isCanonical(CheckCanonicalIRVisitor v) {
         return true;

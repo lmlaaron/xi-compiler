@@ -1,7 +1,6 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 
 /**
  * An intermediate representation for named memory address
@@ -34,5 +33,4 @@ public class IRName extends IRExpr_c {
         p.printAtom(name);
         p.endList();
     }
-    
 }

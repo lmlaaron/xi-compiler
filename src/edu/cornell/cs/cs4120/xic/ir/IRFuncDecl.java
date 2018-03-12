@@ -1,11 +1,7 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.InsnMapsBuilder;
 
@@ -67,11 +63,5 @@ public class IRFuncDecl extends IRNode_c {
         p.printAtom(name);
         body.printSExp(p);
         p.endList();
-    }
-    
-    @Override
-    public  IRNode Canonicalize(CanonicalizeIRVisitor v) {
-    	    //IRStmt s = ((IRESeq) this.body().Canonicalize(v)).stmt();
-    		return new IRFuncDecl( this.name(),  (IRStmt) this.body.Canonicalize(v));
     }
 }

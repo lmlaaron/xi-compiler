@@ -12,10 +12,8 @@ import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
-import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRNodeFactory_c;
 import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
@@ -23,7 +21,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.parse.IRLexer;
 import edu.cornell.cs.cs4120.xic.ir.parse.IRParser;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckConstFoldedIRVisitor;
 
@@ -46,13 +43,12 @@ public class Main {
         String ret0 = Configuration.ABSTRACT_RET_PREFIX + 0;
         String ret1 = Configuration.ABSTRACT_RET_PREFIX + 1;
 
-        IRStmt aBody =  new IRSeq(new IRMove(new IRTemp("i"), new IRTemp(arg0)),
-                               new IRMove(new IRTemp("j"), new IRTemp(arg1)),
+        IRStmt aBody = new IRSeq(new IRMove(new IRTemp("i"), new IRTemp(arg0)),
+                                 new IRMove(new IRTemp("j"), new IRTemp(arg1)),
                                  new IRReturn(new IRTemp("i"),
                                          new IRBinOp(OpType.MUL,
                                                  new IRConst(2),
-                                                 new IRTemp("j")))); 
-
+                                                 new IRTemp("j"))));
         IRFuncDecl aFunc = new IRFuncDecl("a", aBody);
 
         IRStmt bBody =
@@ -84,20 +80,6 @@ public class Main {
         }
         System.out.println(sw);
 
-        /*// IR canonicalization demo
-        {
-        	   System.out.println("Canonicalized Code");
-        		CanonicalizeIRVisitor cv = new CanonicalizeIRVisitor();
-        		//IRNode canonicalizedCompUnit = cv.visit(compUnit);
-        		IRNode canonicalizedCompUnit = compUnit.Canonicalize(cv);
-        		    sw = new StringWriter();
-                try (PrintWriter pw = new PrintWriter(sw);
-                        SExpPrinter sp = new CodeWriterSExpPrinter(pw)) {
-                       canonicalizedCompUnit.printSExp(sp);
-                   }
-                   System.out.println(sw);
-        }*/
-      
         // IR interpreter demo
         {
             IRSimulator sim = new IRSimulator(compUnit);

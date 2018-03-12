@@ -2,7 +2,6 @@ package edu.cornell.cs.cs4120.xic.ir;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
-import edu.cornell.cs.cs4120.xic.ir.visit.CanonicalizeIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.CheckConstFoldedIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
@@ -28,14 +27,10 @@ public interface IRNode {
 
     CheckCanonicalIRVisitor checkCanonicalEnter(CheckCanonicalIRVisitor v);
 
-    CanonicalizeIRVisitor canonicalizeIRVisitor(CanonicalizeIRVisitor v);
-    
     boolean isCanonical(CheckCanonicalIRVisitor v);
 
     boolean isConstFolded(CheckConstFoldedIRVisitor v);
 
-    IRNode Canonicalize(CanonicalizeIRVisitor v);
-    
     String label();
 
     /**
