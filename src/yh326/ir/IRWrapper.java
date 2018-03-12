@@ -1,28 +1,38 @@
 package yh326.ir;
 
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.StringReader;
+import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr_c;
+import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRJump;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRNodeFactory_c;
 import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
+import edu.cornell.cs.cs4120.xic.ir.parse.IRLexer;
+import edu.cornell.cs.cs4120.xic.ir.parse.IRParser;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import yh326.ast.node.Node;
@@ -30,6 +40,56 @@ import yh326.typecheck.TypecheckerWrapper;
 
 public class IRWrapper {
 
+	public static void IRLowering(String realInputFile, String realOutputDir, 
+			String fileName, String libPath, boolean optimization) {
+		// generate the complete output path
+        String outputFileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ir";
+        String realOutputFile = Paths.get(realOutputDir, outputFileName).toString(); 
+        
+        try {
+			FileWriter writer = new FileWriter(realOutputFile);
+            try {
+            	     FileReader r = new FileReader(realInputFile);
+            		IRParser parser = new IRParser(new  IRLexer(r), new IRNodeFactory_c());
+            	    IRNode irNode = null;
+            	    
+            	    try  {
+            	    		irNode = parser.parse().value();
+            	    } catch ( RuntimeException e) {
+            	    		throw e;
+            	    }
+            	    /*IRNode irNode = new IRSeq(new IRMove(new IRTemp("i"), new IRTemp("sb1")),
+                        new IRMove(new IRTemp("j"), new IRTemp("sb2")),
+                        new IRReturn(new IRTemp("i"),
+                                new IRBinOp(OpType.MUL,
+                                        new IRConst(2),
+                                        new IRTemp("j")))); 
+	            */
+            	    		
+	            writer.write(irNode.toString());
+	            System.out.print(irNode.toString());
+	            
+	            // IR lowering
+	            System.out.print("Canonicalized node:\n");
+	            IRNode canonicalizedIrNode = Canonicalize(irNode);
+	            System.out.print(canonicalizedIrNode.toString());
+	            
+	            // IR lift	          
+	            IRNode liftedIrNode = Lift(canonicalizedIrNode);
+	            System.out.print("Lifted node:\n");
+	            System.out.print(liftedIrNode.toString());
+				
+            } catch (Exception e) {
+                writer.write(e.getMessage() + "\n");
+                throw e;
+            }
+            writer.close();
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		return;
+	}
+	
 	public static void IRGeneration(String realInputFile, String realOutputDir, 
 			String fileName, String libPath, boolean optimization) {
 		// generate the complete output path
@@ -43,27 +103,9 @@ public class IRWrapper {
                 ast.fileName = fileName.substring(0, fileName.lastIndexOf("."));
                 // Design not finished
 	            IRNode irNode = ast.translateProgram();
-	            /*IRNode irNode = new IRSeq(new IRMove(new IRTemp("i"), new IRTemp("sb1")),
-                        new IRMove(new IRTemp("j"), new IRTemp("sb2")),
-                        new IRReturn(new IRTemp("i"),
-                                new IRBinOp(OpType.MUL,
-                                        new IRConst(2),
-                                        new IRTemp("j")))); 
-	            */
-	            writer.write(irNode.toString());
+	           writer.write(irNode.toString());
 	            System.out.print(irNode.toString());
-	            /*
-	            // IR lowering
-	            System.out.print("Canonicalized node:\n");
-	            IRNode canonicalizedIrNode = Canonicalize2(irNode);
-	            System.out.print(canonicalizedIrNode.toString());
-	            
-	            // IR lift	          
-	            IRNode liftedIrNode = Lift(canonicalizedIrNode);
-	            System.out.print("Canonicalized node:\n");
-	            System.out.print(liftedIrNode.toString());
-				*/
-            } catch (Exception e) {
+	        } catch (Exception e) {
                 writer.write(e.getMessage() + "\n");
                 throw e;
             }
@@ -179,6 +221,7 @@ public class IRWrapper {
 		}
 	}
 	
+	// canonicalize statement
 	static IRSeq CanonicalizeStmt(IRStmt input ) {
 		if (input instanceof IRLabel) {
 			return new IRSeq(input);
@@ -189,8 +232,10 @@ public class IRWrapper {
 			}
     	 		List<IRStmt> results = new ArrayList<IRStmt>();
             for (IRStmt stmt : stmts) {
-                IRStmt newStmt = (IRStmt) CanonicalizeStmt(stmt);        
-                results.add(newStmt);
+                IRStmt newStmt = (IRStmt) CanonicalizeStmt(stmt);
+                if ( newStmt != null ) {
+                		results.add(newStmt);
+                }
             }
             return new IRSeq(results);
 		} else if (input instanceof IRMove) {
@@ -254,14 +299,160 @@ public class IRWrapper {
 		}
 	}
 	
-	static IRNode Canonicalize2(IRNode input) {
+	static IRNode Canonicalize(IRNode input) {
 		if (input instanceof IRExpr) {
 			return CanonicalizeExpr((IRExpr) input);
 		} else if ( input instanceof IRStmt) {
 			return CanonicalizeStmt((IRStmt) input);
+		} else if ( input instanceof IRFuncDecl ) {
+			return new IRFuncDecl(((IRFuncDecl) input).name(), CanonicalizeStmt(((IRFuncDecl) input).body()));
+		} else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) Canonicalize(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), ((IRCompUnit) input).functions());
 		}
 		return input;
 	}
+	
+	// folding arbitrary stmt or expr
+	static IRNode Folding(IRNode input) {
+		if (input instanceof IRExpr) {
+			return FoldingExpr((IRExpr) input);
+		} else if (input instanceof IRStmt) {
+			return FoldingStmt((IRStmt) input);
+		} else if ( input instanceof IRFuncDecl ) {
+			return new IRFuncDecl(((IRFuncDecl) input).name(), FoldingStmt(((IRFuncDecl) input).body()));
+		} else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) Folding(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), ((IRCompUnit) input).functions());
+		}
+		return input;
+	}
+	
+	// folding expr 
+	static IRExpr FoldingExpr(IRExpr input) {
+		if (input instanceof IRConst) {
+			return input;
+		} else if (input instanceof IRTemp) {
+			return input;
+		} else if (input instanceof IRBinOp) {
+			return FoldingBinOp((IRBinOp) input);
+		} else if (input instanceof IRMem) {
+			return new IRMem(FoldingExpr(((IRMem) input).expr()));
+		} else if (input instanceof IRCall) {
+			List<IRExpr> args = new ArrayList<IRExpr>();
+			for ( IRExpr arg : ((IRCall) input).args()) {
+				args.add(FoldingExpr(arg));
+			}
+			return new IRCall(((IRCall) input).target(), args);
+		} else if (input instanceof IRName) {
+			return input;
+		} else if (input instanceof IRESeq) {
+			return new IRESeq(FoldingStmt(((IRESeq) input).stmt()), FoldingExpr(((IRESeq) input).expr()));
+		} else {
+			return input;
+		}
+	}
+	
+	// Folding stmt (stmt can contain child nodes with BinOp) 
+	static IRStmt FoldingStmt(IRStmt input) {
+		if (input instanceof IRLabel) {
+			return input;
+		} else if (input instanceof IRSeq) {
+			List<IRStmt> stmts = new ArrayList<IRStmt>();
+			for (IRStmt stmt: ((IRSeq) input).stmts()) {
+				stmts.add(FoldingStmt(stmt));
+			}
+			return new IRSeq(stmts);
+		} else if (input instanceof IRMove) {
+			return new IRMove(FoldingExpr(((IRMove) input).target()), FoldingExpr(((IRMove) input).source()));
+		} else if (input instanceof IRExp) {
+			return new IRExp(FoldingExpr(((IRExp) input).expr()));
+		} else if (input instanceof IRReturn) {
+			List<IRExpr> exprs = new ArrayList<IRExpr>();
+			for (IRExpr expr: ((IRReturn) input).rets()) {
+				exprs.add(FoldingExpr(expr));
+			}
+			return new IRReturn(exprs);
+		} else if (input instanceof IRCJump) {
+			return new IRCJump(FoldingExpr(((IRCJump) input).cond()),((IRCJump) input).trueLabel(), ((IRCJump) input).falseLabel());
+		} else if (input instanceof IRJump) {
+			return new IRJump(FoldingExpr(((IRJump) input).target()));
+		} else {
+			return input;
+		}
+	}
+	
+	// only folding IRBinOp
+	// returns the folded IRNode 
+	static IRExpr FoldingBinOp(IRBinOp input) {
+			IRExpr lexp = ((IRBinOp) input).left();
+			IRExpr rexp = ((IRBinOp) input).right();
+			
+			if ((lexp.isConstant()) && (rexp.isConstant())) {
+				long l = ((IRConst) lexp).value();
+				long r = ((IRConst) rexp).value();
+				switch (((IRBinOp) input).opType()) {
+					case ADD:
+						return new IRConst(l+r);
+					case SUB:
+						return new IRConst(l-r);
+					case MUL:
+						return new IRConst(l*r);
+					case HMUL:
+						return new IRConst(
+								BigInteger.valueOf(l)
+                                .multiply(BigInteger.valueOf(r))
+                                .shiftRight(64)
+                                .longValue());
+					case DIV:
+						if ( r != 0 ) {
+							return new IRConst(l/r);
+						}
+					case MOD:
+						if ( r != 0 ) {
+							return new IRConst(l % r);
+						}
+					case AND:
+						return new IRConst(l & r);
+					case OR:
+						return new IRConst(l | r);
+					case XOR:
+						return new IRConst(l ^ r);
+					case LSHIFT:
+						return new IRConst(l << r);
+					case RSHIFT:
+						return new IRConst(l >>>  r);
+					case ARSHIFT:
+						return new IRConst(l >> r);
+					case EQ:
+						return new IRConst(l == r ? 1 : 0);
+					case NEQ:
+						return new IRConst(l != r ? 1 : 0);
+					case LT:
+						return new IRConst(l < r ? 1 : 0);
+					case GT:
+						return new IRConst(l > r ? 1 : 0);
+					case LEQ:
+						return new IRConst(l <= r ? 1: 0);
+					case GEQ:
+						return new IRConst(l >= r ? 1: 0);
+				}
+				return input;
+			} else if (lexp.isConstant()) {
+				return new IRBinOp(((IRBinOp) input).opType(), lexp, (IRExpr) Folding(rexp) );
+			} else if (rexp.isConstant()) {
+				return new IRBinOp(((IRBinOp) input).opType(), (IRExpr) Folding(lexp), rexp );
+			} else {
+				return new IRBinOp(((IRBinOp) input).opType(), (IRExpr) Folding(lexp), (IRExpr) Folding(rexp) );
+			}
+	}
+	
 	// Design not finished
 	public static void IRRun() {
 		
