@@ -6,7 +6,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRNodeFactory;
 import edu.cornell.cs.cs4120.xic.ir.IRNodeFactory_c;
 import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
-import edu.cornell.cs.cs4120.xic.ir.visit.DummyIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.InsnMapsBuilder;
 import yh326.ast.SymbolTable;
