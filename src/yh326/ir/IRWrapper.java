@@ -39,6 +39,7 @@ import yh326.ast.node.Node;
 import yh326.exception.XiException;
 import yh326.typecheck.TypecheckerWrapper;
 
+
 public class IRWrapper {
 
 	public static void IRLowering(String realInputFile, String realOutputDir, 
@@ -129,51 +130,74 @@ public class IRWrapper {
         return new IRSeq(retStmts);
     }
 	
+    // lift all stmts in an IR tree to the top level list
+    static List<IRStmt> LiftSeq(IRStmt input) {
+    	  if ( input instanceof IRSeq) {
+		List<IRStmt> stmts = ((IRSeq) input).stmts();
+ 		List<IRStmt> results = new ArrayList<IRStmt>();
+ 		for (IRStmt stmt : stmts) {
+ 			if ( stmt instanceof IRSeq) {   
+ 				results.addAll(LiftSeq(stmt));
+ 			} else {
+ 				results.add(stmt);
+ 			}
+ 		}
+ 		return results;
+    	  } else {
+    	 		List<IRStmt> results = new ArrayList<IRStmt>();
+    	 		results.add(input);
+    	 		return results;
+    	  }
+    }
+
 	// Canonicalize will turn all non-leaf node IRSeq or IRESeq, lift will lift all these nodes to the top
 	static IRNode Lift(IRNode input) {
 		if (input instanceof IRSeq) {
-			List<IRStmt> stmts = ((IRSeq) input).stmts();
-	 		List<IRStmt> results = new ArrayList<IRStmt>();
-	 		for (IRStmt stmt : stmts) {
-	 			if ( stmt instanceof IRSeq) {   
-	 				List<IRStmt> substmts = ((IRSeq) stmt).stmts();
-	 				for ( IRStmt substmt: substmts) {
-	 					if (substmt != null ) {
-	 						results.add((IRStmt) Lift(substmt));
-	 					}
-	 				}
-	 			} else {
-	 				if (stmt != null ) {
-	 					results.add((IRStmt) Lift(stmt));
-	 				}
-	 			}
-	 		}
-	 		return new IRSeq(results);
+			return new IRSeq(LiftSeq((IRStmt) input));			
 		} else if ( input instanceof IRESeq) {
-			List<IRStmt> stmts = ((IRSeq) ((IRESeq) input).stmt()).stmts();
-			IRExpr expr = ((IRESeq) input).expr();
-	 		List<IRStmt> results = new ArrayList<IRStmt>();
-	 		for (IRStmt stmt : stmts) {
-	 			if ( stmt instanceof IRSeq) {   
-	 				List<IRStmt> substmts = ((IRSeq) stmt).stmts();
-	 				for ( IRStmt substmt: substmts) {
-	 					if (substmt != null ) {
-	 						results.add((IRStmt) Lift(substmt));
-	 					}
-	 				}
-	 			} else {
-	 				if (stmt != null ) {
-	 					results.add((IRStmt) Lift(stmt));
-	 				}
-	 			}
-	 		}
-	 		return new IRESeq(new IRSeq(results), expr);
+			return input;
+		} else if ( input instanceof IRStmt ) {
+			return input;
+		} else if ( input instanceof IRExpr) {
+			return input;
+		} else if (input instanceof IRFuncDecl) {
+			return new IRFuncDecl(((IRFuncDecl) input).name(), (IRStmt) Lift(((IRFuncDecl) input).body()));
+		} else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) Lift(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), functions);
 		}
 		return input;
 	}
 	
+	// canonicalize IRNode (which can be IRExpr, IRStmt, IRFuncDecl, IRCompUnit)
+	static IRNode Canonicalize(IRNode input) throws IRNodeNotMatchException {
+		try {
+		  if (input instanceof IRExpr) {
+		  	   return CanonicalizeExpr((IRExpr) input);
+		  } else if ( input instanceof IRStmt) {
+				return CanonicalizeStmt((IRStmt) input);
+	      } else if ( input instanceof IRFuncDecl ) {
+	    	    return new IRFuncDecl(((IRFuncDecl) input).name(), CanonicalizeStmt(((IRFuncDecl) input).body()));
+		  } else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) Canonicalize(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), functions);
+		  } else {
+			  throw new IRNodeNotMatchException(input);
+		  }
+		} catch (Exception e) {
+			throw new IRNodeNotMatchException(input);
+		}
+	}
+	
+	
 	// canonicalize all expressions
-	static IRESeq CanonicalizeExpr(IRExpr input) {
+	static IRESeq CanonicalizeExpr(IRExpr input) throws IRNodeNotMatchException {
 		if (input instanceof IRConst) {
 			return new IRESeq(null, (IRExpr) input);
 		} else if (input instanceof IRTemp) {
@@ -185,8 +209,8 @@ public class IRWrapper {
 			IRExpr e2 = ((IRESeq) CanonicalizeExpr(((IRBinOp) input).right())).expr();
 			return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(),e1, e2));
 		} else if (input instanceof IRMem) {
-			IRStmt s = (((IRESeq) CanonicalizeExpr(((IRESeq) input).expr())).stmt());
-			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRESeq) input).expr())).expr();
+			IRStmt s = (((IRESeq) CanonicalizeExpr(((IRMem) input).expr())).stmt());
+			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRMem) input).expr())).expr();
 			return new IRESeq(s, new IRMem(e));
 		} else if (input instanceof IRCall) {
 			IRExpr target =((IRCall) input).target();
@@ -220,12 +244,13 @@ public class IRWrapper {
 			IRExpr e =((IRESeq) CanonicalizeExpr(((IRESeq) input).expr())).expr();
 			return new IRESeq(IRSeqNoEmpty(s1,s2), e);
 		} else {
-			return new IRESeq(null,input);
+			throw new IRNodeNotMatchException(input);
+			//return new IRESeq(null,input);
 		}
 	}
 	
 	// canonicalize statement
-	static IRSeq CanonicalizeStmt(IRStmt input ) {
+	static IRSeq CanonicalizeStmt(IRStmt input ) throws IRNodeNotMatchException {
 		if (input instanceof IRLabel) {
 			return new IRSeq(input);
 		} else if (input instanceof IRSeq) {
@@ -298,25 +323,8 @@ public class IRWrapper {
 			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRJump) input).target())).expr();
 			return IRSeqNoEmpty(s, new IRJump(e));
 		} else {
-			return IRSeqNoEmpty(input);
+			throw new IRNodeNotMatchException(input);
 		}
-	}
-	
-	static IRNode Canonicalize(IRNode input) {
-		if (input instanceof IRExpr) {
-			return CanonicalizeExpr((IRExpr) input);
-		} else if ( input instanceof IRStmt) {
-			return CanonicalizeStmt((IRStmt) input);
-		} else if ( input instanceof IRFuncDecl ) {
-			return new IRFuncDecl(((IRFuncDecl) input).name(), CanonicalizeStmt(((IRFuncDecl) input).body()));
-		} else if ( input instanceof IRCompUnit) {
-			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
-			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
-				functions.put(function.getKey(), (IRFuncDecl) Canonicalize(function.getValue()));
-			}
-			return new IRCompUnit(((IRCompUnit) input).name(), ((IRCompUnit) input).functions());
-		}
-		return input;
 	}
 	
 	// folding arbitrary stmt or expr
