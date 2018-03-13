@@ -14,7 +14,9 @@ import yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import yh326.ast.node.retval.RetvalList;
 import yh326.ast.node.stmt.StmtList;
 import yh326.ast.node.stmt.VarDecl;
+import yh326.ast.node.type.TypeNode;
 import yh326.ast.type.NodeType;
+import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.ast.util.LoadMethod;
@@ -26,6 +28,8 @@ public class Method extends Node {
     private FunctionTypeDeclList args;
     private RetvalList rets;
     private StmtList block;
+    private List<VariableType> argTypes;
+    private List<VariableType> retTypes;
 
     /**
      * Constructor
@@ -42,6 +46,8 @@ public class Method extends Node {
         this.args = args;
         this.rets = rets;
         this.block = b;
+        this.argTypes = new ArrayList<VariableType>();
+        this.retTypes = new ArrayList<VariableType>();
     }
 
     @Override
@@ -69,7 +75,16 @@ public class Method extends Node {
             for (Node varDecl : args.children) {
                 VarDecl funcVarDecl = (VarDecl) varDecl;
                 VariableType t = (VariableType) funcVarDecl.typeCheckAndReturn(sTable);
+                argTypes.add(t);
                 sTable.addVar(funcVarDecl.getId().value, t);
+            }
+        }
+        
+        if (rets != null) {
+            for (Node varDecl : rets.children) {
+            		TypeNode funcVarDecl = (TypeNode) varDecl;
+                VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
+                retTypes.add(t);
             }
         }
 
@@ -90,9 +105,24 @@ public class Method extends Node {
     
     @Override
     public IRNode translate() {
-    	String name = id.getId();
+    	String name = "_I" + id.getId().replace("_", "__") + "_";
+    	if (retTypes.size() == 0) {
+    		name += "p";
+    	} else if (retTypes.size() == 1) {
+    		name += retTypes.get(0).toShortString();
+    	} else {
+    		name += "t" + retTypes.size();
+    		for (VariableType type : retTypes) {
+    			name += type.toShortString();
+    		}
+    	}
+    	for (VariableType type : argTypes) {
+    		name += type.toShortString();
+	}System.out.println(name);
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	stmts.addAll(((IRSeq) args.translate()).stmts());
+    	if (args != null) {
+    		stmts.addAll(((IRSeq) args.translate()).stmts());
+    	}
     	stmts.addAll(((IRSeq) block.translate()).stmts());
     	//stmts.addAll(((IRSeq) rets.translate()).stmts());
     	return new IRFuncDecl(name, new IRSeq(stmts));

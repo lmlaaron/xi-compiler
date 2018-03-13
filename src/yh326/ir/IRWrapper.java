@@ -41,6 +41,7 @@ import edu.cornell.cs.cs4120.xic.ir.parse.IRParser;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import yh326.ast.node.Node;
+import yh326.exception.XiException;
 import yh326.typecheck.TypecheckerWrapper;
 import java.util.UUID;
 /**
@@ -113,11 +114,13 @@ public class IRWrapper {
                 ast.fileName = fileName.substring(0, fileName.lastIndexOf("."));
                 // Design not finished
 	            IRNode irNode = ast.translateProgram();
-	           writer.write(irNode.toString());
+	            writer.write(irNode.toString());
 	            System.out.print(irNode.toString());
+	        } catch (XiException e) {
+	        		e.print(fileName);
+	        		writer.write(e.getMessage() + "\n");
 	        } catch (Exception e) {
-                writer.write(e.getMessage() + "\n");
-                throw e;
+                e.printStackTrace();
             }
             writer.close();
 		} catch (Exception e) {
