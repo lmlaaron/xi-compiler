@@ -43,7 +43,11 @@ import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import yh326.ast.node.Node;
 import yh326.typecheck.TypecheckerWrapper;
 import java.util.UUID;
-
+/**
+ * Wrapper for IR generation, canonicalization, and constant folding
+ * @author lmlaaron
+ *
+ */
 public class IRWrapper {
 	public Set<String> tempSet = new HashSet<String>();
 	
@@ -65,14 +69,6 @@ public class IRWrapper {
             	    } catch ( RuntimeException e) {
             	    		throw e;
             	    }
-            	    /*IRNode irNode = new IRSeq(new IRMove(new IRTemp("i"), new IRTemp("sb1")),
-                        new IRMove(new IRTemp("j"), new IRTemp("sb2")),
-                        new IRReturn(new IRTemp("i"),
-                                new IRBinOp(OpType.MUL,
-                                        new IRConst(2),
-                                        new IRTemp("j")))); 
-	            */
-            	    		
 	            writer.write(irNode.toString());
 	            System.out.print(irNode.toString());
 	            
@@ -101,6 +97,9 @@ public class IRWrapper {
 		return;
 	}
 	
+    /**
+     * Generate the IR file
+     */
 	public static void IRGeneration(String realInputFile, String realOutputDir, 
 			String fileName, String libPath, boolean optimization) {
 		// generate the complete output path
@@ -127,13 +126,16 @@ public class IRWrapper {
 		return;
 	}
 	
-	// canonicalize IRNode (which can be IRExpr, IRStmt, IRFuncDecl, IRCompUnit)
+	/**
+	 * canonicalize IRNode (which can be IRExpr, IRStmt, IRFuncDecl, IRCompUnit),
+	 * @return: IRNode tree with all non-leaf node as SEQ or ESEQ
+	 */
 	static IRNode Canonicalize(IRNode input) throws IRNodeNotMatchException {
 		try {
 		  if (input instanceof IRExpr) {
-		  	   return CanonicalizeExpr((IRExpr) input);
+		  	return CanonicalizeExpr((IRExpr) input);
 		  } else if ( input instanceof IRStmt) {
-				return CanonicalizeStmt((IRStmt) input);
+			return CanonicalizeStmt((IRStmt) input);
 	      } else if ( input instanceof IRFuncDecl ) {
 	    	    return new IRFuncDecl(((IRFuncDecl) input).name(), CanonicalizeStmt(((IRFuncDecl) input).body()));
 		  } else if ( input instanceof IRCompUnit) {
@@ -150,7 +152,9 @@ public class IRWrapper {
 		}
 	}
 	
-	// Canonicalize will turn all non-leaf node IRSeq or IRESeq, lift will lift all these nodes to the top
+	/**
+	 * Canonicalize will turn all non-leaf node IRSeq or IRESeq, lift will lift all these nodes to the top
+	 */
 	static IRNode Lift(IRNode input) {
 		if (input instanceof IRSeq) {
 			return new IRSeq(LiftSeq((IRStmt) input));			
@@ -172,7 +176,11 @@ public class IRWrapper {
 		return input;
 	}
 	
-	// folding arbitrary stmt or expr
+	/**
+	 * DO constant folding for all kinds of IRNodes
+	 * @param input
+	 * @return folded IR nodes
+	 */
 	static IRNode Folding(IRNode input) {
 		if (input instanceof IRExpr) {
 			return FoldingExpr((IRExpr) input);
@@ -190,8 +198,12 @@ public class IRWrapper {
 		return input;
 	}
 	
-	
-	// canonicalize all expressions
+	/**
+	 * canonicalize all expressions
+	 * @param input
+	 * @return
+	 * @throws IRNodeNotMatchException
+	 */
 	static IRESeq CanonicalizeExpr(IRExpr input) throws IRNodeNotMatchException {
 		if (input instanceof IRConst) {
 			return new IRESeq(null, (IRExpr) input);
@@ -246,8 +258,12 @@ public class IRWrapper {
 			//return new IRESeq(null,input);
 		}
 	}
-	
-	// canonicalize statement
+	/**
+	 * canonicalize statement
+	 * @param input
+	 * @return
+	 * @throws IRNodeNotMatchException
+	 */
 	static IRSeq CanonicalizeStmt(IRStmt input ) throws IRNodeNotMatchException {
 		if (input instanceof IRLabel) {
 			return new IRSeq(input);
@@ -275,22 +291,13 @@ public class IRWrapper {
 				IRExpr e2p = ((IRESeq) CanonicalizeExpr(e2)).expr();
 				return IRSeqNoEmpty(s1p,s2p, new IRMove(e1p, e2p));
 			} else if (target instanceof IRMem) {
-				/*if (((IRESeq) CanonicalizeExpr(e2)).expr() ==((IRESeq) CanonicalizeExpr(new IRESeq(((IRESeq) CanonicalizeExpr(target)).stmt(), e2))).expr()) {
-					IRStmt s1p = ((IRESeq) CanonicalizeExpr(((IRMove) input).target())).stmt();
-					IRExpr e1p = ((IRESeq) CanonicalizeExpr(((IRMove) input).target())).expr();
-					IRStmt s2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).stmt();
-					IRExpr e2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).expr();
-					// only if e2 does not affect the location of e1
-					return IRSeqNoEmpty(s1p, s2p,new IRMove(e1p, e2p));	
-				} else {*/
 					IRExpr e1 =((IRMem) ((IRMove) input).target()).expr();
 					IRStmt s1p = ((IRESeq) CanonicalizeExpr(e1)).stmt();
 					IRExpr e1p = ((IRESeq) CanonicalizeExpr(e1)).expr();
 					IRStmt s2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).stmt();
 					IRExpr e2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).expr();
-					IRTemp t = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); // sb must be fresh TODO		
+					IRTemp t = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); 
 					return IRSeqNoEmpty(s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p));
-				//}
 			} else {
 				return IRSeqNoEmpty(input);
 			}
@@ -324,8 +331,11 @@ public class IRWrapper {
 			throw new IRNodeNotMatchException(input);
 		}
 	}
-	
-	// folding expr 
+	/**
+	 * folding constants in expressions
+	 * @param input
+	 * @return
+	 */
 	static IRExpr FoldingExpr(IRExpr input) {
 		if (input instanceof IRConst) {
 			return input;
@@ -350,7 +360,11 @@ public class IRWrapper {
 		}
 	}
 	
-	// Folding stmt (stmt can contain child nodes with BinOp) 
+	/**
+	 * Folding stmt (stmt can contain child nodes with BinOp) 
+	 * @param input
+	 * @return
+	 */
 	static IRStmt FoldingStmt(IRStmt input) {
 		if (input instanceof IRLabel) {
 			return input;
@@ -379,8 +393,11 @@ public class IRWrapper {
 		}
 	}
 	
-	// only folding IRBinOp
-	// returns the folded IRNode 
+	/**
+	 * folding the IRBinOp
+	 * @param input
+	 * @return the folded IRNode
+	 */
 	static IRExpr FoldingBinOp(IRBinOp input) {
 			IRExpr lexp = ((IRBinOp) input).left();
 			IRExpr rexp = ((IRBinOp) input).right();
@@ -444,7 +461,11 @@ public class IRWrapper {
 			}
 	}
 	
-	
+	/**
+	 * Constuct IRSeq only when all the stmts are not null
+	 * @param stmts
+	 * @return IRSeq
+	 */
     static IRSeq IRSeqNoEmpty(IRStmt... stmts) {
         List<IRStmt> retStmts = new ArrayList<IRStmt>();
         for (IRStmt stmt: stmts) {
@@ -455,7 +476,14 @@ public class IRWrapper {
         return new IRSeq(retStmts);
     }
 	
-    // lift all stmts in an IR tree to the top level list
+    /**
+     * lift all stmts in an IR tree to the top-level list
+     * e.g.,
+     * 	(SEQ stmt1 (SEQ stmt2 (SEQ stmt3 stmt4) would become
+     * (SEQ stmt1 stmt2 stmt3 stmt4)
+     * @param input
+     * @return
+     */
     static List<IRStmt> LiftSeq(IRStmt input) {
     	  if ( input instanceof IRSeq) {
 		List<IRStmt> stmts = ((IRSeq) input).stmts();
