@@ -18,6 +18,6 @@ public class ArithmeticNegation extends ArithmeticOperator {
 
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {
-        return new IRBinOp(OpType.SUB, new IRConst(0), operands[1]);
+        return new IRBinOp(OpType.SUB, new IRConst(0), operands[0]);
     }
 }

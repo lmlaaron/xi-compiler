@@ -67,6 +67,19 @@ public class VariableType extends NodeType {
         return this.level;
     }
     
+    public String toShortString() {
+    		String result = "";
+    		for (int i = 0; i < level; i++) {
+    			result += "a";
+    		}
+    		switch (type) {
+            case INT:   result += "i";   break;
+            case BOOL:  result += "b";  break;
+            default:    result += "?";     break;
+        }
+    		return result;
+    }
+    
     @Override
     public String toString() {
         String typeString = "";
