@@ -50,8 +50,6 @@ import java.util.UUID;
  *
  */
 public class IRWrapper {
-	public Set<String> tempSet = new HashSet<String>();
-	
 	public static void IRLowering(String realInputFile, String realOutputDir, 
 			String fileName, String libPath, boolean optimization) {
 		// generate the complete output path
@@ -150,7 +148,7 @@ public class IRWrapper {
 		  } else {
 			  throw new IRNodeNotMatchException(input);
 		  }
-		} catch (Exception e) {
+		} catch (IRNodeNotMatchException e) {
 			throw new IRNodeNotMatchException(input);
 		}
 	}
@@ -213,16 +211,28 @@ public class IRWrapper {
 		} else if (input instanceof IRTemp) {
 			return new IRESeq(null, (IRExpr) input);
 		} else if (input instanceof IRBinOp) {
-			IRStmt s1 = ((IRESeq) CanonicalizeExpr(((IRBinOp) input).left())).stmt();
-			IRExpr e1 = ((IRESeq) CanonicalizeExpr(((IRBinOp) input).left())).expr();
-			IRStmt s2 = ((IRESeq) CanonicalizeExpr(((IRBinOp) input).right())).stmt();
-			IRExpr e2 = ((IRESeq) CanonicalizeExpr(((IRBinOp) input).right())).expr();
-			//return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(),e1, e2));
-			IRTemp t1 = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); //TODO pickaname
-			return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2), new IRBinOp(((IRBinOp) input).opType(),(IRExpr) t1, e2));
+			IRESeq es1 = CanonicalizeExpr(((IRBinOp) input).left());
+			IRESeq es2 = CanonicalizeExpr(((IRBinOp) input).right());
+			IRStmt s1 = es1.stmt();
+			IRExpr e1 = es1.expr();
+			IRStmt s2 = es2.stmt();
+			IRExpr e2 = es2.expr();
+			
+			// only if right operand is constant or name should this be performed
+			if ((((IRBinOp) input).right()  instanceof IRName) || 
+					(( ( IRBinOp) input).right() instanceof IRConst || 
+							((IRBinOp) input).right() instanceof IRTemp ||
+							((IRBinOp) input).left() instanceof IRName ||
+							((IRBinOp) input).left() instanceof IRConst)) {
+						return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(),e1, e2));
+					} else {
+						IRTemp t1 = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); //TODO pickaname
+						return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2), new IRBinOp(((IRBinOp) input).opType(),(IRExpr) t1, e2));
+					}
 		} else if (input instanceof IRMem) {
-			IRStmt s = (((IRESeq) CanonicalizeExpr(((IRMem) input).expr())).stmt());
-			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRMem) input).expr())).expr();
+			IRESeq es =CanonicalizeExpr(((IRMem) input).expr());
+			IRStmt s = es.stmt();
+			IRExpr e =  es.expr();
 			return new IRESeq(s, new IRMem(e));
 		} else if (input instanceof IRCall) {
 			IRExpr target =((IRCall) input).target();
@@ -233,28 +243,40 @@ public class IRWrapper {
 			int count = 0;
 			String tempArrayName = UUID.randomUUID().toString().replaceAll("-", "");
 			for (IRExpr e1: e) {
-				sl.add(((IRESeq) CanonicalizeExpr(e1)).stmt());
-				el.add(((IRESeq) CanonicalizeExpr(e1)).expr());
-				tl.add(new IRTemp(tempArrayName+Integer.toString(count)));
+				IRESeq ese1 = (IRESeq) Canonicalize(e1);
+				sl.add(ese1.stmt());
+				el.add(ese1.expr());
+				tl.add(new IRTemp(tempArrayName+"-"+Integer.toString(count)));
 				count++;
 			}
 	
 			List<IRStmt> rsl = new ArrayList<IRStmt>();
 			IRTemp t = new IRTemp(tempArrayName);
 			count = 0;
-			for (IRExpr e1 : e ) {
-				rsl.add(sl.get(count));
-				rsl.add(new IRMove(tl.get(count), el.get(count)));				
+			List<IRExpr> tle = new ArrayList<IRExpr>();
+			for (IRTemp stl: tl) {
+				tle.add(stl);
 			}
-			rsl.add(new IRMove(t, new IRCall(target, el)));
+			for (IRExpr e1 : e ) {
+				if ( e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+					tle.set(count, e1);
+				} else {
+				  rsl.add(sl.get(count));
+				  rsl.add(new IRMove(tl.get(count), el.get(count)));				
+				}
+				count++;
+			}
+
+			rsl.add(new IRMove(t, new IRCall(target, tle)));
 			IRStmt s = new IRSeq(rsl);
 			return new IRESeq(s, t );
 		} else if (input instanceof IRName) {
 			return new IRESeq(null,input);
 		} else if (input instanceof IRESeq) {
 			IRStmt s1= ((IRESeq) input).stmt();
-			IRStmt s2 =((IRESeq) CanonicalizeExpr(((IRESeq) input).expr())).stmt();
-			IRExpr e =((IRESeq) CanonicalizeExpr(((IRESeq) input).expr())).expr();
+			IRESeq es = CanonicalizeExpr(((IRESeq) input).expr());
+			IRStmt s2 =es.stmt();
+			IRExpr e =es.expr();
 			return new IRESeq(IRSeqNoEmpty(s1,s2), e);
 		} else {
 			throw new IRNodeNotMatchException(input);
@@ -286,12 +308,14 @@ public class IRWrapper {
 		} else if (input instanceof IRMove) {
 			IRExpr target = ((IRMove) input).target();
 			IRExpr e2 = ((IRMove) input).source();
-			if (target instanceof IRTemp) {
+			if (target instanceof IRTemp || e2 instanceof IRTemp || e2 instanceof IRName || e2 instanceof IRConst) {
 				IRExpr e1 = ((IRTemp) target);
-				IRStmt s1p = ((IRESeq) CanonicalizeExpr(e1)).stmt();
-				IRExpr e1p = ((IRESeq) CanonicalizeExpr(e1)).expr();
-				IRStmt s2p = ((IRESeq) CanonicalizeExpr(e2)).stmt();
-				IRExpr e2p = ((IRESeq) CanonicalizeExpr(e2)).expr();
+				IRESeq es1 = (IRESeq) Canonicalize(e1);
+				IRESeq es2 = (IRESeq) Canonicalize(e2);
+				IRStmt s1p = es1.stmt();
+				IRExpr e1p = es1.expr();
+				IRStmt s2p = es2.stmt();
+				IRExpr e2p = es2.expr();
 				return IRSeqNoEmpty(s1p,s2p, new IRMove(e1p, e2p));
 			} else if (target instanceof IRMem) {
 					IRExpr e1 =((IRMem) ((IRMove) input).target()).expr();
@@ -305,33 +329,77 @@ public class IRWrapper {
 				return IRSeqNoEmpty(input);
 			}
 		} else if (input instanceof IRExp) {
-				IRStmt s = ((IRESeq) CanonicalizeExpr(((IRExp) input).expr())).stmt();
-				IRExpr e = ((IRESeq) CanonicalizeExpr(((IRExp) input).expr())).expr();
+			    IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
+				IRStmt s = es.stmt();
+				IRExpr e = es.expr();
 				return new IRSeq(s);
 		} else if (input instanceof IRReturn) {
+			List<IRExpr>  e= ((IRReturn) input).rets();
+			List<IRStmt> sl = new ArrayList<IRStmt>();
+			List<IRExpr>  el = new ArrayList<IRExpr>();
+			List<IRTemp> tl = new ArrayList<IRTemp>();
+			int count = 0;
+			String tempArrayName = UUID.randomUUID().toString().replaceAll("-", "");
+			for (IRExpr e1: e) {
+				IRESeq ese1 = (IRESeq) Canonicalize(e1);
+				sl.add(ese1.stmt());
+				el.add(ese1.expr());
+				tl.add(new IRTemp(tempArrayName+"-"+Integer.toString(count)));
+				count++;
+			}
+	
+			List<IRStmt> rsl = new ArrayList<IRStmt>();
+			IRTemp t = new IRTemp(tempArrayName);
+			count = 0;
+			List<IRExpr> tle = new ArrayList<IRExpr>();
+			for (IRTemp stl: tl) {
+				tle.add(stl);
+			}
+			for (IRExpr e1 : e ) {
+				if ( e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+					tle.set(count, e1);
+				} else {
+				  rsl.add(sl.get(count));
+				  rsl.add(new IRMove(tl.get(count), el.get(count)));				
+				}
+				count++;
+			}
+
+			rsl.add(new IRReturn(tle));
+			IRStmt s = new IRSeq(rsl);
+			return new IRSeq(s);
+			
+			/*
 				List<IRExpr>  e = ((IRReturn) input).rets();
 				List<IRStmt> sl = new ArrayList<IRStmt>();
 				List<IRExpr>  el = new ArrayList<IRExpr>();
 				for (IRExpr e1: e) {
-					if (((IRESeq) CanonicalizeExpr(e1)).stmt() != null) {
-						sl.add(   CanonicalizeStmt(   ((IRESeq) CanonicalizeExpr(e1)).stmt()   )    );
+					IRESeq es = (IRESeq) Canonicalize(e1);
+					if (es.stmt() != null) {
+						sl.add(   CanonicalizeStmt(   es.stmt()   )    );
 					}
-					el.add(((IRESeq) CanonicalizeExpr(e1)).expr());
+					el.add(es.expr());
 				}
 				sl.add(new IRReturn(el));
 				return new IRSeq(sl);
+				*/
 		} else if (input instanceof IRCJump) {
-			IRStmt s = ((IRESeq) CanonicalizeExpr(((IRCJump) input).cond())).stmt();
-			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRCJump) input).cond())).expr();
+			IRESeq es = CanonicalizeExpr(((IRCJump) input).cond());
+			IRStmt s = es.stmt();
+			IRExpr e = es.expr();
 			String l1 = ((IRCJump) input).trueLabel();
 			String l2 = ((IRCJump) input).falseLabel();
 			return IRSeqNoEmpty(s, new IRCJump(e,l1,l2));
 		} else if (input instanceof IRJump) {
-			IRStmt s = ((IRESeq) CanonicalizeExpr(((IRJump) input).target())).stmt();
-			IRExpr e = ((IRESeq) CanonicalizeExpr(((IRJump) input).target())).expr();
+			IRESeq es = CanonicalizeExpr(((IRJump) input).target());
+			IRStmt s = es.stmt();
+			IRExpr e = es.expr();
+			//IRStmt s = ((IRESeq) CanonicalizeExpr(((IRJump) input).target())).stmt();
+			//IRExpr e = ((IRESeq) CanonicalizeExpr(((IRJump) input).target())).expr();
 			return IRSeqNoEmpty(s, new IRJump(e));
 		} else {
-			throw new IRNodeNotMatchException(input);
+			return new IRSeq(input);
+			//throw new IRNodeNotMatchException(new IRSeq(seq));
 		}
 	}
 	/**
