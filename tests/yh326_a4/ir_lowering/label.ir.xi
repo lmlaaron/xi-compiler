@@ -5,7 +5,7 @@
   (SEQ
    (MOVE (TEMP j)(CONST 4))
    (LABEL sb)
-   (MOVE (TEMP i)(CONST 5))
+    (MOVE (TEMP i)(CONST 5))
   )
  )
 )

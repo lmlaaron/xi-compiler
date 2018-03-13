@@ -12,7 +12,7 @@
   (SEQ
    (MOVE 
     (TEMP x) 
-    (CALL 
+    (CALL (NAME a) 
      (ESEQ (MOVE (TEMP j)(TEMP i)) (TEMP j)) 
      (ESEQ (MOVE (TEMP k)(TEMP j)) (TEMP k)) 
      (ESEQ (MOVE (TEMP l)(TEMP k)) (TEMP l)) 
