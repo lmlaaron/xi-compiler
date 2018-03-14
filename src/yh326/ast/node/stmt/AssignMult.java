@@ -28,26 +28,24 @@ public class AssignMult extends Stmt {
 
     @Override
     public IRNode translate() {
-        List<IRStmt> translation = new ArrayList<>();
+        List<IRStmt> stmts = new ArrayList<>();
 
         // call function first
-        translation.add(
-                new IRExp( (IRExpr) expr.translate() )
-        );
+        stmts.add(new IRExp((IRExpr) expr.translate()));
 
         // move return values into lhs
         for (int i = 0; i < lhs.children.size(); i++) {
-            translation.add(
-                new IRMove(
-                    (IRExpr) lhs.children.get(i).translate(),
-                    new IRTemp("_RET" + i) //TODO: don't know if this is correct naming convention
-                )
-            );
+        	if (!(lhs.children.get(i) instanceof Underscore)) {
+        		stmts.add(
+        		        new IRMove(
+                            (IRExpr) lhs.children.get(i).translate(),
+        				    new IRTemp("_RET" + i)
+                        )
+                );
+        	}
         }
 
-        return new IRSeq(
-            translation
-        );
+        return new IRSeq(stmts);
     }
 
     @Override

@@ -21,6 +21,7 @@ import yh326.ast.node.expr.ExprAtom;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
+import yh326.util.NumberGetter;
 
 public class StringLiteral extends ExprAtom {
 	
@@ -39,7 +40,7 @@ public class StringLiteral extends ExprAtom {
 
     @Override
     public IRNode translate() {
-    	String name = "_array_" + line + "_" + col;
+    	String name = "_array_" + NumberGetter.uniqueNumber();
     	List<IRStmt> stmts = new ArrayList<IRStmt>();
     	IRCall call = new IRCall(new IRName("_xi_alloc"), new IRConst(str.length() * 8 + 8));
     	stmts.add(new IRMove(new IRTemp(name), new IRBinOp(OpType.ADD, call, new IRConst(8))));

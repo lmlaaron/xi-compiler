@@ -1,5 +1,6 @@
 package yh326.ast.node.stmt;
 
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -71,6 +72,10 @@ public class AssignSingle extends Stmt {
     
     @Override
     public IRNode translate() {
-        return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
+    	if (lhs instanceof Underscore) {
+    		return new IRExp((IRExpr) expr.translate());
+    	} else {
+    		return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
+    	}
     }
 }
