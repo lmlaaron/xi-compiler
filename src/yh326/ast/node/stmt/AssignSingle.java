@@ -3,6 +3,7 @@ package yh326.ast.node.stmt;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
@@ -70,6 +71,6 @@ public class AssignSingle extends Stmt {
     
     @Override
     public IRNode translate() {
-    	return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
+        return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
     }
 }

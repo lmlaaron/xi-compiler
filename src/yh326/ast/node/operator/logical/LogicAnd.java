@@ -15,6 +15,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
+import yh326.util.NumberGetter;
 
 public class LogicAnd extends LogicalOperator {
     public LogicAnd(int line, int col) {
@@ -23,12 +24,14 @@ public class LogicAnd extends LogicalOperator {
 
 	@Override
 	public IRNode translateWithOperands(IRExpr... operands) {
+    	String labelNumber = NumberGetter.uniqueNumber()
+
 		List<IRStmt> stmts = new ArrayList<IRStmt> ();
 		IRTemp result = new IRTemp("x");
 		IRMove storeFalse = new IRMove(result, new IRConst(0));
-		String l1Name = "l1_" + "L" + line + "C" + col;
-		String l2Name = "l2_" + "L" + line + "C" + col;
-		String lfName = "lf_" + "L" + line + "C" + col;
+		String l1Name = "l1_" + labelNumber;
+		String l2Name = "l2_" + labelNumber;
+		String lfName = "lf_" + labelNumber;
 		IRLabel l1 = new IRLabel(l1Name);
 		IRLabel l2 = new IRLabel(l2Name);
 		IRLabel lf = new IRLabel(lfName);

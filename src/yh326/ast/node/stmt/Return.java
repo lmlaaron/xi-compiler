@@ -3,9 +3,7 @@ package yh326.ast.node.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.cs.cs4120.xic.ir.IRExpr;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
-import edu.cornell.cs.cs4120.xic.ir.IRReturn;
+import edu.cornell.cs.cs4120.xic.ir.*;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.type.ListVariableType;
@@ -75,11 +73,35 @@ public class Return extends Stmt {
     		return new IRReturn(new ArrayList<IRExpr> ());
     	}
     	else if (children.size() >= 2) {
-    		List<IRExpr> exprs = new ArrayList<IRExpr> ();
+
+    	    // TODO: this translation operates under the assumption that IRReturn doesn't
+            // do anything other than jump back to where the function was called, so return value
+            // registers must be assigned to manually. Need to read more on Piazza...
+
+    	    List<IRStmt> translation = new ArrayList<>();
+
+    	    // translate retval children
+    	    List<IRExpr> retvals = new ArrayList<>();
     		for (int i = 1; i < children.size(); i++) {
-    			exprs.add((IRExpr) children.get(i).translate());
+    			retvals.add((IRExpr) children.get(i).translate());
     		}
-    		return new IRReturn(exprs);
+
+    		// each return value needs to be put in a TEMP to be loaded by calling function:
+            int retSuffix = 0;
+            for (IRExpr expr : retvals) {
+                translation.add(
+                        new IRMove(
+                                new IRTemp("__RET" + retSuffix),
+                                expr
+                        )
+                );
+                retSuffix++;
+            }
+
+            // then return keyword
+            translation.add(new IRReturn(retvals));
+
+            return new IRSeq(translation);
     	}
     	else {
     		// Should have thrown an exception during type check

@@ -21,6 +21,7 @@ import yh326.ast.type.VariableType;
 import yh326.ast.type.VoidType;
 import yh326.exception.MatchTypeException;
 import yh326.exception.TypeInconsistentException;
+import yh326.util.NumberGetter;
 
 public class IfElse extends Stmt {
     protected Expr condition;
@@ -76,10 +77,12 @@ public class IfElse extends Stmt {
     // TODO: need to run InsnMapsBuilder to construct the mapping from "head" to headLabel
     @Override
     public IRNode translate() {
+        String labelNumber = NumberGetter.uniqueNumber();
+
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	IRLabel headLabel = new IRLabel("head");
-    	IRLabel trueLabel = new IRLabel("then");
-    	IRLabel falseLabel = new IRLabel("otherwise");
+    	IRLabel headLabel = new IRLabel("head" + labelNumber);
+    	IRLabel trueLabel = new IRLabel("then" + labelNumber);
+    	IRLabel falseLabel = new IRLabel("otherwise" + labelNumber);
     	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), trueLabel.name(), falseLabel.name());
     	IRStmt trueStmts = (IRStmt) then.translate();
     	IRName irName = new IRName(headLabel.name());
