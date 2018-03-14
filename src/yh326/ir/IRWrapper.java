@@ -589,7 +589,8 @@ public class IRWrapper {
  			if ( stmt instanceof IRSeq) {   
  				results.addAll(LiftSeq(stmt));
  			} else {
- 				results.add(stmt);
+ 				if (stmt != null )
+ 				  results.add(stmt);
  			}
  		}
  		return results;
