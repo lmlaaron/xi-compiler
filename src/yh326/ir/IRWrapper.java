@@ -43,7 +43,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import yh326.ast.node.Node;
 import yh326.exception.XiException;
 import yh326.typecheck.TypecheckerWrapper;
-import java.util.UUID;
+import yh326.util.NumberGetter;
 /**
  * Wrapper for IR generation, canonicalization, and constant folding
  * @author lmlaaron
@@ -237,7 +237,7 @@ public class IRWrapper {
 							((IRBinOp) input).left() instanceof IRConst)) {
 						return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(),e1, e2));
 					} else {
-						IRTemp t1 = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); //TODO pickaname
+						IRTemp t1 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
 						return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2), new IRBinOp(((IRBinOp) input).opType(),(IRExpr) t1, e2));
 					}
 		} else if (input instanceof IRMem) {
@@ -252,12 +252,12 @@ public class IRWrapper {
 			List<IRExpr>  el = new ArrayList<IRExpr>();
 			List<IRTemp> tl = new ArrayList<IRTemp>();
 			int count = 0;
-			String tempArrayName = UUID.randomUUID().toString().replaceAll("-", "");
+			String tempArrayName = "_temp_" + NumberGetter.uniqueNumber();
 			for (IRExpr e1: e) {
 				IRESeq ese1 = (IRESeq) Canonicalize(e1);
 				sl.add(ese1.stmt());
 				el.add(ese1.expr());
-				tl.add(new IRTemp(tempArrayName+"-"+Integer.toString(count)));
+				tl.add(new IRTemp(tempArrayName+"_"+Integer.toString(count)));
 				count++;
 			}
 	
@@ -339,7 +339,7 @@ public class IRWrapper {
 					IRExpr e1p = eseq_e1.expr();
 					IRStmt s2p = eseq_e2.stmt();
 					IRExpr e2p = eseq_e2.expr();
-					IRTemp t = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); 
+					IRTemp t = new IRTemp("_temp_" + NumberGetter.uniqueNumber()); 
 					return (IRSeqNoEmpty(s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p)));
 			} else {
 				return IRSeqNoEmpty(input);
@@ -355,12 +355,12 @@ public class IRWrapper {
 			List<IRExpr>  el = new ArrayList<IRExpr>();
 			List<IRTemp> tl = new ArrayList<IRTemp>();
 			int count = 0;
-			String tempArrayName = UUID.randomUUID().toString().replaceAll("-", "");
+			String tempArrayName = "_temp_" + NumberGetter.uniqueNumber();
 			for (IRExpr e1: e) {
 				IRESeq ese1 = (IRESeq) CanonicalizeExpr(e1);
 				sl.add(ese1.stmt());
 				el.add(ese1.expr());
-				tl.add(new IRTemp(tempArrayName+"-"+Integer.toString(count)));
+				tl.add(new IRTemp(tempArrayName+"_"+Integer.toString(count)));
 				count++;
 			}
 	

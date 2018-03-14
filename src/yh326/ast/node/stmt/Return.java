@@ -91,7 +91,7 @@ public class Return extends Stmt {
             for (IRExpr expr : retvals) {
                 translation.add(
                         new IRMove(
-                                new IRTemp("__RET" + retSuffix),
+                                new IRTemp("_RET" + retSuffix),
                                 expr
                         )
                 );
