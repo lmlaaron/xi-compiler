@@ -182,21 +182,25 @@ public class IRWrapper {
 	 * @param input
 	 * @return folded IR nodes
 	 */
-	static IRNode Folding(IRNode input) {
-		if (input instanceof IRExpr) {
-			return FoldingExpr((IRExpr) input);
-		} else if (input instanceof IRStmt) {
-			return FoldingStmt((IRStmt) input);
-		} else if ( input instanceof IRFuncDecl ) {
-			return new IRFuncDecl(((IRFuncDecl) input).name(), FoldingStmt(((IRFuncDecl) input).body()));
-		} else if ( input instanceof IRCompUnit) {
-			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
-			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+	static IRNode Folding(IRNode input) throws IRNodeNotMatchException {
+		try {
+			if (input instanceof IRExpr) {
+				return FoldingExpr((IRExpr) input);
+			} else if (input instanceof IRStmt) {
+				return FoldingStmt((IRStmt) input);
+			} else if ( input instanceof IRFuncDecl ) {
+				return new IRFuncDecl(((IRFuncDecl) input).name(), FoldingStmt(((IRFuncDecl) input).body()));
+			} else if ( input instanceof IRCompUnit) {
+				Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+				for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
 				functions.put(function.getKey(), (IRFuncDecl) Folding(function.getValue()));
+				}
+			return new IRCompUnit(((IRCompUnit) input).name(), functions);
 			}
-			return new IRCompUnit(((IRCompUnit) input).name(), ((IRCompUnit) input).functions());
+			throw new IRNodeNotMatchException(input);
+		} catch (IRNodeNotMatchException e ) {
+			throw e;
 		}
-		return input;
 	}
 	
 	/**
@@ -218,7 +222,7 @@ public class IRWrapper {
 			IRStmt s2 = es2.stmt();
 			IRExpr e2 = es2.expr();
 			
-			// only if right operand is constant or name should this be performed
+			// only if right operand has no side effect or left operand is immutable
 			if ((((IRBinOp) input).right()  instanceof IRName) || 
 					(( ( IRBinOp) input).right() instanceof IRConst || 
 							((IRBinOp) input).right() instanceof IRTemp ||
@@ -407,7 +411,7 @@ public class IRWrapper {
 	 * @param input
 	 * @return
 	 */
-	static IRExpr FoldingExpr(IRExpr input) {
+	static IRExpr FoldingExpr(IRExpr input) throws IRNodeNotMatchException {
 		if (input instanceof IRConst) {
 			return input;
 		} else if (input instanceof IRTemp) {
@@ -436,7 +440,7 @@ public class IRWrapper {
 	 * @param input
 	 * @return
 	 */
-	static IRStmt FoldingStmt(IRStmt input) {
+	static IRStmt FoldingStmt(IRStmt input) throws IRNodeNotMatchException {
 		if (input instanceof IRLabel) {
 			return input;
 		} else if (input instanceof IRSeq) {
@@ -469,13 +473,13 @@ public class IRWrapper {
 	 * @param input
 	 * @return the folded IRNode
 	 */
-	static IRExpr FoldingBinOp(IRBinOp input) {
+	static IRExpr FoldingBinOp(IRBinOp input) throws IRNodeNotMatchException {
 			IRExpr lexp = ((IRBinOp) input).left();
 			IRExpr rexp = ((IRBinOp) input).right();
 			
-			if ((lexp.isConstant()) && (rexp.isConstant())) {
-				long l = ((IRConst) lexp).value();
-				long r = ((IRConst) rexp).value();
+			if ((lexp instanceof IRConst && rexp instanceof IRConst)) {
+				long l=lexp.constant();
+				long r = ((IRConst) rexp).constant();
 				switch (((IRBinOp) input).opType()) {
 					case ADD:
 						return new IRConst(l+r);
@@ -492,10 +496,14 @@ public class IRWrapper {
 					case DIV:
 						if ( r != 0 ) {
 							return new IRConst(l/r);
+						} else {
+							return input;
 						}
 					case MOD:
 						if ( r != 0 ) {
 							return new IRConst(l % r);
+						} else {
+							return input;
 						}
 					case AND:
 						return new IRConst(l & r);
@@ -522,13 +530,20 @@ public class IRWrapper {
 					case GEQ:
 						return new IRConst(l >= r ? 1: 0);
 				}
-				return input;
-			} else if (lexp.isConstant()) {
-				return new IRBinOp(((IRBinOp) input).opType(), lexp, (IRExpr) Folding(rexp) );
-			} else if (rexp.isConstant()) {
-				return new IRBinOp(((IRBinOp) input).opType(), (IRExpr) Folding(lexp), rexp );
+			}
+
+			if (lexp instanceof IRConst) {
+			} else if (lexp instanceof IRBinOp) {
+				lexp = FoldingBinOp((IRBinOp) lexp); 
+			} 
+			if (rexp instanceof IRConst) {
+			} else if (rexp instanceof IRBinOp ) {
+				rexp = FoldingBinOp((IRBinOp) rexp);
+			}
+			if ( lexp instanceof IRConst && rexp instanceof IRConst) {
+				return FoldingBinOp(new IRBinOp(input.opType(), lexp, rexp));				
 			} else {
-				return new IRBinOp(((IRBinOp) input).opType(), (IRExpr) Folding(lexp), (IRExpr) Folding(rexp) );
+				return new IRBinOp(input.opType(),lexp,rexp);
 			}
 	}
 	
