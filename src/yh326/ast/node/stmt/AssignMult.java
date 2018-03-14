@@ -40,7 +40,7 @@ public class AssignMult extends Stmt {
             translation.add(
                 new IRMove(
                     (IRExpr) lhs.children.get(i).translate(),
-                    new IRTemp("__RET" + i) //TODO: don't know if this is correct naming convention
+                    new IRTemp("_RET" + i) //TODO: don't know if this is correct naming convention
                 )
             );
         }
