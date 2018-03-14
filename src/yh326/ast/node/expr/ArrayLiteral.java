@@ -1,7 +1,23 @@
 package yh326.ast.node.expr;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
+import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRESeq;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
+import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
@@ -18,23 +34,6 @@ public class ArrayLiteral extends ExprAtom {
         super(line, col);
     }
 
-//    @Override
-//    public IRNode translate() {
-//        // The children attribute must be an expression list, per the cup file
-//        // TODO: implement the following:
-//        /*
-//        SEQ{
-//            CALL {
-//                _xi_alloc,
-//                *** arrlen*8 + 8 ***
-//            },
-//            SEQ {
-//                *** assignment of each individual value here ***
-//            }
-//        }
-//         */
-//    }
-    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // The following is not specified in the Xi type system
@@ -50,5 +49,33 @@ public class ArrayLiteral extends ExprAtom {
             }
         }
         return new VariableType(t.getType(), t.getLevel() + 1);
+    }
+    
+    @Override
+    public IRNode translate() {
+    	String name = "_array_" + line + "_" + col;
+    	List<IRStmt> stmts = new ArrayList<IRStmt>();
+    	IRCall call = new IRCall(new IRName("_xi_alloc"), new IRConst(children.size() * 8 + 8));
+    	stmts.add(new IRMove(new IRTemp(name), new IRBinOp(OpType.ADD, call, new IRConst(8))));
+    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(-8))), 
+				new IRConst(children.size())));
+		for (int i = 0; i < children.size(); i++) {
+    		IRMem mem = new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(i * 8)));
+    		stmts.add(new IRMove(mem, (IRExpr) children.get(i).translate()));
+    	}
+    	return new IRESeq(new IRSeq(stmts), new IRTemp(name));
+        // The children attribute must be an expression list, per the cup file
+        // TODO: implement the following:
+        /*
+        SEQ{
+            CALL {
+                _xi_alloc,
+                *** arrlen*8 + 8 ***
+            },
+            SEQ {
+                *** assignment of each individual value here ***
+            }
+        }
+         */
     }
 }

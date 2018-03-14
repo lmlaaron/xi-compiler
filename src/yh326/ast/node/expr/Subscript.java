@@ -1,5 +1,12 @@
 package yh326.ast.node.expr;
 
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
 import yh326.ast.node.Node;
@@ -40,6 +47,13 @@ public class Subscript extends Expr {
         } else {
             throw new MatchTypeException(line,col, integer, expr);
         }
+    }
+    
+    @Override
+    public IRNode translate() {
+    	return new IRMem(new IRBinOp(OpType.ADD, 
+    			(IRExpr) children.get(1).translate(), 
+    			new IRBinOp(OpType.MUL, new IRConst(8), (IRExpr) children.get(2).translate())));
     }
 
 }

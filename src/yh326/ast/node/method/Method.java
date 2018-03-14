@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
@@ -19,7 +20,7 @@ import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
-import yh326.ast.util.LoadMethod;
+import yh326.ast.util.Utilities;
 import yh326.exception.AlreadyDefinedException;
 import yh326.exception.OtherException;
 
@@ -54,7 +55,7 @@ public class Method extends Node {
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.
         // So it is moved to util package.
-        if (LoadMethod.loadMethod(sTable, id.value, args, rets) == false) {
+        if (Utilities.loadMethod(sTable, id.value, args, rets) == false) {
             throw new AlreadyDefinedException(line, col, id.value);
         }
     }
@@ -105,26 +106,17 @@ public class Method extends Node {
     
     @Override
     public IRNode translate() {
-    	String name = "_I" + id.getId().replace("_", "__") + "_";
-    	if (retTypes.size() == 0) {
-    		name += "p";
-    	} else if (retTypes.size() == 1) {
-    		name += retTypes.get(0).toShortString();
-    	} else {
-    		name += "t" + retTypes.size();
-    		for (VariableType type : retTypes) {
-    			name += type.toShortString();
-    		}
-    	}
-    	for (VariableType type : argTypes) {
-    		name += type.toShortString();
-	}System.out.println(name);
+    	String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
     	if (args != null) {
     		stmts.addAll(((IRSeq) args.translate()).stmts());
     	}
     	stmts.addAll(((IRSeq) block.translate()).stmts());
-    	//stmts.addAll(((IRSeq) rets.translate()).stmts());
+    	
+    	// If no return is given for a procedure, need to add one.
+    	if (!(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
+    		stmts.add(new IRReturn());
+    	}
     	return new IRFuncDecl(name, new IRSeq(stmts));
     }
 }

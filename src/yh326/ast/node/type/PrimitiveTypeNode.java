@@ -13,6 +13,7 @@ public class PrimitiveTypeNode extends TypeNode {
         this.primitiveType = primitiveType;
     }
     
+    @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         if (primitiveType == "int") {
             return new VariableType(Primitives.INT);

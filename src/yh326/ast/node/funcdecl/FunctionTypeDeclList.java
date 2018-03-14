@@ -39,9 +39,9 @@ public class FunctionTypeDeclList extends Node {
     @Override
     public IRNode translate() {
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	for (Node child : children) {
-    		IRTemp id = (IRTemp) child.translate();
-    		stmts.add(new IRMove(id, new IRTemp("ARG_" + "L" + line + "C" + col)));
+    	for (int i = 0; i < children.size(); i++) {
+    		IRTemp id = (IRTemp) children.get(i).translate();
+    		stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
     	}
     	return new IRSeq(stmts);
     }

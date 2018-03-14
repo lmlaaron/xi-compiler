@@ -3,9 +3,14 @@ package yh326.ast.node.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
@@ -51,7 +56,13 @@ public class StmtList extends Stmt {
     public IRNode translate() {
     	List<IRStmt> stmts = new ArrayList<> ();
     	for (Node child : children) {
-    		stmts.add((IRStmt) child.translate());
+    		IRNode node = child.translate();
+    		if (node instanceof IRTemp) {
+    			continue;
+    		} else if (node instanceof IRCall) {
+    			node = new IRExp((IRExpr) node);
+    		}
+    		stmts.add((IRStmt) node);
     	}
     	return new IRSeq(stmts);
     }

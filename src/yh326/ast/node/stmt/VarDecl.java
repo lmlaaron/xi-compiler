@@ -48,6 +48,6 @@ public class VarDecl extends Stmt {
     
     @Override
     public IRNode translate() {
-    	return new IRTemp(id + "L" + line + "C" + col);
+    	return new IRTemp(id.getId());
     }
 }

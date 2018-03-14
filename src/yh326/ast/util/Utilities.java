@@ -11,7 +11,7 @@ import yh326.ast.node.stmt.VarDecl;
 import yh326.ast.node.type.TypeNode;
 import yh326.ast.type.VariableType;
 
-public class LoadMethod {
+public class Utilities {
     /**
      * Load the given method into the symbol table. This is different from the
      * loadMethods method in Node class, which only does the first step - by
@@ -41,5 +41,23 @@ public class LoadMethod {
         }
         sTable.exitBlock();
         return sTable.addFunc(id, argList, retList);
+    }
+    
+    public static String toIRFunctionName(String name, List<VariableType> args, List<VariableType> rets) {
+    	String result = "_I" + name.replace("_", "__") + "_";
+    	if (rets.size() == 0) {
+    		result += "p";
+    	} else if (rets.size() == 1) {
+    		result += rets.get(0).toShortString();
+    	} else {
+    		result += "t" + rets.size();
+    		for (VariableType type : rets) {
+    			result += type.toShortString();
+    		}
+    	}
+    	for (VariableType type : args) {
+    		result += type.toShortString();
+    	}
+    	return result;
     }
 }

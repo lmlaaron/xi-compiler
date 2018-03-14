@@ -34,6 +34,6 @@ public class Identifier extends Expr {
     
     @Override
     public IRNode translate() {
-    	return new IRTemp(id + "_L" + line + "C" + col);
+    	return new IRTemp(id);
     }
 }
