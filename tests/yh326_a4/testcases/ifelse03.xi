@@ -1,7 +1,7 @@
 //If else statement
 // check lub function
 // should pass type check
-main(argv:int[][]): int {
+foo(): int {
   a: int = 1
   if true {
     return a
@@ -10,4 +10,8 @@ main(argv:int[][]): int {
   } else {
     return a-22
   }
+}
+
+main(argv:int[][]) {
+    _ = foo()
 }

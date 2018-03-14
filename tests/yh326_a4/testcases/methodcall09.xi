@@ -1,3 +1,4 @@
 // Call before defined
-main(argv:int[][]) {bar()}
-bar() {main(argv:int[][])}
+foo() {bar()}
+bar() {}
+main(argv:int[][]) {foo()}

@@ -1,3 +1,3 @@
 // Call method multiple results
-main(argv:int[][]):bool, int[] {return false, "lol"}
-bar() {a:bool, b:int[] = main(argv:int[][])}
+foo():bool, int[] {return false, "lol"}
+main(argv:int[][]) {a:bool, b:int[] = foo()}

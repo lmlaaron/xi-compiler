@@ -114,7 +114,7 @@ public class Method extends Node {
     	stmts.addAll(((IRSeq) block.translate()).stmts());
     	
     	// If no return is given for a procedure, need to add one.
-    	if (!(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
+    	if (stmts.size() == 0 || !(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
     		stmts.add(new IRReturn());
     	}
     	return new IRFuncDecl(name, new IRSeq(stmts));

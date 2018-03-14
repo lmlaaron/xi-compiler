@@ -1,5 +1,9 @@
 //return expression with variables
-main(argv:int[][]):int {
+foo():int {
     a:int
     return a*2
+}
+
+main(argv:int[][]) {
+    a:int = foo()
 }

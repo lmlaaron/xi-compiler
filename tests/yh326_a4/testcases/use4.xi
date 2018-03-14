@@ -1,4 +1,4 @@
 use io
 use useCustom
 
-wtf() {}
+main(argv:int[][]) {}

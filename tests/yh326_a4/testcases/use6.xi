@@ -1,3 +1,6 @@
 use io
 
-main(io:int) {}
+foo(io:int) {}
+main(argv:int[][]) {
+foo(3)
+}

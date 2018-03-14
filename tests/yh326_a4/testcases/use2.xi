@@ -1,2 +1,2 @@
 use useCustom
-f(){}
+main(argv:int[][]){}

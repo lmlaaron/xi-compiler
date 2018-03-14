@@ -54,7 +54,7 @@ public class If extends Stmt {
     	IRLabel irTrueLabel = new IRLabel("then" + labelNumber);
     	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), irTrueLabel.name());
     	IRStmt irStmt = (IRStmt) then.translate();
-    	IRLabel irFalseLabel = new IRLabel("fall through (false)" + labelNumber);
+    	IRLabel irFalseLabel = new IRLabel("else" + labelNumber);
     	stmts.add(irCJump);
     	stmts.add(irTrueLabel);
     	stmts.add(irStmt);

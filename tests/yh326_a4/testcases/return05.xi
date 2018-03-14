@@ -1,2 +1,3 @@
 // Function returns int array
-main(argv:int[][]):int[] {return {1,2,3}}
+foo():int[] {return {1,2,3}}
+main(argv:int[][]){_=foo()}

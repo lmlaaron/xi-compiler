@@ -1,4 +1,8 @@
 // return underscore
-main(argv:int[][]):int, int{
-    return 2, _
+foo():int, int{
+    return 2, 3
+}
+
+main(argv:int[][]) {
+    a:int, b:int = foo()
 }

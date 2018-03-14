@@ -112,13 +112,15 @@ public class IRWrapper {
                 ast.fileName = fileName.substring(0, fileName.lastIndexOf("."));
                 // Design not finished
 	            IRNode irNode = ast.translateProgram();
-	            IRNode canonicalizedIrNode = Canonicalize(irNode);
-	            IRNode liftedIrNode = Lift(canonicalizedIrNode);
-	            IRNode foldedIrNode = Folding(liftedIrNode);
-	            writer.write(foldedIrNode.toString());
 	            System.out.println(irNode.toString());
-	            System.out.println("Lowered folded IrNode:");
-	            System.out.print(foldedIrNode.toString());
+	            irNode = Canonicalize(irNode);
+	            irNode = Lift(irNode);
+	            if (optimization) {
+	            	irNode = Folding(irNode);
+	            }
+            	System.out.println("Lowered folded IrNode:");
+            	System.out.println(irNode.toString());
+            	writer.write(irNode.toString());
 	        } catch (XiException e) {
 	        		e.print(fileName);
 	        		writer.write(e.getMessage() + "\n");
