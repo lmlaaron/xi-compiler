@@ -282,7 +282,7 @@ public class IRWrapper {
 		} else if (input instanceof IRName) {
 			return new IRESeq(null,input);
 		} else if (input instanceof IRESeq) {
-			IRStmt s1= ((IRESeq) input).stmt();
+			IRStmt s1= CanonicalizeStmt(((IRESeq) input).stmt());
 			IRESeq es = CanonicalizeExpr(((IRESeq) input).expr());
 			IRStmt s2 =es.stmt();
 			IRExpr e =es.expr();
@@ -315,25 +315,30 @@ public class IRWrapper {
             }
             return new IRSeq(results);
 		} else if (input instanceof IRMove) {
+			//System.out.println(input.toString());
 			IRExpr target = ((IRMove) input).target();
 			IRExpr e2 = ((IRMove) input).source();
 			if (target instanceof IRTemp || e2 instanceof IRTemp || e2 instanceof IRName || e2 instanceof IRConst) {
-				IRExpr e1 = ((IRTemp) target);
-				IRESeq es1 = (IRESeq) Canonicalize(e1);
-				IRESeq es2 = (IRESeq) Canonicalize(e2);
+				IRExpr e1 = target;
+				IRESeq es1 = (IRESeq) CanonicalizeExpr(e1);
+				IRESeq es2 = (IRESeq) CanonicalizeExpr(e2);
 				IRStmt s1p = es1.stmt();
 				IRExpr e1p = es1.expr();
 				IRStmt s2p = es2.stmt();
 				IRExpr e2p = es2.expr();
-				return IRSeqNoEmpty(s1p,s2p, new IRMove(e1p, e2p));
+				return (IRSeqNoEmpty(s1p,s2p, new IRMove(e1p, e2p)));
 			} else if (target instanceof IRMem) {
-					IRExpr e1 =((IRMem) ((IRMove) input).target()).expr();
-					IRStmt s1p = ((IRESeq) CanonicalizeExpr(e1)).stmt();
-					IRExpr e1p = ((IRESeq) CanonicalizeExpr(e1)).expr();
-					IRStmt s2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).stmt();
-					IRExpr e2p = ((IRESeq) CanonicalizeExpr(((IRMove) input).source())).expr();
+			//} else {
+				//System.out.println(input.toString());			
+				   IRExpr e1 =((IRMem) ((IRMove) input).target()).expr();
+					IRESeq eseq_e1 = CanonicalizeExpr(e1);
+					IRESeq eseq_e2 = CanonicalizeExpr(((IRMove) input).source());
+					IRStmt s1p = eseq_e1.stmt();
+					IRExpr e1p = eseq_e1.expr();
+					IRStmt s2p = eseq_e2.stmt();
+					IRExpr e2p = eseq_e2.expr();
 					IRTemp t = new IRTemp(UUID.randomUUID().toString().replaceAll("-", "")); 
-					return IRSeqNoEmpty(s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p));
+					return (IRSeqNoEmpty(s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p)));
 			} else {
 				return IRSeqNoEmpty(input);
 			}
@@ -350,7 +355,7 @@ public class IRWrapper {
 			int count = 0;
 			String tempArrayName = UUID.randomUUID().toString().replaceAll("-", "");
 			for (IRExpr e1: e) {
-				IRESeq ese1 = (IRESeq) Canonicalize(e1);
+				IRESeq ese1 = (IRESeq) CanonicalizeExpr(e1);
 				sl.add(ese1.stmt());
 				el.add(ese1.expr());
 				tl.add(new IRTemp(tempArrayName+"-"+Integer.toString(count)));
@@ -358,7 +363,6 @@ public class IRWrapper {
 			}
 	
 			List<IRStmt> rsl = new ArrayList<IRStmt>();
-			IRTemp t = new IRTemp(tempArrayName);
 			count = 0;
 			List<IRExpr> tle = new ArrayList<IRExpr>();
 			for (IRTemp stl: tl) {
