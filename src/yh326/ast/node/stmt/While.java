@@ -19,6 +19,7 @@ import yh326.ast.type.UnitType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.VariableType;
 import yh326.exception.MatchTypeException;
+import yh326.util.NumberGetter;
 
 public class While extends Stmt {
     protected Expr condition;
@@ -47,10 +48,12 @@ public class While extends Stmt {
     
     @Override
     public IRNode translate() {
+        String labelNumber = NumberGetter.uniqueNumber();
+
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	String headName = "while_head_" + "L" + line + "C" + col;
-    	String trueName = "while_true_" + "L" + line + "C" + col;
-    	String falseName = "while_false" + "L" + line + "C" + col;
+    	String headName = "while_head_" + labelNumber;
+    	String trueName = "while_true_" + labelNumber;
+    	String falseName = "while_false" + labelNumber;
     	IRLabel headLabel = new IRLabel(headName);
     	IRLabel trueLabel = new IRLabel(trueName);
     	IRLabel falseLabel = new IRLabel(falseName);

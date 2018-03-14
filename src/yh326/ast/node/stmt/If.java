@@ -17,6 +17,7 @@ import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.exception.MatchTypeException;
+import yh326.util.NumberGetter;
 
 public class If extends Stmt {
     protected Expr condition;
@@ -47,11 +48,13 @@ public class If extends Stmt {
     @Override
     // TODO: need to run insnMapsBuilder to construct the mapping from "then" to isTrueLabel
     public IRNode translate() {
+        String labelNumber = NumberGetter.uniqueNumber();
+
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	IRLabel irTrueLabel = new IRLabel("then");
+    	IRLabel irTrueLabel = new IRLabel("then" + labelNumber);
     	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), irTrueLabel.name());
     	IRStmt irStmt = (IRStmt) then.translate();
-    	IRLabel irFalseLabel = new IRLabel("fall through (false)");
+    	IRLabel irFalseLabel = new IRLabel("fall through (false)" + labelNumber);
     	stmts.add(irCJump);
     	stmts.add(irTrueLabel);
     	stmts.add(irStmt);
