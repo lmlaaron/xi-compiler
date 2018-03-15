@@ -665,8 +665,7 @@ public class IRWrapper {
 				compUnit.appendFunc(func);
 
 			IRSimulator sim = new IRSimulator(compUnit);
-			long result = sim.call("_Imain_paai");
-			System.out.println("return result: " + result);
+			sim.call("_Imain_paai"); // don't care about return value
 		}
 		catch (Exception e) {
 			System.out.println("An error occurred: " + e.getMessage());
