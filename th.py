@@ -236,12 +236,12 @@ if __name__ == "__main__":
 
     build()
 
-    print("===RUNNING LEX TESTS===")
-    run_test_set(LEXER_TESTS, lex_grader)
-    print("===RUNNING PARSE TESTS===")
-    run_test_set(PARSER_TESTS, parse_grader)
-    print("====RUNNING TYPECHECK TESTS===")
-    run_test_set(TYPECHECKER_TESTS, typecheck_grader)
+    # print("===RUNNING LEX TESTS===")
+    # run_test_set(LEXER_TESTS, lex_grader)
+    # print("===RUNNING PARSE TESTS===")
+    # run_test_set(PARSER_TESTS, parse_grader)
+    # print("====RUNNING TYPECHECK TESTS===")
+    # run_test_set(TYPECHECKER_TESTS, typecheck_grader)
     print("====RUNNING IRRUN TESTS====")
     run_test_set(IRRUN_TESTS, irrun_grader)
 
