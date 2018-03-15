@@ -1,17 +1,15 @@
-//If else statement
-// check lub function
-// should pass type check
-foo(): int {
-  a: int = 1
-  if true {
-    return a
-  } else if false {
-    return a-11
-  } else {
-    return a-22
-  }
+use io
+foo(a:int): int {
+  if a > 1
+    if a == 2
+      a = 'a'
+    else if a == 3
+      a = 'b'
+    else
+      a = 'c'
+  return a
 }
 
 main(argv:int[][]) {
-    _ = foo()
+    println({foo('z'), foo(2), foo(3), foo(4)})
 }

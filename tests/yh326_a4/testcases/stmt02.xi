@@ -1,10 +1,10 @@
-//sequential statements
-// should be type error
-foo() : int {
-  bar()
-  return 1
-}
-bar() : int {
-  return 1
+use io
+main(argv:int[][]) {
+   variable:int[] = "easy"
+   {}
+   println(variable)
 }
 
+
+// Basic grammar is tested in basically all files
+// In stmt#.xi, only test corner cases

@@ -1,8 +1,8 @@
-//if statemtent return type should be void
-// should be type error
-foo() {
+use io
+main(argv:int[][]) {
   a: int = 0
   if (true) {
-     return a 
+     a = a + 97;
   }
+  println({a})
 }

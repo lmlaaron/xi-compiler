@@ -5,7 +5,7 @@
 *.parsed
 *.typed
 *.ir
-xthScript.result
+xthScript.results
 lexer.java
 parser.java
 sym.java

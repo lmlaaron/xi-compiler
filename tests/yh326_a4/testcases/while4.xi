@@ -1,9 +1,11 @@
-// check while statement return type
-// the following should pass type check
+use io
 main(argv:int[][]) {
-    while true {
-       return 
-    }
+  a:int = 3
+  if a == 3
+    while a > 0
+      if a == 1 {
+        println({a+48})a=a-1}
+      else {
+        println("else")a=a-1}
+  println({a+48})
 }
-
-

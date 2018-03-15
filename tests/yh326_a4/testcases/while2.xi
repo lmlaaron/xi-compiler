@@ -1,7 +1,7 @@
-// while statment chek boolean guard
+use io
 main(argv:int[][]) {
-    a:bool = true
-    while a {
-      a = !a
-    }
+    a:int = 5
+    while a > 0
+      a = a - 1
+    println({a+48})
 }
