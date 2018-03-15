@@ -17,7 +17,6 @@ import yh326.ast.node.stmt.StmtList;
 import yh326.ast.node.stmt.VarDecl;
 import yh326.ast.node.type.TypeNode;
 import yh326.ast.type.NodeType;
-import yh326.ast.type.Primitives;
 import yh326.ast.type.UnitType;
 import yh326.ast.type.VariableType;
 import yh326.ast.util.Utilities;

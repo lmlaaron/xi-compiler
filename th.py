@@ -7,7 +7,7 @@ import os
 LEXER_TESTS = "./tests/yh326_a1"
 PARSER_TESTS = "./tests/yh326_a2"
 TYPECHECKER_TESTS = "./tests/yh326_a3"
-IRRUN_TESTS = "./tests/a4_stdout_tests"
+IRRUN_TESTS = "./tests/yh326_a4"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -74,7 +74,7 @@ def run_shell(cmd, print_results = True, end_on_error = False):
     return fail, out, err
 
 def rm_extension(path):
-    return os.path.splitext(path)[0]
+    return path[:path.index(".")] if "." in path else path
 
 def rm_path(path):
     return os.path.split(path)[1]

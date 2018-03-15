@@ -101,12 +101,8 @@ public class Main {
                 IRWrapper.IRGeneration(realInputFile, realOutputDir, fileName,
                         libPath, optimization);
             }
-            if (argvArray.contains("--irlow") && sourceFile.endsWith(".xi")) {
-                IRWrapper.IRLowering(realInputFile, realOutputDir, fileName,
-                        libPath, optimization);
-            }
             if (argvArray.contains("--irrun") && sourceFile.endsWith(".xi")) {
-	        	IRWrapper.IRRun(realInputFile, fileName, libPath);
+	        	IRWrapper.IRRun(realInputFile, fileName, libPath, optimization);
 			}
         }
 		return;

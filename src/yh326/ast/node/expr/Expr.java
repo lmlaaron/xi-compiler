@@ -1,7 +1,5 @@
 package yh326.ast.node.expr;
 
-import edu.cornell.cs.cs4120.xic.ir.IRExp;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.node.Node;
 import yh326.ast.node.stmt.Stmt;
 

@@ -17,7 +17,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;

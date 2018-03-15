@@ -1,8 +1,5 @@
 package yh326.ast.node.operator.comparison;
 
-import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import edu.cornell.cs.cs4120.xic.ir.IRExpr;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;

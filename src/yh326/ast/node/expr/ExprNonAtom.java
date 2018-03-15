@@ -1,7 +1,6 @@
 package yh326.ast.node.expr;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;

@@ -3,7 +3,6 @@ package yh326.ast.node.operator.logical;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
@@ -14,7 +13,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
-import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import yh326.util.NumberGetter;
 
 public class LogicOr extends LogicalOperator {

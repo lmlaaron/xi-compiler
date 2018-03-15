@@ -9,7 +9,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
-import yh326.ast.node.Node;
 import yh326.ast.type.ListVariableType;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.UnitType;
