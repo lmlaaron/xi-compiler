@@ -54,6 +54,7 @@ public class HelperFunctions {
 		if (output.length() > 0) output.deleteCharAt(0);
 		writer.write(output.toString());
 		writer.close();
+		reader.close();
 		System.out.println(output.toString());
 	}
 

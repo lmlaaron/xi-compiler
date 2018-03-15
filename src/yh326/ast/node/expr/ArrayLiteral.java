@@ -17,7 +17,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
-import yh326.ast.node.Node;
 import yh326.ast.type.NodeType;
 import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
@@ -56,10 +55,14 @@ public class ArrayLiteral extends ExprAtom {
     public IRNode translate() {
     	String name = "_array_" + NumberGetter.uniqueNumber();
     	List<IRStmt> stmts = new ArrayList<IRStmt>();
+    	
+    	// Allocate an array with size of children + 1 for length (each unit is 8 bytes)
     	IRCall call = new IRCall(new IRName("_xi_alloc"), new IRConst(children.size() * 8 + 8));
     	stmts.add(new IRMove(new IRTemp(name), new IRBinOp(OpType.ADD, call, new IRConst(8))));
-    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.SUB, new IRTemp(name), new IRConst(8))), 
-				new IRConst(children.size())));
+    	
+    	// Length is located at index of -1
+    	IRBinOp indexNegOne = new IRBinOp(OpType.SUB, new IRTemp(name), new IRConst(8));
+    	stmts.add(new IRMove(new IRMem(indexNegOne), new IRConst(children.size())));
 		for (int i = 0; i < children.size(); i++) {
     		IRMem mem = new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(i * 8)));
     		stmts.add(new IRMove(mem, (IRExpr) children.get(i).translate()));

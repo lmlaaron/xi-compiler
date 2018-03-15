@@ -7,6 +7,7 @@ import os
 LEXER_TESTS = "./tests/yh326_a1"
 PARSER_TESTS = "./tests/yh326_a2"
 TYPECHECKER_TESTS = "./tests/yh326_a3"
+IRRUN_TESTS = "./tests/yh326_a4"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -73,7 +74,7 @@ def run_shell(cmd, print_results = True, end_on_error = False):
     return fail, out, err
 
 def rm_extension(path):
-    return os.path.splitext(path)[0]
+    return path[:path.index(".")] if "." in path else path
 
 def rm_path(path):
     return os.path.split(path)[1]
@@ -210,6 +211,17 @@ def typecheck_grader(testcase_f, answer_f):
             message = "Result shouldn't hae been valid, but was"
         return (False, message)
 
+def irrun_grader(testcase_f, answer_f):
+    # TODO: libpath flag must be used so that io works, but that may not be true in the future
+    _, stdout, _ = run_shell(['./xic', '-libpath', 'lib/xi', '--irrun', testcase_f], print_results=False)
+
+    answer_contents = ''.join(open(answer_f))
+
+    if answer_contents == stdout:
+        return (True, '')
+    else:
+        return (False, "stdout doesnt match answer file:\n\tExpected:'{}'\n\t   Found:'{}'".format(answer_contents, stdout))
+
 
 
 def build():
@@ -224,12 +236,14 @@ if __name__ == "__main__":
 
     build()
 
-    print("===RUNNING LEX TESTS===")
-    run_test_set(LEXER_TESTS, lex_grader)
-    print("===RUNNING PARSE TESTS===")
-    run_test_set(PARSER_TESTS, parse_grader)
-    print("====RUNNING TYPECHECK TESTS===")
-    run_test_set(TYPECHECKER_TESTS, typecheck_grader)
+    # print("===RUNNING LEX TESTS===")
+    # run_test_set(LEXER_TESTS, lex_grader)
+    # print("===RUNNING PARSE TESTS===")
+    # run_test_set(PARSER_TESTS, parse_grader)
+    # print("====RUNNING TYPECHECK TESTS===")
+    # run_test_set(TYPECHECKER_TESTS, typecheck_grader)
+    print("====RUNNING IRRUN TESTS====")
+    run_test_set(IRRUN_TESTS, irrun_grader)
 
     print("Test Harness End!")
 

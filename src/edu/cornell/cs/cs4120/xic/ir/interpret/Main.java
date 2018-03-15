@@ -40,7 +40,7 @@ public class Main {
 
         String arg0 = Configuration.ABSTRACT_ARG_PREFIX + 0;
         String arg1 = Configuration.ABSTRACT_ARG_PREFIX + 1;
-        String ret0 = Configuration.ABSTRACT_RET_PREFIX + 0;
+        //String ret0 = Configuration.ABSTRACT_RET_PREFIX + 0;
         String ret1 = Configuration.ABSTRACT_RET_PREFIX + 1;
 
         IRStmt aBody = new IRSeq(new IRMove(new IRTemp("i"), new IRTemp(arg0)),

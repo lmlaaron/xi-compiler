@@ -1,7 +1,5 @@
 package yh326.ast.node.expr;
 
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
-
 public abstract class ExprAtom extends Expr {
 
     /**

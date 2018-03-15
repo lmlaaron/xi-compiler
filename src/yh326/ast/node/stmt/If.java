@@ -6,7 +6,9 @@ import java.util.List;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRJump;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
@@ -52,14 +54,14 @@ public class If extends Stmt {
         String labelNumber = NumberGetter.uniqueNumber();
 
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	IRLabel trueLabel = new IRLabel("_then_" + labelNumber);
-    	stmts.add(new IRCJump((IRExpr) condition.translate(), trueLabel.name()));
-    	stmts.add(trueLabel);
-    	IRNode irStmt = then.translate();
-    	if (irStmt instanceof IRExpr) {
-    		stmts.add(new IRExp((IRExpr) irStmt));
+    	stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
+    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+    	stmts.add(new IRLabel("_then_" + labelNumber));
+    	IRNode thenStmt = then.translate();
+    	if (thenStmt instanceof IRExpr) {
+    		stmts.add(new IRExp((IRExpr) thenStmt));
     	} else {
-    		stmts.add((IRStmt) irStmt);
+    		stmts.add((IRStmt) thenStmt);
     	}
     	stmts.add(new IRLabel("_end_" + labelNumber));
     	return new IRSeq(stmts);

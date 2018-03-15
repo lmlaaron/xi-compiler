@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRJump;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
@@ -48,24 +49,24 @@ public class While extends Stmt {
     
     @Override
     public IRNode translate() {
-        String labelNumber = NumberGetter.uniqueNumber();
-
+        return getIRWhile((IRExpr) condition.translate(), then.translate());
+    }
+    
+    public static IRSeq getIRWhile(IRExpr cond, IRNode then) {
+    	String labelNumber = NumberGetter.uniqueNumber();
+    	
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	String headName = "while_head_" + labelNumber;
-    	String trueName = "while_true_" + labelNumber;
-    	String falseName = "while_false" + labelNumber;
-    	IRLabel headLabel = new IRLabel(headName);
-    	IRLabel trueLabel = new IRLabel(trueName);
-    	IRLabel falseLabel = new IRLabel(falseName);
-    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), trueName, falseName);
-    	IRStmt thenStmt = (IRStmt) then.translate();
-    	IRJump jump = new IRJump(new IRName(headName));
-    	stmts.add(headLabel);
-    	stmts.add(irCJump);
-    	stmts.add(trueLabel);
-    	stmts.add(thenStmt);
-    	stmts.add(jump);
-    	stmts.add(falseLabel);
+    	stmts.add(new IRLabel("_head_" + labelNumber));
+    	stmts.add(new IRCJump(cond, "_then_" + labelNumber));
+    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+    	stmts.add(new IRLabel("_then_" + labelNumber));
+    	if (then instanceof IRExpr) {
+    		stmts.add(new IRExp((IRExpr) then));
+    	} else {
+    		stmts.add((IRStmt) then);
+    	}
+    	stmts.add(new IRJump(new IRName("_head_" + labelNumber)));
+    	stmts.add(new IRLabel("_end_" + labelNumber));
     	return new IRSeq(stmts);
     }
 }

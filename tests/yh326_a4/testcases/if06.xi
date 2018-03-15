@@ -1,10 +1,10 @@
-//If else statement
-// check non boolean guard
-foo() {
-    a: int = 1
-    if a {
-      a = 0
-    } else {
-      a = 2
-    }
+use io
+foo():bool {return true}
+main(argv:int[][]) {
+  if foo() {
+     println("true")
+  }
+  if (foo()) {
+     println("true")
+  }
 }

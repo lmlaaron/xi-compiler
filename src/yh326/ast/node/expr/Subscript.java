@@ -6,7 +6,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
-import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
 import yh326.ast.node.Node;

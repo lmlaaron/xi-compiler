@@ -8,6 +8,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRJump;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import yh326.util.NumberGetter;
 
 public class BasicBlocks {
 	class BasicBlock {
@@ -32,29 +33,37 @@ public class BasicBlocks {
 	public List<BasicBlock> blocks;
 	
 	public BasicBlocks(List<IRStmt> stmts) {
+		blocks = new ArrayList<BasicBlock>();
 		int count = 0;
 		boolean first = true;
 		List<IRStmt> block = null;
+		String blockId = NumberGetter.uniqueNumber();
 		for (IRStmt stmt: stmts) {
 			if (first) {
 				block = new ArrayList<IRStmt>();
 				if ( stmt instanceof IRLabel) {
 					block.add(stmt);
 				} else {
-					block.add(new IRLabel("__basicblocks_"+Integer.toString(count)));
+					block.add(new IRLabel("_basicblocks_"+blockId+"_"+Integer.toString(count)));
 					block.add(stmt);
 				}
 				first = false;
 			} else if (stmt instanceof IRJump || stmt instanceof IRCJump) {
 				first = true;
 				block.add(stmt);
-				blocks.add(new BasicBlock(block));
+				BasicBlock blk = new BasicBlock(block);
+				blocks.add(blk);
 				block = null;
 			} else {
 				block.add(stmt);
 			}
+			count++;
+		}
+		if ( block != null) {
+			blocks.add(new BasicBlock(block));
 		}
 		for ( BasicBlock b :blocks) {
+			b.successors = new ArrayList<BasicBlock>();
 			for (BasicBlock bs: blocks) {
 				if (b.last() instanceof IRJump ) {
 					if ( ((IRName) ((IRJump) b.last()).target()).name()== ((IRLabel)bs.first()).name()) {

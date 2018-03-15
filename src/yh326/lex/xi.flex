@@ -153,8 +153,8 @@ SingleCharacter = [^\r\n\'\\]
   "\\n"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\n", yyline, column ); }
   "\\f"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\f", yyline, column ); }
   "\\r"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\r", yyline, column ); }
-  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\"", yyline, column ); }
-  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\'", yyline, column ); }
+  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\\"", yyline, column ); }
+  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\\'", yyline, column ); }
   "\\\\"\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\\\", yyline, column ); }
   [^]                  { yybegin(YYINITIAL); return symbol(ERROR, "error: unrecongized character literal" , yyline, column); }
 }

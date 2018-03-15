@@ -4,7 +4,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
-import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Identifier;
 import yh326.ast.node.Node;
