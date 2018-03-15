@@ -115,6 +115,7 @@ public class IRWrapper {
 	            //System.out.println(irNode.toString());
 	            irNode = Canonicalize(irNode);
 	            irNode = Lift(irNode);
+	            irNode = TameCjump(irNode);
 	            if (optimization) {
 	            	irNode = Folding(irNode);
 	            }
@@ -157,6 +158,42 @@ public class IRWrapper {
 		} catch (IRNodeNotMatchException e) {
 			throw new IRNodeNotMatchException(input);
 		}
+	}
+	
+	static IRNode TameCjump(IRNode input) {
+            if (input instanceof IRSeq) {
+	    			List<IRStmt> stmts = ((IRSeq) input).stmts();
+	    	 		List<IRStmt> results = new ArrayList<IRStmt>();
+	    	 		for (IRStmt stmt : stmts) {
+	    	 			if ( stmt instanceof IRCJump && ((IRCJump) stmt).hasFalseLabel()) {   
+	    	 				IRLabel label= new IRLabel("_temp_"+NumberGetter.uniqueNumber());
+	    	 				results.add(new IRCJump(   ((IRCJump) stmt).cond() ,
+	    	 																((IRCJump) stmt).trueLabel(),
+	    	 																null));
+	    	 				results.add(label);
+	    	 				results.add(new IRJump(new IRName(((IRCJump) stmt).falseLabel())));
+	    	 			} else {
+	    	 				if (stmt != null )
+	    	 				  results.add(stmt);
+	    	 			}
+	    	 		}
+	    	 		return new IRSeq(results);
+		} else if ( input instanceof IRESeq) {
+			return input;
+		} else if ( input instanceof IRStmt ) {
+			return input;
+		} else if ( input instanceof IRExpr) {
+			return input;
+		} else if (input instanceof IRFuncDecl) {
+			return new IRFuncDecl(((IRFuncDecl) input).name(), (IRStmt) TameCjump(((IRFuncDecl) input).body()));
+		} else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) TameCjump(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), functions);
+		}
+		return input;
 	}
 	
 	/**
