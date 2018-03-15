@@ -1,3 +1,5 @@
+use io
 main(argv:int[][]) {
-  a: bool = {1,2,3} == {4,5,6};
+  a: bool = {1,2,3} != {1,2,3};
+  if a println("true")
 }

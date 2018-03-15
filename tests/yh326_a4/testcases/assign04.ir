@@ -1,0 +1,19 @@
+(COMPUNIT
+ assign04
+ (FUNC
+  _Imain_paai
+  (SEQ
+   (MOVE (TEMP argv) (TEMP _ARG0))
+   (MOVE (TEMP _temp_2) (CALL (NAME _xi_alloc) (CONST 32)))
+   (MOVE (TEMP _array_1) (ADD (TEMP _temp_2) (CONST 8)))
+   (MOVE (MEM (SUB (TEMP _array_1) (CONST 8))) (CONST 3))
+   (MOVE (MEM (ADD (TEMP _array_1) (CONST 0))) (CONST 97))
+   (MOVE (MEM (ADD (TEMP _array_1) (CONST 8))) (CONST 98))
+   (MOVE (MEM (ADD (TEMP _array_1) (CONST 16))) (CONST 99))
+   (MOVE (TEMP a) (TEMP _array_1))
+   (MOVE (TEMP b) (CONST 1))
+   (MOVE (TEMP c) (CONST 4))
+   (MOVE (TEMP _temp_3) (TEMP a))
+   (MOVE (MEM (ADD (TEMP _temp_3) (MUL (CONST 8) (TEMP b)))) (CONST 99))
+   (MOVE (TEMP _temp_4) (CALL (NAME _Iprintln_pai) (TEMP a)))
+   (RETURN))))

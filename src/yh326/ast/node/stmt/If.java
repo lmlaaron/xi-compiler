@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -51,14 +52,16 @@ public class If extends Stmt {
         String labelNumber = NumberGetter.uniqueNumber();
 
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	IRLabel irTrueLabel = new IRLabel("then" + labelNumber);
-    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), irTrueLabel.name());
-    	IRStmt irStmt = (IRStmt) then.translate();
-    	IRLabel irFalseLabel = new IRLabel("else" + labelNumber);
-    	stmts.add(irCJump);
-    	stmts.add(irTrueLabel);
-    	stmts.add(irStmt);
-    	stmts.add(irFalseLabel);
+    	IRLabel trueLabel = new IRLabel("_then_" + labelNumber);
+    	stmts.add(new IRCJump((IRExpr) condition.translate(), trueLabel.name()));
+    	stmts.add(trueLabel);
+    	IRNode irStmt = then.translate();
+    	if (irStmt instanceof IRExpr) {
+    		stmts.add(new IRExp((IRExpr) irStmt));
+    	} else {
+    		stmts.add((IRStmt) irStmt);
+    	}
+    	stmts.add(new IRLabel("_end_" + labelNumber));
     	return new IRSeq(stmts);
     }
 }

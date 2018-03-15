@@ -34,7 +34,11 @@ public class StringLiteral extends ExprAtom {
      * @param str
      */
     public StringLiteral(int line, int col, String str) {
-        super(line, col, "\"" + str + "\"");
+        super(line, col);
+        str = str.replace("\\b", "\b").replace("\\t", "\t").replace("\\n", "\n");
+        str = str.replace("\\f", "\f").replace("\\r", "\r").replace("\\\"", "\"");
+        str = str.replace("\\\'", "\'").replace("\\\\", "\\");
+        this.value = "\"" + str + "\"";
         this.str = str;
     }
 
@@ -44,7 +48,7 @@ public class StringLiteral extends ExprAtom {
     	List<IRStmt> stmts = new ArrayList<IRStmt>();
     	IRCall call = new IRCall(new IRName("_xi_alloc"), new IRConst(str.length() * 8 + 8));
     	stmts.add(new IRMove(new IRTemp(name), new IRBinOp(OpType.ADD, call, new IRConst(8))));
-    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(-8))), 
+    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.SUB, new IRTemp(name), new IRConst(8))), 
 				new IRConst(str.length())));
 		for (int i = 0; i < str.length(); i++) {
     		IRMem mem = new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(i * 8)));

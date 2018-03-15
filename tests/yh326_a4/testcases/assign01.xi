@@ -1,5 +1,7 @@
 //assignment test
+use io
 main(argv:int[][]) {
     a: int
-    a = 2
+    a = 98
+    println({a})
 }

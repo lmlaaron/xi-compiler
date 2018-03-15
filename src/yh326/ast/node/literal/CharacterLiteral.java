@@ -16,7 +16,11 @@ public class CharacterLiteral extends ExprAtom {
      * @param ch
      */
     public CharacterLiteral(int line, int col, String ch) {
-        super(line, col, "\'" + ch + "\'");
+        super(line, col);
+        ch = ch.replace("\\b", "\b").replace("\\t", "\t").replace("\\n", "\n");
+        ch = ch.replace("\\f", "\f").replace("\\r", "\r").replace("\\\"", "\"");
+        ch = ch.replace("\\\'", "\'").replace("\\\\", "\\");
+        this.value = "\'" + ch + "\'";
     }
 
     @Override

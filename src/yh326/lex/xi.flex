@@ -142,20 +142,20 @@ SingleCharacter = [^\r\n\'\\]
   \'                   { yybegin(YYINITIAL); return symbol(ERROR, "error: empty character literal", yyline, column); }
   {LineTerminator}     { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
   <<EOF>>              { yybegin(YYINITIAL); return symbol(ERROR, "error: unterminated character literal at end of line", yyline, column);}
-  \\x{HexDigit}{2}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
-  \\u{HexDigit}{4}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  \\x{HexDigit}{2}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
+  \\u{HexDigit}{4}\'   { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", "" + (char) Integer.parseInt(yytext().substring(2, yylength()-1), 16), yyline, column); }
   {SingleCharacter}\'  { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "character", yytext().substring(0, yylength()-1), yyline, column);}
   //.[^\']+\'            { yybegin(YYINITIAL); return symbol(ERROR, "error: invalid character literal: \'" + yytext(), yyline, column); }
 
   /* escape sequences */
-  "\\b"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\b", yyline, column ); }
-  "\\t"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\t", yyline, column ); }
-  "\\n"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\n", yyline, column ); }
-  "\\f"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\f", yyline, column ); }
-  "\\r"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\r", yyline, column ); }
-  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\"", yyline, column ); }
-  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\'", yyline, column ); }
-  "\\\\"\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\", yyline, column ); }
+  "\\b"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\b", yyline, column ); }
+  "\\t"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\t", yyline, column ); }
+  "\\n"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\n", yyline, column ); }
+  "\\f"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\f", yyline, column ); }
+  "\\r"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\r", yyline, column ); }
+  "\\\""\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\"", yyline, column ); }
+  "\\'"\'                { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\'", yyline, column ); }
+  "\\\\"\'               { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, "\\\\", yyline, column ); }
   [^]                  { yybegin(YYINITIAL); return symbol(ERROR, "error: unrecongized character literal" , yyline, column); }
 }
 

@@ -58,7 +58,7 @@ public class ArrayLiteral extends ExprAtom {
     	List<IRStmt> stmts = new ArrayList<IRStmt>();
     	IRCall call = new IRCall(new IRName("_xi_alloc"), new IRConst(children.size() * 8 + 8));
     	stmts.add(new IRMove(new IRTemp(name), new IRBinOp(OpType.ADD, call, new IRConst(8))));
-    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(-8))), 
+    	stmts.add(new IRMove(new IRMem(new IRBinOp(OpType.SUB, new IRTemp(name), new IRConst(8))), 
 				new IRConst(children.size())));
 		for (int i = 0; i < children.size(); i++) {
     		IRMem mem = new IRMem(new IRBinOp(OpType.ADD, new IRTemp(name), new IRConst(i * 8)));
