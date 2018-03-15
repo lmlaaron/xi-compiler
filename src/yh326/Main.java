@@ -30,6 +30,7 @@ public class Main {
 			System.out.println("option --typecheck to show the result from type checking.");
 			System.out.println("option --irgen to show ir code representation.");
 			System.out.println("option --irlow to show canonical ir code representation.");
+			System.out.println("option --irrun to simulate running translated IR code.");
 			System.out.println("option -sourcepath <path> specifies where to find input source files.");
 			System.out.println("option -libpath <path> specify where to find library interface files.");
             System.out.println("option -D <path> specifies where to place generated diagnostic files.");
@@ -104,6 +105,9 @@ public class Main {
                 IRWrapper.IRLowering(realInputFile, realOutputDir, fileName,
                         libPath, optimization);
             }
+            if (argvArray.contains("--irrun") && sourceFile.endsWith(".xi")) {
+	        	IRWrapper.IRRun(realInputFile, fileName, libPath);
+			}
         }
 		return;
 	}

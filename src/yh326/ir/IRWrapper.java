@@ -36,6 +36,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
+import edu.cornell.cs.cs4120.xic.ir.interpret.IRSimulator;
 import edu.cornell.cs.cs4120.xic.ir.parse.IRLexer;
 import edu.cornell.cs.cs4120.xic.ir.parse.IRParser;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
@@ -43,6 +44,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import yh326.ast.node.Node;
 import yh326.exception.XiException;
 import yh326.typecheck.TypecheckerWrapper;
+import yh326.util.IRFuncDeclFinder;
 import yh326.util.NumberGetter;
 /**
  * Wrapper for IR generation, canonicalization, and constant folding
@@ -637,9 +639,44 @@ public class IRWrapper {
     	  }
     }
 
-	
-	// Design not finished
-	public static void IRRun() {
-		
+	/*
+	for testing purposes, will run both an optimized and non-optimized version
+	of the generated IR code
+	 */
+	public static void IRRun(String realInputFile, String fileName, String libPath) {
+		try {
+			IRCompUnit compUnit = new IRCompUnit("test");
+			Node ast = TypecheckerWrapper.getTypechecked(realInputFile, libPath);
+			ast.fileName = fileName.substring(0, fileName.lastIndexOf("."));
+
+			// TODO: currently no option for optimizations
+			IRNode irRoot = ast.translateProgram();
+
+			List<IRFuncDecl> functions = findFuncDecls(irRoot);
+
+			if (functions.stream().noneMatch(decl -> (decl.name().equals("_Imain_paai")) )) {
+				System.out.println("can't run this file -- no _Imain_paai function found");
+				System.out.println("that file contains the following functions:");
+				functions.stream().forEach(decl -> System.out.println('\t' + decl.name()) );
+				return;
+			}
+
+			for (IRFuncDecl func : functions)
+				compUnit.appendFunc(func);
+
+			IRSimulator sim = new IRSimulator(compUnit);
+			long result = sim.call("_Imain_paai");
+			System.out.println("return result: " + result);
+		}
+		catch (Exception e) {
+			System.out.println("An error occurred: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private static List<IRFuncDecl> findFuncDecls(IRNode root) {
+		IRFuncDeclFinder funcFinder = new IRFuncDeclFinder();
+		root.visitChildren(funcFinder);
+		return funcFinder.getFuncDecls();
 	}
 }
