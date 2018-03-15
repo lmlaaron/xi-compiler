@@ -3,6 +3,9 @@
 *~
 *.lexed
 *.parsed
+*.typed
+*.ir
+xthScript.result
 lexer.java
 parser.java
 sym.java
