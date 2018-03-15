@@ -28,6 +28,8 @@ public class Main {
 			System.out.println("option --lex to show the result from lexical analysis.");
 			System.out.println("option --parse to show the result from syntatical analysis.");
 			System.out.println("option --typecheck to show the result from type checking.");
+			System.out.println("option --irgen to show ir code representation.");
+			System.out.println("option --irlow to show canonical ir code representation.");
 			System.out.println("option -sourcepath <path> specifies where to find input source files.");
 			System.out.println("option -libpath <path> specify where to find library interface files.");
             System.out.println("option -D <path> specifies where to place generated diagnostic files.");
