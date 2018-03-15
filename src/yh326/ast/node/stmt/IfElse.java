@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRJump;
 import edu.cornell.cs.cs4120.xic.ir.IRLabel;
@@ -80,19 +81,22 @@ public class IfElse extends Stmt {
         String labelNumber = NumberGetter.uniqueNumber();
 
     	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	IRLabel headLabel = new IRLabel("head" + labelNumber);
-    	IRLabel trueLabel = new IRLabel("then" + labelNumber);
-    	IRLabel falseLabel = new IRLabel("otherwise" + labelNumber);
-    	IRCJump irCJump = new IRCJump((IRExpr) condition.translate(), trueLabel.name(), falseLabel.name());
-    	IRStmt trueStmts = (IRStmt) then.translate();
-    	IRName irName = new IRName(headLabel.name());
-    	IRJump irJump = new IRJump(irName);
-    	stmts.add(headLabel);
-    	stmts.add(irCJump);
-    	stmts.add(trueLabel);
-    	stmts.add(trueStmts);
-    	stmts.add(irJump);
-    	stmts.add(falseLabel);
+    	stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
+    	IRNode otherwiseStmt = otherwise.translate();
+    	if (otherwiseStmt instanceof IRExpr) {
+    		stmts.add(new IRExp((IRExpr) otherwiseStmt));
+    	} else {
+    		stmts.add((IRStmt) otherwiseStmt);
+    	}
+    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+    	stmts.add(new IRLabel("_then_" + labelNumber));
+    	IRNode thenStmt = then.translate();
+    	if (thenStmt instanceof IRExpr) {
+    		stmts.add(new IRExp((IRExpr) thenStmt));
+    	} else {
+    		stmts.add((IRStmt) thenStmt);
+    	}
+    	stmts.add(new IRLabel("_end_" + labelNumber));
     	return new IRSeq(stmts);
     }
 }

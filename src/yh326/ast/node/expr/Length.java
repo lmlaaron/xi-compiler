@@ -1,5 +1,11 @@
 package yh326.ast.node.expr;
 
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Keyword;
 import yh326.ast.type.NodeType;
@@ -29,5 +35,11 @@ public class Length extends Expr {
         } else {
             throw new MatchTypeException(line, col, "int or bool array of any dimension", type);
         }
+    }
+    
+    @Override
+    public IRNode translate() {
+    	IRExpr irExpr = (IRExpr) expr.translate();
+    	return new IRMem(new IRBinOp(OpType.SUB, irExpr, new IRConst(8)));
     }
 }

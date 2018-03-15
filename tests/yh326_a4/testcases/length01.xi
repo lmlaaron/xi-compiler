@@ -1,6 +1,6 @@
+use io
 main(argv:int[][])
 {
-a:int = length({1,2,})
-array:int[][][]
-b:int = length(array)
+  a:int = length({1,2,})
+  println({a+48})
 }

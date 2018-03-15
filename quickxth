@@ -4,12 +4,13 @@ pkg=yh326_a4
 
 if [ $1 == "-c" ]
 then
+    rm -rf temp
     rm -rf tests/$pkg/temp
     mkdir tests/$pkg/temp
     cp tests/$pkg/testcases/* tests/$pkg/temp
     cp tests/$pkg/answers/* tests/$pkg/temp
     xth -compilerpath . -testpath tests/$pkg/temp/ -workpath ./temp/ tests/$pkg/xthScript
-    rm -rf tests/$pkg/temp
 else
-    xth -compilerpath . -testpath ~/xth/tests/$pa/ -workpath temp ~/xth/tests/$pa/xthScript
+    rm -rf temp
+    xth -compilerpath . -testpath ~/xth/tests/$pa/ -workpath ./temp/ ~/xth/tests/$pa/xthScript
 fi

@@ -1,7 +1,8 @@
-//if statemtent return type
-foo(): int {
-  a: int = 0
-  if (true) {
-     return a
-  }
+use io
+main(argv:int[][]) {
+    if 1+2==4 {
+        a:int = 3
+        println("true")
+    }
+    println("after if")
 }

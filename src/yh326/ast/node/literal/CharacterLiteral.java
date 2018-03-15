@@ -16,11 +16,7 @@ public class CharacterLiteral extends ExprAtom {
      * @param ch
      */
     public CharacterLiteral(int line, int col, String ch) {
-        super(line, col);
-        ch = ch.replace("\\b", "\b").replace("\\t", "\t").replace("\\n", "\n");
-        ch = ch.replace("\\f", "\f").replace("\\r", "\r").replace("\\\"", "\"");
-        ch = ch.replace("\\\'", "\'").replace("\\\\", "\\");
-        this.value = "\'" + ch + "\'";
+        super(line, col, "\'" + ch + "\'");
     }
 
     @Override
@@ -31,6 +27,10 @@ public class CharacterLiteral extends ExprAtom {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        value = value.replace("\\b", "\b").replace("\\t", "\t");
+        value = value.replace("\\n", "\n").replace("\\f", "\f");
+        value = value.replace("\\r", "\r").replace("\\\"", "\"");
+        value = value.replace("\\\'", "\'").replace("\\\\", "\\");
         return new VariableType(Primitives.INT);
     }
 
