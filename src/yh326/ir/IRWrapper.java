@@ -1,6 +1,7 @@
 package yh326.ir;
 
 import java.io.FileReader;
+
 import java.io.FileWriter;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -44,6 +45,8 @@ import yh326.ast.node.Node;
 import yh326.exception.XiException;
 import yh326.typecheck.TypecheckerWrapper;
 import yh326.util.NumberGetter;
+
+
 /**
  * Wrapper for IR generation, canonicalization, and constant folding
  * @author lmlaaron
@@ -115,6 +118,7 @@ public class IRWrapper {
 	            //System.out.println(irNode.toString());
 	            irNode = Canonicalize(irNode);
 	            irNode = Lift(irNode);
+	            irNode = BlockReordering(irNode);
 	            irNode = TameCjump(irNode);
 	            if (optimization) {
 	            	irNode = Folding(irNode);
@@ -132,6 +136,27 @@ public class IRWrapper {
 		    e.printStackTrace();
 		}
 		return;
+	}
+	/**
+	 * 
+	 * @param input irNode
+	 * @return irNode with blocks reordered
+	 */
+	static IRNode BlockReordering(IRNode input) {
+		if (input instanceof IRSeq) {
+			BasicBlocks blocks = new BasicBlocks(((IRSeq) input).stmts());
+			return new IRSeq(blocks.GenTrace());
+		} else if ( input instanceof IRCompUnit) {
+			Map<String, IRFuncDecl> functions = new LinkedHashMap<>();
+			for ( Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet() ) {
+				functions.put(function.getKey(), (IRFuncDecl) BlockReordering(function.getValue()));
+			}
+			return new IRCompUnit(((IRCompUnit) input).name(), functions);
+		} else if (input instanceof IRFuncDecl) {
+    	    		return new IRFuncDecl(((IRFuncDecl) input).name(), (IRStmt) BlockReordering(((IRFuncDecl) input).body()));
+		} else {
+			return input;
+		}
 	}
 	
 	/**
@@ -160,6 +185,11 @@ public class IRWrapper {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param input: a list of IRStmt that may contain IRCJump with falseLabel
+	 * @return a list of IRStmt with all IRCJump without falseLabel
+	 */
 	static IRNode TameCjump(IRNode input) {
             if (input instanceof IRSeq) {
 	    			List<IRStmt> stmts = ((IRSeq) input).stmts();
