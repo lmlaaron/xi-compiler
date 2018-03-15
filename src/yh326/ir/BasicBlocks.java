@@ -9,8 +9,14 @@ import edu.cornell.cs.cs4120.xic.ir.IRLabel;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.util.NumberGetter;
-
+/**
+ * 
+ * @author lmlaaron
+ * @collection of basicblocks
+ */
 public class BasicBlocks {
+	
+	// class for one single basicblock
 	class BasicBlock {
 		public List<IRStmt> stmts;
 		public List<BasicBlock> successors;
@@ -29,15 +35,21 @@ public class BasicBlocks {
 			return stmts.get(stmts.size()-1);
 		}
 	}
-	//public List<List<IRStmt>> blocks;
+
 	public List<BasicBlock> blocks;
 	
+	/**
+	 *  Construct all the basicblocks from a list of statements
+	 * @param stmts
+	 */
 	public BasicBlocks(List<IRStmt> stmts) {
 		blocks = new ArrayList<BasicBlock>();
 		int count = 0;
 		boolean first = true;
 		List<IRStmt> block = null;
 		String blockId = NumberGetter.uniqueNumber();
+		
+		//slicing out basicblocks, starting with label and end with jump/cjump
 		for (IRStmt stmt: stmts) {
 			if (first) {
 				block = new ArrayList<IRStmt>();
@@ -62,6 +74,8 @@ public class BasicBlocks {
 		if ( block != null) {
 			blocks.add(new BasicBlock(block));
 		}
+		
+		// for each basicblocks, find out the successsors
 		for ( BasicBlock b :blocks) {
 			b.successors = new ArrayList<BasicBlock>();
 			for (BasicBlock bs: blocks) {
@@ -81,6 +95,10 @@ public class BasicBlocks {
 		}
 	}
 	
+	/**
+	 * generate trace (list of statements that are reordered) from the constucted BasicBlocks
+	 * @return
+	 */
 	public List<IRStmt> GenTrace() {
 		List<BasicBlock> Q = blocks;
 		List<IRStmt> ret = new ArrayList<IRStmt>();
