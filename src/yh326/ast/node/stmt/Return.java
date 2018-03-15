@@ -73,35 +73,14 @@ public class Return extends Stmt {
     		return new IRReturn(new ArrayList<IRExpr> ());
     	}
     	else if (children.size() >= 2) {
-
-    	    // TODO: this translation operates under the assumption that IRReturn doesn't
-            // do anything other than jump back to where the function was called, so return value
-            // registers must be assigned to manually. Need to read more on Piazza...
-
-    	    List<IRStmt> translation = new ArrayList<>();
-
-    	    // translate retval children
-    	    List<IRExpr> retvals = new ArrayList<>();
-    		for (int i = 1; i < children.size(); i++) {
-    			retvals.add((IRExpr) children.get(i).translate());
-    		}
-
-    		// each return value needs to be put in a TEMP to be loaded by calling function:
-            int retSuffix = 0;
-            for (IRExpr expr : retvals) {
-                translation.add(
-                        new IRMove(
-                                new IRTemp("_RET" + retSuffix),
-                                expr
-                        )
-                );
-                retSuffix++;
+            // translate retval children
+            List<IRExpr> retvals = new ArrayList<>();
+            for (int i = 1; i < children.size(); i++) {
+                retvals.add((IRExpr) children.get(i).translate());
             }
 
-            // then return keyword
-            translation.add(new IRReturn(retvals));
-
-            return new IRSeq(translation);
+            // assuming return takes care of assigning _RET0 ... _RETn-1 under the hood
+            return new IRReturn(retvals);
     	}
     	else {
     		// Should have thrown an exception during type check

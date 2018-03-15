@@ -36,8 +36,12 @@ public class AssignMult extends Stmt {
         // move return values into lhs
         for (int i = 0; i < lhs.children.size(); i++) {
         	if (!(lhs.children.get(i) instanceof Underscore)) {
-        		stmts.add(new IRMove((IRExpr) lhs.children.get(i).translate(),
-        				new IRTemp("_RET" + i)));
+        		stmts.add(
+        		        new IRMove(
+                            (IRExpr) lhs.children.get(i).translate(),
+        				    new IRTemp("_RET" + i)
+                        )
+                );
         	}
         }
 
