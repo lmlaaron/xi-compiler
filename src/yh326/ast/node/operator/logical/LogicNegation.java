@@ -20,9 +20,4 @@ public class LogicNegation extends LogicalOperator {
     public IRNode translateWithOperands(IRExpr... operands) {
         return new IRBinOp(OpType.XOR, new IRConst(1), operands[0]);
     }
-
-    @Override
-	public IRNode translate() {
-		return new IRBinOp(OpType.XOR, (IRExpr) children.get(1).translate(), (IRExpr) children.get(1));
-	}
 }

@@ -25,11 +25,11 @@ public class LogicAnd extends LogicalOperator {
     	String labelNumber = NumberGetter.uniqueNumber();
 
 		List<IRStmt> stmts = new ArrayList<IRStmt> ();
-		IRTemp result = new IRTemp("x");
+		IRTemp result = new IRTemp("_and_" + labelNumber);
 		IRMove storeFalse = new IRMove(result, new IRConst(0));
-		String l1Name = "l1_" + labelNumber;
-		String l2Name = "l2_" + labelNumber;
-		String lfName = "lf_" + labelNumber;
+		String l1Name = "_l1_" + labelNumber;
+		String l2Name = "_l2_" + labelNumber;
+		String lfName = "_lf_" + labelNumber;
 		IRLabel l1 = new IRLabel(l1Name);
 		IRLabel l2 = new IRLabel(l2Name);
 		IRLabel lf = new IRLabel(lfName);

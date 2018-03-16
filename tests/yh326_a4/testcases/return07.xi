@@ -1,2 +1,8 @@
-// Function returns wrong array
-foo():int[] {return {1, {2}}}
+// return expression
+foo():int {
+    return 2*3
+}
+
+main(argv:int[][]) {
+    a:int = foo()
+}

@@ -1,2 +1,8 @@
-// Function should return int array, but returned multiple ints
-foo():int[] {return 1,2,3}
+// return underscore
+foo():int, int{
+    return 2, 3
+}
+
+main(argv:int[][]) {
+    a:int, b:int = foo()
+}

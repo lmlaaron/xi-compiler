@@ -40,6 +40,14 @@ public class VariableType extends NodeType {
         return type;
     }
 
+    public int getLevel() {
+        return this.level;
+    }
+    
+    public List<Expr> getSizes() {
+        return this.sizes;
+    }
+    
     public void increaseLevel() {
         level++;
         sizes.add(0, null);
@@ -61,10 +69,6 @@ public class VariableType extends NodeType {
         } else {
             return false;
         }
-    }
-    
-    public int getLevel() {
-        return this.level;
     }
     
     public String toShortString() {

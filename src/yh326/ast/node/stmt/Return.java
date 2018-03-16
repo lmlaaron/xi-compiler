@@ -29,7 +29,12 @@ public class Return extends Stmt {
         if (children.size() == 1) {
             actual = new UnitType();
         } else if (children.size() == 2) {
-            actual = (VariableType) children.get(1).typeCheck(sTable);
+            actual = children.get(1).typeCheck(sTable);
+            if (actual instanceof VariableType) {
+            	actual = (VariableType) actual;
+            } else {
+            	throw new MatchTypeException(line, col, "int, bool, or array", actual);
+            }
         } else {
             List<VariableType> listType = new ArrayList<VariableType>();
             for (int i = 1; i < children.size(); i++) {

@@ -38,5 +38,4 @@ public class TypeNode extends Node {
         
         return t;
     }
-
 }

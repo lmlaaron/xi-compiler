@@ -271,7 +271,6 @@ assign_to_single ::= identifier:id           {:RESULT = id;:}
 // Grouped operator and corresponding expressions into sever tiers.
 // Tier 1 has the lowest precedency and tier 7 has the highest.
 expr_list        ::= expr_rec:er                 {:RESULT = er;:}
-                   | COMMA
                    | nothing;
 expr_rec         ::= expr:e COMMA expr_rec:er    {:RESULT = new ExprList(eleft, eright, e); RESULT.addChildren(er);:}
                    | expr:e COMMA                {:RESULT = new ExprList(eleft, eright, e);:}
@@ -324,7 +323,9 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};
 array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
-                       {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:};
+                       {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:}
+                   | OPEN_BRACE:a COMMA CLOSE_BRACE
+                       {:RESULT = new ArrayLiteral(aleft, aright);:};
 
 /* ================= OPERATION ============================================== */
 t1op             ::= OR:a           {:RESULT = new LogicOr(aleft, aright);:};
