@@ -37,7 +37,7 @@ public class MaxMunch {
             Tile next = it.next();
             if (next.fits(irRoot)) {
                 tiledRoot = next;
-                it.set(tiledRoot.clone()); // replace in the list with a copy so values aren't overridden
+                it.set(tiledRoot.blankClone()); // replace in the list with a copy so values aren't overridden
             }
         }
 

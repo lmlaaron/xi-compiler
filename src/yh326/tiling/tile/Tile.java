@@ -4,7 +4,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 import java.util.List;
 
-public abstract class Tile implements Cloneable {
+public abstract class Tile {
     protected IRNode root;
     protected List<IRNode> subtreeRoots;
     protected List<Tile> subtreeTiles;
@@ -23,7 +23,11 @@ public abstract class Tile implements Cloneable {
      */
     public abstract int size();
 
-    public abstract Tile clone();
+    /**
+     * For our applications we don't need a proper clone, just another
+     * uninitialized instance of the same type
+     */
+    public abstract Tile blankClone();
 
     /**
      * @return a list of all roots of subtrees which are not a part of this tile
