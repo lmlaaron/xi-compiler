@@ -12,6 +12,7 @@ public class FalseLiteral extends ExprAtom {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      */
@@ -23,7 +24,7 @@ public class FalseLiteral extends ExprAtom {
     public IRNode translate() {
         return new IRConst(0);
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         return new VariableType(Primitives.BOOL);

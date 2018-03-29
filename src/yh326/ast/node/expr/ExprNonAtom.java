@@ -13,9 +13,10 @@ import yh326.ast.type.NodeType;
 public class ExprNonAtom extends Expr {
     private Operator operator;
     private List<Node> operands;
-    
+
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param nodes
@@ -23,7 +24,7 @@ public class ExprNonAtom extends Expr {
 
     public ExprNonAtom(int line, int col, Node... nodes) {
         super(line, col, nodes);
-        operator = (Operator)children.get(0);
+        operator = (Operator) children.get(0);
         operands = children.subList(1, children.size());
     }
 
@@ -31,7 +32,7 @@ public class ExprNonAtom extends Expr {
     public IRNode translate() {
         IRExpr[] translatedOperands = new IRExpr[operands.size()];
         for (int i = 0; i < operands.size(); i++)
-            translatedOperands[i] = (IRExpr)operands.get(i).translate();
+            translatedOperands[i] = (IRExpr) operands.get(i).translate();
 
         return operator.translateWithOperands(translatedOperands);
     }

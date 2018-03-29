@@ -9,7 +9,7 @@ public class MatchTypeException extends TypecheckingException {
     public MatchTypeException(int line, int col, NodeType a, NodeType b) {
         super(line, col, "Expected " + a + ", but found " + b);
     }
-    
+
     public MatchTypeException(int line, int col, String a, NodeType b) {
         super(line, col, "Expected " + a + ", but found " + b);
     }

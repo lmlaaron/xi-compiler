@@ -10,7 +10,6 @@ public abstract class EqualityComparisonOperator extends ComparisonOperator {
         super(line, col, repr);
     }
 
-
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         NodeType intType = new VariableType(Primitives.INT);
@@ -18,11 +17,9 @@ public abstract class EqualityComparisonOperator extends ComparisonOperator {
 
         if (operandType.equals(intType) || operandType.equals(boolType)) {
             return boolType;
-        }
-        else if (operandType instanceof VariableType && ((VariableType)operandType).getLevel() > 0){
+        } else if (operandType instanceof VariableType && ((VariableType) operandType).getLevel() > 0) {
             return boolType;
-        }
-        else {
+        } else {
             throw new OperandTypeException(line, col, value, "int");
         }
     }

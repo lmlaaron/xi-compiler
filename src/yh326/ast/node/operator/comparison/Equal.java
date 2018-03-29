@@ -15,9 +15,9 @@ public class Equal extends EqualityComparisonOperator {
         // TODO: won't work on arrays
         return new IRBinOp(OpType.EQ, operands[0], operands[1]);
     }
-    
+
     @Override
     public IRNode translate() {
-    	return new IRBinOp(OpType.EQ, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2));
+        return new IRBinOp(OpType.EQ, (IRExpr) children.get(1).translate(), (IRExpr) children.get(2));
     }
 }

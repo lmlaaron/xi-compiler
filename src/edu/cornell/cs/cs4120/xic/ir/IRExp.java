@@ -7,15 +7,15 @@ import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
  * An intermediate representation for evaluating an expression for side effects,
- * discarding the result
- * EXP(e)
+ * discarding the result EXP(e)
  */
 public class IRExp extends IRStmt {
     private IRExpr expr;
 
     /**
      *
-     * @param expr the expression to be evaluated and result discarded
+     * @param expr
+     *            the expression to be evaluated and result discarded
      */
     public IRExp(IRExpr expr) {
         this.expr = expr;
@@ -34,7 +34,8 @@ public class IRExp extends IRStmt {
     public IRNode visitChildren(IRVisitor v) {
         IRExpr expr = (IRExpr) v.visit(this, this.expr);
 
-        if (expr != this.expr) return v.nodeFactory().IRExp(expr);
+        if (expr != this.expr)
+            return v.nodeFactory().IRExp(expr);
 
         return this;
     }
@@ -47,8 +48,7 @@ public class IRExp extends IRStmt {
     }
 
     @Override
-    public CheckCanonicalIRVisitor checkCanonicalEnter(
-            CheckCanonicalIRVisitor v) {
+    public CheckCanonicalIRVisitor checkCanonicalEnter(CheckCanonicalIRVisitor v) {
         return v.enterExp();
     }
 

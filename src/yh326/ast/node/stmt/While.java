@@ -39,34 +39,34 @@ public class While extends Stmt {
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
-        
+
         st.enterBlock();
         then.typeCheck(st);
         st.exitBlock();
-        
+
         return new UnitType();
     }
-    
+
     @Override
     public IRNode translate() {
         return getIRWhile((IRExpr) condition.translate(), then.translate());
     }
-    
+
     public static IRSeq getIRWhile(IRExpr cond, IRNode then) {
-    	String labelNumber = NumberGetter.uniqueNumber();
-    	
-    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	stmts.add(new IRLabel("_head_" + labelNumber));
-    	stmts.add(new IRCJump(cond, "_then_" + labelNumber));
-    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
-    	stmts.add(new IRLabel("_then_" + labelNumber));
-    	if (then instanceof IRExpr) {
-    		stmts.add(new IRExp((IRExpr) then));
-    	} else {
-    		stmts.add((IRStmt) then);
-    	}
-    	stmts.add(new IRJump(new IRName("_head_" + labelNumber)));
-    	stmts.add(new IRLabel("_end_" + labelNumber));
-    	return new IRSeq(stmts);
+        String labelNumber = NumberGetter.uniqueNumber();
+
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        stmts.add(new IRLabel("_head_" + labelNumber));
+        stmts.add(new IRCJump(cond, "_then_" + labelNumber));
+        stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+        stmts.add(new IRLabel("_then_" + labelNumber));
+        if (then instanceof IRExpr) {
+            stmts.add(new IRExp((IRExpr) then));
+        } else {
+            stmts.add((IRStmt) then);
+        }
+        stmts.add(new IRJump(new IRName("_head_" + labelNumber)));
+        stmts.add(new IRLabel("_end_" + labelNumber));
+        return new IRSeq(stmts);
     }
 }

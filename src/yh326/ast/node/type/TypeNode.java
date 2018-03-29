@@ -13,11 +13,11 @@ public class TypeNode extends Node {
     public TypeNode(int line, int col, String string) {
         super(line, col, string);
     }
-    
+
     public TypeNode(int line, int col, Node... nodes) {
         super(line, col, nodes);
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         VariableType t = (VariableType) children.get(1).typeCheck(sTable);
@@ -35,7 +35,7 @@ public class TypeNode extends Node {
                 throw new MatchTypeException(line, col, integer, expr);
             }
         }
-        
+
         return t;
     }
 }

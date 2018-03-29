@@ -14,6 +14,7 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
 
     /**
      * Bind two aggregate results
+     * 
      * @param r1
      * @param r2
      * @return
@@ -24,11 +25,13 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
      * Recursively traverse the IR subtree rooted at {@code n}
      */
     public T visit(IRNode parent, IRNode n) {
-        if (n == null) return null;
+        if (n == null)
+            return null;
 
         /* Allow the visitor implementation to hijack traversal of n */
         T overrideValue = override(parent, n);
-        if (overrideValue != null) return overrideValue;
+        if (overrideValue != null)
+            return overrideValue;
 
         AggregateVisitor<T> v_ = enter(parent, n);
         if (v_ == null)
@@ -54,9 +57,9 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
 
     /**
      * Allows to hijack the traversal of a subtree. This function is called by
-     * {@link #visit(IRNode, IRNode)} upon entering node {@code n}.
-     * If a non-null result {@code r} is returned, the traversal is stopped
-     * and the result is {@code r}.
+     * {@link #visit(IRNode, IRNode)} upon entering node {@code n}. If a non-null
+     * result {@code r} is returned, the traversal is stopped and the result is
+     * {@code r}.
      *
      * By default, overriding is inactive.
      */
@@ -65,33 +68,33 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
     }
 
     /**
-     * Called upon entering {@code n} during the AST traversal. This allows
-     * to perform certain actions, including returning a new visitor to be
-     * used in the subtree.
+     * Called upon entering {@code n} during the AST traversal. This allows to
+     * perform certain actions, including returning a new visitor to be used in the
+     * subtree.
      */
     protected AggregateVisitor<T> enter(IRNode parent, IRNode n) {
         return this;
     }
 
     /**
-     * Called after finishing traversal of the subtree rooted at {@code n}.
-     * When {@link #enter(IRNode, IRNode)} creates a new visitor to be used on
-     * the subtree, the old visitor still receives the call to {@code leave()}
-     * -- that is, {@code leave()} always executed the same number of times
-     * as {@link #enter(IRNode, IRNode)}.
-     * This node provides the final opportunity of placing an updated node
-     * in the output AST.
+     * Called after finishing traversal of the subtree rooted at {@code n}. When
+     * {@link #enter(IRNode, IRNode)} creates a new visitor to be used on the
+     * subtree, the old visitor still receives the call to {@code leave()} -- that
+     * is, {@code leave()} always executed the same number of times as
+     * {@link #enter(IRNode, IRNode)}. This node provides the final opportunity of
+     * placing an updated node in the output AST.
      *
      * @param parent
-     *            The parent AST node of {@code n} or {@code null}
-     *            when it is the root.
+     *            The parent AST node of {@code n} or {@code null} when it is the
+     *            root.
      * @param n
      *            The original node in the input AST
      * @param r
-     *            The result returned by {@link IRNode#aggregateChildren(AggregateVisitor)}
+     *            The result returned by
+     *            {@link IRNode#aggregateChildren(AggregateVisitor)}
      * @param v_
-     *            The new node visitor created by
-     *            {@link #enter(IRNode, IRNode)}, or {@code this}.
+     *            The new node visitor created by {@link #enter(IRNode, IRNode)}, or
+     *            {@code this}.
      */
 
     protected T leave(IRNode parent, IRNode n, T r, AggregateVisitor<T> v_) {
@@ -99,13 +102,16 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
     }
 
     /**
-     * Return a clone of this visitor if the given visitor is this visitor,
-     * or the given visitor otherwise.
-     * @param v the visitor
+     * Return a clone of this visitor if the given visitor is this visitor, or the
+     * given visitor otherwise.
+     * 
+     * @param v
+     *            the visitor
      * @return a clone of v if v == this, or v otherwise
      */
     protected <V extends AggregateVisitor<T>> V copyIfNeeded(V v) {
-        if (v == this) return Copy.Util.copy(v);
+        if (v == this)
+            return Copy.Util.copy(v);
         return v;
     }
 
@@ -114,8 +120,7 @@ public abstract class AggregateVisitor<T> implements Copy<AggregateVisitor<T>> {
     public AggregateVisitor<T> copy() {
         try {
             return (AggregateVisitor<T>) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException e) {
             throw new InternalCompilerError("Java clone() weirdness.");
         }
     }

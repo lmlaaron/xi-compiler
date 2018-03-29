@@ -11,6 +11,7 @@ import yh326.ast.type.UnitType;
 
 /**
  * A abstract node in the AST of a program.
+ * 
  * @author Syugen
  *
  */
@@ -25,9 +26,11 @@ public class Node {
     public String fileName;
 
     /**
-     * Use this constructor to construct a leaf node.
-     * It can be a variable, an integer, a keyword, an operator, etc.
-     * @param value The string representation of the node.
+     * Use this constructor to construct a leaf node. It can be a variable, an
+     * integer, a keyword, an operator, etc.
+     * 
+     * @param value
+     *            The string representation of the node.
      */
     public Node(int line, int col, String value) {
         this.line = line;
@@ -40,7 +43,9 @@ public class Node {
 
     /**
      * Use this constructor to construct a non-leaf node.
-     * @param nodes Children of the node to be constructed.
+     * 
+     * @param nodes
+     *            Children of the node to be constructed.
      */
     public Node(int line, int col, Node... nodes) {
         this.line = line;
@@ -53,7 +58,7 @@ public class Node {
             this.children.add(node);
         }
     }
-    
+
     /**
      * Special case for Node(Node... nodes).
      */
@@ -67,10 +72,12 @@ public class Node {
     }
 
     /**
-     * Load methods in use statements and methods defined in the file into
-     * the symbol table. This must be called before typeCheck is called.
-     * "Use", "Interface", and "Method" class should override this method.
-     * @param sTable the complete symbol table for the scope of this node
+     * Load methods in use statements and methods defined in the file into the
+     * symbol table. This must be called before typeCheck is called. "Use",
+     * "Interface", and "Method" class should override this method.
+     * 
+     * @param sTable
+     *            the complete symbol table for the scope of this node
      * @throws Exception
      */
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
@@ -80,7 +87,7 @@ public class Node {
             }
         }
     }
-    
+
     public void loadMethods(SymbolTable sTable) throws Exception {
         for (Node child : children) {
             if (child != null) {
@@ -90,13 +97,15 @@ public class Node {
     }
 
     /**
-     * Checks if the node has a valid type. Subclasses that involve variable 
-     * or function declaration or using should rewrite this method. Others
-     * (like "UseList", "Keyword" class, etc) don't need to rewrite.
-     * NOTE: THIS METHOD MUST BE CALLED WHEN loadMethods HAS ALREADY BEEN CALLED.
-     * @param sTable the complete symbol table for the scope of this node
+     * Checks if the node has a valid type. Subclasses that involve variable or
+     * function declaration or using should rewrite this method. Others (like
+     * "UseList", "Keyword" class, etc) don't need to rewrite. NOTE: THIS METHOD
+     * MUST BE CALLED WHEN loadMethods HAS ALREADY BEEN CALLED.
+     * 
+     * @param sTable
+     *            the complete symbol table for the scope of this node
      * @return the NodeType of the node
-     * @throws Exception 
+     * @throws Exception
      */
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType type = new UnitType();
@@ -112,29 +121,33 @@ public class Node {
 
     /**
      * Subclasses should override this method if it needs translation.
+     * 
      * @return IRNode
      */
     public IRNode translate() {
-    	throw new RuntimeException("translate() not implemented for given subclass");
+        throw new RuntimeException("translate() not implemented for given subclass");
     }
-    
+
     /**
      * This method should only be called by IRWrapper.
+     * 
      * @return IRNode
      */
     public IRNode translateProgram() {
-		for (Node child : children) {
-	        if (child != null && child instanceof MethodList) {
-	        		child.fileName = fileName;
-	            return child.translate();
-	        }
-	    }
-	    return null;
-	}
+        for (Node child : children) {
+            if (child != null && child instanceof MethodList) {
+                child.fileName = fileName;
+                return child.translate();
+            }
+        }
+        return null;
+    }
 
     /**
      * Add given nodes as children of this node.
-     * @param nodes The nodes to be added.
+     * 
+     * @param nodes
+     *            The nodes to be added.
      */
     public void addNodes(Node... nodes) {
         for (Node node : nodes) {
@@ -144,10 +157,13 @@ public class Node {
 
     /**
      * Add children of the given node as children of this node.
-     * @param node The node whose children are to be added.
+     * 
+     * @param node
+     *            The node whose children are to be added.
      */
     public void addChildren(Node node) {
-        if (node == null) return;
+        if (node == null)
+            return;
         for (Node child : node.children) {
             children.add(child);
         }
@@ -155,6 +171,7 @@ public class Node {
 
     /**
      * Remove the outer most redundant parentheses.
+     * 
      * @return The node after removing the outer most redundant parentheses.
      */
     public Node sub() {
@@ -168,15 +185,15 @@ public class Node {
     }
 
     /*
-    Add the given node to the most left bottom position of the tree.
-    Note: this.children.get(0) is the root
-          this.children.get(1) is the first child
+     * Add the given node to the most left bottom position of the tree. Note:
+     * this.children.get(0) is the root this.children.get(1) is the first child
      */
     /**
-     * Add the given node to the most left bottom position of the tree.
-     * Note: this.children.get(0) is the "root";
-     *       this.children.get(1) is the first child.
-     * @param node The node to be added.
+     * Add the given node to the most left bottom position of the tree. Note:
+     * this.children.get(0) is the "root"; this.children.get(1) is the first child.
+     * 
+     * @param node
+     *            The node to be added.
      */
     public void addHead(Node node) {
         Node cur = this;

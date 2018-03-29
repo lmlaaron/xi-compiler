@@ -1,7 +1,7 @@
 package edu.cornell.cs.cs4120.util;
 
 /**
- * Interface used to copy objects.  Similar to {@code Cloneable}, except that
+ * Interface used to copy objects. Similar to {@code Cloneable}, except that
  * {@code copy()} must be public, not protected as {@code clone()} is.
  */
 public interface Copy<T> extends Cloneable {

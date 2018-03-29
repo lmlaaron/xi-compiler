@@ -14,8 +14,9 @@ public abstract class Expr extends Stmt {
     }
 
     /**
-     * This operator is used when creating ArrayLiteral, unary expression,
-     * and binary expression.
+     * This operator is used when creating ArrayLiteral, unary expression, and
+     * binary expression.
+     * 
      * @param line
      * @param col
      * @param nodes

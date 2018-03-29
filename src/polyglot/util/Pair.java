@@ -26,7 +26,8 @@
 
 package polyglot.util;
 
-/** A two-element tuple.
+/**
+ * A two-element tuple.
  */
 public class Pair<T, U> {
     protected T part1;
@@ -62,7 +63,6 @@ public class Pair<T, U> {
 
     @Override
     public int hashCode() {
-        return (part1 != null ? part1.hashCode() : 0)
-                ^ (part2 != null ? part2.hashCode() + 23457 : 31);
+        return (part1 != null ? part1.hashCode() : 0) ^ (part2 != null ? part2.hashCode() + 23457 : 31);
     }
 }

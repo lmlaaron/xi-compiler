@@ -10,17 +10,17 @@ public class UseList extends Node {
     public UseList(int line, int col) {
         super(line, col);
     }
-    
+
     public UseList(int line, int col, Use u) {
         super(line, col, u);
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // Nothing needs to be checked inside UseList.
         return new UnitType();
     }
-    
+
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         for (Node child : children) {
@@ -29,10 +29,10 @@ public class UseList extends Node {
             }
         }
     }
-    
+
     @Override
     public IRNode translate() {
-    		return null;
+        return null;
     }
-    
+
 }

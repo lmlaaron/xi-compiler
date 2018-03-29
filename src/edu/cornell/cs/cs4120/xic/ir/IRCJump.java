@@ -15,9 +15,11 @@ public class IRCJump extends IRStmt {
 
     /**
      * Construct a CJUMP instruction with fall-through on false.
-     * @param cond the condition for the jump
-     * @param trueLabel the destination of the jump if {@code expr} evaluates
-     *          to true
+     * 
+     * @param cond
+     *            the condition for the jump
+     * @param trueLabel
+     *            the destination of the jump if {@code expr} evaluates to true
      */
     public IRCJump(IRExpr cond, String trueLabel) {
         this(cond, trueLabel, null);
@@ -25,11 +27,12 @@ public class IRCJump extends IRStmt {
 
     /**
      *
-     * @param cond the condition for the jump
-     * @param trueLabel the destination of the jump if {@code expr} evaluates
-     *          to true
-     * @param falseLabel the destination of the jump if {@code expr} evaluates
-     *          to false
+     * @param cond
+     *            the condition for the jump
+     * @param trueLabel
+     *            the destination of the jump if {@code expr} evaluates to true
+     * @param falseLabel
+     *            the destination of the jump if {@code expr} evaluates to false
      */
     public IRCJump(IRExpr cond, String trueLabel, String falseLabel) {
         this.cond = cond;
@@ -86,7 +89,8 @@ public class IRCJump extends IRStmt {
         p.printAtom("CJUMP");
         cond.printSExp(p);
         p.printAtom(trueLabel);
-        if (hasFalseLabel()) p.printAtom(falseLabel);
+        if (hasFalseLabel())
+            p.printAtom(falseLabel);
         p.endList();
     }
 }

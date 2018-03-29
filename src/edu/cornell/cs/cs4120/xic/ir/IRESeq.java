@@ -15,8 +15,10 @@ public class IRESeq extends IRExpr_c {
 
     /**
      *
-     * @param stmt IR statement to be evaluated for side effects
-     * @param expr IR expression to be evaluated after {@code stmt}
+     * @param stmt
+     *            IR statement to be evaluated for side effects
+     * @param expr
+     *            IR expression to be evaluated after {@code stmt}
      */
     public IRESeq(IRStmt stmt, IRExpr expr) {
         this.stmt = stmt;

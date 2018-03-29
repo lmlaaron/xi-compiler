@@ -13,12 +13,14 @@ import yh326.ast.node.stmt.VarDecl;
 
 /**
  * A node that represents a list of return variable declarations.
+ * 
  * @author Syugen
  *
  */
 public class FunctionTypeDeclList extends Node {
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param varDecl
@@ -26,23 +28,24 @@ public class FunctionTypeDeclList extends Node {
     public FunctionTypeDeclList(int line, int col, VarDecl varDecl) {
         super(line, col, varDecl);
     }
-    
+
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      */
     public FunctionTypeDeclList(int line, int col) {
         super(line, col);
     }
-    
+
     @Override
     public IRNode translate() {
-    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	for (int i = 0; i < children.size(); i++) {
-    		IRTemp id = (IRTemp) children.get(i).translate();
-    		stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
-    	}
-    	return new IRSeq(stmts);
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        for (int i = 0; i < children.size(); i++) {
+            IRTemp id = (IRTemp) children.get(i).translate();
+            stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
+        }
+        return new IRSeq(stmts);
     }
 }

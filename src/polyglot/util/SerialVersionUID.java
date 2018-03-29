@@ -52,8 +52,7 @@ public class SerialVersionUID implements Serializable {
         try {
             Class<?> clazz = Class.forName(caller.getClassName());
             return generate(clazz);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             throw new Error(e);
         }
     }
@@ -103,8 +102,8 @@ public class SerialVersionUID implements Serializable {
             }
             for (Field field : fields) {
                 int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers)
-                        || Modifier.isTransient(modifiers)) continue;
+                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers))
+                    continue;
 
                 // Add field name to hash.
                 md.update(field.getName().getBytes("UTF-8"));
@@ -121,89 +120,65 @@ public class SerialVersionUID implements Serializable {
             try {
                 clazz.getDeclaredMethod("writeObject", ObjectOutputStream.class);
                 try {
-                    Field writeObjectVersion =
-                            clazz.getDeclaredField("writeObjectVersionUID");
+                    Field writeObjectVersion = clazz.getDeclaredField("writeObjectVersionUID");
                     writeObjectVersion.setAccessible(true);
                     long ver = writeObjectVersion.getLong(clazz);
                     md.update(getBytes(ver));
-                }
-                catch (NoSuchFieldException e) {
-                    throw new Error(clazz
-                            + " defines writeObject(ObjectOutputStream) "
-                            + "but not writeObjectVersionUID");
-                }
-                catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException e) {
+                    throw new Error(
+                            clazz + " defines writeObject(ObjectOutputStream) " + "but not writeObjectVersionUID");
+                } catch (IllegalAccessException e) {
                     throw new Error(e);
                 }
-            }
-            catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
             }
             try {
                 clazz.getDeclaredMethod("readObject", ObjectInputStream.class);
                 try {
-                    Field readObjectVersion =
-                            clazz.getDeclaredField("readObjectVersionUID");
+                    Field readObjectVersion = clazz.getDeclaredField("readObjectVersionUID");
                     readObjectVersion.setAccessible(true);
                     long ver = readObjectVersion.getLong(clazz);
                     md.update(getBytes(ver));
-                }
-                catch (NoSuchFieldException e) {
-                    throw new Error(clazz
-                            + " defines readObject(ObjectInputStream) "
-                            + "but not readObjectVersionUID");
-                }
-                catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException e) {
+                    throw new Error(clazz + " defines readObject(ObjectInputStream) " + "but not readObjectVersionUID");
+                } catch (IllegalAccessException e) {
                     throw new Error(e);
                 }
-            }
-            catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
             }
             try {
                 clazz.getDeclaredMethod("writeReplace");
                 try {
-                    Field writeReplaceVersion =
-                            clazz.getDeclaredField("writeReplaceVersionUID");
+                    Field writeReplaceVersion = clazz.getDeclaredField("writeReplaceVersionUID");
                     writeReplaceVersion.setAccessible(true);
                     long ver = writeReplaceVersion.getLong(clazz);
                     md.update(getBytes(ver));
-                }
-                catch (NoSuchFieldException e) {
-                    throw new Error(clazz + " defines writeReplace() "
-                            + "but not writeReplaceVersionUID");
-                }
-                catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException e) {
+                    throw new Error(clazz + " defines writeReplace() " + "but not writeReplaceVersionUID");
+                } catch (IllegalAccessException e) {
                     throw new Error(e);
                 }
-            }
-            catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
             }
             try {
                 clazz.getDeclaredMethod("readResolve");
                 try {
-                    Field readResolveVersion =
-                            clazz.getDeclaredField("readResolveVersionUID");
+                    Field readResolveVersion = clazz.getDeclaredField("readResolveVersionUID");
                     readResolveVersion.setAccessible(true);
                     long ver = readResolveVersion.getLong(clazz);
                     md.update(getBytes(ver));
-                }
-                catch (NoSuchFieldException e) {
-                    throw new Error(clazz + " defines readResolve() "
-                            + "but not readResolveVersionUID");
-                }
-                catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException e) {
+                    throw new Error(clazz + " defines readResolve() " + "but not readResolveVersionUID");
+                } catch (IllegalAccessException e) {
                     throw new Error(e);
                 }
-            }
-            catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
             }
 
             byte[] md5 = md.digest();
             return longAt(md5, 0) ^ longAt(md5, 8);
-        }
-        catch (NoSuchAlgorithmException
-               | UnsupportedEncodingException
-               | SecurityException
-               | IllegalArgumentException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | SecurityException
+                | IllegalArgumentException e) {
             throw new Error(e);
         }
     }
@@ -212,14 +187,10 @@ public class SerialVersionUID implements Serializable {
      * Returns the long that starts at the given position in the given byte array.
      */
     public static final long longAt(byte[] data, int pos) {
-        return (long) (data[pos + 0] & 0xff) << 56
-                | (long) (data[pos + 1] & 0xff) << 48
-                | (long) (data[pos + 2] & 0xff) << 40
-                | (long) (data[pos + 3] & 0xff) << 32
-                | (long) (data[pos + 4] & 0xff) << 24
-                | (long) (data[pos + 5] & 0xff) << 16
-                | (long) (data[pos + 6] & 0xff) << 8
-                | (long) (data[pos + 7] & 0xff) << 0;
+        return (long) (data[pos + 0] & 0xff) << 56 | (long) (data[pos + 1] & 0xff) << 48
+                | (long) (data[pos + 2] & 0xff) << 40 | (long) (data[pos + 3] & 0xff) << 32
+                | (long) (data[pos + 4] & 0xff) << 24 | (long) (data[pos + 5] & 0xff) << 16
+                | (long) (data[pos + 6] & 0xff) << 8 | (long) (data[pos + 7] & 0xff) << 0;
     }
 
     public static final byte[] getBytes(long value) {

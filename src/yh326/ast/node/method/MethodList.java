@@ -10,15 +10,17 @@ public class MethodList extends Node {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      */
     public MethodList(int line, int col) {
         super(line, col);
     }
-    
+
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param nodes
@@ -26,19 +28,19 @@ public class MethodList extends Node {
     public MethodList(int line, int col, Node... nodes) {
         super(line, col, nodes);
     }
-    
+
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         loadMethods(sTable);
     }
-    
+
     @Override
     public IRNode translate() {
-		IRCompUnit irNode = new IRCompUnit("_" + fileName);
-		for (Node child : children) {
-			irNode.appendFunc((IRFuncDecl) child.translate());
-		}
-		return irNode;
+        IRCompUnit irNode = new IRCompUnit("_" + fileName);
+        for (Node child : children) {
+            irNode.appendFunc((IRFuncDecl) child.translate());
+        }
+        return irNode;
     }
 
 }

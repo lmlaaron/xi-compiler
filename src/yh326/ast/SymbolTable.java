@@ -22,14 +22,14 @@ import yh326.util.Tuple;
  *
  */
 public class SymbolTable {
-    
+
     private Stack<String> logs;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
     private Set<String> funcImplemented;
     private String curFunc;
     private int level;
-    
+
     /**
      * 
      */
@@ -41,18 +41,18 @@ public class SymbolTable {
         curFunc = null;
         level = 0;
     }
-    
+
     public NodeType getCurFuncReturnType() {
         if (curFunc == null) {
             throw new RuntimeException("Unexpected error.");
         }
         return funcTable.get(curFunc).t2;
     }
-    
+
     public void setCurFunction(String curFunc) {
         this.curFunc = curFunc;
     }
-    
+
     public boolean setImplemented(String name) {
         if (funcImplemented.contains(name)) {
             return false;
@@ -61,7 +61,7 @@ public class SymbolTable {
             return true;
         }
     }
-    
+
     /**
      * 
      */
@@ -69,7 +69,7 @@ public class SymbolTable {
         logs.push(null);
         level++;
     }
-    
+
     /**
      * 
      */
@@ -84,7 +84,7 @@ public class SymbolTable {
         }
         level--;
     }
-    
+
     /**
      * @param name
      * @param VariableType
@@ -99,7 +99,7 @@ public class SymbolTable {
             return true;
         }
     }
-    
+
     /**
      * @param name
      * @param funcType
@@ -120,7 +120,7 @@ public class SymbolTable {
         } else {
             ret = new ListVariableType(rets);
         }
-        
+
         if (funcTable.containsKey(name)) {
             // Functions with same name can appear, but must have same signature
             Tuple<NodeType, NodeType> type = funcTable.get(name);
@@ -134,11 +134,13 @@ public class SymbolTable {
             return true;
         }
     }
-    
+
     /**
-     * Given the name of a variable, return the type of that variable.
-     * Return null if the variable is not defined in the symbol table.
-     * @param varName The name of the variable
+     * Given the name of a variable, return the type of that variable. Return null
+     * if the variable is not defined in the symbol table.
+     * 
+     * @param varName
+     *            The name of the variable
      * @return The type of the variable with the given name or null.
      */
     public VariableType getVariableType(String varName) {
@@ -148,13 +150,15 @@ public class SymbolTable {
             return null;
         }
     }
-    
+
     /**
-     * Given the name of a function, return the type of that function.
-     * Return null if the function is not defined in the symbol table.
-     * @param funcName The name of the function
+     * Given the name of a function, return the type of that function. Return null
+     * if the function is not defined in the symbol table.
+     * 
+     * @param funcName
+     *            The name of the function
      * @return The type of the function with the given name or null.
-     * @throws FunctionNotDefinedException 
+     * @throws FunctionNotDefinedException
      */
     public Tuple<NodeType, NodeType> getFunctionType(String funcName) {
         if (funcTable.containsKey(funcName)) {
@@ -163,7 +167,7 @@ public class SymbolTable {
             return null;
         }
     }
-    
+
     public void dumpTable() {
         System.out.println("Function table:");
         if (funcTable.keySet().size() == 0) {
@@ -182,7 +186,7 @@ public class SymbolTable {
         System.out.println("Log:");
         System.out.println("  " + Arrays.toString(logs.toArray()));
     }
-    
+
     public int getLevel() {
         return level;
     }

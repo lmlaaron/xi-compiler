@@ -16,8 +16,7 @@ public abstract class LogicalOperator extends Operator {
         NodeType boolType = new VariableType(Primitives.BOOL);
         if (operandType.equals(boolType)) {
             return boolType;
-        }
-        else {
+        } else {
             throw new OperandTypeException(line, col, value, "bool");
         }
     }

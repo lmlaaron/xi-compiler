@@ -12,6 +12,7 @@ public class TrueLiteral extends ExprAtom {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      */

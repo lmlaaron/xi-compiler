@@ -16,8 +16,7 @@ public abstract class ArithmeticOperator extends Operator {
         NodeType intType = new VariableType(Primitives.INT);
         if (operandType.equals(intType)) {
             return intType;
-        }
-        else {
+        } else {
             throw new OperandTypeException(line, col, value, "int");
         }
     }

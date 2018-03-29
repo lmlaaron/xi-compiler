@@ -16,8 +16,7 @@ public abstract class ArithmeticComparisonOperator extends ComparisonOperator {
         NodeType boolType = new VariableType(Primitives.BOOL);
         if (operandType.equals(intType)) {
             return boolType;
-        }
-        else {
+        } else {
             throw new OperandTypeException(line, col, value, "int");
         }
     }

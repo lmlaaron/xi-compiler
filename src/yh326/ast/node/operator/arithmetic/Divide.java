@@ -9,7 +9,6 @@ public class Divide extends ArithmeticOperator {
     public Divide(int line, int col) {
         super(line, col, "/");
     }
-    
 
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {

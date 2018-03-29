@@ -35,14 +35,9 @@ public class AssignMult extends Stmt {
 
         // move return values into lhs
         for (int i = 0; i < lhs.children.size(); i++) {
-        	if (!(lhs.children.get(i) instanceof Underscore)) {
-        		stmts.add(
-        		        new IRMove(
-                            (IRExpr) lhs.children.get(i).translate(),
-        				    new IRTemp("_RET" + i)
-                        )
-                );
-        	}
+            if (!(lhs.children.get(i) instanceof Underscore)) {
+                stmts.add(new IRMove((IRExpr) lhs.children.get(i).translate(), new IRTemp("_RET" + i)));
+            }
         }
 
         return new IRSeq(stmts);
@@ -51,18 +46,18 @@ public class AssignMult extends Stmt {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType rightType = expr.typeCheck(sTable);
-        
+
         // Multi-assign: LHS can only be comma separated varDecl or underscores.
         List<VariableType> types = new ArrayList<VariableType>();
         for (Node child : lhs.children) {
-        	if (child instanceof Underscore) {
-        		types.add(new VariableType(Primitives.ANY));
-        	} else if (child instanceof VarDecl) {
-        		types.add((VariableType) ((VarDecl) child).typeCheckAndReturn(sTable));
-        	}
-            
+            if (child instanceof Underscore) {
+                types.add(new VariableType(Primitives.ANY));
+            } else if (child instanceof VarDecl) {
+                types.add((VariableType) ((VarDecl) child).typeCheckAndReturn(sTable));
+            }
+
         }
-        
+
         // Check if LHS and RHS match.
         ListVariableType leftType = new ListVariableType(types);
         if (leftType.equals((ListVariableType) rightType)) {
@@ -70,6 +65,6 @@ public class AssignMult extends Stmt {
         } else {
             throw new AssignTypeException(line, col, rightType, leftType);
         }
-        
+
     }
 }

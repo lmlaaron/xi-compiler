@@ -38,8 +38,7 @@ public abstract class IRNode_c implements IRNode {
     }
 
     @Override
-    public CheckCanonicalIRVisitor checkCanonicalEnter(
-            CheckCanonicalIRVisitor v) {
+    public CheckCanonicalIRVisitor checkCanonicalEnter(CheckCanonicalIRVisitor v) {
         return v;
     }
 
@@ -62,8 +61,7 @@ public abstract class IRNode_c implements IRNode {
     @Override
     public String toString() {
         StringWriter sw = new StringWriter();
-        try (PrintWriter pw = new PrintWriter(sw);
-             SExpPrinter sp = new CodeWriterSExpPrinter(pw)) {
+        try (PrintWriter pw = new PrintWriter(sw); SExpPrinter sp = new CodeWriterSExpPrinter(pw)) {
             printSExp(sp);
         }
         return sw.toString();

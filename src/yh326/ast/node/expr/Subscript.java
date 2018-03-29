@@ -19,6 +19,7 @@ public class Subscript extends Expr {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param node
@@ -27,15 +28,15 @@ public class Subscript extends Expr {
         // Node can only be identifier, method call, subscript.
         super(line, col, new Bracket(line, col), node);
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         VariableType t = (VariableType) children.get(1).typeCheck(sTable);
-        
+
         // Check if size (expr) is integer.
         VariableType expr = (VariableType) children.get(2).typeCheck(sTable);
         VariableType integer = new VariableType(Primitives.INT);
-        
+
         if (expr.equals(integer)) {
             if (t.getLevel() == 0) {
                 throw new OtherException(line, col, t + " is not subscriptable");
@@ -44,15 +45,14 @@ public class Subscript extends Expr {
                 return new VariableType(t.getType(), t.getLevel() - 1);
             }
         } else {
-            throw new MatchTypeException(line,col, integer, expr);
+            throw new MatchTypeException(line, col, integer, expr);
         }
     }
-    
+
     @Override
     public IRNode translate() {
-    	return new IRMem(new IRBinOp(OpType.ADD, 
-    			(IRExpr) children.get(1).translate(), 
-    			new IRBinOp(OpType.MUL, new IRConst(8), (IRExpr) children.get(2).translate())));
+        return new IRMem(new IRBinOp(OpType.ADD, (IRExpr) children.get(1).translate(),
+                new IRBinOp(OpType.MUL, new IRConst(8), (IRExpr) children.get(2).translate())));
     }
 
 }

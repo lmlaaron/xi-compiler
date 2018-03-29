@@ -13,7 +13,8 @@ public class ShiftTimes extends ArithmeticOperator {
 
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {
-        // TODO: need to double check if HMUL refers to high multiplication, if true, then "ShiftTimes" is a bad name.
+        // TODO: need to double check if HMUL refers to high multiplication, if true,
+        // then "ShiftTimes" is a bad name.
         return new IRBinOp(OpType.HMUL, operands[0], operands[1]);
     }
 

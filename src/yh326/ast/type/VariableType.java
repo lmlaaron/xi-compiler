@@ -5,16 +5,17 @@ import java.util.List;
 
 import yh326.ast.node.expr.Expr;
 import yh326.ast.node.expr.ExprAtom;
+
 /**
  * @author Syugen
  *
  */
 public class VariableType extends NodeType {
-    
+
     private Primitives type;
     private int level;
     private List<Expr> sizes;
-    
+
     /**
      * @param type
      */
@@ -23,7 +24,7 @@ public class VariableType extends NodeType {
         this.level = 0;
         this.sizes = new ArrayList<Expr>();
     }
-   
+
     public VariableType(Primitives type, int level) {
         this.type = type;
         this.level = 0;
@@ -43,16 +44,16 @@ public class VariableType extends NodeType {
     public int getLevel() {
         return this.level;
     }
-    
+
     public List<Expr> getSizes() {
         return this.sizes;
     }
-    
+
     public void increaseLevel() {
         level++;
         sizes.add(0, null);
     }
-    
+
     /**
      * @param i
      */
@@ -60,7 +61,7 @@ public class VariableType extends NodeType {
         level++;
         sizes.add(0, expr);
     }
-    
+
     public boolean decreaseLevel() {
         if (level > 0) {
             level--;
@@ -70,27 +71,39 @@ public class VariableType extends NodeType {
             return false;
         }
     }
-    
+
     public String toShortString() {
-    		String result = "";
-    		for (int i = 0; i < level; i++) {
-    			result += "a";
-    		}
-    		switch (type) {
-            case INT:   result += "i";   break;
-            case BOOL:  result += "b";  break;
-            default:    result += "?";     break;
+        String result = "";
+        for (int i = 0; i < level; i++) {
+            result += "a";
         }
-    		return result;
+        switch (type) {
+        case INT:
+            result += "i";
+            break;
+        case BOOL:
+            result += "b";
+            break;
+        default:
+            result += "?";
+            break;
+        }
+        return result;
     }
-    
+
     @Override
     public String toString() {
         String typeString = "";
         switch (type) {
-        case INT:   typeString += "int";   break;
-        case BOOL:  typeString += "bool";  break;
-        default:    typeString += "?";     break;
+        case INT:
+            typeString += "int";
+            break;
+        case BOOL:
+            typeString += "bool";
+            break;
+        default:
+            typeString += "?";
+            break;
         }
         for (int i = 0; i < level; i++) {
             typeString += "[";
@@ -114,12 +127,10 @@ public class VariableType extends NodeType {
             VariableType otherType = (VariableType) other;
             if (type == otherType.getType() && level == otherType.getLevel()) {
                 return true;
-            } else if (type == Primitives.ANY || 
-                    otherType.getType() == Primitives.ANY) {
+            } else if (type == Primitives.ANY || otherType.getType() == Primitives.ANY) {
                 return true;
-            } else if ((type == Primitives.EMPTY || 
-                    otherType.getType() == Primitives.EMPTY) &&
-                    level == otherType.getLevel()) {
+            } else if ((type == Primitives.EMPTY || otherType.getType() == Primitives.EMPTY)
+                    && level == otherType.getLevel()) {
                 return true;
             } else {
                 return false;
@@ -128,5 +139,5 @@ public class VariableType extends NodeType {
             return false;
         }
     }
-    
+
 }

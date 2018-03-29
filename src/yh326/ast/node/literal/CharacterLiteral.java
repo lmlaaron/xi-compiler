@@ -11,6 +11,7 @@ import yh326.ast.type.VariableType;
 public class CharacterLiteral extends ExprAtom {
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param ch
@@ -21,10 +22,11 @@ public class CharacterLiteral extends ExprAtom {
 
     @Override
     public IRNode translate() {
-        // per the constructor, 'value' is the character itself enclosed by single quotes
-        return new IRConst((int)value.charAt(1));
+        // per the constructor, 'value' is the character itself enclosed by single
+        // quotes
+        return new IRConst((int) value.charAt(1));
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         value = value.replace("\\b", "\b").replace("\\t", "\t");

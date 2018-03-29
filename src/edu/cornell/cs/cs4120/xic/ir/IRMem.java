@@ -6,8 +6,7 @@ import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
- * An intermediate representation for a memory location
- * MEM(e)
+ * An intermediate representation for a memory location MEM(e)
  */
 public class IRMem extends IRExpr_c {
     public enum MemType {
@@ -30,7 +29,8 @@ public class IRMem extends IRExpr_c {
 
     /**
      *
-     * @param expr the address of this memory location
+     * @param expr
+     *            the address of this memory location
      */
     public IRMem(IRExpr expr) {
         this(expr, MemType.NORMAL);
@@ -58,7 +58,8 @@ public class IRMem extends IRExpr_c {
     public IRNode visitChildren(IRVisitor v) {
         IRExpr expr = (IRExpr) v.visit(this, this.expr);
 
-        if (expr != this.expr) return v.nodeFactory().IRMem(expr);
+        if (expr != this.expr)
+            return v.nodeFactory().IRMem(expr);
 
         return this;
     }

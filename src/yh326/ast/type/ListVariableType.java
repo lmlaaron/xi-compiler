@@ -12,11 +12,11 @@ import java.util.List;
  */
 public class ListVariableType extends NodeType {
     private List<VariableType> variableTypes;
-    
+
     public ListVariableType(List<VariableType> variableTypes) {
         this.variableTypes = variableTypes;
     }
-    
+
     public ListVariableType(VariableType... variableTypes) {
         this.variableTypes = new ArrayList<VariableType>();
         for (VariableType variableType : variableTypes) {
@@ -42,7 +42,7 @@ public class ListVariableType extends NodeType {
         }
         return rs + ")";
     }
-    
+
     @Override
     public boolean equals(Object other) {
         // Note that sizes are not checked!

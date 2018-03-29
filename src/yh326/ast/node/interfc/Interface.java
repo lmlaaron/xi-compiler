@@ -12,9 +12,10 @@ public class Interface extends Node {
     private Identifier id;
     private FunctionTypeDeclList args;
     private RetvalList rets;
-    
+
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param id
@@ -27,7 +28,7 @@ public class Interface extends Node {
         this.args = args;
         this.rets = rets;
     }
-    
+
     @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.

@@ -27,6 +27,7 @@ public class MethodCall extends Expr {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param id
@@ -37,16 +38,16 @@ public class MethodCall extends Expr {
         this.argTypes = new ArrayList<VariableType>();
         this.retTypes = new ArrayList<VariableType>();
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // This method combined method call and procedure call.
-        
+
         // First check if id is defined as a variable.
         if (sTable.getVariableType(id.value) != null) {
             throw new OtherException(line, col, id.value + " is not a function");
         }
-        
+
         Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(id.value);
         if (funcType == null) {
             // Function not found
@@ -58,7 +59,7 @@ public class MethodCall extends Expr {
             }
         } else if (funcType.t1 instanceof VariableType) {
             // Function returns one value
-        	argTypes.add((VariableType) funcType.t1);
+            argTypes.add((VariableType) funcType.t1);
             if (children.size() == 2) {
                 VariableType type = (VariableType) children.get(1).typeCheck(sTable);
                 if (!type.equals(funcType.t1)) {
@@ -84,26 +85,26 @@ public class MethodCall extends Expr {
                 }
             }
         }
-        
+
         // Store return type
         if (funcType.t2 instanceof UnitType) {
             // Function is a procedure, do nothing
         } else if (funcType.t2 instanceof VariableType) {
             // Function returns one value
-        	retTypes.add((VariableType) funcType.t2);
+            retTypes.add((VariableType) funcType.t2);
         } else {
-        	retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
+            retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
         }
         return funcType.t2;
     }
-    
+
     @Override
     public IRNode translate() {
-    	String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
-    	List<IRExpr> exprs = new ArrayList<IRExpr>();
-    	for (int i = 1; i < children.size(); i++) {
-    		exprs.add((IRExpr) children.get(i).translate());
-    	}
-		return new IRCall(new IRName(name), exprs);
+        String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
+        List<IRExpr> exprs = new ArrayList<IRExpr>();
+        for (int i = 1; i < children.size(); i++) {
+            exprs.add((IRExpr) children.get(i).translate());
+        }
+        return new IRCall(new IRName(name), exprs);
     }
 }

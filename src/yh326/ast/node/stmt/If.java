@@ -34,36 +34,37 @@ public class If extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
-    	NodeType tg = condition.typeCheck(st);
+        NodeType tg = condition.typeCheck(st);
         NodeType boolType = new VariableType(Primitives.BOOL);
-        
+
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
-        
+
         st.enterBlock();
         then.typeCheck(st);
         st.exitBlock();
-        
+
         return new UnitType();
     }
-    
+
     @Override
-    // TODO: need to run insnMapsBuilder to construct the mapping from "then" to isTrueLabel
+    // TODO: need to run insnMapsBuilder to construct the mapping from "then" to
+    // isTrueLabel
     public IRNode translate() {
         String labelNumber = NumberGetter.uniqueNumber();
 
-    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
-    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
-    	stmts.add(new IRLabel("_then_" + labelNumber));
-    	IRNode thenStmt = then.translate();
-    	if (thenStmt instanceof IRExpr) {
-    		stmts.add(new IRExp((IRExpr) thenStmt));
-    	} else {
-    		stmts.add((IRStmt) thenStmt);
-    	}
-    	stmts.add(new IRLabel("_end_" + labelNumber));
-    	return new IRSeq(stmts);
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
+        stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+        stmts.add(new IRLabel("_then_" + labelNumber));
+        IRNode thenStmt = then.translate();
+        if (thenStmt instanceof IRExpr) {
+            stmts.add(new IRExp((IRExpr) thenStmt));
+        } else {
+            stmts.add((IRStmt) thenStmt);
+        }
+        stmts.add(new IRLabel("_end_" + labelNumber));
+        return new IRSeq(stmts);
     }
 }

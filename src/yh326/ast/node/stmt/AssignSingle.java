@@ -30,51 +30,49 @@ public class AssignSingle extends Stmt {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType rightType = expr.typeCheck(sTable);
-    
+
         // Single assign on LHS, including assigning to subscript.
         VariableType leftType = getLhsType(sTable, lhs);
-        if (rightType instanceof VariableType &&
-                leftType.equals((VariableType) rightType)) {
+        if (rightType instanceof VariableType && leftType.equals((VariableType) rightType)) {
             return new UnitType();
         } else {
             throw new AssignTypeException(line, col, rightType, leftType);
         }
-        
+
     }
 
     /**
      * @param sTable
      * @param lhs
-     * @param multiAssign 
+     * @param multiAssign
      * @return
      * @throws Exception
      */
-    private VariableType getLhsType(SymbolTable sTable, Node lhs)
-            throws Exception {
+    private VariableType getLhsType(SymbolTable sTable, Node lhs) throws Exception {
         // If LHS is underscore, don't need to check
         // TODO: this is actually not following the type system, where are are asked
         // to return UnitType for underscore.
         if (lhs instanceof Underscore) {
             return new VariableType(Primitives.ANY);
         }
-        
+
         VariableType leftType = null;
-        if (lhs instanceof VarDecl) {   // VarInit in the Xi type system
+        if (lhs instanceof VarDecl) { // VarInit in the Xi type system
             leftType = (VariableType) ((VarDecl) lhs).typeCheckAndReturn(sTable);
-        } else if (lhs instanceof Identifier) {       // Assign in the Xi type system
+        } else if (lhs instanceof Identifier) { // Assign in the Xi type system
             leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
         } else if (lhs instanceof Subscript) { // ArrAssign in the Xi type system
             leftType = (VariableType) ((Subscript) lhs).typeCheck(sTable);
         }
         return leftType;
     }
-    
+
     @Override
     public IRNode translate() {
-    	if (lhs instanceof Underscore) {
-    		return new IRExp((IRExpr) expr.translate());
-    	} else {
-    		return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
-    	}
+        if (lhs instanceof Underscore) {
+            return new IRExp((IRExpr) expr.translate());
+        } else {
+            return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
+        }
     }
 }

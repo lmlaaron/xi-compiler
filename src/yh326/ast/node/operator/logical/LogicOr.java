@@ -21,10 +21,10 @@ public class LogicOr extends LogicalOperator {
     }
 
     @Override
-	public IRNode translateWithOperands(IRExpr... operands) {
+    public IRNode translateWithOperands(IRExpr... operands) {
         String labelNumber = NumberGetter.uniqueNumber();
 
-        List<IRStmt> stmts = new ArrayList<IRStmt> ();
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
         IRTemp result = new IRTemp("_or_" + labelNumber);
         IRMove storeFalse = new IRMove(result, new IRConst(0));
         String l1Name = "_l1_" + labelNumber;
@@ -45,5 +45,5 @@ public class LogicOr extends LogicalOperator {
         stmts.add(lf);
         IRSeq irSeq = new IRSeq(stmts);
         return new IRESeq(irSeq, result);
-	}
+    }
 }

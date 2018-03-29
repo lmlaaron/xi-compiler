@@ -29,12 +29,11 @@ package polyglot.util;
 import java.io.IOException;
 
 /**
- * A {@code CodeWriter} is a pretty-printing engine. It formats
- * structured text onto an output stream {@code o} in the minimum number
- * of lines, while keeping the width of the output within {@code width}
- * characters if possible. Newlines occur in the output only at places where a
- * line break is permitted by the use of {@code allowBreak} and
- * {@code unifiedBreak}.
+ * A {@code CodeWriter} is a pretty-printing engine. It formats structured text
+ * onto an output stream {@code o} in the minimum number of lines, while keeping
+ * the width of the output within {@code width} characters if possible. Newlines
+ * occur in the output only at places where a line break is permitted by the use
+ * of {@code allowBreak} and {@code unifiedBreak}.
  * 
  * Line breaks can have different levels, which is useful for implementing
  * things like "miser mode" layout.
@@ -42,15 +41,17 @@ import java.io.IOException;
 public abstract class CodeWriter implements AutoCloseable {
     /**
      * Print the string {@code s} verbatim on the output stream.
-     * @param s the string to print.
+     * 
+     * @param s
+     *            the string to print.
      */
     public abstract void write(String s);
 
     /**
-     * Print the string {@code s} on the output stream. Pretend that it
-     * has width {@code length} even if it has a different number of
-     * characters. This is useful when the string contains escape sequences,
-     * HTML character entity references, etc.
+     * Print the string {@code s} on the output stream. Pretend that it has width
+     * {@code length} even if it has a different number of characters. This is
+     * useful when the string contains escape sequences, HTML character entity
+     * references, etc.
      * 
      * @param s
      * @param length
@@ -58,8 +59,7 @@ public abstract class CodeWriter implements AutoCloseable {
     public abstract void write(String s, int length);
 
     /**
-     * Start a new block with a relative indentation of {@code n}
-     * characters.
+     * Start a new block with a relative indentation of {@code n} characters.
      */
     public abstract void begin(int n);
 
@@ -69,10 +69,10 @@ public abstract class CodeWriter implements AutoCloseable {
     public abstract void end();
 
     /**
-     * Insert a break (an optional newline). Indentation will be preserved.
-     * Every break has a level. A level 0 break is always broken to form a
-     * newline. The code writer tries to avoid breaking higher-level breaks, and
-     * the higher the level, the harder it tries.
+     * Insert a break (an optional newline). Indentation will be preserved. Every
+     * break has a level. A level 0 break is always broken to form a newline. The
+     * code writer tries to avoid breaking higher-level breaks, and the higher the
+     * level, the harder it tries.
      *
      * @param n
      *            indentation relative to the current block if the newline is
@@ -80,8 +80,8 @@ public abstract class CodeWriter implements AutoCloseable {
      * @param level
      *            the level of the break. Requires: level >= 0
      * @param alt
-     *            if no newline is inserted, the string {@code alt} is
-     *            output instead. Requires: alt != null
+     *            if no newline is inserted, the string {@code alt} is output
+     *            instead. Requires: alt != null
      * @param altlen
      *            the length of 'alt' in characters
      */
@@ -89,11 +89,11 @@ public abstract class CodeWriter implements AutoCloseable {
 
     /**
      * Insert a unified break. Unified breaks act like the breaks inserted by
-     * {@code allowBreak}, but unified breaks should also break if any break of
-     * the same level in the same block is broken, whereas ordinary breaks do
-     * not necessarily break in this case. That is, unified breaks act as if
-     * they were slightly lower level than other breaks of the same level
-     * (including other unified breaks!).
+     * {@code allowBreak}, but unified breaks should also break if any break of the
+     * same level in the same block is broken, whereas ordinary breaks do not
+     * necessarily break in this case. That is, unified breaks act as if they were
+     * slightly lower level than other breaks of the same level (including other
+     * unified breaks!).
      * 
      * @param n
      *            the relative indentation
@@ -109,7 +109,7 @@ public abstract class CodeWriter implements AutoCloseable {
 
     /**
      * The most common use of "unifiedBreak": level 1, with an alternative of a
-     * single space. 
+     * single space.
      * 
      * @param n
      *            the indentation relative to the current block.
@@ -119,8 +119,8 @@ public abstract class CodeWriter implements AutoCloseable {
     }
 
     /**
-     * The most common use of "allowBreak": level 1, with an alternative of a
-     * single space. 
+     * The most common use of "allowBreak": level 1, with an alternative of a single
+     * space.
      * 
      * @param n
      *            the indentation relative to the current block.
@@ -134,9 +134,9 @@ public abstract class CodeWriter implements AutoCloseable {
     }
 
     /**
-     * Force a newline. Indentation will be preserved. This method
-     * should be used sparingly; a call to allowBreak() gives the
-     * pretty-printer much more flexibility to do a good job.
+     * Force a newline. Indentation will be preserved. This method should be used
+     * sparingly; a call to allowBreak() gives the pretty-printer much more
+     * flexibility to do a good job.
      */
     public void newline() {
         newline(0, 1);
@@ -155,31 +155,32 @@ public abstract class CodeWriter implements AutoCloseable {
     public abstract void newline(int n, int level);
 
     /**
-     * Flush all formatted text to the underlying writer.
-     * Returns true if formatting was completely successful (the
-     * margins were obeyed).
+     * Flush all formatted text to the underlying writer. Returns true if formatting
+     * was completely successful (the margins were obeyed).
      */
     public abstract boolean flush() throws IOException;
 
     /**
-     * Flush all formatted text, reset formatter state, and
-     * close the underlying writer.
+     * Flush all formatted text, reset formatter state, and close the underlying
+     * writer.
      */
     @Override
     public abstract void close() throws IOException;
 
-    /** Like {@code flush}, but passing {@code format=false}
-     * causes output to be generated in the fastest way possible, with
-     * all breaks broken.
-     * @param format whether to pretty-print the output
+    /**
+     * Like {@code flush}, but passing {@code format=false} causes output to be
+     * generated in the fastest way possible, with all breaks broken.
+     * 
+     * @param format
+     *            whether to pretty-print the output
      * @return whether formatting was completely successful.
      * @throws IOException
      */
     public abstract boolean flush(boolean format) throws IOException;
 
     /**
-     * Return a readable representation of all the structured input given to
-     * the CodeWriter since the last flush.
+     * Return a readable representation of all the structured input given to the
+     * CodeWriter since the last flush.
      */
     @Override
     public abstract String toString();

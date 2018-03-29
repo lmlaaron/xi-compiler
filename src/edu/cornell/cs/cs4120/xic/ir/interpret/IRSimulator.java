@@ -58,7 +58,9 @@ public class IRSimulator {
 
     /**
      * Construct an IR interpreter with a default heap size
-     * @param compUnit the compilation unit to be interpreted
+     * 
+     * @param compUnit
+     *            the compilation unit to be interpreted
      */
     public IRSimulator(IRCompUnit compUnit) {
         this(compUnit, DEFAULT_HEAP_SIZE);
@@ -66,8 +68,11 @@ public class IRSimulator {
 
     /**
      * Construct an IR interpreter
-     * @param compUnit the compilation unit to be interpreted
-     * @param heapSize the heap size
+     * 
+     * @param compUnit
+     *            the compilation unit to be interpreted
+     * @param heapSize
+     *            the heap size
      */
     public IRSimulator(IRCompUnit compUnit, int heapSize) {
         this.compUnit = compUnit;
@@ -107,7 +112,7 @@ public class IRSimulator {
         ctors = imb.ctors();
 
         // set up a dummy constructor frame, so that the constructors
-        //   have somewhere to write their return values to
+        // have somewhere to write their return values to
         ExecutionFrame ctorFrame = new ExecutionFrame(0);
         for (int i = 0; i < ctors.size(); ++i)
             call(ctorFrame, ctors.get(i), new long[] {});
@@ -115,24 +120,29 @@ public class IRSimulator {
 
     /**
      * Allocate a specified amount of bytes on the heap
-     * @param size the number of bytes to be allocated
+     * 
+     * @param size
+     *            the number of bytes to be allocated
      * @return the starting address of the allocated region on the heap
      */
     public long malloc(long size) {
-        if (size < 0) throw new Trap("Invalid size");
+        if (size < 0)
+            throw new Trap("Invalid size");
         if (size % Configuration.WORD_SIZE != 0)
-            throw new Trap("Can only allocate in chunks of "
-                    + Configuration.WORD_SIZE + " bytes!");
+            throw new Trap("Can only allocate in chunks of " + Configuration.WORD_SIZE + " bytes!");
 
         long retval = heapPtr;
         heapPtr += size;
-        if (heapPtr > mem.length) throw new Trap("Out of heap!");
+        if (heapPtr > mem.length)
+            throw new Trap("Out of heap!");
         return retval;
     }
 
     /**
      * Read a value at the specified location on the heap
-     * @param addr the address to be read
+     * 
+     * @param addr
+     *            the address to be read
      * @return the value at {@code addr}
      */
     public long read(long addr) {
@@ -141,8 +151,11 @@ public class IRSimulator {
 
     /**
      * Write a value at the specified location on the heap
-     * @param addr the address to be written
-     * @param value the value to be written
+     * 
+     * @param addr
+     *            the address to be written
+     * @param value
+     *            the value to be written
      */
     public void store(long addr, long value) {
         mem[(int) getMemoryIndex(addr)] = value;
@@ -150,8 +163,7 @@ public class IRSimulator {
 
     protected long getMemoryIndex(long addr) {
         if (addr % Configuration.WORD_SIZE != 0)
-            throw new Trap("Unaligned memory access: " + addr + " (word size="
-                    + Configuration.WORD_SIZE + ")");
+            throw new Trap("Unaligned memory access: " + addr + " (word size=" + Configuration.WORD_SIZE + ")");
         return addr / Configuration.WORD_SIZE;
     }
 
@@ -159,26 +171,33 @@ public class IRSimulator {
      * Simulate a function call, throwing away all returned values past the first
      * All arguments to the function call are passed via registers with prefix
      * {@link Configuration#ABSTRACT_ARG_PREFIX} and indices starting from 0.
-     * @param name name of the function call
-     * @param args arguments to the function call
+     * 
+     * @param name
+     *            name of the function call
+     * @param args
+     *            arguments to the function call
      * @return the value that would be in register
-     *          {@link Configuration#ABSTRACT_RET_PREFIX} index 0
+     *         {@link Configuration#ABSTRACT_RET_PREFIX} index 0
      */
     public long call(String name, long... args) {
         return call(new ExecutionFrame(-1), name, args);
     }
 
     /**
-     * Simulate a function call.
-     * All arguments to the function call are passed via registers with prefix
-     * {@link Configuration#ABSTRACT_ARG_PREFIX} and indices starting from 0.
-     * The function call should return the results via registers with prefix
-     * {@link Configuration#ABSTRACT_RET_PREFIX} and indices starting from 0.
-     * @param parent parent call frame to write _RET values to
-     * @param name name of the function call
-     * @param args arguments to the function call
-     * @return the value of register
-     *          {@link Configuration#ABSTRACT_RET_PREFIX} index 0
+     * Simulate a function call. All arguments to the function call are passed via
+     * registers with prefix {@link Configuration#ABSTRACT_ARG_PREFIX} and indices
+     * starting from 0. The function call should return the results via registers
+     * with prefix {@link Configuration#ABSTRACT_RET_PREFIX} and indices starting
+     * from 0.
+     * 
+     * @param parent
+     *            parent call frame to write _RET values to
+     * @param name
+     *            name of the function call
+     * @param args
+     *            arguments to the function call
+     * @return the value of register {@link Configuration#ABSTRACT_RET_PREFIX} index
+     *         0
      */
     public long call(ExecutionFrame parent, String name, long... args) {
         final List<Long> ret;
@@ -188,8 +207,7 @@ public class IRSimulator {
         } else {
             IRFuncDecl fDecl = compUnit.getFunction(name);
             if (fDecl == null)
-                throw new InternalCompilerError("Tried to call an unknown function: '"
-                        + name + "'");
+                throw new InternalCompilerError("Tried to call an unknown function: '" + name + "'");
 
             // Create a new stack frame.
             long ip = findLabel(name);
@@ -200,7 +218,8 @@ public class IRSimulator {
                 frame.put(Configuration.ABSTRACT_ARG_PREFIX + i, args[i]);
 
             // Simulate!
-            while (frame.advance()) ;
+            while (frame.advance())
+                ;
 
             ret = frame.rets;
         }
@@ -217,9 +236,12 @@ public class IRSimulator {
 
     /**
      * Simulate a library function call, returning the list of returned values
-     * @param name name of the function call
-     * @param args arguments to the function call, which may include
-     *          the pointer to the location of multiple results
+     * 
+     * @param name
+     *            name of the function call
+     * @param args
+     *            arguments to the function call, which may include the pointer to
+     *            the location of multiple results
      */
     protected List<Long> libraryCall(String name, long[] args) {
         final int ws = Configuration.WORD_SIZE;
@@ -277,8 +299,7 @@ public class IRSimulator {
                 long result = 0, success = 1;
                 try {
                     result = Integer.parseInt(buf.toString());
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     success = 0;
                 }
                 ret.add(result);
@@ -295,17 +316,16 @@ public class IRSimulator {
             }
             // other declarations
             case "_Iassert_pb": {
-                if (args[0] != 1) throw new Trap("Assertion error!");
+                if (args[0] != 1)
+                    throw new Trap("Assertion error!");
                 break;
             }
             default:
-                throw new InternalCompilerError("Unsupported library function: "
-                        + name);
+                throw new InternalCompilerError("Unsupported library function: " + name);
             }
 
             return ret;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new InternalCompilerError("I/O Exception in simulator");
         }
     }
@@ -317,8 +337,7 @@ public class IRSimulator {
         else if (insn instanceof IRTemp) {
             String tempName = ((IRTemp) insn).name();
             exprStack.pushTemp(frame.get(tempName), tempName);
-        }
-        else if (insn instanceof IRBinOp) {
+        } else if (insn instanceof IRBinOp) {
             long r = exprStack.popValue();
             long l = exprStack.popValue();
             long result;
@@ -333,17 +352,16 @@ public class IRSimulator {
                 result = l * r;
                 break;
             case HMUL:
-                result = BigInteger.valueOf(l)
-                                   .multiply(BigInteger.valueOf(r))
-                                   .shiftRight(64)
-                                   .longValue();
+                result = BigInteger.valueOf(l).multiply(BigInteger.valueOf(r)).shiftRight(64).longValue();
                 break;
             case DIV:
-                if (r == 0) throw new Trap("Division by zero!");
+                if (r == 0)
+                    throw new Trap("Division by zero!");
                 result = l / r;
                 break;
             case MOD:
-                if (r == 0) throw new Trap("Division by zero!");
+                if (r == 0)
+                    throw new Trap("Division by zero!");
                 result = l % r;
                 break;
             case AND:
@@ -386,12 +404,10 @@ public class IRSimulator {
                 throw new InternalCompilerError("Invalid binary operation");
             }
             exprStack.pushValue(result);
-        }
-        else if (insn instanceof IRMem) {
+        } else if (insn instanceof IRMem) {
             long addr = exprStack.popValue();
             exprStack.pushAddr(read(addr), addr);
-        }
-        else if (insn instanceof IRCall) {
+        } else if (insn instanceof IRCall) {
             int argsCount = ((IRCall) insn).args().size();
             long args[] = new long[argsCount];
             for (int i = argsCount - 1; i >= 0; --i)
@@ -404,20 +420,18 @@ public class IRSimulator {
                 IRNode node = indexToInsn.get(target.value);
                 if (node instanceof IRFuncDecl)
                     targetName = ((IRFuncDecl) node).name();
-                else throw new InternalCompilerError("Call to a non-function instruction!");
-            }
-            else throw new InternalCompilerError("Invalid function call '"
-                    + insn + "' (target '" + target.value + "' is unknown)!");
+                else
+                    throw new InternalCompilerError("Call to a non-function instruction!");
+            } else
+                throw new InternalCompilerError(
+                        "Invalid function call '" + insn + "' (target '" + target.value + "' is unknown)!");
 
             long retVal = call(frame, targetName, args);
             exprStack.pushValue(retVal);
-        }
-        else if (insn instanceof IRName) {
+        } else if (insn instanceof IRName) {
             String name = ((IRName) insn).name();
-            exprStack.pushName(libraryFunctions.contains(name)
-                    ? -1 : findLabel(name), name);
-        }
-        else if (insn instanceof IRMove) {
+            exprStack.pushName(libraryFunctions.contains(name) ? -1 : findLabel(name), name);
+        } else if (insn instanceof IRMove) {
             long r = exprStack.popValue();
             StackItem stackItem = exprStack.pop();
             switch (stackItem.type) {
@@ -434,12 +448,10 @@ public class IRSimulator {
             default:
                 throw new InternalCompilerError("Invalid MOVE!");
             }
-        }
-        else if (insn instanceof IRExp) {
+        } else if (insn instanceof IRExp) {
             // Discard result.
             exprStack.pop();
-        }
-        else if (insn instanceof IRJump)
+        } else if (insn instanceof IRJump)
             frame.setIP(exprStack.popValue());
         else if (insn instanceof IRCJump) {
             IRCJump irCJump = (IRCJump) insn;
@@ -449,11 +461,11 @@ public class IRSimulator {
                 label = irCJump.falseLabel();
             else if (top == 1)
                 label = irCJump.trueLabel();
-            else throw new InternalCompilerError("Invalid value in CJUMP - expected 0/1, got "
-                    + top);
-            if (label != null) frame.setIP(findLabel(label));
-        }
-        else if (insn instanceof IRReturn) {
+            else
+                throw new InternalCompilerError("Invalid value in CJUMP - expected 0/1, got " + top);
+            if (label != null)
+                frame.setIP(findLabel(label));
+        } else if (insn instanceof IRReturn) {
             int argsCount = ((IRReturn) insn).rets().size();
             // double pass for linear time
             long rets[] = new long[argsCount];
@@ -470,7 +482,8 @@ public class IRSimulator {
 
     /**
      *
-     * @param name name of the label
+     * @param name
+     *            name of the label
      * @return the IR node at the named label
      */
     private long findLabel(String name) {
@@ -480,8 +493,8 @@ public class IRSimulator {
     }
 
     /**
-     * Holds the instruction pointer and temporary registers
-     * within an execution frame.
+     * Holds the instruction pointer and temporary registers within an execution
+     * frame.
      */
     private class ExecutionFrame {
         /** instruction pointer */
@@ -493,7 +506,6 @@ public class IRSimulator {
         /** local registers (register name -> value) */
         private Map<String, Long> regs;
 
-
         public ExecutionFrame(long ip) {
             this.ip = ip;
             regs = new HashMap<>();
@@ -502,13 +514,16 @@ public class IRSimulator {
 
         /**
          * Fetch the value at the given register
-         * @param tempName name of the register
+         * 
+         * @param tempName
+         *            name of the register
          * @return the value at the given register
          */
         public long get(String tempName) {
             if (!regs.containsKey(tempName)) {
-                /* Referencing a temp before having written to it - initialize
-                   with garbage */
+                /*
+                 * Referencing a temp before having written to it - initialize with garbage
+                 */
                 put(tempName, r.nextLong());
             }
             return regs.get(tempName);
@@ -516,27 +531,32 @@ public class IRSimulator {
 
         /**
          * Store a value into the given register
-         * @param tempName name of the register
-         * @param value value to be stored
+         * 
+         * @param tempName
+         *            name of the register
+         * @param value
+         *            value to be stored
          */
         public void put(String tempName, long value) {
             regs.put(tempName, value);
         }
 
         /**
-         * Advance the instruction pointer. Since we're dealing with a tree,
-         * this is postorder traversal, one step at a time, modulo jumps.
+         * Advance the instruction pointer. Since we're dealing with a tree, this is
+         * postorder traversal, one step at a time, modulo jumps.
          */
         public boolean advance() {
             // Time out if necessary.
-            if (Thread.currentThread().isInterrupted()) return false;
+            if (Thread.currentThread().isInterrupted())
+                return false;
 
             if (debugLevel > 1)
                 System.out.println("Evaluating " + getCurrentInsn().label());
             long backupIP = ip;
             leave(this);
 
-            if (ip == -1) return false; /* RETURN */
+            if (ip == -1)
+                return false; /* RETURN */
 
             if (ip != backupIP) /* A jump was performed */
                 return true;
@@ -550,8 +570,8 @@ public class IRSimulator {
             if (debugLevel > 1) {
                 if (ip == -1)
                     System.out.println("Returning");
-                else System.out.println("Jumping to "
-                        + getCurrentInsn().label());
+                else
+                    System.out.println("Jumping to " + getCurrentInsn().label());
             }
         }
 
@@ -564,10 +584,10 @@ public class IRSimulator {
     };
 
     /**
-     * While traversing the IR tree, we require a stack in order to hold
-     * a number of single-word values (e.g., to evaluate binary expressions).
-     * This also keeps track of whether a value was created by a TEMP
-     * or MEM, or NAME reference, which is useful when executing moves.
+     * While traversing the IR tree, we require a stack in order to hold a number of
+     * single-word values (e.g., to evaluate binary expressions). This also keeps
+     * track of whether a value was created by a TEMP or MEM, or NAME reference,
+     * which is useful when executing moves.
      */
     private static class ExprStack {
 
@@ -579,7 +599,8 @@ public class IRSimulator {
 
         public long popValue() {
             long value = stack.pop().value;
-            if (debugLevel > 1) System.out.println("Popping value " + value);
+            if (debugLevel > 1)
+                System.out.println("Popping value " + value);
             return value;
         }
 
@@ -606,7 +627,8 @@ public class IRSimulator {
         }
 
         public void pushValue(long value) {
-            if (debugLevel > 1) System.out.println("Pushing value " + value);
+            if (debugLevel > 1)
+                System.out.println("Pushing value " + value);
             stack.push(new StackItem(value));
         }
     }
@@ -638,13 +660,13 @@ public class IRSimulator {
             this.value = value;
             if (type == Kind.TEMP)
                 temp = string;
-            else name = string;
+            else
+                name = string;
         }
     };
 
     public static class Trap extends RuntimeException {
-        private static final long serialVersionUID =
-                SerialVersionUID.generate();
+        private static final long serialVersionUID = SerialVersionUID.generate();
 
         public Trap(String message) {
             super(message);
@@ -652,8 +674,7 @@ public class IRSimulator {
     };
 
     public static class OutOfBoundTrap extends Trap {
-        private static final long serialVersionUID =
-                SerialVersionUID.generate();
+        private static final long serialVersionUID = SerialVersionUID.generate();
 
         public OutOfBoundTrap(String message) {
             super(message);

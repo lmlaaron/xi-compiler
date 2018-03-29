@@ -46,11 +46,11 @@ public class IfElse extends Stmt {
         st.enterBlock();
         NodeType tc = then.typeCheck(st);
         st.exitBlock();
-        
+
         st.enterBlock();
         NodeType ta = otherwise.typeCheck(st);
         st.exitBlock();
-       
+
         NodeType result = Lub(tc, ta);
         if (result == null) {
             throw new TypeInconsistentException(line, col, "If-else return");
@@ -58,7 +58,7 @@ public class IfElse extends Stmt {
             return result;
         }
     }
-    
+
     /**
      * @param other
      * @return unit type if a or b is unit type
@@ -73,30 +73,32 @@ public class IfElse extends Stmt {
             return null;
         }
     }
-    
-    // TODO: need to run InsnMapsBuiilder to construct the mapping from irName to headLabel
-    // TODO: need to run InsnMapsBuilder to construct the mapping from "head" to headLabel
+
+    // TODO: need to run InsnMapsBuiilder to construct the mapping from irName to
+    // headLabel
+    // TODO: need to run InsnMapsBuilder to construct the mapping from "head" to
+    // headLabel
     @Override
     public IRNode translate() {
         String labelNumber = NumberGetter.uniqueNumber();
 
-    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
-    	IRNode otherwiseStmt = otherwise.translate();
-    	if (otherwiseStmt instanceof IRExpr) {
-    		stmts.add(new IRExp((IRExpr) otherwiseStmt));
-    	} else {
-    		stmts.add((IRStmt) otherwiseStmt);
-    	}
-    	stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
-    	stmts.add(new IRLabel("_then_" + labelNumber));
-    	IRNode thenStmt = then.translate();
-    	if (thenStmt instanceof IRExpr) {
-    		stmts.add(new IRExp((IRExpr) thenStmt));
-    	} else {
-    		stmts.add((IRStmt) thenStmt);
-    	}
-    	stmts.add(new IRLabel("_end_" + labelNumber));
-    	return new IRSeq(stmts);
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
+        IRNode otherwiseStmt = otherwise.translate();
+        if (otherwiseStmt instanceof IRExpr) {
+            stmts.add(new IRExp((IRExpr) otherwiseStmt));
+        } else {
+            stmts.add((IRStmt) otherwiseStmt);
+        }
+        stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
+        stmts.add(new IRLabel("_then_" + labelNumber));
+        IRNode thenStmt = then.translate();
+        if (thenStmt instanceof IRExpr) {
+            stmts.add(new IRExp((IRExpr) thenStmt));
+        } else {
+            stmts.add((IRStmt) thenStmt);
+        }
+        stmts.add(new IRLabel("_end_" + labelNumber));
+        return new IRSeq(stmts);
     }
 }

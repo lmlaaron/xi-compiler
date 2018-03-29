@@ -11,12 +11,15 @@ public class AddSimpleTile extends Tile {
         return clone;
     }
 
-    public int size() { return 1; }
+    public int size() {
+        return 1;
+    }
 
     /**
      * set attributes according to validRoot
      *
-     * @param validRoot the IRNode which is being tiled
+     * @param validRoot
+     *            the IRNode which is being tiled
      */
     private void init(IRBinOp validRoot) {
         root = validRoot;

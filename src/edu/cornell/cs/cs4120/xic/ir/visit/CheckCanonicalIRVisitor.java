@@ -27,9 +27,9 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
     }
 
     @Override
-    protected Boolean leave(IRNode parent, IRNode n, Boolean r,
-            AggregateVisitor<Boolean> v_) {
-        if (!r) return false;
+    protected Boolean leave(IRNode parent, IRNode n, Boolean r, AggregateVisitor<Boolean> v_) {
+        if (!r)
+            return false;
         if (!n.isCanonical(this)) {
             noncanonical(parent == null ? n : parent);
             return false;
@@ -39,6 +39,7 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
 
     /**
      * Record that a SEQ is being entered.
+     * 
      * @return the updated visitor
      */
     public CheckCanonicalIRVisitor enterSeq() {
@@ -53,6 +54,7 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
 
     /**
      * Record that an EXP is being entered.
+     * 
      * @return the updated visitor
      */
     public CheckCanonicalIRVisitor enterExp() {
@@ -67,6 +69,7 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
 
     /**
      * Record that an IR expression is being entered.
+     * 
      * @return the updated visitor
      */
     public CheckCanonicalIRVisitor enterExpr() {
@@ -109,6 +112,7 @@ public class CheckCanonicalIRVisitor extends AggregateVisitor<Boolean> {
 
     public void noncanonical(IRNode offender) {
         this.offender = offender;
-        if (outer != null) outer.noncanonical(offender);
+        if (outer != null)
+            outer.noncanonical(offender);
     }
 }

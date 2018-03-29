@@ -5,8 +5,7 @@ import edu.cornell.cs.cs4120.xic.ir.visit.AggregateVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
- * An intermediate representation for a move statement
- * MOVE(target, expr)
+ * An intermediate representation for a move statement MOVE(target, expr)
  */
 public class IRMove extends IRStmt {
     private IRExpr target;
@@ -14,8 +13,10 @@ public class IRMove extends IRStmt {
 
     /**
      *
-     * @param target the destination of this move
-     * @param src the expression whose value is to be moved
+     * @param target
+     *            the destination of this move
+     * @param src
+     *            the expression whose value is to be moved
      */
     public IRMove(IRExpr target, IRExpr src) {
         this.target = target;

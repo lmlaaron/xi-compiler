@@ -10,16 +10,16 @@ import yh326.exception.OtherException;
 
 public class Identifier extends Expr {
     private String id;
-    
+
     public Identifier(int line, int col, String id) {
         super(line, col, id);
         this.id = id;
     }
-    
+
     public String getId() {
-    	return id;
+        return id;
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType type = sTable.getVariableType(id);
@@ -31,9 +31,9 @@ public class Identifier extends Expr {
             throw new NotDefinedException(line, col, id);
         }
     }
-    
+
     @Override
     public IRNode translate() {
-    	return new IRTemp(id);
+        return new IRTemp(id);
     }
 }

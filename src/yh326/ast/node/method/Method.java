@@ -33,6 +33,7 @@ public class Method extends Node {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param id
@@ -58,18 +59,17 @@ public class Method extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         }
     }
-    
+
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
         sTable.setCurFunction(id.value);
-        
+
         // Check if this function has been implemented
         if (sTable.setImplemented(id.value) == false) {
             throw new OtherException(line, col, "This function has been implemented");
         }
-        
-        
+
         // Loading arguments into the symbol table
         if (args != null) {
             for (Node varDecl : args.children) {
@@ -79,10 +79,10 @@ public class Method extends Node {
                 sTable.addVar(funcVarDecl.getId().value, t);
             }
         }
-        
+
         if (rets != null) {
             for (Node varDecl : rets.children) {
-            		TypeNode funcVarDecl = (TypeNode) varDecl;
+                TypeNode funcVarDecl = (TypeNode) varDecl;
                 VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
                 retTypes.add(t);
             }
@@ -97,25 +97,25 @@ public class Method extends Node {
         if (actual instanceof UnitType && !(expected instanceof UnitType)) {
             throw new OtherException(line, col, "Missing return statement");
         }
-        
+
         sTable.setCurFunction(null);
         sTable.exitBlock();
         return new UnitType();
     }
-    
+
     @Override
     public IRNode translate() {
-    	String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
-    	List<IRStmt> stmts = new ArrayList<IRStmt> ();
-    	if (args != null) {
-    		stmts.addAll(((IRSeq) args.translate()).stmts());
-    	}
-    	stmts.addAll(((IRSeq) block.translate()).stmts());
-    	
-    	// If no return is given for a procedure, need to add one.
-    	if (stmts.size() == 0 || !(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
-    		stmts.add(new IRReturn());
-    	}
-    	return new IRFuncDecl(name, new IRSeq(stmts));
+        String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        if (args != null) {
+            stmts.addAll(((IRSeq) args.translate()).stmts());
+        }
+        stmts.addAll(((IRSeq) block.translate()).stmts());
+
+        // If no return is given for a procedure, need to add one.
+        if (stmts.size() == 0 || !(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
+            stmts.add(new IRReturn());
+        }
+        return new IRFuncDecl(name, new IRSeq(stmts));
     }
 }

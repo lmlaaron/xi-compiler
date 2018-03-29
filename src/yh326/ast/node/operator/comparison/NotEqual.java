@@ -11,7 +11,6 @@ public class NotEqual extends EqualityComparisonOperator {
         super(line, col, "!=");
     }
 
-
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {
         // TODO: this won't work on arrays

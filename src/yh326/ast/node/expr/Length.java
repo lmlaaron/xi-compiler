@@ -18,6 +18,7 @@ public class Length extends Expr {
 
     /**
      * Constructor
+     * 
      * @param line
      * @param col
      * @param expr
@@ -36,10 +37,10 @@ public class Length extends Expr {
             throw new MatchTypeException(line, col, "int or bool array of any dimension", type);
         }
     }
-    
+
     @Override
     public IRNode translate() {
-    	IRExpr irExpr = (IRExpr) expr.translate();
-    	return new IRMem(new IRBinOp(OpType.SUB, irExpr, new IRConst(8)));
+        IRExpr irExpr = (IRExpr) expr.translate();
+        return new IRMem(new IRBinOp(OpType.SUB, irExpr, new IRConst(8)));
     }
 }
