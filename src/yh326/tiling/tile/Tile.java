@@ -1,6 +1,7 @@
 package yh326.tiling.tile;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import yh326.assembly.Assembly;
 
 import java.util.List;
 
@@ -49,6 +50,23 @@ public abstract class Tile {
         this.subtreeTiles = subtreeTiles;
     }
 
-    // TODO: function for generating assembly -- currently we don't have a class for
-    // representing assembly!
+    /**
+     * @return the Assembly containing instructions local to this
+     * object, not children or parents
+     */
+    protected abstract Assembly generateLocalAssembly();
+
+    /**
+     * @return the Assembly containing instructions belonging to this
+     * tile and all children
+     */
+    public Assembly generateAssembly() {
+        Assembly[] childAssm = new Assembly[subtreeTiles.size()];
+        for (int i = 0; i < childAssm.length; i++)
+            childAssm[i] = subtreeTiles.get(i).generateAssembly();
+
+        Assembly localAssm = generateLocalAssembly();
+        localAssm.merge(childAssm);
+        return localAssm;
+    }
 }
