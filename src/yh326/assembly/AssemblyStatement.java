@@ -7,12 +7,15 @@ public class AssemblyStatement {
     String operation;
     AssemblyOperand[] operands;
 
+    public AssemblyStatement(String operation) {
+        this.operation = operation;
+        operands = new AssemblyOperand[0];
+    }
     public AssemblyStatement(String operation, String... operands) {
         this.operation = operation;
         this.operands = new AssemblyOperand[operands.length];
         for (int i = 0; i < operands.length; i++)
             this.operands[i] = new AssemblyOperand(operands[i]);
-
     }
     public AssemblyStatement(String operation, AssemblyOperand... operands) {
         this.operation = operation;

@@ -1,0 +1,62 @@
+package yh326.tiling.tile;
+
+import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import yh326.assembly.Assembly;
+import yh326.assembly.AssemblyStatement;
+
+import java.util.LinkedList;
+
+public class FuncDeclTile extends Tile {
+    @Override
+    public boolean fits(IRNode root) {
+        if (root instanceof IRFuncDecl) {
+            this.root = root;
+
+            IRFuncDecl decl = (IRFuncDecl)root;
+
+            this.subtreeRoots = new LinkedList<>();
+            subtreeRoots.add(decl.body());
+        }
+        else return false;
+    }
+
+    @Override
+    public int size() {
+        return 1;
+    }
+
+    @Override
+    public Tile blankClone() {
+        return new FuncDeclTile();
+    }
+
+    @Override
+    protected Assembly generateLocalAssembly() {
+        IRFuncDecl decl = (IRFuncDecl)root;
+
+        LinkedList<AssemblyStatement> statements = new LinkedList<>();
+        statements.add(new AssemblyStatement(decl.name() + ":"));
+        //TODO: may need more things at beginning of function - see system V spec
+
+        return new Assembly(statements);
+    }
+
+    /**
+     * Function declarations are a special case, because we the code to
+     * be generated within the function comes after the function's label,
+     * not before.
+     */
+    @Override
+    public Assembly generateAssembly() {
+        Assembly[] childAssm = new Assembly[subtreeTiles.size()];
+        for (int i = 0; i < childAssm.length; i++)
+            childAssm[i] = subtreeTiles.get(i).generateAssembly();
+
+        Assembly localAssm = generateLocalAssembly();
+        for (int i = 0; i < childAssm.length; i++) {
+            localAssm.statements.addAll(0, childAssm[i].statements);
+        }
+        return localAssm;
+    }
+}

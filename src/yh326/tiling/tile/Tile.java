@@ -2,7 +2,9 @@ package yh326.tiling.tile;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
+import yh326.util.NumberGetter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Tile {
@@ -35,7 +37,12 @@ public abstract class Tile {
      * @return a list of all roots of subtrees which are not a part of this tile
      */
     public List<IRNode> getSubtreeRoots() {
-        return subtreeRoots;
+        if (subtreeRoots == null) {
+            return new LinkedList<>();
+        }
+        else {
+            return subtreeRoots;
+        }
     }
 
     /**
@@ -68,5 +75,13 @@ public abstract class Tile {
         Assembly localAssm = generateLocalAssembly();
         localAssm.merge(childAssm);
         return localAssm;
+    }
+
+    protected String freshTemp() {
+        return "__FreshTemp_" + NumberGetter.uniqueNumber();
+    }
+
+    protected String freshLabel() {
+        return "__FreshLabel_" + NumberGetter.uniqueNumber();
     }
 }
