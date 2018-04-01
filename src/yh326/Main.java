@@ -41,8 +41,8 @@ public class Main {
             System.out.println("option --lex to show the result from lexical analysis.");
             System.out.println("option --parse to show the result from syntatical analysis.");
             System.out.println("option --typecheck to show the result from type checking.");
-            System.out.println("option --irgen to show ir code representation.");
-            System.out.println("option --irlow to show canonical ir code representation.");
+            System.out.println("option --irgen to show lowered ir code representation.");
+            System.out.println("option --irlow (intended for internal use) to show canonical ir code representation.");
             System.out.println("option --irrun to simulate running translated IR code.");
             System.out.println("option -sourcepath <path> to specify where to find input source files.");
             System.out.println("option -libpath <path> to specify where to find library interface files.");
