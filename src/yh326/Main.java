@@ -1,14 +1,12 @@
 package yh326;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyWrapper;
 import yh326.ast.node.Node;
 import yh326.exception.LexingException;
@@ -19,6 +17,8 @@ import yh326.gen.lexer;
 import yh326.ir.IRWrapper;
 import yh326.lex.LexerWrapper;
 import yh326.parse.ParserWrapper;
+import yh326.tiling.MaxMunch;
+import yh326.tiling.tile.Tile;
 import yh326.typecheck.TypecheckerWrapper;
 
 public class Main {
@@ -81,7 +81,7 @@ public class Main {
             }
             if (argvArray.contains("-target")) {
                 targetOS = argv[argvArray.indexOf("-target") + 1];
-                if (!targetOS.equals("linux") && !targetOS.equals("windows") && !targetOS.equals("macos")) {
+                if (!targetOS.equals("linux")) {
                     System.out.println("Unsupported target OS.");
                     System.exit(1);
                 }
@@ -151,8 +151,22 @@ public class Main {
                 
                 String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
                 realAssemblyOutputDir = realAssemblyOutputDir.substring(0, realAssemblyOutputDir.lastIndexOf("/"));
-                // tiling function called here
-                AssemblyWrapper.WriteAssemblyResult(null/* TODO */, realAssemblyOutputDir);
+
+                // ======= ASSEMBLY GENERATION =======
+                Tile rootTile = MaxMunch.munch(irNode);
+                Assembly assm = rootTile.generateAssembly();
+                if (assm.incomplete()) {
+                    System.out.println("Incomplete assembly code!:");
+                    System.out.println(assm.toString());
+                }
+                else {
+                    // write assembly to file
+                    File assmF = new File(realOutputFile + ".s");
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
+                    writer.write(assm.toString());
+                    writer.close();
+                }
+
             } catch (LexingException | ParsingException e) {
                 e.print(fileName);
                 if (argvArray.contains("--parse")) {
