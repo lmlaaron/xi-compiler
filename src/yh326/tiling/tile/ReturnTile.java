@@ -1,6 +1,7 @@
 package yh326.tiling.tile;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyStatement;
 
@@ -9,7 +10,12 @@ import java.util.LinkedList;
 public class ReturnTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
-        return false;
+
+        if (root instanceof IRReturn) {
+            this.root = root;
+            return true;
+        }
+        else return false;
     }
 
     @Override

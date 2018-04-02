@@ -15,8 +15,11 @@ public class FuncDeclTile extends Tile {
 
             IRFuncDecl decl = (IRFuncDecl)root;
 
+
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(decl.body());
+
+            return true;
         }
         else return false;
     }
@@ -42,11 +45,17 @@ public class FuncDeclTile extends Tile {
         return new Assembly(statements);
     }
 
+    @Override
+    protected boolean childAssmGoesFirst() {
+        return false;
+    }
+
     /**
      * Function declarations are a special case, because we the code to
      * be generated within the function comes after the function's label,
      * not before.
      */
+    /*
     @Override
     public Assembly generateAssembly() {
         Assembly[] childAssm = new Assembly[subtreeTiles.size()];
@@ -55,8 +64,9 @@ public class FuncDeclTile extends Tile {
 
         Assembly localAssm = generateLocalAssembly();
         for (int i = 0; i < childAssm.length; i++) {
-            localAssm.statements.addAll(0, childAssm[i].statements);
+            localAssm.statements.addAll(localAssm.statements.size()-1, childAssm[i].statements);
         }
         return localAssm;
     }
+    */
 }

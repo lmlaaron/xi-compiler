@@ -2,8 +2,10 @@ package yh326.tiling.tile;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
+import yh326.assembly.AssemblyStatement;
 import yh326.util.NumberGetter;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +23,15 @@ public abstract class Tile {
      * @return whether the Tile can fit the root
      */
     public abstract boolean fits(IRNode root);
+
+    /**
+     * most tiles want the assembly for their children to go first. There are
+     * some exceptions to this, including function declarations (the label should
+     * go before the code)
+     */
+    protected boolean childAssmGoesFirst() {
+        return true;
+    }
 
     /**
      * @return the number of IR nodes enclosed by this tile
@@ -72,8 +83,38 @@ public abstract class Tile {
         for (int i = 0; i < childAssm.length; i++)
             childAssm[i] = subtreeTiles.get(i).generateAssembly();
 
+
+
         Assembly localAssm = generateLocalAssembly();
-        localAssm.merge(childAssm);
+
+        // for debugging, add a comment for each tile to see how code was generated
+        AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
+        for(int i = 0; i < comment.length; i++) {
+            localAssm.statements.addFirst(comment[i]);
+        }
+
+        // for debugging only
+        StringBuilder localStatements = new StringBuilder();
+        localAssm.statements.stream().forEachOrdered(stmt -> localStatements.append(stmt.toString() + "\n"));
+
+        localAssm.merge(childAssmGoesFirst(), childAssm);
+
+        if (localAssm.incomplete()) {
+            System.out.println("============================");
+            System.out.println("Incomplete code after merge!");
+            System.out.println();
+            System.out.println("Local Assembly:");
+            System.out.println(localStatements);
+            System.out.println();
+            System.out.println("Subtree code:");
+            for (int i = 0; i < childAssm.length; i++) {
+                System.out.println();
+                System.out.println(i + " - has filler: " + childAssm[i].filler.isPresent());
+                System.out.println(childAssm[i]);
+            }
+            System.out.println("============================");
+        }
+
         return localAssm;
     }
 

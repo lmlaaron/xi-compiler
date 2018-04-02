@@ -29,6 +29,7 @@ public class Assembly {
 
     public Assembly(LinkedList<AssemblyStatement> statements) {
         this.statements = statements;
+        this.filler = Optional.empty();
     }
     public Assembly(LinkedList<AssemblyStatement> statements, AssemblyOperand filler) {
         this.statements = statements;
@@ -64,15 +65,41 @@ public class Assembly {
      *
      * @param childAssemblies the assemblies of child tiles
      */
-    public void merge(Assembly... childAssemblies) {
+    public void merge(boolean childrenFirst, Assembly... childAssemblies) {
         // incorporate all child fillers
-        Arrays.stream(childAssemblies).forEach(
+        Arrays.stream(childAssemblies).forEachOrdered(
                 child -> child.filler.ifPresent(fill -> incorporateFiller(fill))
         );
 
-        // prepend other code from children
-        Arrays.stream(childAssemblies).forEach(
-                child -> statements.addAll(0, child.statements)
+        ArrayList<AssemblyStatement> childStatements = new ArrayList<>();
+        Arrays.stream(childAssemblies).forEachOrdered(
+                child -> childStatements.addAll(child.statements)
         );
+
+        if (childrenFirst)
+            statements.addAll(0, childStatements);
+        else
+            statements.addAll(statements.size(), childStatements);
+
+    }
+
+    /**
+     * a unit of assembly is incomplete if any statements have empty
+     * placeholder operands, which were should have been filled by a child
+     */
+    public boolean incomplete() {
+        for (AssemblyStatement stmt : statements)
+            if (stmt.hasPlaceholder()) return true;
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        for (AssemblyStatement stmt : statements) {
+            s.append(stmt);
+            s.append(System.getProperty("line.separator"));
+        }
+        return s.toString();
     }
 }

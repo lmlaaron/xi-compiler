@@ -17,6 +17,8 @@ public class JumpTile extends Tile {
             this.root = root;
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(((IRJump) root).target());
+
+            return true;
         }
         else return false;
     }

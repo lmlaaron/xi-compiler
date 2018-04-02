@@ -42,7 +42,7 @@ public class IRWrapper {
         if (functions.stream().noneMatch(decl -> (decl.name().equals("_Imain_paai")))) {
             System.out.println("Can't run this file -- no _Imain_paai function found.");
             System.out.println("That file contains the following functions:");
-            functions.stream().forEach(decl -> System.out.println('\t' + decl.name()));
+            functions.stream().forEachOrdered(decl -> System.out.println('\t' + decl.name()));
             return;
         }
 

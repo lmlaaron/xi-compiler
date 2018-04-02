@@ -36,4 +36,14 @@ public class AssemblyOperand {
     public String value() {
         return operand;
     }
+
+    @Override
+    public String toString() {
+        if (isPlaceholder()) {
+            return "_";
+        }
+        else {
+            return value();
+        }
+    }
 }

@@ -4,6 +4,20 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class AssemblyStatement {
+    public static AssemblyStatement[] comment(String comment) {
+        String newline = System.getProperty("line.separator");
+
+        String[] lines = comment.split(newline);
+
+        AssemblyStatement[] ret = new AssemblyStatement[lines.length];
+        for (int i = 0; i < lines.length; i++) {
+            ret[i] = new AssemblyStatement(";" + lines[i]);
+        }
+
+        return ret;
+    }
+
+
     String operation;
     AssemblyOperand[] operands;
 
@@ -30,5 +44,19 @@ public class AssemblyStatement {
         Optional<AssemblyOperand> opt = Arrays.stream(operands).filter(assmOp -> assmOp.isPlaceholder()).findFirst();
         assert opt.isPresent();
         opt.ifPresent(assmOp -> assmOp.fillPlaceholder(operand));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(operation);
+        for (AssemblyOperand operand : operands) {
+            sb.append(" ");
+            sb.append(operand);
+            sb.append(",");
+        }
+        if (operands.length > 0)
+            sb.setLength(sb.length()-1); // remove final comma
+        return sb.toString();
     }
 }

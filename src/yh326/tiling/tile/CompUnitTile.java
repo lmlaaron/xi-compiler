@@ -18,6 +18,8 @@ public class CompUnitTile extends Tile {
             this.subtreeRoots = new LinkedList<>();
             for (IRFuncDecl decl : cu.functions().values())
                 subtreeRoots.add(decl);
+
+            return true;
         }
         else return false;
     }

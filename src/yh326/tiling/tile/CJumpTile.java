@@ -16,6 +16,7 @@ public class CJumpTile extends Tile{
             this.root = root;
             subtreeRoots = new LinkedList<>();
             subtreeRoots.add(cj.cond());
+            return true;
         }
         else return false;
     }

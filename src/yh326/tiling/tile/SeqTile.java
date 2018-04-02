@@ -16,6 +16,8 @@ public class SeqTile extends Tile {
 
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.addAll(seq.stmts());
+
+            return true;
         }
         else return false;
     }
