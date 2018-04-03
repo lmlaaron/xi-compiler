@@ -43,6 +43,7 @@ public class Main {
             System.out.println("option --typecheck to show the result from type checking.");
             System.out.println("option --irgen to show lowered ir code representation.");
             System.out.println("option --irlow (intended for internal use) to show canonical ir code representation.");
+            System.out.println("option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
             System.out.println("option --irrun to simulate running translated IR code.");
             System.out.println("option -sourcepath <path> to specify where to find input source files.");
             System.out.println("option -libpath <path> to specify where to find library interface files.");
@@ -155,7 +156,13 @@ public class Main {
                 // ======= ASSEMBLY GENERATION =======
                 Tile rootTile = MaxMunch.munch(irNode);
                 Assembly assm = rootTile.generateAssembly();
-                if (assm.incomplete()) {
+                // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
+                
+                if (argvArray.contains("--asmgen")) {
+                	assm = assm.registerAlloc();
+                }
+                //======= END ACTUAL ASSEMBLY GENERATION ==========
+                	if (assm.incomplete()) {
                     System.out.println("Incomplete assembly code!:");
                     System.out.println(assm.toString());
                 }

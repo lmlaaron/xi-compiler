@@ -102,4 +102,8 @@ public class Assembly {
         }
         return s.toString();
     }
+    
+    public Assembly registerAlloc() {
+    		return this;
+    }
 }
