@@ -159,7 +159,7 @@ public class Main {
                 // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
                 
                 if (argvArray.contains("--asmgen")) {
-                	assm = assm.registerAlloc();
+                   	assm = assm.registerAlloc();
                 }
                 //======= END ACTUAL ASSEMBLY GENERATION ==========
                 	if (assm.incomplete()) {
@@ -168,7 +168,12 @@ public class Main {
                 }
                 else {
                     // write assembly to file
-                    File assmF = new File(realOutputFile + ".s");
+                	    File assmF = null;
+                    if ( argvArray.contains("--asmgen") ) {
+                    	    assmF = new File(realOutputFile +".ra.s");
+                    } else {
+                        assmF = new File(realOutputFile + ".s");
+                    }
                     BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
                     writer.write(assm.toString());
                     writer.close();

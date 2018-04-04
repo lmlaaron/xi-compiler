@@ -7,11 +7,54 @@ package yh326.assembly;
  */
 public class AssemblyOperand {
     protected String operand;
-
-    public AssemblyOperand(String operand) {
-        this.operand = operand;
+    public enum OperandType {
+    		TEMP, LABEL, MEM, CONSTANT, UNRESOLVED
+    } 
+    OperandType type;
+    
+    public AssemblyOperand(String op) {
+        this.operand = op;
+        this.type = OperandType.UNRESOLVED;
+        this.ResolveType();
     }
-
+    
+    /**
+     * resolve the type of operand by pattern matching
+     */
+    public void ResolveType() {
+    	//TODO fix this pattern matching but propagate from IR instead
+    
+    	 if ( (this.operand.charAt(0)=='[' ) && (this.operand.charAt(this.operand.length()-1) ==']' ) ) {
+    		    //	} else if (this.operand.contains("[")){
+    		    		this.type = OperandType.MEM;
+    		    		//System.out.println(this.operand);
+    	} else if (this.operand.contains("__FreshTemp_") ||
+    		this.operand.contains("_temp_") ||
+    		this.operand.contains("_array_") ){
+    		this.type = OperandType.TEMP;
+    	} 
+    //	this.type=OperandType.TEMP;
+    	//TODO implement other types
+    	
+    		/*if (this.operand.contains("__FreshTemp_") ||
+    				this.operand.contains("_temp_") ||
+    				this.operand.contains("_array_") ||
+    				this.operand.contains("_index_") ||
+    				
+    				) {
+    			this.type = OperandType.TEMP;
+    		} else if ( this.operand.contains("FreshLabel") ||
+    				) {	
+    		} else if () {
+    			
+    		} else if () {
+    			
+    		} else {
+    			this.type = OperandType.UNRESOLVED;
+    		}*/
+    		
+    }
+    
     public AssemblyOperand() { }
 
     /**
