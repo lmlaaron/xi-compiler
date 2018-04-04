@@ -113,6 +113,7 @@ public class Assembly {
      * @return real assembly elimiating all temp
      */
     public Assembly registerAlloc() {
+    	    final int NO_REGISTER = -1;
     		rTable = new RegisterTable();
     		rTable.SetCounter(0);		// set the counter which decides the position of the first spilled location on the stack
     		// if the initial counter is 0, the ith register will be spilled to [rbp - 8 * i]
@@ -144,15 +145,12 @@ public class Assembly {
     		    	         } else if ( op.type == AssemblyOperand.OperandType.MEM) {
     		    	        	     String reg = op.operand.substring(1, op.operand.length()-1);
     		    	        	     if ( !rTable.isInTable(reg)) {
-        		    	        	     System.out.println(reg);
     		    	        	    	     rTable.add(reg);
-    		    	        	     } else {
-    		    	        	    	 	System.out.print(rTable.MemIndex(reg));
-    		    	        	     }
+    		    	        	     } 
     		    	        	     opMemIndex.add(rTable.MemIndex(reg));
     		    	         }
     		    		} else {
-    		    			opMemIndex.add(-1);
+    		    			opMemIndex.add(NO_REGISTER);   
     		    		}
     		    }
     		    
@@ -161,7 +159,7 @@ public class Assembly {
     		    for ( int j = 0; j <opMemIndex.size(); j++) {
     		    		if ( j >= 2) break;
     		    	
-    		    		if (opMemIndex.get(j) == -1) {
+    		    		if (opMemIndex.get(j) == NO_REGISTER) {
     		    			continue;
     		    		}
     		    		if (stmt.operands[j].type == AssemblyOperand.OperandType.TEMP) {
@@ -184,7 +182,7 @@ public class Assembly {
  
     		    // append the newly generated statement (3 STEPS0
     		    // STEP 1: load two operands from memory
-    		    if (opMemIndex.size() > 1 && opMemIndex.get(1)!= -1) {
+    		    if (opMemIndex.size() > 1 && opMemIndex.get(1)!= NO_REGISTER) {
     		       		AssemblyStatement loadMemStatement =new AssemblyStatement(
 									"mov", 
 									new AssemblyOperand("rdx"), 
@@ -192,7 +190,7 @@ public class Assembly {
 		    		    concreteStatements.add(loadMemStatement);
     		    }
     		    //TODO depends on the type of actual operation, (e.g. mov), this step maybe omitted, but for (add, sub) need to preserve
-    		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != -1 ) {
+    		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != NO_REGISTER ) {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
 							"mov",
 							new AssemblyOperand("rax"),
