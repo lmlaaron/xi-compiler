@@ -17,9 +17,10 @@ public class CallTile extends Tile {
             IRCall call = (IRCall)root;
 
             this.subtreeRoots = new LinkedList<>();
-            subtreeRoots.add(call.target());
+
             //TODO: what to do with args?
             subtreeRoots.addAll(call.args());
+            subtreeRoots.add(call.target());
             
             return true;
         }
@@ -40,13 +41,22 @@ public class CallTile extends Tile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
 
-        //TODO: THIS IS DEFINITELY NOT CORRECT, SEE SYSTEM V FOR DETAILS
-        // PUSH all arguments onto stack
-        for ( int i = 0; i < this.getSubtreeRoots().size() -1; i++ ) {
-        		statements.add( new AssemblyStatement("push", new AssemblyOperand(i)));
+        // System V calling convention
+        // move first 6 arguments in rdi, rsi, rdx, rcx, r8 and r9.
+        int operandNum = this.getSubtreeRoots().size()-1;
+        if (operandNum > 0) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdi"), new AssemblyOperand()));
+        if (operandNum > 1) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rsi"), new AssemblyOperand()));
+        if (operandNum > 2) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdx"), new AssemblyOperand()));
+        if (operandNum > 3) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rcx"), new AssemblyOperand()));
+        if (operandNum > 4) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r8"), new AssemblyOperand()));
+        if (operandNum > 5) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r9"), new AssemblyOperand()));
+        
+        // PUSH all other arguments onto stack
+        for ( int i = 6; i < this.getSubtreeRoots().size() -1; i++ ) {
+        		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
         // notice that in this case the operands in the assembly have different order compared to the operands in theIR
-        statements.add(new AssemblyStatement("call", new AssemblyOperand(-1)));
+        statements.add(new AssemblyStatement("call", new AssemblyOperand()));
 
         
         // In IR, CALL Node substitutes as first return value
