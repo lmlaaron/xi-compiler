@@ -8,7 +8,7 @@ import yh326.assembly.AssemblyStatement;
 
 import java.util.LinkedList;
 
-public class CallTile extends Tile {
+public class CallTile extends Tile {	
     @Override
     public boolean fits(IRNode root) {
         if (root instanceof IRCall) {
@@ -19,7 +19,8 @@ public class CallTile extends Tile {
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(call.target());
             //TODO: what to do with args?
-
+            subtreeRoots.addAll(call.args());
+            
             return true;
         }
         else return false;
@@ -40,9 +41,14 @@ public class CallTile extends Tile {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
 
         //TODO: THIS IS DEFINITELY NOT CORRECT, SEE SYSTEM V FOR DETAILS
-        statements.add(new AssemblyStatement("call", new AssemblyOperand()));
+        // PUSH all arguments onto stack
+        for ( int i = 0; i < this.getSubtreeRoots().size() -1; i++ ) {
+        		statements.add( new AssemblyStatement("push", new AssemblyOperand(i)));
+        }
+        // notice that in this case the operands in the assembly have different order compared to the operands in theIR
+        statements.add(new AssemblyStatement("call", new AssemblyOperand(-1)));
 
-
+        
         // In IR, CALL Node substitutes as first return value
         // TODO: using function name, test to see if it has return values. If not,
         //      don't have a filler. It could meddle with other tiles in unexpected

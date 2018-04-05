@@ -4,6 +4,7 @@ import yh326.exception.TileMergeException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ use arguments determined by one or more of the children. This is captured by the
 filler attribute and merge() function.
  */
 public class Assembly {
+	
+	final int MAX_PLACEHOLDER_INDEX = 5000; // 5000 arguments shold be enough for signle fucntion
 	/**
 	 * Save the mapping of assembly operand to memory location by spilling
 	 */
@@ -61,12 +64,34 @@ public class Assembly {
      */
     protected void incorporateFiller(AssemblyOperand fill) throws TileMergeException {
         assert !fill.isPlaceholder();
+        
+        // find the placeholder with smallest value
+        int min = MAX_PLACEHOLDER_INDEX;
+       int index = -1;
+        int counter = 0;
         for (AssemblyStatement stmt : statements) {
             if (stmt.hasPlaceholder()) {
-				stmt.fillPlaceholder(fill.value());
-				return;
-			}
+            	//statements.get(index).fillPlaceholder(fill.value());
+            	//return;
+				if (stmt.getPlaceholder().reorderIndex < min) {
+					min = stmt.getPlaceholder().reorderIndex;
+					index = counter;
+				}
+			}   
+            counter++;
         }
+        
+        //incorporate the filler
+       // if ( min < MAX_PLACEHOLDER_INDEX)
+       counter=0;
+       for (AssemblyStatement stmt : statements) {
+           if (stmt.hasPlaceholder() && counter == index) {
+           		stmt.fillPlaceholder(fill.value());
+           		return;
+			}   
+           counter++;
+       }
+        
         throw new TileMergeException("Assembly can't incorporate filler because there are no empty operands!");
     }
 
@@ -80,10 +105,23 @@ public class Assembly {
 	 * 							match the number of empty operands in the parent
      */
     public void merge(boolean childrenFirst, Assembly... childAssemblies) throws TileMergeException {
-        // incorporate all child fillers
-		for (Assembly child : childAssemblies)
-			if (child.filler.isPresent())
-				incorporateFiller(child.filler.get());
+    		List<AssemblyOperand> operands = new ArrayList<AssemblyOperand>();
+    	
+    		// get all fillers from child in operands
+		for (Assembly child : childAssemblies) {
+			if (child.filler.isPresent()) {
+				this.incorporateFiller(child.filler.get());
+				//operands.add(child.filler.get());
+			}
+		}
+		// sort the operands based on reorderIndex
+		//Collections.sort(operands, new OperandComparator());
+		
+		//incorpoerate sorted filler onto list
+		//for (AssemblyOperand opt : operands) {
+		//	this.incorporateFiller(opt);
+		//}
+				//incorporateFiller(child.filler.get());
 
         ArrayList<AssemblyStatement> childStatements = new ArrayList<>();
         Arrays.stream(childAssemblies).forEachOrdered(
@@ -192,7 +230,7 @@ public class Assembly {
     		    			
     		    }
  
-    		    // append the newly generated statement (3 STEPS0
+    		    // append the newly generated statement (3 STEPS)
     		    // STEP 1: load two operands from memory
     		    if (opMemIndex.size() > 1 && opMemIndex.get(1)!= NO_REGISTER) {
     		       		AssemblyStatement loadMemStatement =new AssemblyStatement(

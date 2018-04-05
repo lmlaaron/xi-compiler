@@ -1,5 +1,18 @@
 package yh326.assembly;
 
+import java.util.Comparator;
+
+class OperandComparator implements Comparator<AssemblyOperand>{
+    @Override
+    public int compare(AssemblyOperand e1, AssemblyOperand e2) {
+        if(e1.reorderIndex <= e2.reorderIndex){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+}
+
 /**
  * represents a single operand of an assembly statement. This class
  * is helpful because some tile's AssemblyStatement instances will be missing
@@ -7,6 +20,7 @@ package yh326.assembly;
  */
 public class AssemblyOperand {
     protected String operand;
+    public int reorderIndex; //for some tiles, the order of the operands in the generated assmbly are reordered, different from operands in IR
     public enum OperandType {
     		TEMP, LABEL, MEM, CONSTANT, UNRESOLVED
     } 
@@ -14,6 +28,7 @@ public class AssemblyOperand {
     
     public AssemblyOperand(String op) {
         this.operand = op;
+        this.reorderIndex = -1;
         this.type = OperandType.UNRESOLVED;
         this.ResolveType();
     }
@@ -55,7 +70,13 @@ public class AssemblyOperand {
     		
     }
     
-    public AssemblyOperand() { }
+    public AssemblyOperand() { 
+    		this.reorderIndex = -1;
+    }
+    
+    public AssemblyOperand(int index) {
+    		this.reorderIndex = index;
+    }
 
     /**
      * @returns whether this operand expects to have its contents filled

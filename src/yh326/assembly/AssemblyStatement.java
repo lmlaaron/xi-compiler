@@ -39,6 +39,11 @@ public class AssemblyStatement {
     public boolean hasPlaceholder() {
         return Arrays.stream(operands).anyMatch(assmOp -> assmOp.isPlaceholder());
     }
+    
+    public AssemblyOperand getPlaceholder() {
+        Optional<AssemblyOperand> opt = Arrays.stream(operands).filter(assmOp -> assmOp.isPlaceholder()).findFirst();
+        return opt.orElse(null);
+    }
 
     public void fillPlaceholder(String operand) {
         Optional<AssemblyOperand> opt = Arrays.stream(operands).filter(assmOp -> assmOp.isPlaceholder()).findFirst();
