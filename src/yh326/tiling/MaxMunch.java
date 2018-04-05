@@ -6,10 +6,7 @@ import yh326.exception.NotTilableException;
 import yh326.tiling.tile.*;
 import yh326.tiling.tile.binop.arithmetic.AddTile;
 import yh326.tiling.tile.binop.arithmetic.SubTile;
-import yh326.tiling.tile.binop.comparison.GEQTile;
-import yh326.tiling.tile.binop.comparison.GTTile;
-import yh326.tiling.tile.binop.comparison.LEQTile;
-import yh326.tiling.tile.binop.comparison.LTTile;
+import yh326.tiling.tile.binop.comparison.*;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -40,6 +37,8 @@ public class MaxMunch {
         sortedTiles.add(new TempTile());
         sortedTiles.add(new MoveTile());
         sortedTiles.add(new CallTile());
+        sortedTiles.add(new EQTile());
+        sortedTiles.add(new NEQTile());
 
 
         // sort by size in descending order
