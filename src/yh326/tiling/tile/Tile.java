@@ -3,6 +3,7 @@ package yh326.tiling.tile;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyStatement;
+import yh326.exception.TileMergeException;
 import yh326.util.NumberGetter;
 
 import java.util.ArrayList;
@@ -97,7 +98,16 @@ public abstract class Tile {
         StringBuilder localStatements = new StringBuilder();
         localAssm.statements.stream().forEachOrdered(stmt -> localStatements.append(stmt.toString() + "\n"));
 
-        localAssm.merge(childAssmGoesFirst(), childAssm);
+        try {
+            localAssm.merge(childAssmGoesFirst(), childAssm);
+        }
+        catch (TileMergeException e) {
+            System.out.println("Issue merging parent tile " + this.getClass().getSimpleName() + " with child tiles: ");
+            for (Tile child : subtreeTiles)
+                System.out.println(child.getClass().getSimpleName());
+            System.out.println("Hint: do the number of 'empty' arguments in the parent match the sum of the fillers in the children?");
+            System.exit(1);
+        }
 
         if (localAssm.incomplete()) {
             System.out.println("============================");

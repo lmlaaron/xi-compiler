@@ -1,5 +1,7 @@
 package yh326.assembly;
 
+import yh326.exception.TileMergeException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -55,13 +57,17 @@ public class Assembly {
      * @param fill the 'filler' attribute of a child tile
      *
      * @throws AssertionError if fill is empty
+	 * @throws TileMergeException if there is no place for the filler
      */
-    protected void incorporateFiller(AssemblyOperand fill) {
+    protected void incorporateFiller(AssemblyOperand fill) throws TileMergeException {
         assert !fill.isPlaceholder();
         for (AssemblyStatement stmt : statements) {
-            if (stmt.hasPlaceholder())
-                stmt.fillPlaceholder(fill.value());
+            if (stmt.hasPlaceholder()) {
+				stmt.fillPlaceholder(fill.value());
+				return;
+			}
         }
+        throw new TileMergeException("Assembly can't incorporate filler because there are no empty operands!");
     }
 
     /**
@@ -69,12 +75,15 @@ public class Assembly {
      * this instance
      *
      * @param childAssemblies the assemblies of child tiles
+	 *
+	 * @throws TileMergeException if the number of fillers in all children do not
+	 * 							match the number of empty operands in the parent
      */
-    public void merge(boolean childrenFirst, Assembly... childAssemblies) {
+    public void merge(boolean childrenFirst, Assembly... childAssemblies) throws TileMergeException {
         // incorporate all child fillers
-        Arrays.stream(childAssemblies).forEachOrdered(
-                child -> child.filler.ifPresent(fill -> incorporateFiller(fill))
-        );
+		for (Assembly child : childAssemblies)
+			if (child.filler.isPresent())
+				incorporateFiller(child.filler.get());
 
         ArrayList<AssemblyStatement> childStatements = new ArrayList<>();
         Arrays.stream(childAssemblies).forEachOrdered(
@@ -86,6 +95,9 @@ public class Assembly {
         else
             statements.addAll(statements.size(), childStatements);
 
+        for (AssemblyStatement stmt : statements)
+        	if (stmt.hasPlaceholder())
+        		throw new TileMergeException("Child assemblies did not fill all gaps in parent!");
     }
 
     /**
