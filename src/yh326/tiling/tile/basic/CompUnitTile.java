@@ -1,21 +1,23 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
+import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
+import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
-import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import yh326.assembly.Assembly;
+import yh326.tiling.tile.Tile;
 
 import java.util.LinkedList;
 
-public class SeqTile extends Tile {
+public class CompUnitTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRSeq) {
+        if (root instanceof IRCompUnit) {
             this.root = root;
-
-            IRSeq seq = (IRSeq)root;
+            IRCompUnit cu = (IRCompUnit)root;
 
             this.subtreeRoots = new LinkedList<>();
-            subtreeRoots.addAll(seq.stmts());
+            for (IRFuncDecl decl : cu.functions().values())
+                subtreeRoots.add(decl);
 
             return true;
         }
@@ -29,7 +31,7 @@ public class SeqTile extends Tile {
 
     @Override
     public Tile blankClone() {
-        return new SeqTile();
+        return new CompUnitTile();
     }
 
     @Override

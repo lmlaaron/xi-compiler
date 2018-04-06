@@ -1,18 +1,19 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
-import edu.cornell.cs.cs4120.xic.ir.IRName;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
+import yh326.tiling.tile.Tile;
 
 import java.util.LinkedList;
 
-public class NameTile extends Tile {
+public class ConstTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRName) {
+        if (root instanceof IRConst) {
             this.root = root;
-            this.subtreeRoots = new LinkedList<IRNode>();
+            this.subtreeRoots = new LinkedList<>();
             return true;
         }
         else return false;
@@ -25,13 +26,16 @@ public class NameTile extends Tile {
 
     @Override
     public Tile blankClone() {
-        return new NameTile();
+        return new ConstTile();
     }
 
     @Override
     protected Assembly generateLocalAssembly() {
+        String constValue = Long.toString(((IRConst)this.root).constant());
         return new Assembly(
-                new AssemblyOperand( ((IRName)root).name() )
+            new AssemblyOperand(
+                    constValue
+            )
         );
     }
 }

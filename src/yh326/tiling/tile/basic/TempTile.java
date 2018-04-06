@@ -1,24 +1,19 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
-import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
-import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.assembly.Assembly;
+import yh326.assembly.AssemblyOperand;
+import yh326.tiling.tile.Tile;
 
 import java.util.LinkedList;
-import java.util.List;
 
-public class CompUnitTile extends Tile {
+public class TempTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRCompUnit) {
+        if (root instanceof IRTemp) {
             this.root = root;
-            IRCompUnit cu = (IRCompUnit)root;
-
             this.subtreeRoots = new LinkedList<>();
-            for (IRFuncDecl decl : cu.functions().values())
-                subtreeRoots.add(decl);
-
             return true;
         }
         else return false;
@@ -31,11 +26,16 @@ public class CompUnitTile extends Tile {
 
     @Override
     public Tile blankClone() {
-        return new CompUnitTile();
+        return new TempTile();
     }
 
     @Override
     protected Assembly generateLocalAssembly() {
-        return new Assembly();
+        return new Assembly(
+                new AssemblyOperand(
+                        ((IRTemp)root).name(),
+                        AssemblyOperand.OperandType.TEMP
+                )
+        );
     }
 }

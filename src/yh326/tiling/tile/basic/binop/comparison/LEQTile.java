@@ -1,21 +1,21 @@
-package yh326.tiling.tile.binop.comparison;
+package yh326.tiling.tile.basic.binop.comparison;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import yh326.tiling.tile.Tile;
 
-public class GEQTile extends ComparisonBinopTile {
+public class LEQTile extends  ComparisonBinopTile {
     @Override
     protected IRBinOp.OpType validIRBinOpType() {
-        return IRBinOp.OpType.GEQ;
+        return IRBinOp.OpType.LEQ;
     }
 
     @Override
     protected String conditionalJump() {
-        return "jge";
+        return "jle";
     }
 
     @Override
     public Tile blankClone() {
-        return new GEQTile();
+        return new LEQTile();
     }
 }

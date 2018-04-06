@@ -1,9 +1,11 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyStatement;
+import yh326.tiling.tile.Tile;
+
 import yh326.assembly.AssemblyOperand;
 import java.util.LinkedList;
 

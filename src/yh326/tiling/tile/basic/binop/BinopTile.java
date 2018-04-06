@@ -1,14 +1,11 @@
-package yh326.tiling.tile.binop;
+package yh326.tiling.tile.basic.binop;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
-import yh326.assembly.AssemblyOperand;
-import yh326.assembly.AssemblyStatement;
 import yh326.tiling.tile.Tile;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public abstract class BinopTile extends Tile {
     public int size() {

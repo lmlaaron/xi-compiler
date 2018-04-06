@@ -1,14 +1,15 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
+import yh326.tiling.tile.Tile;
 
 import java.util.LinkedList;
 
-public class CJumpTile extends Tile{
+public class CJumpTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
         if (root instanceof IRCJump) {

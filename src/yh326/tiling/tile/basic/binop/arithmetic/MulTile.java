@@ -1,24 +1,24 @@
-package yh326.tiling.tile.binop.arithmetic;
+package yh326.tiling.tile.basic.binop.arithmetic;
+
+import java.util.LinkedList;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
 import yh326.tiling.tile.Tile;
-import yh326.tiling.tile.binop.BinopTile;
-import yh326.util.NumberGetter;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
+public class MulTile extends ArithmeticBinopTile {
+    public Tile blankClone() {return new AddTile();}
 
-public abstract class ArithmeticBinopTile extends BinopTile {
-    /**
-     * @return the name of the assembly operator corresponding to validIRBinOpType()
-     */
-    protected abstract String binOpAssmName();
+    protected IRBinOp.OpType validIRBinOpType() {
+        return IRBinOp.OpType.MUL;
+    }
 
-    @Override
+    protected String binOpAssmName() {
+        return "mul";
+    }
+    
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 
