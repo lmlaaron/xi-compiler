@@ -271,7 +271,7 @@ def build():
 if __name__ == "__main__":
     print("Test Harness Begin")
 
-    build() # <-- TODO: uncomment!
+    #build() # <-- TODO: uncomment!
 
     # print("===RUNNING LEX TESTS===")
     # run_test_set(LEXER_TESTS, lex_grader)
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     run_shell(['make', '-C', 'lib/runtime'], print_results=False)
     print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
     print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
-    run_test_set(IRRUN_TESTS, assm_grader) # reuse old tests because they test by output
+    run_test_set("tests/yh326_a5", assm_grader) # reuse old tests because they test by output
     
 
     print("Test Harness End!")
