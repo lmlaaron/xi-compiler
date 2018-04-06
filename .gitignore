@@ -1,3 +1,6 @@
+# during runtime build a lot of files are modified
+lib/runtime
+
 /bin/
 .*
 *~
