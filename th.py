@@ -248,7 +248,8 @@ def assm_grader(testcase_f, answer_f):
     return grade_by_matching_output(stdout, answer_contents)
 
 def compile_and_run(xi_f):
-    os.remove('./xi_executable')
+    if os.path.isfile('./xi_executable'):
+        os.remove('./xi_executable')
 
     assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
     print_log("Generating Assembly")
