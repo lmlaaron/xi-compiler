@@ -49,4 +49,7 @@ class RegisterTable {
 			return registerTable.get(op);
 		}
 	}
+	public int size() {
+		return registerTable.size();
+	}
 }

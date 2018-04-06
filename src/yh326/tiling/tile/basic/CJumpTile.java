@@ -37,7 +37,9 @@ public class CJumpTile extends Tile {
         String cjLabel = ((IRCJump)this.root).trueLabel();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        statements.add(new AssemblyStatement("cmp", new AssemblyOperand("0"), new AssemblyOperand()));
+        String ft = freshTemp();
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(ft), new AssemblyOperand("0")));
+        statements.add(new AssemblyStatement("cmp", new AssemblyOperand(ft), new AssemblyOperand()));
         statements.add(new AssemblyStatement("jne", cjLabel));
 
         return new Assembly(statements);

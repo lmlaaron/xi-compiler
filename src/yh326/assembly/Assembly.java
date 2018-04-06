@@ -86,8 +86,9 @@ public class Assembly {
        counter=0;
        for (AssemblyStatement stmt : statements) {
            if (stmt.hasPlaceholder() && counter == index) {
-           		stmt.fillPlaceholder(fill.value());
-           		return;
+           		//stmt.fillPlaceholder(fill.value());
+           		stmt.fillPlaceholder(fill); // copy all the properties of filler
+        	   		return;
 			}   
            counter++;
        }
@@ -164,88 +165,126 @@ public class Assembly {
      */
     public Assembly registerAlloc() {
     	    final int NO_REGISTER = -1;
-    		rTable = new RegisterTable();
-    		rTable.SetCounter(0);		// set the counter which decides the position of the first spilled location on the stack
-    		// if the initial counter is 0, the ith register will be spilled to [rbp - 8 * i]
+
     
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
+        List<List<AssemblyStatement>> ListFuncStatements = new LinkedList<>();
+        
+        // the register allocation/spilling is based on the unit of functions,
+        //we assume the entire abstract assembly is seperated by function call labels
+   	   List<AssemblyStatement> FuncStatements = new LinkedList<>();
+       for (AssemblyStatement stmt: statements) {
+    	   		if (stmt.isFunctionLabel)  { // per Xi ABI specification, the function labels must start with ``_I'', we assume that vice versa
+    	   			ListFuncStatements.add(FuncStatements);
+    	   			FuncStatements = new LinkedList<>();
+    	   			FuncStatements.add(stmt);
+    	   			continue;
+    	   		}
+    	   		FuncStatements.add(stmt);
+       }
+       ListFuncStatements.add(FuncStatements);
        
-    		for (AssemblyStatement stmt: statements) {
-    			// two-pass process
-    			// PASS 1: establish RegisterTable
-    			// PASS 2: replace register with respective stack location
-    			AssemblyStatement keyStatement = stmt;
-    			List<Integer> opMemIndex = new ArrayList<Integer>();
-    			
-    			// PASS 1: check the register and allocate address on stack
-    		    for (AssemblyOperand op: stmt.operands ) {
-    		    	
-    		    	    // Resolve the type of the operand in case it is not resolved at initialization
-    		    	
-    		    		op.ResolveType();
-    		    		// check if op is temp or contains temp, e.g., move[__FreshTemp_14], 116
-    		    		if (op.type == AssemblyOperand.OperandType.MEM || op.type == AssemblyOperand.OperandType.TEMP) {
-    		    			
-    		    	         if ( op.type == AssemblyOperand.OperandType.TEMP) {
-    		    			// check if the temp is registered in the table, if not add it
-    		    	        	 	if (!rTable.isInTable(op.operand)) {
-    		    	        	 		rTable.add(op.operand);
-    		    	        	 	}
-    		    	        	 	opMemIndex.add(rTable.MemIndex(op.operand));
-    		    	         } else if ( op.type == AssemblyOperand.OperandType.MEM) {
-    		    	        	     String reg = op.operand.substring(1, op.operand.length()-1);
-    		    	        	     if ( !rTable.isInTable(reg)) {
-    		    	        	    	     rTable.add(reg);
-    		    	        	     } 
-    		    	        	     opMemIndex.add(rTable.MemIndex(reg));
-    		    	         }
-    		    		} else {
-    		    			opMemIndex.add(NO_REGISTER);   
-    		    		}
-    		    }
-    		    
-    		    // PASS 2: replace the register with the respective address on stack
-    		    // currently only support at least two registers in one instruction TODO: support >=3 registers in one instruction
-    		    for ( int j = 0; j <opMemIndex.size(); j++) {
-    		    		if ( j >= 2) break;
-    		    	
-    		    		if (opMemIndex.get(j) == NO_REGISTER) {
-    		    			continue;
-    		    		}
-    		    		if (stmt.operands[j].type == AssemblyOperand.OperandType.TEMP) {
-    		    			//   TODO figure out elegant way handling temp register inside operand
-    		    			if ( j == 0 ) {
-    		    				keyStatement.operands[j] = new AssemblyOperand("rax");
-    		    			} else {
-    		    				keyStatement.operands[j] = new AssemblyOperand("rdx");
-    		    			}
-    		    		} else if ( stmt.operands[j].type == AssemblyOperand.OperandType.MEM) {
-    		    			// TODO
-    		    			if ( j == 0 ) {
-    		    				keyStatement.operands[j] = new AssemblyOperand("[rax]");
-    		    			} else {
-    		    				keyStatement.operands[j] = new AssemblyOperand("[rdx]");
-    		    			}
-    		    		}
-    		    			
-    		    }
+       for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {
+			// two-pass process
+			// PASS 1: establish RegisterTable
+			// PASS 2: replace register with respective stack location
+    	   
+      		rTable = new RegisterTable();
+       		rTable.SetCounter(0);		// set the counter which decides the position of the first spilled location on the stack
+       		
+       		for (AssemblyStatement stmt: oneFuncStatements) {
+       			for (AssemblyOperand op: stmt.operands) {
+       				op.ResolveType();
+       				if (op.type == AssemblyOperand.OperandType.MEM || op.type == AssemblyOperand.OperandType.TEMP) {
+       					if ( op.type == AssemblyOperand.OperandType.TEMP) {
+       						// check if the temp is registered in the table, if not add it
+	    	        	 			if (!rTable.isInTable(op.operand)) {
+	    	        	 				rTable.add(op.operand);
+	    	        	 			}
+	    	        	 			//opMemIndex.add(rTable.MemIndex(op.operand));
+       					} else if ( op.type == AssemblyOperand.OperandType.MEM) {
+       						String reg = op.operand.substring(1, op.operand.length()-1);
+	    	        	     		if ( !rTable.isInTable(reg)) {
+	    	        	     			rTable.add(reg);
+	    	        	     		} 
+	    	        	     		//opMemIndex.add(rTable.MemIndex(reg));
+       					}
+       				} else {
+       					//opMemIndex.add(NO_REGISTER);
+       				}
+       			}
+       		}
+
+       		for (AssemblyStatement stmt: oneFuncStatements) {
+       			// replace STACKSIZE with the real size
+       			if (stmt.operands != null &&  stmt.operation== "sub" && stmt.operands[1].value() == "STACKSIZE") {
+       				stmt.operands[1] = new AssemblyOperand(String.valueOf(rTable.size()*8));
+       				concreteStatements.add(stmt);
+       				continue;
+       			}
  
+       			// PASS 1: check the register and allocate address on stack
+       			AssemblyStatement keyStatement = stmt;
+       			// if the initial counter is 0, the ith register will be spilled to [rbp - 8 * i]
+           		List<Integer> opMemIndex = new ArrayList<Integer>();
+       			for (AssemblyOperand op: stmt.operands ) {
+    		    	
+    		    	    		// Resolve the type of the operand in case it is not resolved at initialization
+    		    	
+    		    			op.ResolveType();
+    		    			// check if op is temp or contains temp, e.g., move[__FreshTemp_14], 116
+    		    			if (op.type == AssemblyOperand.OperandType.MEM || op.type == AssemblyOperand.OperandType.TEMP) {
+    		    				if ( op.type == AssemblyOperand.OperandType.TEMP) {
+    		    	        	 		opMemIndex.add(rTable.MemIndex(op.operand));
+    		    				} else if ( op.type == AssemblyOperand.OperandType.MEM) {
+    		    					String reg = op.operand.substring(1, op.operand.length()-1);
+    		    	        	     	opMemIndex.add(rTable.MemIndex(reg));
+    		    				}
+    		    			} else {
+    		    				opMemIndex.add(NO_REGISTER);   
+    		    			}
+       			}
+    		    
+       			// PASS 2: replace the register with the respective address on stack
+       			// currently only support at least two registers in one instruction TODO: support >=3 registers in one instruction
+       			for ( int j = 0; j <opMemIndex.size(); j++) {
+		    			if ( j >= 2) break;		
+		    			if (opMemIndex.get(j) == NO_REGISTER) {
+		    				continue;
+		    			}
+		    			if (stmt.operands[j].type == AssemblyOperand.OperandType.TEMP) {
+		    				//   TODO figure out elegant way handling temp register inside operand
+		    				if ( j == 0 ) {
+		    					keyStatement.operands[j] = new AssemblyOperand("rbx");
+		    				} else {
+		    					keyStatement.operands[j] = new AssemblyOperand("rdx");
+		    				}
+		    			} else if ( stmt.operands[j].type == AssemblyOperand.OperandType.MEM) {
+		    				// TODO
+		    				if ( j == 0 ) {
+		    					keyStatement.operands[j] = new AssemblyOperand("[rbx]");
+		    				} else {
+		    					keyStatement.operands[j] = new AssemblyOperand("[rdx]");
+		    				}
+		    			}		    			
+       			}
+
     		    // append the newly generated statement (3 STEPS)
     		    // STEP 1: load two operands from memory
     		    if (opMemIndex.size() > 1 && opMemIndex.get(1)!= NO_REGISTER) {
     		       		AssemblyStatement loadMemStatement =new AssemblyStatement(
-									"mov", 
-									new AssemblyOperand("rdx"), 
-									new AssemblyOperand("[rbp-" +String.valueOf(8 * opMemIndex.get(1))+ "]") );
-		    		    concreteStatements.add(loadMemStatement);
+    								"mov", 
+    								new AssemblyOperand("rdx"), 
+    								new AssemblyOperand("[rbp-" +String.valueOf(8 * opMemIndex.get(1))+ "]") );
+    	    		    concreteStatements.add(loadMemStatement);
     		    }
     		    //TODO depends on the type of actual operation, (e.g. mov), this step maybe omitted, but for (add, sub) need to preserve
     		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != NO_REGISTER ) {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
-							"mov",
-							new AssemblyOperand("rax"),
-							new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]")
-							);
+    						"mov",
+    						new AssemblyOperand("rbx"),
+    						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]")
+    						);
     		    		concreteStatements.add(storeMemStatement);
     		    }
     		    // STEP 2: key operation
@@ -253,12 +292,15 @@ public class Assembly {
     		    	//STEP 3: load the result back to memory (if the first operands of keyStatement involve register)
     		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != -1 ) {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
-							"mov",
-							new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]"), 
-							new AssemblyOperand("rax"));
+    						"mov",
+    						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]"), 
+    						new AssemblyOperand("rbx"));
     		    		concreteStatements.add(storeMemStatement);
     		    }
-    		}
+        		}
+   		
+   		
+       }
     		return new Assembly(concreteStatements);
     }
 }

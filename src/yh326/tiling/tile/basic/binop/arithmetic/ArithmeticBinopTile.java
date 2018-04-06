@@ -13,6 +13,7 @@ public abstract class ArithmeticBinopTile extends BinopTile {
      */
     protected abstract String binOpAssmName();
 
+    @Override
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 

@@ -33,7 +33,8 @@ public class TempTile extends Tile {
     protected Assembly generateLocalAssembly() {
         return new Assembly(
                 new AssemblyOperand(
-                        ((IRTemp)root).name()
+                        ((IRTemp)root).name(),
+                        AssemblyOperand.OperandType.TEMP
                 )
         );
     }
