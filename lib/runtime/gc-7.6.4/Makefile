@@ -268,7 +268,7 @@ am_libgc_la_OBJECTS = allchblk.lo alloc.lo \
 #	$(am__objects_1) $(am__objects_2) \
 #	$(am__objects_3) $(am__objects_4) \
 #	$(am__objects_5) $(am__objects_6)
-#nodist_libgc_la_OBJECTS = libatomic_ops/src/atomic_ops.lo
+nodist_libgc_la_OBJECTS = libatomic_ops/src/atomic_ops.lo
 #nodist_libgc_la_OBJECTS = libatomic_ops/src/atomic_ops_sysdeps.lo
 libgc_la_OBJECTS = $(am_libgc_la_OBJECTS) $(nodist_libgc_la_OBJECTS)
 libgc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -789,8 +789,8 @@ AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	$(ATOMIC_OPS_CFLAGS) $(am__append_1)
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-ATOMIC_OPS_CFLAGS = -I/usr/local/include
-ATOMIC_OPS_LIBS = -L/usr/local/lib -latomic_ops
+ATOMIC_OPS_CFLAGS = -I$(top_builddir)/libatomic_ops/src -I$(top_srcdir)/libatomic_ops/src
+ATOMIC_OPS_LIBS = 
 AUTOCONF = ${SHELL} /home/vagrant/shared/pa/lib/runtime/gc-7.6.4/missing autoconf
 AUTOHEADER = ${SHELL} /home/vagrant/shared/pa/lib/runtime/gc-7.6.4/missing autoheader
 AUTOMAKE = ${SHELL} /home/vagrant/shared/pa/lib/runtime/gc-7.6.4/missing automake-1.15
@@ -920,7 +920,7 @@ psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-subdirs = 
+subdirs =  libatomic_ops
 sysconfdir = ${prefix}/etc
 target = x86_64-unknown-linux-gnu
 target_alias = 
@@ -1044,7 +1044,7 @@ libgc_la_SOURCES = allchblk.c alloc.c blacklst.c \
 #nodist_libgc_la_SOURCES = libatomic_ops/src/atomic_ops_sysdeps.S
 
 # End of !SINGLE_GC_OBJ
-#nodist_libgc_la_SOURCES = libatomic_ops/src/atomic_ops.c
+nodist_libgc_la_SOURCES = libatomic_ops/src/atomic_ops.c
 
 # Include THREADDLLIBS here to ensure that the correct versions of
 # linuxthread semaphore functions get linked:
