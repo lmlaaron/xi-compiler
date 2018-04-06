@@ -123,10 +123,15 @@ def load_testcases(test_dir):
 # runs the grader function on each testcase-solution pair and prints the results
 def run_test_set(test_dir, grader_function):
     testcase_dir, answer_dir, testcases, answers = load_testcases(test_dir)
+
+    # testcases = dict(list(testcases.items())[:5]) # TODO: REMOVE
+
     results = []
     for k in testcases.keys():
         # grader function returns (success, reason) tuple
+        print("Running {}".format(k)) # TODO: REMOVE
         results.append( (k,) + grader_function(testcases[k], answers[k]) )
+    results = sorted(results)
     correct = 0
     for case, passed, reason in results:
         if passed:
@@ -217,10 +222,41 @@ def irrun_grader(testcase_f, answer_f):
 
     answer_contents = ''.join(open(answer_f))
 
-    if answer_contents == stdout:
+    return grade_by_matching_output(stdout, answer_contents)
+
+def grade_by_matching_output(output, correct_output):
+    if output == correct_output:
         return (True, '')
     else:
-        return (False, "stdout doesnt match answer file:\n\tExpected:'{}'\n\t   Found:'{}'".format(answer_contents, stdout))
+        return (False, "stdout doesnt match answer file:\n\tExpected:'{}'\n\t   Found:'{}'".format(correct_output, output))
+
+def assm_grader(testcase_f, answer_f):
+    assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
+
+    run_shell(['./xic', '-libpath', 'lib/runtime/include/', testcase_f], print_results=False)
+    if not os.path.isfile(assembly_f):
+        return (False, "Couldnt find generated assembly file")
+    run_shell(['lib/runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
+    if not os.path.isfile('xi_executable'):
+        return (False, "Couldn't find generated executable")
+    _, stdout, _ = run_shell(['./xi_executable'], print_results=False)
+
+    os.remove('./xi_executable')
+    os.remove(assembly_f)
+
+    answer_contents = ''.join(open(answer_f))
+    return grade_by_matching_output(stdout, answer_contents)
+
+def compile_and_run(xi_f):
+    os.remove('./xi_executable')
+
+    assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
+    print_log("Generating Assembly")
+    run_shell(['./xic', '-libpath', 'lib/runtime/include/', xi_f], end_on_error=True)
+    print_log("Linking Assembly")
+    run_shell(['lib/runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
+    print_log("Running Executable")
+    run_shell(['./xi_executable'], end_on_error=True)
 
 
 
@@ -234,7 +270,7 @@ def build():
 if __name__ == "__main__":
     print("Test Harness Begin")
 
-    build()
+    build() # <-- TODO: uncomment!
 
     # print("===RUNNING LEX TESTS===")
     # run_test_set(LEXER_TESTS, lex_grader)
@@ -242,8 +278,14 @@ if __name__ == "__main__":
     # run_test_set(PARSER_TESTS, parse_grader)
     # print("====RUNNING TYPECHECK TESTS===")
     # run_test_set(TYPECHECKER_TESTS, typecheck_grader)
-    print("====RUNNING IRRUN TESTS====")
-    run_test_set(IRRUN_TESTS, irrun_grader)
+    # print("====RUNNING IRRUN TESTS====")
+    # run_test_set(IRRUN_TESTS, irrun_grader)
+    print("====BUILDING BINARY RUNTIME====")
+    run_shell(['make', '-C', 'lib/runtime'], print_results=False)
+    print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
+    print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
+    run_test_set(IRRUN_TESTS, assm_grader) # reuse old tests because they test by output
+    
 
     print("Test Harness End!")
 
