@@ -1,14 +1,14 @@
 package yh326.tiling;
 
-import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.exception.NotTilableException;
 import yh326.tiling.tile.*;
-import yh326.tiling.tile.binop.arithmetic.AddTile;
-import yh326.tiling.tile.binop.arithmetic.SubTile;
-import yh326.tiling.tile.binop.comparison.*;
+import yh326.tiling.tile.advanced.cjump.EQCJumpTile;
+import yh326.tiling.tile.basic.*;
+import yh326.tiling.tile.basic.binop.arithmetic.AddTile;
+import yh326.tiling.tile.basic.binop.arithmetic.SubTile;
+import yh326.tiling.tile.basic.binop.comparison.*;
 
-import java.io.PrintWriter;
 import java.util.*;
 
 public class MaxMunch {
@@ -39,6 +39,7 @@ public class MaxMunch {
         sortedTiles.add(new CallTile());
         sortedTiles.add(new EQTile());
         sortedTiles.add(new NEQTile());
+        sortedTiles.add(new EQCJumpTile());
 
 
         // sort by size in descending order

@@ -1,14 +1,10 @@
-package yh326.tiling.tile.binop.comparison;
+package yh326.tiling.tile.basic.binop.comparison;
 
-import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
-import yh326.tiling.tile.Tile;
-import yh326.tiling.tile.binop.BinopTile;
+import yh326.tiling.tile.basic.binop.BinopTile;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public abstract class ComparisonBinopTile extends BinopTile {

@@ -1,18 +1,23 @@
-package yh326.tiling.tile;
+package yh326.tiling.tile.basic;
 
-import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import yh326.assembly.Assembly;
-import yh326.assembly.AssemblyOperand;
+import yh326.tiling.tile.Tile;
 
 import java.util.LinkedList;
 
-public class NameTile extends Tile {
+public class SeqTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRName) {
+        if (root instanceof IRSeq) {
             this.root = root;
-            this.subtreeRoots = new LinkedList<IRNode>();
+
+            IRSeq seq = (IRSeq)root;
+
+            this.subtreeRoots = new LinkedList<>();
+            subtreeRoots.addAll(seq.stmts());
+
             return true;
         }
         else return false;
@@ -25,13 +30,11 @@ public class NameTile extends Tile {
 
     @Override
     public Tile blankClone() {
-        return new NameTile();
+        return new SeqTile();
     }
 
     @Override
     protected Assembly generateLocalAssembly() {
-        return new Assembly(
-                new AssemblyOperand( ((IRName)root).name() )
-        );
+        return new Assembly();
     }
 }
