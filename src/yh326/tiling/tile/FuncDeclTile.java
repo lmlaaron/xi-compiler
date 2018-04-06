@@ -3,6 +3,7 @@ package yh326.tiling.tile;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
+import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
 
 import java.util.LinkedList;
@@ -41,7 +42,10 @@ public class FuncDeclTile extends Tile {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         statements.add(new AssemblyStatement(decl.name() + ":"));
         //TODO: may need more things at beginning of function - see system V spec
-
+        statements.add(new AssemblyStatement("push", "rbp"));
+        statements.add(new AssemblyStatement("move", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));
+        statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));      
+        
         return new Assembly(statements);
     }
 

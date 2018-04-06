@@ -18,7 +18,7 @@ public class CallTile extends Tile {
 
             this.subtreeRoots = new LinkedList<>();
 
-            //TODO: what to do with args?
+            // first add arguments then target MUST follow this order
             subtreeRoots.addAll(call.args());
             subtreeRoots.add(call.target());
             
@@ -52,12 +52,16 @@ public class CallTile extends Tile {
         if (operandNum > 5) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r9"), new AssemblyOperand()));
         
         // PUSH all other arguments onto stack
-        for ( int i = 6; i < this.getSubtreeRoots().size() -1; i++ ) {
+        for ( int i = this.getSubtreeRoots().size() -1; i >=6; i-- ) {
         		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
-        // notice that in this case the operands in the assembly have different order compared to the operands in theIR
+        
+        //
         statements.add(new AssemblyStatement("call", new AssemblyOperand()));
 
+        // remove the size of the sack
+        if (operandNum > 6)
+        statements.add(new AssemblyStatement("add", new AssemblyOperand("rsp"), new AssemblyOperand(String.valueOf(8*(operandNum - 6)))));
         
         // In IR, CALL Node substitutes as first return value
         // TODO: using function name, test to see if it has return values. If not,
