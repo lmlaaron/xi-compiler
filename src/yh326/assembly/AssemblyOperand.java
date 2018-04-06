@@ -24,7 +24,7 @@ public class AssemblyOperand {
     public enum OperandType {
     		TEMP, LABEL, MEM, CONSTANT, UNRESOLVED
     } 
-    OperandType type;
+    public OperandType type;
     
     public AssemblyOperand(String op) {
         this.operand = op;
@@ -33,10 +33,19 @@ public class AssemblyOperand {
         this.ResolveType();
     }
     
+    public AssemblyOperand(String op, OperandType t) {
+        this.operand = op;
+        this.reorderIndex = -1;
+        this.type =t;
+    }
+    
     /**
      * resolve the type of operand by pattern matching
      */
     public void ResolveType() {
+    	if (this.type != OperandType.UNRESOLVED) {
+    		return;
+    	}
     	//TODO fix this pattern matching but propagate from IR instead
     
     	 if ( (this.operand.charAt(0)=='[' ) && (this.operand.charAt(this.operand.length()-1) ==']' ) ) {
@@ -72,10 +81,13 @@ public class AssemblyOperand {
     
     public AssemblyOperand() { 
     		this.reorderIndex = -1;
+            this.type = OperandType.UNRESOLVED;
     }
     
     public AssemblyOperand(int index) {
     		this.reorderIndex = index;
+            this.type = OperandType.UNRESOLVED;
+
     }
 
     /**
@@ -92,6 +104,12 @@ public class AssemblyOperand {
     public void fillPlaceholder(String operand) {
         assert isPlaceholder();
         this.operand = operand;
+    }
+    
+    public void fillPlaceholder(AssemblyOperand operand) {
+    		this.operand = operand.operand;
+    		this.type = operand.type;
+    		this.reorderIndex = operand.reorderIndex;
     }
 
     /**

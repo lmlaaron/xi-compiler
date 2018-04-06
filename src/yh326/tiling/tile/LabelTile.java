@@ -33,7 +33,9 @@ public class LabelTile extends Tile {
         String labelName = ((IRLabel)this.root).name();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        statements.add(new AssemblyStatement(labelName + ":"));
-        return new Assembly();
+        AssemblyStatement labelStmt = new AssemblyStatement(labelName+":");
+        labelStmt.isFunctionLabel = true;   // for printing reason, need to distinguish label and other statements
+        statements.add(labelStmt);
+        return new Assembly(statements);
     }
 }

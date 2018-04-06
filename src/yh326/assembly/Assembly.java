@@ -86,8 +86,9 @@ public class Assembly {
        counter=0;
        for (AssemblyStatement stmt : statements) {
            if (stmt.hasPlaceholder() && counter == index) {
-           		stmt.fillPlaceholder(fill.value());
-           		return;
+           		//stmt.fillPlaceholder(fill.value());
+           		stmt.fillPlaceholder(fill); // copy all the properties of filler
+        	   		return;
 			}   
            counter++;
        }
@@ -254,14 +255,14 @@ public class Assembly {
 		    			if (stmt.operands[j].type == AssemblyOperand.OperandType.TEMP) {
 		    				//   TODO figure out elegant way handling temp register inside operand
 		    				if ( j == 0 ) {
-		    					keyStatement.operands[j] = new AssemblyOperand("rax");
+		    					keyStatement.operands[j] = new AssemblyOperand("rbx");
 		    				} else {
 		    					keyStatement.operands[j] = new AssemblyOperand("rdx");
 		    				}
 		    			} else if ( stmt.operands[j].type == AssemblyOperand.OperandType.MEM) {
 		    				// TODO
 		    				if ( j == 0 ) {
-		    					keyStatement.operands[j] = new AssemblyOperand("[rax]");
+		    					keyStatement.operands[j] = new AssemblyOperand("[rbx]");
 		    				} else {
 		    					keyStatement.operands[j] = new AssemblyOperand("[rdx]");
 		    				}
@@ -281,7 +282,7 @@ public class Assembly {
     		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != NO_REGISTER ) {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
     						"mov",
-    						new AssemblyOperand("rax"),
+    						new AssemblyOperand("rbx"),
     						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]")
     						);
     		    		concreteStatements.add(storeMemStatement);
@@ -293,7 +294,7 @@ public class Assembly {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
     						"mov",
     						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]"), 
-    						new AssemblyOperand("rax"));
+    						new AssemblyOperand("rbx"));
     		    		concreteStatements.add(storeMemStatement);
     		    }
         		}

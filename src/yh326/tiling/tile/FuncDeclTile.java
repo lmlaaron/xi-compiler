@@ -42,7 +42,7 @@ public class FuncDeclTile extends Tile {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         statements.add(new AssemblyStatement(decl.name() + ":", true));
         statements.add(new AssemblyStatement("push", "rbp"));
-        statements.add(new AssemblyStatement("move", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));
         statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));      
         
         return new Assembly(statements);

@@ -5,6 +5,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.exception.NotTilableException;
 import yh326.tiling.tile.*;
 import yh326.tiling.tile.binop.arithmetic.AddTile;
+import yh326.tiling.tile.binop.arithmetic.MulTile;
 import yh326.tiling.tile.binop.arithmetic.SubTile;
 import yh326.tiling.tile.binop.comparison.*;
 
@@ -20,6 +21,8 @@ public class MaxMunch {
 
         sortedTiles.add(new AddTile());
         sortedTiles.add(new SubTile());
+        sortedTiles.add(new MulTile());
+        sortedTiles.add(new MoveTempCallTile());
         sortedTiles.add(new GEQTile());
         sortedTiles.add(new LEQTile());
         sortedTiles.add(new GTTile());
@@ -45,7 +48,7 @@ public class MaxMunch {
         Collections.sort(sortedTiles, new Comparator<Tile>() {
             @Override
             public int compare(Tile o1, Tile o2) {
-                return o1.size() - o2.size();
+                return o2.size() - o1.size();
             }
         });
     }

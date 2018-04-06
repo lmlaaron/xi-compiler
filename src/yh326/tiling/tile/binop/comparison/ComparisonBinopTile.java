@@ -28,9 +28,13 @@ public abstract class ComparisonBinopTile extends BinopTile {
         statements.add(new AssemblyStatement(conditionalJump(), trueLabel));
         statements.add(new AssemblyStatement("mov", freshTemp, "0"));
         statements.add(new AssemblyStatement("jmp", finalLabel));
-        statements.add(new AssemblyStatement(trueLabel + ":"));
+        AssemblyStatement tl = new AssemblyStatement(trueLabel + ":");
+        tl.isOtherLabel = true;
+        statements.add(tl);
         statements.add(new AssemblyStatement("mov", freshTemp, "1"));
-        statements.add(new AssemblyStatement(finalLabel + ":"));
+        AssemblyStatement fl = new AssemblyStatement(finalLabel + ":");
+        fl.isOtherLabel = true;
+        statements.add(fl);
 
         Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
 

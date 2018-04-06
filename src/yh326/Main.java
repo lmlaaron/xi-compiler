@@ -158,7 +158,7 @@ public class Main {
                 Assembly assm = rootTile.generateAssembly();
                 // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
                 
-                if (argvArray.contains("--asmgen")) {
+                if (!argvArray.contains("--disasmgen")) {
                    	assm = assm.registerAlloc();
                 }
                 //======= END ACTUAL ASSEMBLY GENERATION ==========
@@ -169,12 +169,14 @@ public class Main {
                 else {
                     // write assembly to file
                 	    File assmF = null;
-                    if ( argvArray.contains("--asmgen") ) {
+                   if ( argvArray.contains("--disasmgen") ) {
                     	    assmF = new File(realOutputFile +".ra.s");
                     } else {
                         assmF = new File(realOutputFile + ".s");
                     }
                     BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
+                    writer.write(".intel_syntax noprefix "
+                    		+ "\n"); //intel syntax annotation
                     writer.write(assm.toString());
                     writer.close();
                 }

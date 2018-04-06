@@ -91,7 +91,7 @@ public abstract class Tile {
         // for debugging, add a comment for each tile to see how code was generated
         AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
         for(int i = 0; i < comment.length; i++) {
-            localAssm.statements.addFirst(comment[i]);
+        //    localAssm.statements.addFirst(comment[i]);
         }
 
         // for debugging only

@@ -1,35 +1,39 @@
 package yh326.tiling.tile;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
 
 import java.util.LinkedList;
 
-public class CallTile extends Tile {	
+public class MoveTempCallTile extends Tile {	
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRCall) {
+        if (root instanceof IRMove) {
             this.root = root;
 
-            IRCall call = (IRCall)root;
+            IRMove move = (IRMove) root;
+            if (move.target() instanceof IRTemp && move.source() instanceof IRCall) {
+            		//IRTemp temp =(IRTemp) move.target();
+            		IRCall call = (IRCall)move.source();
 
-            this.subtreeRoots = new LinkedList<>();
-
-            // first add arguments then target MUST follow this order
-            subtreeRoots.addAll(call.args());
-            subtreeRoots.add(call.target());
-            
-            return true;
+            		this.subtreeRoots = new LinkedList<>();
+            		// first add arguments then target MUST follow this order
+            		subtreeRoots.addAll(call.args());
+            		subtreeRoots.add(call.target());
+            		return true;
+            }
         }
-        else return false;
+        return false;
     }
 
     @Override
     public int size() {
-        return 1;
+        return 3;
     }
 
     @Override
@@ -55,18 +59,12 @@ public class CallTile extends Tile {
         for ( int i = this.getSubtreeRoots().size() -1; i >=6; i-- ) {
         		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
-        
-        //
         statements.add(new AssemblyStatement("call", new AssemblyOperand()));
 
         // reduce the size of the sack
         if (operandNum > 6)
         statements.add(new AssemblyStatement("add", new AssemblyOperand("rsp"), new AssemblyOperand(String.valueOf(8*(operandNum - 6)))));
-        //statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand("rax")));
-        // In IR, CALL Node substitutes as first return value
-        // TODO: using function name, test to see if it has return values. If not,
-        //      don't have a filler. It could meddle with other tiles in unexpected
-        //      ways
-        return new Assembly(statements, new AssemblyOperand(/*"_RET0"*/"rax"));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(((IRTemp) ((IRMove) root).target()).name()), new AssemblyOperand("rax")));
+        return new Assembly(statements);
     }
 }
