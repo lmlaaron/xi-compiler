@@ -20,6 +20,9 @@ sym.java
 # BlueJ files
 *.ctxt
 
+# python venv
+venv
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
