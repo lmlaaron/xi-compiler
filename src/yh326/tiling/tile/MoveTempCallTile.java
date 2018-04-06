@@ -38,7 +38,7 @@ public class MoveTempCallTile extends Tile {
 
     @Override
     public Tile blankClone() {
-        return new CallTile();
+        return new MoveTempCallTile();
     }
 
     @Override
