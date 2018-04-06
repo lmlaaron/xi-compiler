@@ -19,19 +19,30 @@ public class AssemblyStatement {
 
 
     String operation;
+    public boolean isFunctionLabel;
     AssemblyOperand[] operands;
 
     public AssemblyStatement(String operation) {
+    	    isFunctionLabel =false;
         this.operation = operation;
         operands = new AssemblyOperand[0];
     }
+    
+    public AssemblyStatement(String operation, boolean funcLabel) {
+	    isFunctionLabel =funcLabel;
+	    this.operation = operation;
+	    operands = new AssemblyOperand[0];
+}
+    
     public AssemblyStatement(String operation, String... operands) {
+	    isFunctionLabel =false;
         this.operation = operation;
         this.operands = new AssemblyOperand[operands.length];
         for (int i = 0; i < operands.length; i++)
             this.operands[i] = new AssemblyOperand(operands[i]);
     }
     public AssemblyStatement(String operation, AssemblyOperand... operands) {
+	    isFunctionLabel =false;
         this.operation = operation;
         this.operands = operands;
     }

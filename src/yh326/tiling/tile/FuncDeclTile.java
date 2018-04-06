@@ -40,8 +40,7 @@ public class FuncDeclTile extends Tile {
         IRFuncDecl decl = (IRFuncDecl)root;
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        statements.add(new AssemblyStatement(decl.name() + ":"));
-        //TODO: may need more things at beginning of function - see system V spec
+        statements.add(new AssemblyStatement(decl.name() + ":", true));
         statements.add(new AssemblyStatement("push", "rbp"));
         statements.add(new AssemblyStatement("move", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));
         statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));      
