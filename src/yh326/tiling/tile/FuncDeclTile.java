@@ -40,6 +40,10 @@ public class FuncDeclTile extends Tile {
         IRFuncDecl decl = (IRFuncDecl)root;
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
+        // assembly annotations for function
+        statements.add(new AssemblyStatement(".text"));
+        statements.add(new AssemblyStatement(".globl " + decl.name() ));
+        statements.add(new AssemblyStatement(".type " + decl.name() + ", @function"));
         statements.add(new AssemblyStatement(decl.name() + ":", true));
         statements.add(new AssemblyStatement("push", "rbp"));
         statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));

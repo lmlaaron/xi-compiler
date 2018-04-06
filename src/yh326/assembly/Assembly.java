@@ -262,9 +262,9 @@ public class Assembly {
 		    			} else if ( stmt.operands[j].type == AssemblyOperand.OperandType.MEM) {
 		    				// TODO
 		    				if ( j == 0 ) {
-		    					keyStatement.operands[j] = new AssemblyOperand("[rbx]");
+		    					keyStatement.operands[j] = new AssemblyOperand("QWORD PTR [rbx]");
 		    				} else {
-		    					keyStatement.operands[j] = new AssemblyOperand("[rdx]");
+		    					keyStatement.operands[j] = new AssemblyOperand("QWORD PTR [rdx]");
 		    				}
 		    			}		    			
        			}
@@ -275,7 +275,7 @@ public class Assembly {
     		       		AssemblyStatement loadMemStatement =new AssemblyStatement(
     								"mov", 
     								new AssemblyOperand("rdx"), 
-    								new AssemblyOperand("[rbp-" +String.valueOf(8 * opMemIndex.get(1))+ "]") );
+    								new AssemblyOperand("QWORD PTR [rbp-" +String.valueOf(8 * opMemIndex.get(1))+ "]") );
     	    		    concreteStatements.add(loadMemStatement);
     		    }
     		    //TODO depends on the type of actual operation, (e.g. mov), this step maybe omitted, but for (add, sub) need to preserve
@@ -283,7 +283,7 @@ public class Assembly {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
     						"mov",
     						new AssemblyOperand("rbx"),
-    						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]")
+    						new AssemblyOperand("QWORD PTR [rbp-"+String.valueOf(8* opMemIndex.get(0))+"]")
     						);
     		    		concreteStatements.add(storeMemStatement);
     		    }
@@ -293,7 +293,7 @@ public class Assembly {
     		    if (opMemIndex.size() > 0 && opMemIndex.get(0) != -1 ) {
         			AssemblyStatement storeMemStatement = new AssemblyStatement(
     						"mov",
-    						new AssemblyOperand("[rbp-"+String.valueOf(8* opMemIndex.get(0))+"]"), 
+    						new AssemblyOperand("QWORD PTR [rbp-"+String.valueOf(8* opMemIndex.get(0))+"]"), 
     						new AssemblyOperand("rbx"));
     		    		concreteStatements.add(storeMemStatement);
     		    }
