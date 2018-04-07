@@ -15,19 +15,18 @@ public class MulTile extends ArithmeticBinopTile {
     }
 
     protected String binOpAssmName() {
-        return "mul";
+        return "imul";
     }
 
     @Override
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 
-        //TODO: eax contains the low half of the result,
+        //TODO: implementing 64 bit multiplication is tricky. This probably doesn't work in all cases...
 
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), new AssemblyOperand()));
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand()));
-        statements.add(new AssemblyStatement("mov", freshTemp, "rax"));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand()));
 
         Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
 
