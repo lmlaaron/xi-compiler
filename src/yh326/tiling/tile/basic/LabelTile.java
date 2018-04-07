@@ -25,11 +25,6 @@ public class LabelTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new LabelTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         String labelName = ((IRLabel)this.root).name();
 

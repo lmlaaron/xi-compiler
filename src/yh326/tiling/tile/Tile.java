@@ -7,6 +7,7 @@ import yh326.exception.TileMergeException;
 import yh326.util.Flags;
 import yh326.util.NumberGetter;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +45,24 @@ public abstract class Tile {
      * For our applications we don't need a proper clone, just another uninitialized
      * instance of the same type
      */
-    public abstract Tile blankClone();
+    public Tile blankClone() {
+        for (Constructor<?>  constructor : this.getClass().getConstructors()) {
+            if (constructor.getParameterCount() == 0) {
+                try {
+                    Object o = constructor.newInstance();
+                    if (o instanceof Tile) {
+                        return (Tile)o;
+                    }
+                }
+                catch (Exception e) {
+                    // shouldn't ever happen
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        // shouldn't ever get here:
+        throw new RuntimeException("No constructors accepted zero arguments!");
+    }
 
     /**
      * @return a list of all roots of subtrees which are not a part of this tile

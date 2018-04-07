@@ -32,11 +32,6 @@ public class FuncDeclTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new FuncDeclTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         IRFuncDecl decl = (IRFuncDecl)root;
 

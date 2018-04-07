@@ -28,11 +28,6 @@ public class CJumpTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new CJumpTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         String cjLabel = ((IRCJump)this.root).trueLabel();
 

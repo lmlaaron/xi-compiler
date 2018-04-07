@@ -29,11 +29,6 @@ public class SeqTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new SeqTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         return new Assembly();
     }

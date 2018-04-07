@@ -13,9 +13,4 @@ public class GEQTile extends ComparisonBinopTile {
     protected String conditionalJump() {
         return "jge";
     }
-
-    @Override
-    public Tile blankClone() {
-        return new GEQTile();
-    }
 }

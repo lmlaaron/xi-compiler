@@ -25,11 +25,6 @@ public class ConstTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new ConstTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         String constValue = Long.toString(((IRConst)this.root).constant());
         return new Assembly(

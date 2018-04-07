@@ -30,11 +30,6 @@ public class JumpTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new JumpTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         statements.add(new AssemblyStatement("jmp", new AssemblyOperand()));

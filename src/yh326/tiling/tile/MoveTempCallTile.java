@@ -37,11 +37,6 @@ public class MoveTempCallTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new MoveTempCallTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
 

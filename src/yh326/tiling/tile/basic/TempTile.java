@@ -25,11 +25,6 @@ public class TempTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new TempTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         return new Assembly(
                 new AssemblyOperand(

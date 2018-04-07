@@ -13,9 +13,4 @@ public class LTTile extends  ComparisonBinopTile {
     protected String conditionalJump() {
         return "jl";
     }
-
-    @Override
-    public Tile blankClone() {
-        return new LTTile();
-    }
 }

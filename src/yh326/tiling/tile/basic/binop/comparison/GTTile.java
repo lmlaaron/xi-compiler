@@ -13,9 +13,4 @@ public class GTTile extends ComparisonBinopTile {
     protected String conditionalJump() {
         return "jg";
     }
-
-    @Override
-    public Tile blankClone() {
-        return new GTTile();
-    }
 }

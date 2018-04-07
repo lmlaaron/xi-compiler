@@ -25,11 +25,6 @@ public class NameTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new NameTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         return new Assembly(
                 new AssemblyOperand( ((IRName)root).name() )

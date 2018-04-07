@@ -13,9 +13,4 @@ public class EQCJumpTile extends ComparisonCJumpTile {
     protected IRBinOp.OpType comparisonType() {
         return IRBinOp.OpType.EQ;
     }
-
-    @Override
-    public Tile blankClone() {
-        return new EQCJumpTile();
-    }
 }

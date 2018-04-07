@@ -1,5 +1,6 @@
 package yh326.tiling;
 
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.exception.NotTilableException;
 import yh326.tiling.tile.*;
@@ -75,7 +76,13 @@ public class MaxMunch {
         if (tiledRoot == null) {
             // TODO: should the detailed printing go inside the exception definition?
             System.out.println("The " + sortedTiles.size() + " tiles we have were not enough to tile this node:");
-            System.out.println(irRoot.getClass());
+            System.out.print(irRoot.getClass());
+            if (irRoot instanceof IRBinOp) {
+                System.out.println(" " + ((IRBinOp)irRoot).opType());
+            }
+            else {
+                System.out.println();
+            }
             //irRoot.printSExp(new CodeWriterSExpPrinter(new PrintWriter(System.out)));
             throw new NotTilableException();
         }

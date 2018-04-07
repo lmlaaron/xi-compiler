@@ -26,11 +26,6 @@ public class ReturnTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new ReturnTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         if (this.subtreeRoots != null && this.subtreeRoots.size() > 0) {

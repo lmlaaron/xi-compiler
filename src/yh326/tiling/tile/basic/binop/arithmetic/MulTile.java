@@ -9,7 +9,6 @@ import yh326.assembly.AssemblyStatement;
 import yh326.tiling.tile.Tile;
 
 public class MulTile extends ArithmeticBinopTile {
-    public Tile blankClone() {return new AddTile();}
 
     protected IRBinOp.OpType validIRBinOpType() {
         return IRBinOp.OpType.MUL;
@@ -18,13 +17,17 @@ public class MulTile extends ArithmeticBinopTile {
     protected String binOpAssmName() {
         return "mul";
     }
-    
+
+    @Override
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 
+        //TODO: eax contains the low half of the result,
+
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand()));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), new AssemblyOperand()));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand()));
+        statements.add(new AssemblyStatement("mov", freshTemp, "rax"));
 
         Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
 

@@ -30,11 +30,6 @@ public class MemTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new MemTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 

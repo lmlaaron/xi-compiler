@@ -32,11 +32,6 @@ public class MoveTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new MoveTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
 

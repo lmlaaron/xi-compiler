@@ -13,9 +13,4 @@ public class NEQTile extends ComparisonBinopTile {
     protected IRBinOp.OpType validIRBinOpType() {
         return IRBinOp.OpType.NEQ;
     }
-
-    @Override
-    public Tile blankClone() {
-        return new NEQTile();
-    }
 }

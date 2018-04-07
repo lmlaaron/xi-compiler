@@ -30,11 +30,6 @@ public class CompUnitTile extends Tile {
     }
 
     @Override
-    public Tile blankClone() {
-        return new CompUnitTile();
-    }
-
-    @Override
     protected Assembly generateLocalAssembly() {
         return new Assembly();
     }

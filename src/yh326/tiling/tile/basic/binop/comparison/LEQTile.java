@@ -13,9 +13,4 @@ public class LEQTile extends  ComparisonBinopTile {
     protected String conditionalJump() {
         return "jle";
     }
-
-    @Override
-    public Tile blankClone() {
-        return new LEQTile();
-    }
 }

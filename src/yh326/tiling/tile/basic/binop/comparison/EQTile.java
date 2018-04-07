@@ -13,9 +13,4 @@ public class EQTile extends ComparisonBinopTile {
     protected IRBinOp.OpType validIRBinOpType() {
         return IRBinOp.OpType.EQ;
     }
-
-    @Override
-    public Tile blankClone() {
-        return new EQTile();
-    }
 }
