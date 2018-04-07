@@ -4,6 +4,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyStatement;
 import yh326.exception.TileMergeException;
+import yh326.util.Flags;
 import yh326.util.NumberGetter;
 
 import java.util.ArrayList;
@@ -88,11 +89,14 @@ public abstract class Tile {
 
         Assembly localAssm = generateLocalAssembly();
 
-        // for debugging, add a comment for each tile to see how code was generated
-        AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
-        for(int i = 0; i < comment.length; i++) {
-        //    localAssm.statements.addFirst(comment[i]);
+        if (Flags.asmComments) {
+            // for debugging, add a comment for each tile to see how code was generated
+            AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
+            for(int i = 0; i < comment.length; i++) {
+                localAssm.statements.addFirst(comment[i]);
+            }
         }
+
 
         // for debugging only
         StringBuilder localStatements = new StringBuilder();

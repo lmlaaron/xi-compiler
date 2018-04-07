@@ -253,7 +253,7 @@ def compile_and_run(xi_f):
 
     assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
     print_log("Generating Assembly")
-    run_shell(['./xic', '-libpath', 'lib/runtime/include/', xi_f], end_on_error=True)
+    run_shell(['./xic', '--comment','-libpath', 'lib/runtime/include/', xi_f], end_on_error=True)
     print_log("Linking Assembly")
     run_shell(['lib/runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
     print_log("Running Executable")
@@ -271,7 +271,7 @@ def build():
 if __name__ == "__main__":
     print("Test Harness Begin")
 
-    #build() # <-- TODO: uncomment!
+    build() # <-- TODO: uncomment!
 
     # print("===RUNNING LEX TESTS===")
     # run_test_set(LEXER_TESTS, lex_grader)

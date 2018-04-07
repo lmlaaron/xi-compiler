@@ -20,6 +20,7 @@ import yh326.parse.ParserWrapper;
 import yh326.tiling.MaxMunch;
 import yh326.tiling.tile.Tile;
 import yh326.typecheck.TypecheckerWrapper;
+import yh326.util.Flags;
 
 public class Main {
 
@@ -51,8 +52,12 @@ public class Main {
             System.out.println("option -d <path> to specify where to place generated assembly output files.");
             System.out.println("option -O to diable optimizations.");
             System.out.println("option -target <OS> to specify the operating system for which to generate code.");
+            System.out.println("option --comment to add comments to generated assembly");
         }
-        
+
+        if (argvArray.contains("--comment"))
+            Flags.asmComments = true;
+
         // Processing diagnostic options
         int diagnosticLevel = 0;
         if (argvArray.contains("--lex")) {
