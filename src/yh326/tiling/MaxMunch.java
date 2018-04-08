@@ -7,9 +7,18 @@ import yh326.tiling.tile.*;
 
 import yh326.tiling.tile.advanced.cjump.EQCJumpTile;
 import yh326.tiling.tile.basic.*;
+import yh326.tiling.tile.basic.binop.arithmetic.ANDTile;
+import yh326.tiling.tile.basic.binop.arithmetic.ARSHIFTTile;
 import yh326.tiling.tile.basic.binop.arithmetic.AddTile;
+import yh326.tiling.tile.basic.binop.arithmetic.DIVTile;
+import yh326.tiling.tile.basic.binop.arithmetic.HMULTile;
+import yh326.tiling.tile.basic.binop.arithmetic.LSHIFTTile;
+import yh326.tiling.tile.basic.binop.arithmetic.MODTile;
 import yh326.tiling.tile.basic.binop.arithmetic.MulTile;
+import yh326.tiling.tile.basic.binop.arithmetic.ORTile;
+import yh326.tiling.tile.basic.binop.arithmetic.RSHIFTTile;
 import yh326.tiling.tile.basic.binop.arithmetic.SubTile;
+import yh326.tiling.tile.basic.binop.arithmetic.XORTile;
 import yh326.tiling.tile.basic.binop.comparison.*;
 
 import java.util.*;
@@ -31,6 +40,15 @@ public class MaxMunch {
         sortedTiles.add(new LTTile());
         sortedTiles.add(new CJumpTile());
         sortedTiles.add(new CompUnitTile());
+        sortedTiles.add(new ANDTile());
+        sortedTiles.add(new ARSHIFTTile());
+        sortedTiles.add(new DIVTile());
+        sortedTiles.add(new HMULTile());
+        sortedTiles.add(new LSHIFTTile());
+        sortedTiles.add(new MODTile());
+        sortedTiles.add(new ORTile());
+        sortedTiles.add(new RSHIFTTile());
+        sortedTiles.add(new XORTile());
         sortedTiles.add(new ConstTile());
         sortedTiles.add(new FuncDeclTile());
         sortedTiles.add(new JumpTile());
