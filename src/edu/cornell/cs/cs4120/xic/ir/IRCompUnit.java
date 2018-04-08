@@ -52,13 +52,11 @@ public class IRCompUnit extends IRNode_c {
         Map<String, IRFuncDecl> results = new LinkedHashMap<>();
         for (IRFuncDecl func : functions.values()) {
             IRFuncDecl newFunc = (IRFuncDecl) v.visit(this, func);
-            if (newFunc != func)
-                modified = true;
+            if (newFunc != func) modified = true;
             results.put(newFunc.name(), newFunc);
         }
 
-        if (modified)
-            return v.nodeFactory().IRCompUnit(name, results);
+        if (modified) return v.nodeFactory().IRCompUnit(name, results);
 
         return this;
     }

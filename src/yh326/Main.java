@@ -58,16 +58,6 @@ public class Main {
         if (argvArray.contains("--comment"))
             Flags.asmComments = true;
 
-        // Processing diagnostic options
-        int diagnosticLevel = 0;
-        if (argvArray.contains("--lex")) {
-            diagnosticLevel = 1;
-        } else if (argvArray.contains("--parse")) {
-            diagnosticLevel = 2;
-        } else if (argvArray.contains("--typecheck")) {
-            diagnosticLevel = 3;
-        }
-        
         // Processing other options
         try {
             if (argvArray.contains("-sourcepath")) {

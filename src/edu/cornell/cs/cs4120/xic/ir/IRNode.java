@@ -14,9 +14,7 @@ public interface IRNode {
 
     /**
      * Visit the children of this IR node.
-     * 
-     * @param v
-     *            the visitor
+     * @param v the visitor
      * @return the result of visiting children of this node
      */
     IRNode visitChildren(IRVisitor v);
@@ -37,9 +35,7 @@ public interface IRNode {
 
     /**
      * Print an S-expression representation of this IR node.
-     * 
-     * @param p
-     *            the S-expression printer
+     * @param p the S-expression printer
      */
     void printSExp(SExpPrinter p);
 }

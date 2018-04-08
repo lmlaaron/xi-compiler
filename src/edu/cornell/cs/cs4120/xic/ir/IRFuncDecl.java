@@ -32,8 +32,7 @@ public class IRFuncDecl extends IRNode_c {
     public IRNode visitChildren(IRVisitor v) {
         IRStmt stmt = (IRStmt) v.visit(this, body);
 
-        if (stmt != body)
-            return v.nodeFactory().IRFuncDecl(name, stmt);
+        if (stmt != body) return v.nodeFactory().IRFuncDecl(name, stmt);
 
         return this;
     }

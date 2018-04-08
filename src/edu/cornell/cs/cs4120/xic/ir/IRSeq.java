@@ -10,25 +10,23 @@ import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
- * An intermediate representation for a sequence of statements SEQ(s1,...,sn)
+ * An intermediate representation for a sequence of statements
+ * SEQ(s1,...,sn)
  */
 public class IRSeq extends IRStmt {
     private List<IRStmt> stmts;
 
     /**
-     * @param stmts
-     *            the statements
+     * @param stmts the statements
      */
     public IRSeq(IRStmt... stmts) {
         this(Arrays.asList(stmts));
     }
 
     /**
-     * Create a SEQ from a list of statements. The list should not be modified
-     * subsequently.
-     * 
-     * @param stmts
-     *            the sequence of statements
+     * Create a SEQ from a list of statements.
+     * The list should not be modified subsequently.
+     * @param stmts the sequence of statements
      */
     public IRSeq(List<IRStmt> stmts) {
         this.stmts = stmts;
@@ -50,13 +48,11 @@ public class IRSeq extends IRStmt {
         List<IRStmt> results = new ArrayList<>(stmts.size());
         for (IRStmt stmt : stmts) {
             IRStmt newStmt = (IRStmt) v.visit(this, stmt);
-            if (newStmt != stmt)
-                modified = true;
+            if (newStmt != stmt) modified = true;
             results.add(newStmt);
         }
 
-        if (modified)
-            return v.nodeFactory().IRSeq(results);
+        if (modified) return v.nodeFactory().IRSeq(results);
 
         return this;
     }
@@ -70,7 +66,8 @@ public class IRSeq extends IRStmt {
     }
 
     @Override
-    public CheckCanonicalIRVisitor checkCanonicalEnter(CheckCanonicalIRVisitor v) {
+    public CheckCanonicalIRVisitor checkCanonicalEnter(
+            CheckCanonicalIRVisitor v) {
         return v.enterSeq();
     }
 

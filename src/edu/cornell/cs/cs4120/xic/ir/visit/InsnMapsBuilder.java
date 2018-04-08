@@ -53,8 +53,9 @@ public class InsnMapsBuilder extends IRVisitor {
 
     public void addNameToCurrentIndex(String name) {
         if (nameToIndex.containsKey(name))
-            throw new InternalCompilerError(
-                    "Error - encountered " + "duplicate name " + name + " in the IR tree -- go fix the generator.");
+            throw new InternalCompilerError("Error - encountered "
+                    + "duplicate name " + name
+                    + " in the IR tree -- go fix the generator.");
         nameToIndex.put(name, index);
     }
 }

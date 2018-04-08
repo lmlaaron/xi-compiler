@@ -8,7 +8,8 @@ import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 public abstract class IRExpr_c extends IRNode_c implements IRExpr {
 
     @Override
-    public CheckCanonicalIRVisitor checkCanonicalEnter(CheckCanonicalIRVisitor v) {
+    public CheckCanonicalIRVisitor checkCanonicalEnter(
+            CheckCanonicalIRVisitor v) {
         return v.enterExpr();
     }
 

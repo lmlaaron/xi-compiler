@@ -3,15 +3,15 @@ package edu.cornell.cs.cs4120.xic.ir;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 
 /**
- * An intermediate representation for named memory address NAME(n)
+ * An intermediate representation for named memory address
+ * NAME(n)
  */
 public class IRName extends IRExpr_c {
     private String name;
 
     /**
      *
-     * @param name
-     *            name of this memory address
+     * @param name name of this memory address
      */
     public IRName(String name) {
         this.name = name;

@@ -3,15 +3,15 @@ package edu.cornell.cs.cs4120.xic.ir;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 
 /**
- * An intermediate representation for a temporary register TEMP(name)
+ * An intermediate representation for a temporary register
+ * TEMP(name)
  */
 public class IRTemp extends IRExpr_c {
     private String name;
 
     /**
      *
-     * @param name
-     *            name of this temporary register
+     * @param name name of this temporary register
      */
     public IRTemp(String name) {
         this.name = name;

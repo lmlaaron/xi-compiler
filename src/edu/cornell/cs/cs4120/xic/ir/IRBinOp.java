@@ -7,7 +7,8 @@ import edu.cornell.cs.cs4120.xic.ir.visit.CheckConstFoldedIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
- * An intermediate representation for a binary operation OP(left, right)
+ * An intermediate representation for a binary operation
+ * OP(left, right)
  */
 public class IRBinOp extends IRExpr_c {
 
@@ -15,7 +16,8 @@ public class IRBinOp extends IRExpr_c {
      * Binary operators
      */
     public enum OpType {
-        ADD, SUB, MUL, HMUL, DIV, MOD, AND, OR, XOR, LSHIFT, RSHIFT, ARSHIFT, EQ, NEQ, LT, GT, LEQ, GEQ;
+        ADD, SUB, MUL, HMUL, DIV, MOD, AND, OR, XOR, LSHIFT, RSHIFT, ARSHIFT,
+        EQ, NEQ, LT, GT, LEQ, GEQ;
 
         @Override
         public String toString() {

@@ -10,8 +10,8 @@ import edu.cornell.cs.cs4120.xic.ir.visit.CheckCanonicalIRVisitor;
 import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 
 /**
- * An intermediate representation for a function call CALL(e_target, e_1, ...,
- * e_n)
+ * An intermediate representation for a function call
+ * CALL(e_target, e_1, ..., e_n)
  */
 public class IRCall extends IRExpr_c {
     protected IRExpr target;
@@ -19,10 +19,8 @@ public class IRCall extends IRExpr_c {
 
     /**
      *
-     * @param target
-     *            address of the code for this function call
-     * @param args
-     *            arguments of this function call
+     * @param target address of the code for this function call
+     * @param args arguments of this function call
      */
     public IRCall(IRExpr target, IRExpr... args) {
         this(target, Arrays.asList(args));
@@ -30,10 +28,8 @@ public class IRCall extends IRExpr_c {
 
     /**
      *
-     * @param target
-     *            address of the code for this function call
-     * @param args
-     *            arguments of this function call
+     * @param target address of the code for this function call
+     * @param args arguments of this function call
      */
     public IRCall(IRExpr target, List<IRExpr> args) {
         this.target = target;
@@ -58,19 +54,16 @@ public class IRCall extends IRExpr_c {
         boolean modified = false;
 
         IRExpr target = (IRExpr) v.visit(this, this.target);
-        if (target != this.target)
-            modified = true;
+        if (target != this.target) modified = true;
 
         List<IRExpr> results = new ArrayList<>(args.size());
         for (IRExpr arg : args) {
             IRExpr newExpr = (IRExpr) v.visit(this, arg);
-            if (newExpr != arg)
-                modified = true;
+            if (newExpr != arg) modified = true;
             results.add(newExpr);
         }
 
-        if (modified)
-            return v.nodeFactory().IRCall(target, results);
+        if (modified) return v.nodeFactory().IRCall(target, results);
 
         return this;
     }

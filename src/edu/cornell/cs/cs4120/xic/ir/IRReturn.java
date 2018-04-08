@@ -13,16 +13,14 @@ public class IRReturn extends IRStmt {
     protected List<IRExpr> rets;
 
     /**
-     * @param rets
-     *            values to return
+     * @param rets values to return
      */
     public IRReturn(IRExpr... rets) {
         this(Arrays.asList(rets));
     }
 
     /**
-     * @param rets
-     *            values to return
+     * @param rets values to return
      */
     public IRReturn(List<IRExpr> rets) {
         this.rets = rets;
@@ -45,13 +43,11 @@ public class IRReturn extends IRStmt {
 
         for (IRExpr ret : rets) {
             IRExpr newExpr = (IRExpr) v.visit(this, ret);
-            if (newExpr != ret)
-                modified = true;
+            if (newExpr != ret) modified = true;
             results.add(newExpr);
         }
 
-        if (modified)
-            return v.nodeFactory().IRReturn(results);
+        if (modified) return v.nodeFactory().IRReturn(results);
 
         return this;
     }

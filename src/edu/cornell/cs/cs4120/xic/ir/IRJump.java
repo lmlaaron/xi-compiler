@@ -12,8 +12,7 @@ public class IRJump extends IRStmt {
 
     /**
      *
-     * @param expr
-     *            the destination of the jump
+     * @param expr the destination of the jump
      */
     public IRJump(IRExpr expr) {
         target = expr;
@@ -32,8 +31,7 @@ public class IRJump extends IRStmt {
     public IRNode visitChildren(IRVisitor v) {
         IRExpr expr = (IRExpr) v.visit(this, target);
 
-        if (expr != target)
-            return v.nodeFactory().IRJump(expr);
+        if (expr != target) return v.nodeFactory().IRJump(expr);
 
         return this;
     }

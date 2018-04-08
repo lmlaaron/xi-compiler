@@ -21,9 +21,9 @@ public class CheckConstFoldedIRVisitor extends AggregateVisitor<Boolean> {
     }
 
     @Override
-    protected Boolean leave(IRNode parent, IRNode n, Boolean r, AggregateVisitor<Boolean> v_) {
-        if (!r)
-            return false;
+    protected Boolean leave(IRNode parent, IRNode n, Boolean r,
+            AggregateVisitor<Boolean> v_) {
+        if (!r) return false;
         if (!n.isConstFolded(this)) {
             offender = n;
             return false;
