@@ -1,16 +1,21 @@
 #!/bin/bash
-pa=pa4
-pkg=yh326_a4
 
-if [ $1 == "-c" ]
+rm -rf temp
+if [ $1 == "a4c" ]
 then
-    rm -rf temp
+    pkg=yh326_a4
     rm -rf tests/$pkg/temp
     mkdir tests/$pkg/temp
     cp tests/$pkg/testcases/* tests/$pkg/temp
     cp tests/$pkg/answers/* tests/$pkg/temp
     xth -compilerpath . -testpath tests/$pkg/temp/ -workpath ./temp/ tests/$pkg/xthScript
+elif [ $1 == "f4" ]
+then
+    pkg=failedcases_a4
+    rm -rf tests/$pkg/temp
+    mkdir tests/$pkg/temp
+    xth -compilerpath . -testpath tests/$pkg/ -workpath ./temp/ tests/$pkg/xthScript
 else
-    rm -rf temp
+    pa=pa$1
     xth -compilerpath . -testpath ~/xth/tests/$pa/ -workpath ./temp/ ~/xth/tests/$pa/xthScript
 fi

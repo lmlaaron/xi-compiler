@@ -379,7 +379,7 @@ public class Canonicalization {
         } else if (input instanceof IRTemp) {
             return input;
         } else if (input instanceof IRBinOp) {
-            return FoldingBinOp((IRBinOp) input);
+        		return FoldingBinOp((IRBinOp) input);
         } else if (input instanceof IRMem) {
             return new IRMem(FoldingExpr(((IRMem) input).expr()));
         } else if (input instanceof IRCall) {
@@ -441,6 +441,13 @@ public class Canonicalization {
     static IRExpr FoldingBinOp(IRBinOp input) throws IRNodeNotMatchException {
         IRExpr lexp = ((IRBinOp) input).left();
         IRExpr rexp = ((IRBinOp) input).right();
+        
+        if (!(lexp instanceof IRConst)) {
+            lexp = FoldingExpr(lexp);
+        }
+        if (!(rexp instanceof IRConst)) {
+            rexp = FoldingExpr(rexp);
+        }
 
         if ((lexp instanceof IRConst && rexp instanceof IRConst)) {
             long l = lexp.constant();
@@ -491,9 +498,10 @@ public class Canonicalization {
             case GEQ:
                 return new IRConst(l >= r ? 1 : 0);
             }
-        }
+        } 
+        return new IRBinOp(input.opType(), lexp, rexp);
 
-        if (lexp instanceof IRConst) {
+        /*if (lexp instanceof IRConst) {
         } else if (lexp instanceof IRBinOp) {
             lexp = FoldingBinOp((IRBinOp) lexp);
         }
@@ -505,7 +513,7 @@ public class Canonicalization {
             return FoldingBinOp(new IRBinOp(input.opType(), lexp, rexp));
         } else {
             return new IRBinOp(input.opType(), lexp, rexp);
-        }
+        }*/
     }
 
     /**

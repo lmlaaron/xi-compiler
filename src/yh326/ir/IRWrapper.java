@@ -75,7 +75,7 @@ public class IRWrapper {
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
         if (optimization) {
-            irNode = Canonicalization.Folding(irNode);
+        		irNode = Canonicalization.Folding(irNode);
         }
         // System.out.println(irNode.toString());
         return irNode;
