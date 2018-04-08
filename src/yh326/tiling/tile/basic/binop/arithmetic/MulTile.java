@@ -6,7 +6,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import yh326.assembly.Assembly;
 import yh326.assembly.AssemblyOperand;
 import yh326.assembly.AssemblyStatement;
-import yh326.tiling.tile.Tile;
 
 public class MulTile extends ArithmeticBinopTile {
 
