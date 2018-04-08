@@ -2,12 +2,12 @@ package yh326.tiling.tile.basic.binop.arithmetic;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 
-public class SubTile extends ArithmeticBinopTile {
+public class ANDTile extends ArithmeticBinopTile {
     protected IRBinOp.OpType validIRBinOpType() {
-        return IRBinOp.OpType.SUB;
+        return IRBinOp.OpType.AND;
     }
 
     protected String binOpAssmName() {
-        return "sub";
+        return "and";
     }
 }

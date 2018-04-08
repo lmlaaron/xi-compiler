@@ -286,7 +286,7 @@ public class Canonicalization {
                 IRStmt s2p = es2.stmt();
                 IRExpr e2p = es2.expr();
                 return (IRSeqNoEmpty(s1p, s2p, new IRMove(e1p, e2p)));
-            } else if (target instanceof IRMem) {
+            } else if (target instanceof IRMem || target instanceof IRESeq) {
                 // } else {
                 // System.out.println(input.toString());
                 IRExpr e1 = ((IRMem) ((IRMove) input).target()).expr();
