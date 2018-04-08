@@ -80,11 +80,16 @@ public class IfElse extends Stmt {
     // headLabel
     @Override
     public IRNode translate() {
-        String labelNumber = NumberGetter.uniqueNumber();
+        return getIRIfElse((IRExpr) condition.translate(), 
+        		then.translate(), otherwise.translate());
+    }
+    
+    public static IRSeq getIRIfElse(IRExpr cond, IRNode then, IRNode otherwise) {
+    	String labelNumber = NumberGetter.uniqueNumber();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
-        stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
-        IRNode otherwiseStmt = otherwise.translate();
+        stmts.add(new IRCJump(cond, "_then_" + labelNumber));
+        IRNode otherwiseStmt = otherwise;
         if (otherwiseStmt instanceof IRExpr) {
             stmts.add(new IRExp((IRExpr) otherwiseStmt));
         } else {
@@ -92,7 +97,7 @@ public class IfElse extends Stmt {
         }
         stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
         stmts.add(new IRLabel("_then_" + labelNumber));
-        IRNode thenStmt = then.translate();
+        IRNode thenStmt = then;
         if (thenStmt instanceof IRExpr) {
             stmts.add(new IRExp((IRExpr) thenStmt));
         } else {

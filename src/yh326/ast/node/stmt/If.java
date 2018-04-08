@@ -52,13 +52,17 @@ public class If extends Stmt {
     // TODO: need to run insnMapsBuilder to construct the mapping from "then" to
     // isTrueLabel
     public IRNode translate() {
-        String labelNumber = NumberGetter.uniqueNumber();
+        return getIRIf((IRExpr) condition.translate(), then.translate());
+    }
+    
+    public static IRSeq getIRIf(IRExpr cond, IRNode then) {
+    		String labelNumber = NumberGetter.uniqueNumber();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
-        stmts.add(new IRCJump((IRExpr) condition.translate(), "_then_" + labelNumber));
+        stmts.add(new IRCJump(cond, "_then_" + labelNumber));
         stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
         stmts.add(new IRLabel("_then_" + labelNumber));
-        IRNode thenStmt = then.translate();
+        IRNode thenStmt = then;
         if (thenStmt instanceof IRExpr) {
             stmts.add(new IRExp((IRExpr) thenStmt));
         } else {
