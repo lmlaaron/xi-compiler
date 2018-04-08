@@ -1,5 +1,8 @@
 package yh326.ast.node.expr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
@@ -9,6 +12,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
@@ -56,17 +60,28 @@ public class Subscript extends Expr {
 
     @Override
     public IRNode translate() {
-    		IRExpr var = (IRExpr) children.get(1).translate();
-    		IRExpr index = (IRExpr) children.get(2).translate();
+        List<IRStmt> stmt = new ArrayList<IRStmt>();
+        IRExpr var = (IRExpr) children.get(1).translate();
+        IRExpr index = (IRExpr) children.get(2).translate();
+        System.out.println(index);
+        if (var instanceof IRESeq) {
+    		    stmt.add(((IRESeq) var).stmt());
+    		    var = ((IRESeq) var).expr();
+    		}
+    		if (index instanceof IRESeq) {
+    		    stmt.add(((IRESeq) index).stmt());
+    		    index = ((IRESeq) index).expr();
+    		}
+    		
     		IRExpr len = new IRMem(new IRBinOp(OpType.SUB, var, new IRConst(8)));
     		IRExpr lt0 = new IRBinOp(OpType.LT, index, new IRConst(0));
     		IRExpr gtN = new IRBinOp(OpType.GEQ, index, len);
     		IRExpr cond = new IRBinOp(OpType.OR, lt0, gtN);
     		IRExpr then = new IRCall(new IRName("_xi_out_of_bounds"));
-    		IRStmt boundCheck = If.getIRIf(cond, then);
-        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var,
+    		stmt.add(If.getIRIf(cond, then));
+    		IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var,
                 new IRBinOp(OpType.MUL, new IRConst(8), index)));
-        return new IRESeq(boundCheck, res);
+        return new IRESeq(new IRSeq(stmt), res);
     }
 
 }

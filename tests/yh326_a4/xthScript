@@ -1,7 +1,7 @@
 # build compiler first
 #build
 
-xic ("Test --typecheck") "-libpath $(testpath) --irgen -O" {
+xic ("Test --irgen") "-libpath $(testpath) --irgen" {
 arithmetic01.xi;
 arithmetic02.xi;
 arithmetic03.xi;
@@ -80,8 +80,8 @@ vardecl04.xi;
 vardecl05.xi;
 vardecl06.xi;
 vardecl07.xi;
-vardecl07.xi;
 vardecl08.xi;
+vardecl09.xi;
 vardecl10.xi;
 vardecl11.xi;
 varinit01.xi;

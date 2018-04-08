@@ -43,7 +43,8 @@ public class Main {
             System.out.println("option --typecheck to show the result from type checking.");
             System.out.println("option --irgen to show lowered ir code representation.");
             System.out.println("option --irlow (intended for internal use) to show canonical ir code representation.");
-            System.out.println("option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
+            System.out.println(
+                    "option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
             System.out.println("option --irrun to simulate running translated IR code.");
             System.out.println("option -sourcepath <path> to specify where to find input source files.");
             System.out.println("option -libpath <path> to specify where to find library interface files.");
@@ -118,7 +119,7 @@ public class Main {
                 if (argvArray.contains("--lex")) {
                     LexerWrapper.WriteLexingResult(xiLexer, realOutputFile + ".lexed");
                 }
-                
+
                 // ====== PARSING ======
                 Node ast = ParserWrapper.Parsing(xiLexer, realInputFile, extension);
                 ast.fileName = fileName;
@@ -128,13 +129,13 @@ public class Main {
                 }
                 if (!extension.equals("xi"))
                     continue;
-                
+
                 // ====== TYPE-CHECKING ======
                 ast = TypecheckerWrapper.Typechecking(ast, realInputFile, libPath);
                 if (argvArray.contains("--typecheck")) {
                     TypecheckerWrapper.WriteTypecheckingResult(realOutputFile + ".typed");
                 }
-                
+
                 // ====== IR GENERATION ======
                 IRNode irNode = IRWrapper.IRGeneration(ast, realInputFile, optimization);
                 if (argvArray.contains("--irgen")) {
@@ -143,37 +144,25 @@ public class Main {
                 if (argvArray.contains("--irrun")) {
                     IRWrapper.IRRun(irNode);
                 }
-                
-                String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
-                realAssemblyOutputDir = realAssemblyOutputDir.substring(0, realAssemblyOutputDir.lastIndexOf("/"));
-
-                // ======= ASSEMBLY GENERATION =======
-                Tile rootTile = MaxMunch.munch(irNode);
-                Assembly assm = rootTile.generateAssembly();
-                // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
-                
-                if (!argvArray.contains("--disasmgen")) {
-                   	assm = assm.registerAlloc();
-                }
-                //======= END ACTUAL ASSEMBLY GENERATION ==========
-                	if (assm.incomplete()) {
-                    System.out.println("Incomplete assembly code!:");
-                    System.out.println(assm.toString());
-                }
-                else {
-                    // write assembly to file
-                	    File assmF = null;
-                   if ( argvArray.contains("--disasmgen") ) {
-                    	    assmF = new File(realOutputFile +".ra.s");
-                    } else {
-                        assmF = new File(realOutputFile + ".s");
-                    }
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
-                    writer.write(".intel_syntax noprefix "
-                    		+ "\n"); //intel syntax annotation
-                    writer.write(assm.toString());
-                    writer.close();
-                }
+                /*
+                 * String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
+                 * realAssemblyOutputDir = realAssemblyOutputDir.substring(0,
+                 * realAssemblyOutputDir.lastIndexOf("/"));
+                 * 
+                 * // ======= ASSEMBLY GENERATION ======= Tile rootTile =
+                 * MaxMunch.munch(irNode); Assembly assm = rootTile.generateAssembly(); //
+                 * ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
+                 * 
+                 * if (!argvArray.contains("--disasmgen")) { assm = assm.registerAlloc(); }
+                 * //======= END ACTUAL ASSEMBLY GENERATION ========== if (assm.incomplete()) {
+                 * System.out.println("Incomplete assembly code!:");
+                 * System.out.println(assm.toString()); } else { // write assembly to file File
+                 * assmF = null; if ( argvArray.contains("--disasmgen") ) { assmF = new
+                 * File(realOutputFile +".ra.s"); } else { assmF = new File(realOutputFile +
+                 * ".s"); } BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
+                 * writer.write(".intel_syntax noprefix " + "\n"); //intel syntax annotation
+                 * writer.write(assm.toString()); writer.close(); }
+                 */
 
             } catch (LexingException | ParsingException e) {
                 e.print(fileName);
