@@ -80,12 +80,11 @@ public class IfElse extends Stmt {
     // headLabel
     @Override
     public IRNode translate() {
-        return getIRIfElse((IRExpr) condition.translate(), 
-        		then.translate(), otherwise.translate());
+        return getIRIfElse((IRExpr) condition.translate(), then.translate(), otherwise.translate());
     }
-    
+
     public static IRSeq getIRIfElse(IRExpr cond, IRNode then, IRNode otherwise) {
-    	String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumber();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRCJump(cond, "_then_" + labelNumber));

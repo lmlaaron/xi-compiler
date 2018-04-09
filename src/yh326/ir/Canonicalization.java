@@ -275,29 +275,25 @@ public class Canonicalization {
             return new IRSeq(results);
         } else if (input instanceof IRMove) {
             // System.out.println(input.toString());
-            IRExpr target = ((IRMove) input).target();
+            IRExpr e1 = ((IRMove) input).target();
             IRExpr e2 = ((IRMove) input).source();
-            if (target instanceof IRTemp || e2 instanceof IRTemp || e2 instanceof IRName || e2 instanceof IRConst) {
-                IRExpr e1 = target;
-                IRESeq es1 = (IRESeq) CanonicalizeExpr(e1);
-                IRESeq es2 = (IRESeq) CanonicalizeExpr(e2);
+            IRStmt s1 = null;
+            if (e1 instanceof IRESeq) {
+                s1 = ((IRESeq) e1).stmt();
+                e1 = ((IRESeq) e1).expr();
+            }
+            IRESeq es2 = (IRESeq) CanonicalizeExpr(e2);
+            IRStmt s2p = es2.stmt();
+            IRExpr e2p = es2.expr();
+            if (e1 instanceof IRTemp) {
+                return (IRSeqNoEmpty(s1, s2p, new IRMove(e1, e2p)));
+            } else if (e1 instanceof IRMem) {
+                e1 = ((IRMem) e1).expr();
+                IRESeq es1 = CanonicalizeExpr(e1);
                 IRStmt s1p = es1.stmt();
                 IRExpr e1p = es1.expr();
-                IRStmt s2p = es2.stmt();
-                IRExpr e2p = es2.expr();
-                return (IRSeqNoEmpty(s1p, s2p, new IRMove(e1p, e2p)));
-            } else if (target instanceof IRMem || target instanceof IRESeq) {
-                // } else {
-                // System.out.println(input.toString());
-                IRExpr e1 = ((IRMem) ((IRMove) input).target()).expr();
-                IRESeq eseq_e1 = CanonicalizeExpr(e1);
-                IRESeq eseq_e2 = CanonicalizeExpr(((IRMove) input).source());
-                IRStmt s1p = eseq_e1.stmt();
-                IRExpr e1p = eseq_e1.expr();
-                IRStmt s2p = eseq_e2.stmt();
-                IRExpr e2p = eseq_e2.expr();
                 IRTemp t = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
-                return (IRSeqNoEmpty(s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p)));
+                return (IRSeqNoEmpty(s1, s1p, new IRMove(t, e1p), s2p, new IRMove(new IRMem(t), e2p)));
             } else {
                 return IRSeqNoEmpty(input);
             }

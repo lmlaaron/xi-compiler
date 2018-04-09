@@ -82,11 +82,15 @@ public class VarDecl extends Stmt {
             return null;
         }
 
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
         IRExpr size = (IRExpr) sizes.get(i).translate();
+        if (size instanceof IRESeq) {
+            stmts.add(((IRESeq) size).stmt());
+            size = ((IRESeq) size).expr();
+        }
 
         String labelNumber = NumberGetter.uniqueNumber();
         IRTemp newArray = new IRTemp("_array_" + labelNumber);
-        List<IRStmt> stmts = new ArrayList<IRStmt>();
 
         // Allocate an array with size + 1 (each unit is 8 bytes)
         IRBinOp irSize = new IRBinOp(OpType.MUL, size, new IRConst(8));

@@ -2,9 +2,9 @@
 #build
 
 xic ("Test --irgen") "-libpath $(testpath) --irgen" {
-    arracc05.xi;
-    arracc06.xi;
-    arrinit05.xi;
-    arrinit06.xi;
-    medley01.xi;
+
+vardecl08.xi;
+vardecl10.xi;
+vardecl11.xi;
+
 }

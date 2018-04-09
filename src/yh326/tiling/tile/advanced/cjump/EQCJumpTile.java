@@ -1,7 +1,6 @@
 package yh326.tiling.tile.advanced.cjump;
 
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import yh326.tiling.tile.Tile;
 
 public class EQCJumpTile extends ComparisonCJumpTile {
     @Override
