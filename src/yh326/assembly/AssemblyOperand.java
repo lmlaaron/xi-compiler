@@ -22,7 +22,7 @@ public class AssemblyOperand {
     protected String operand;
     public int reorderIndex; //for some tiles, the order of the operands in the generated assmbly are reordered, different from operands in IR
     public enum OperandType {
-    		TEMP, LABEL, MEM, CONSTANT, UNRESOLVED
+    		TEMP, LABEL, MEM, CONSTANT, UNRESOLVED, REG_RESOLVED, RET_UNRESOLVED
     } 
     public OperandType type;
     
@@ -46,6 +46,7 @@ public class AssemblyOperand {
     	if (this.type != OperandType.UNRESOLVED) {
     		return;
     	}
+
     	//TODO fix this pattern matching but propagate from IR instead
     
     	 if ( (this.operand.charAt(0)=='[' ) && (this.operand.charAt(this.operand.length()-1) ==']' ) ) {

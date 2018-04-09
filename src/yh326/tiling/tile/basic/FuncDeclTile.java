@@ -41,10 +41,12 @@ public class FuncDeclTile extends Tile {
         statements.add(new AssemblyStatement(".globl " + decl.name() ));
         statements.add(new AssemblyStatement(".type " + decl.name() + ", @function"));
         statements.add(new AssemblyStatement(decl.name() + ":", true));
-        statements.add(new AssemblyStatement("push", "rbp"));
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));
+        statements.add(new AssemblyStatement("push", "rbp"));						// push frame pointer to stack
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));	// save the current stack pointer as frame pointer
         statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));      
-        
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbx"))); //save callee safe register rbx
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbp"))); //save callee safe register rbp
+     
         return new Assembly(statements);
     }
 

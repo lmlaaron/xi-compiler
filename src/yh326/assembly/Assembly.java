@@ -159,6 +159,75 @@ public class Assembly {
         return s.toString();
     }
     
+    // per ABI specification, calculate the return size of a function
+    static public int getRetSize(String targetName) {
+		if (targetName != null) {
+			int index = targetName.lastIndexOf("t");
+			if ( index != -1) {	// assume less than 100 arguments
+				if ( targetName.toCharArray()[(index+1)]== 'p') {
+					return 0;
+				} else if (targetName.toCharArray()[(index+2)]!= 'a' && 
+						targetName.toCharArray()[(index+2)]!= 'b' && 
+						targetName.toCharArray()[(index+2)]!= 'i'  ) {
+						String v = targetName.substring(index+1, index+3);
+						return Integer.parseInt(v);
+				} else {
+					return Integer.parseInt(targetName.substring(index+1,index+2));
+				}
+			}
+			return -1;
+		} else {
+			return -1;
+		}
+    }
+    
+    // per ABI specification, calculate the argument size
+    static public int getArgSize(String targetName) {
+    		if ( targetName != null) {
+    			int index = targetName.lastIndexOf("_");
+    			String sigStr = targetName.substring(index+1);
+    			int num_a = 0;
+    			int num_ib = 0;
+    			for ( char s: sigStr.toCharArray()) {
+    				if ( s == 'a') {
+    					num_a++;
+    				} else if ( s == 'i' || s == 'b') {
+    					num_ib++;
+    				}
+    			}
+    			return num_ib - num_a - getRetSize(targetName);
+    		}
+    		return -1;
+    }
+   
+    // translate _ARG0, _RET0 to register or stack location
+    static public String ARGRET2Reg(String name, int argc) {
+    		//System.out.println(name);
+    		//System.out.println(name.substring(0,4));
+    		//System.out.println("_ARG".length());
+    		if ( name != null && name.length() >= "_ARG".length() && name.substring(0, 4).equals("_ARG")) {
+    			int v = Integer.valueOf(name.substring(4));
+    			switch (v) {
+    			case 0: return "rdi";
+    			case 1: return "rsi";
+    			case 2: return "rdx";
+    			case 3: return "rcx";
+    			case 4: return "r8";
+    			case 5: return "r9";
+    			default: return "[rbp+"+ String.valueOf((v-6+2)*8)+"]";		// rbp from callee point of view
+    			}
+    		} else if (name != null && name.length() >= "_RET".length() && name.substring(0,4).equals( "_RET")) {
+    			int v = Integer.valueOf(name.substring(4));
+    			switch (v) {
+    			case 0: return "rax";
+    			case 1: return "rdx";
+    			default: if ( argc > 6) return "[rsp+"+String.valueOf(((v-2)+1+(argc-6))*8)+"]"; else return "[rsp+" +String.valueOf((v-2)*8)+ "]";
+    			// rsp from caller pointer of view
+    			}
+    		}
+    		return name;
+    }
+    
     /**
      * top function for register allocation
      * @return real assembly elimiating all temp
@@ -185,14 +254,45 @@ public class Assembly {
        ListFuncStatements.add(FuncStatements);
        
        for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {
+    	   		int thisFuncArgSize = 0;
 			// two-pass process
 			// PASS 1: establish RegisterTable
 			// PASS 2: replace register with respective stack location
     	   
       		rTable = new RegisterTable();
        		rTable.SetCounter(0);		// set the counter which decides the position of the first spilled location on the stack
-       		
+   			int retSize = 0;
+   			int argSize = 0;
+   			int maxSize = 0;    		
+   			
+   			int lastCallArgc = 0;
        		for (AssemblyStatement stmt: oneFuncStatements) {
+       			// find out the size of the allocated return space via the ABI
+       			// the return statement in this function body needs this value to find the stack 
+       			//pointer to store the return value (like [rbp+...]
+       			if (stmt.isFunctionLabel) {
+       				thisFuncArgSize = getArgSize(stmt.operation);
+       			}
+       			// calculate the stacksize
+       			if (stmt.operation == "call") {
+       				retSize = getRetSize(stmt.operands[0].value());
+       				argSize = getArgSize(stmt.operands[0].value());
+       				if ( retSize + argSize> maxSize) {
+       					maxSize = retSize + argSize;
+       				}
+       				lastCallArgc = argSize;
+       			}
+       			
+       			// Per IR specification, replace _ARG0, _RET0 etc with respective register
+       			for (AssemblyOperand op: stmt.operands) {
+       				String oldOperand = op.operand;
+       				op.operand = this.ARGRET2Reg(op.operand, lastCallArgc);
+       				if (oldOperand != op.operand) {
+       					op.type = AssemblyOperand.OperandType.REG_RESOLVED;
+       				}
+       			}
+       			
+       			// establish the registerTable
        			for (AssemblyOperand op: stmt.operands) {
        				op.ResolveType();
        				if (op.type == AssemblyOperand.OperandType.MEM || op.type == AssemblyOperand.OperandType.TEMP) {
@@ -217,8 +317,28 @@ public class Assembly {
 
        		for (AssemblyStatement stmt: oneFuncStatements) {
        			// replace STACKSIZE with the real size
-       			if (stmt.operands != null &&  stmt.operation== "sub" && stmt.operands[1].value() == "STACKSIZE") {
-       				stmt.operands[1] = new AssemblyOperand(String.valueOf(rTable.size()*8));
+       			if (stmt.operands != null &&  stmt.operation.equals("sub") && stmt.operands[1].value().equals( "STACKSIZE")) {
+       				
+       				// calculate the size (pad if not 16byte aligned)
+       				int stacksize = rTable.size() + maxSize;
+       				if (stacksize % 2 != 0 ) { stacksize++; }
+       				
+       				stmt.operands[1] = new AssemblyOperand(String.valueOf(stacksize*8));
+       				concreteStatements.add(stmt);
+       				continue;
+       			}
+       			// replace __RETURN_x (genereated using return tile) with the exact stack location
+       			if (stmt.operands != null && stmt.operation.equals("mov") && stmt.operands[1].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED) ) {
+       				int index = stmt.operands[1].operand.lastIndexOf("_");
+       				int offset = Integer.valueOf(stmt.operands[1].operand.substring(index));
+       				AssemblyOperand  retOpt = null;
+       				if (thisFuncArgSize <=6 ) {
+       					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2)*8)+"]");
+       				} else {
+       					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2+ thisFuncArgSize-6)*8)+"]");
+       				}
+       				retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
+       				stmt.operands[1] = retOpt;
        				concreteStatements.add(stmt);
        				continue;
        			}
