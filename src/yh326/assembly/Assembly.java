@@ -259,8 +259,11 @@ public class Assembly {
         // the register allocation/spilling is based on the unit of functions,
         //we assume the entire abstract assembly is seperated by function call labels
    	   List<AssemblyStatement> FuncStatements = new LinkedList<>();
+   	   int sss =0;
        for (AssemblyStatement stmt: statements) {
-    	   		if (stmt.isFunctionLabel)  { // per Xi ABI specification, the function labels must start with ``_I'', we assume that vice versa
+    	   		if (stmt.isFunctionLabel && stmt.operation.substring(0,2).equals("_I"))  { // per Xi ABI specification, the function labels must start with ``_I'', we assume that vice versa
+    	   			sss++;
+    	   			System.out.println(stmt.toString()+"\n");
     	   			ListFuncStatements.add(FuncStatements);
     	   			FuncStatements = new LinkedList<>();
     	   			FuncStatements.add(stmt);
@@ -269,8 +272,9 @@ public class Assembly {
     	   		FuncStatements.add(stmt);
        }
        ListFuncStatements.add(FuncStatements);
+       System.out.printf("sss "+String.valueOf(sss)+"\n");
        
-       for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {
+       for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {	
     	   		int thisFuncArgSize = 0;
 			// two-pass process
 			// PASS 1: establish RegisterTable
@@ -287,7 +291,7 @@ public class Assembly {
        			// find out the size of the allocated return space via the ABI
        			// the return statement in this function body needs this value to find the stack 
        			//pointer to store the return value (like [rbp+...]
-       			if (stmt.isFunctionLabel) {
+       			if (stmt.isFunctionLabel  && stmt.operation.substring(0,2).equals("_I")) {
        				thisFuncArgSize = getArgSize(stmt.operation);
        			}
        			// calculate the stacksize
@@ -316,7 +320,7 @@ public class Assembly {
        					if ( op.type == AssemblyOperand.OperandType.TEMP) {
        						// check if the temp is registered in the table, if not add it
 	    	        	 			if (!rTable.isInTable(op.operand)) {
-	    	        	 				rTable.add(op.operand);
+	    	        	 				rTable.add(op.operand);	    	        	 				
 	    	        	 			}
 	    	        	 			//opMemIndex.add(rTable.MemIndex(op.operand));
        					} else if ( op.type == AssemblyOperand.OperandType.MEM) {
@@ -335,7 +339,7 @@ public class Assembly {
        		for (AssemblyStatement stmt: oneFuncStatements) {
        			// replace STACKSIZE with the real size
        			if (stmt.operands != null &&  stmt.operation.equals("sub") && stmt.operands[1].value().equals( "STACKSIZE")) {
-       				
+       				//System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
        				// calculate the size (pad if not 16byte aligned)
        				int stacksize = rTable.size() + maxSize;
        				if (stacksize % 2 != 0 ) { stacksize++; }
