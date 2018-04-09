@@ -93,7 +93,7 @@ public class MoveTempCallTile extends Tile {
         		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
         // check return size, if greater than 2, allocate space on stack first, rcx is reserved for this
-		System.out.print(this.retSize());
+		//System.out.print(this.retSize());
         if (this.retSize() > 2) {
         		statements.add(new AssemblyStatement("mov", new AssemblyOperand("rcx"), new AssemblyOperand("RETPOINTER")));
         }

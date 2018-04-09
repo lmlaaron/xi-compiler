@@ -259,11 +259,11 @@ public class Assembly {
         // the register allocation/spilling is based on the unit of functions,
         //we assume the entire abstract assembly is seperated by function call labels
    	   List<AssemblyStatement> FuncStatements = new LinkedList<>();
-   	   int sss =0;
+   	   //int sss =0;
        for (AssemblyStatement stmt: statements) {
     	   		if (stmt.isFunctionLabel && stmt.operation.substring(0,2).equals("_I"))  { // per Xi ABI specification, the function labels must start with ``_I'', we assume that vice versa
-    	   			sss++;
-    	   			System.out.println(stmt.toString()+"\n");
+    	   			//sss++;
+    	   			//System.out.println(stmt.toString()+"\n");
     	   			ListFuncStatements.add(FuncStatements);
     	   			FuncStatements = new LinkedList<>();
     	   			FuncStatements.add(stmt);
@@ -272,7 +272,7 @@ public class Assembly {
     	   		FuncStatements.add(stmt);
        }
        ListFuncStatements.add(FuncStatements);
-       System.out.printf("sss "+String.valueOf(sss)+"\n");
+       //System.out.printf("sss "+String.valueOf(sss)+"\n");
        
        for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {	
     	   		int thisFuncArgSize = 0;
