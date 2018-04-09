@@ -329,7 +329,7 @@ public class Assembly {
        			// replace __RETURN_x (genereated using return tile) with the exact stack location
        			if (stmt.operands != null && stmt.operation.equals("mov") && stmt.operands[1].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED) ) {
        				int index = stmt.operands[1].operand.lastIndexOf("_");
-       				int offset = Integer.valueOf(stmt.operands[1].operand.substring(index));
+       				int offset = Integer.valueOf(stmt.operands[1].operand.substring(index+1));
        				AssemblyOperand  retOpt = null;
        				if (thisFuncArgSize <=6 ) {
        					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2)*8)+"]");
