@@ -10,10 +10,12 @@ import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import yh326.ast.SymbolTable;
 import yh326.ast.node.Bracket;
 import yh326.ast.node.Node;
@@ -23,6 +25,7 @@ import yh326.ast.type.Primitives;
 import yh326.ast.type.VariableType;
 import yh326.exception.MatchTypeException;
 import yh326.exception.OtherException;
+import yh326.util.NumberGetter;
 
 public class Subscript extends Expr {
 
@@ -63,24 +66,20 @@ public class Subscript extends Expr {
         List<IRStmt> stmt = new ArrayList<IRStmt>();
         IRExpr var = (IRExpr) children.get(1).translate();
         IRExpr index = (IRExpr) children.get(2).translate();
-        System.out.println(index);
-        if (var instanceof IRESeq) {
-    		    stmt.add(((IRESeq) var).stmt());
-    		    var = ((IRESeq) var).expr();
-    		}
-    		if (index instanceof IRESeq) {
-    		    stmt.add(((IRESeq) index).stmt());
-    		    index = ((IRESeq) index).expr();
-    		}
-    		
-    		IRExpr len = new IRMem(new IRBinOp(OpType.SUB, var, new IRConst(8)));
-    		IRExpr lt0 = new IRBinOp(OpType.LT, index, new IRConst(0));
-    		IRExpr gtN = new IRBinOp(OpType.GEQ, index, len);
-    		IRExpr cond = new IRBinOp(OpType.OR, lt0, gtN);
-    		IRExpr then = new IRCall(new IRName("_xi_out_of_bounds"));
-    		stmt.add(If.getIRIf(cond, then));
-    		IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var,
-                new IRBinOp(OpType.MUL, new IRConst(8), index)));
+
+        IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+        IRTemp indTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+        stmt.add(new IRMove(varTemp, var));
+        stmt.add(new IRMove(indTemp, index));
+
+        IRMem len = new IRMem(new IRBinOp(OpType.SUB, varTemp, new IRConst(8)));
+        IRBinOp lt0 = new IRBinOp(OpType.LT, indTemp, new IRConst(0));
+        IRBinOp gtN = new IRBinOp(OpType.GEQ, indTemp, len);
+        IRBinOp cond = new IRBinOp(OpType.OR, lt0, gtN);
+        IRCall then = new IRCall(new IRName("_xi_out_of_bounds"));
+        stmt.add(If.getIRIf(cond, then));
+        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, varTemp, 
+                new IRBinOp(OpType.MUL, new IRConst(8), indTemp)));
         return new IRESeq(new IRSeq(stmt), res);
     }
 

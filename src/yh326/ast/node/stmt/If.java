@@ -54,9 +54,9 @@ public class If extends Stmt {
     public IRNode translate() {
         return getIRIf((IRExpr) condition.translate(), then.translate());
     }
-    
+
     public static IRSeq getIRIf(IRExpr cond, IRNode then) {
-    		String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumber();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRCJump(cond, "_then_" + labelNumber));

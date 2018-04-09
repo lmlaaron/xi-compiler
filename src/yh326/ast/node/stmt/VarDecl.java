@@ -91,7 +91,7 @@ public class VarDecl extends Stmt {
 
         String labelNumber = NumberGetter.uniqueNumber();
         IRTemp newArray = new IRTemp("_array_" + labelNumber);
-        
+
         // Allocate an array with size + 1 (each unit is 8 bytes)
         IRBinOp irSize = new IRBinOp(OpType.MUL, size, new IRConst(8));
         IRCall call = new IRCall(new IRName("_xi_alloc"), new IRBinOp(OpType.ADD, irSize, new IRConst(8)));
