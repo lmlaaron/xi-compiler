@@ -1,0 +1,10 @@
+# build compiler first
+#build
+
+xic ("Test --irgen") "-libpath $(testpath) --irgen" {
+
+vardecl08.xi;
+vardecl10.xi;
+vardecl11.xi;
+
+}

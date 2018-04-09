@@ -144,25 +144,36 @@ public class Main {
                 if (argvArray.contains("--irrun")) {
                     IRWrapper.IRRun(irNode);
                 }
-                /*
-                 * String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
-                 * realAssemblyOutputDir = realAssemblyOutputDir.substring(0,
-                 * realAssemblyOutputDir.lastIndexOf("/"));
-                 * 
-                 * // ======= ASSEMBLY GENERATION ======= Tile rootTile =
-                 * MaxMunch.munch(irNode); Assembly assm = rootTile.generateAssembly(); //
-                 * ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
-                 * 
-                 * if (!argvArray.contains("--disasmgen")) { assm = assm.registerAlloc(); }
-                 * //======= END ACTUAL ASSEMBLY GENERATION ========== if (assm.incomplete()) {
-                 * System.out.println("Incomplete assembly code!:");
-                 * System.out.println(assm.toString()); } else { // write assembly to file File
-                 * assmF = null; if ( argvArray.contains("--disasmgen") ) { assmF = new
-                 * File(realOutputFile +".ra.s"); } else { assmF = new File(realOutputFile +
-                 * ".s"); } BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
-                 * writer.write(".intel_syntax noprefix " + "\n"); //intel syntax annotation
-                 * writer.write(assm.toString()); writer.close(); }
-                 */
+
+                String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
+                realAssemblyOutputDir = realAssemblyOutputDir.substring(0, realAssemblyOutputDir.lastIndexOf("/"));
+
+                // ======= ASSEMBLY GENERATION ======= 
+                Tile rootTile = MaxMunch.munch(irNode);
+                Assembly assm = rootTile.generateAssembly();
+                // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
+
+                if (!argvArray.contains("--disasmgen")) {
+                    assm = assm.registerAlloc();
+                }
+                // ======= END ACTUAL ASSEMBLY GENERATION ==========
+                if (assm.incomplete()) {
+                    System.out.println("Incomplete assembly code!:");
+                    System.out.println(assm.toString());
+                } else {
+                    // write assembly to file
+                    File assmF = null;
+                    if (argvArray.contains("--disasmgen")) {
+                        assmF = new File(realOutputFile + ".ra.s");
+                    } else {
+                        assmF = new File(realOutputFile + ".s");
+                    }
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
+                    writer.write(".intel_syntax noprefix " + "\n");
+                    // intel syntax annotation
+                    writer.write(assm.toString());
+                    writer.close();
+                }
 
             } catch (LexingException | ParsingException e) {
                 e.print(fileName);
