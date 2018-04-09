@@ -238,7 +238,7 @@ public class Assembly {
     			switch (v) {
     			case 0: return "rax";
     			case 1: return "rdx";
-    			default: if ( argc > 6) return "[rsp+"+String.valueOf(((v-2)+1+(argc-6))*8)+"]"; else return "[rsp+" +String.valueOf((v-2)*8)+ "]";
+    			default: if ( argc > 6) return "QWORD PTR [rsp+"+String.valueOf(((v-2)+1+(argc-6))*8)+"]"; else return "[rsp+" +String.valueOf((v-2)*8)+ "]";
     			// rsp from caller pointer of view
     			}
     		}
@@ -354,9 +354,9 @@ public class Assembly {
        				int offset = Integer.valueOf(stmt.operands[0].operand.substring(index+1));
        				AssemblyOperand  retOpt = null;
        				if (thisFuncArgSize <=6 ) {
-       					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2)*8)+"]");
+       					retOpt = new AssemblyOperand("QWORD PTR [rbp+"+String.valueOf((2+ offset-2)*8)+"]");
        				} else {
-       					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2+ thisFuncArgSize-6)*8)+"]");
+       					retOpt = new AssemblyOperand("QWORD PTR [rbp+"+String.valueOf((2+ offset-2+ thisFuncArgSize-6)*8)+"]");
        				}
        				retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
        				stmt.operands[0] = retOpt;
