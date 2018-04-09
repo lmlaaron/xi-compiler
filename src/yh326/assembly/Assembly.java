@@ -160,6 +160,12 @@ public class Assembly {
     
     // per ABI specification, calculate the return size of a function
     static public int getRetSize(String targetName) {
+		if ( targetName.equals("_xi_out_of_bounds")) {
+			return 0;
+		} else if ( targetName.equals("_xi_alloc")) {
+			return 1;
+		}
+		try {
 		if (targetName != null) {
 			int index = targetName.lastIndexOf("t");
 			if ( index != -1) {	// assume less than 100 arguments
@@ -174,14 +180,23 @@ public class Assembly {
 					return Integer.parseInt(targetName.substring(index+1,index+2));
 				}
 			}
-			return -1;
+			return 0;
 		} else {
-			return -1;
+			return 0;
+		}
+		} catch (Exception e) {
+			return 0;
 		}
     }
     
     // per ABI specification, calculate the argument size
     static public int getArgSize(String targetName) {
+		if ( targetName.equals("_xi_out_of_bounds")) {
+			return 0;
+		} else if ( targetName.equals("_xi_alloc")) {
+			return 1;
+		}
+		try {
     		if ( targetName != null) {
     			int index = targetName.lastIndexOf("_");
     			String sigStr = targetName.substring(index+1);
@@ -194,9 +209,12 @@ public class Assembly {
     					num_ib++;
     				}
     			}
-    			return num_ib - num_a - getRetSize(targetName);
+    			return num_ib - getRetSize(targetName);
     		}
-    		return -1;
+    		return 0;
+		} catch (Exception e) {
+			return 0;
+		}
     }
    
     // translate _ARG0, _RET0 to register or stack location
@@ -327,9 +345,9 @@ public class Assembly {
        				continue;
        			}
        			// replace __RETURN_x (genereated using return tile) with the exact stack location
-       			if (stmt.operands != null && stmt.operation.equals("mov") && stmt.operands[1].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED) ) {
-       				int index = stmt.operands[1].operand.lastIndexOf("_");
-       				int offset = Integer.valueOf(stmt.operands[1].operand.substring(index+1));
+       			if (stmt.operands != null && stmt.operation.equals("mov") && stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED) ) {
+       				int index = stmt.operands[0].operand.lastIndexOf("_");
+       				int offset = Integer.valueOf(stmt.operands[0].operand.substring(index+1));
        				AssemblyOperand  retOpt = null;
        				if (thisFuncArgSize <=6 ) {
        					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2)*8)+"]");
@@ -337,7 +355,7 @@ public class Assembly {
        					retOpt = new AssemblyOperand("[rbp+"+String.valueOf((1+ offset-2+ thisFuncArgSize-6)*8)+"]");
        				}
        				retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
-       				stmt.operands[1] = retOpt;
+       				stmt.operands[0] = retOpt;
        				concreteStatements.add(stmt);
        				continue;
        			}

@@ -40,6 +40,12 @@ public class MoveTempCallTile extends Tile {
     }
 
     public int retSize() {
+    		if ( targetName.equals("_xi_out_of_bounds")) {
+    			return 0;
+    		} else if ( targetName.equals("_xi_alloc")) {
+    			return 1;
+    		}
+    		try {		// library function does not follow the naming convention, just return 0 (assume they do not have large return size)
 		if (targetName != null) {
 			int index = targetName.lastIndexOf("t");
 			if ( index != -1) {	// assume less than 100 arguments
@@ -54,10 +60,13 @@ public class MoveTempCallTile extends Tile {
 					return Integer.parseInt(targetName.substring(index+1,index+2));
 				}
 			}
-			return -1;
+			return 0;
 		} else {
-			return -1;
+			return 0;
 		}
+    		} catch ( Exception e) {
+    			return 0;
+    		}
 }
     
     @Override
@@ -71,7 +80,7 @@ public class MoveTempCallTile extends Tile {
 
         // System V calling convention
         // move first 6 arguments in rdi, rsi, rdx, rcx, r8 and r9.
-        int operandNum = this.getSubtreeRoots().size()-1;
+        int operandNum = this.getSubtreeRoots().size();
         if (operandNum > 0) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdi"), new AssemblyOperand()));
         if (operandNum > 1) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rsi"), new AssemblyOperand()));
         if (operandNum > 2) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdx"), new AssemblyOperand()));
@@ -80,7 +89,7 @@ public class MoveTempCallTile extends Tile {
         if (operandNum > 5) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r9"), new AssemblyOperand()));
         
         // PUSH all other arguments onto stack
-        for ( int i = this.getSubtreeRoots().size() -1; i >=6; i-- ) {
+        for ( int i = this.getSubtreeRoots().size(); i >=6; i-- ) {
         		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
         // check return size, if greater than 2, allocate space on stack first, rcx is reserved for this

@@ -37,6 +37,12 @@ public class CallTile extends Tile {
     }
 
     public int retSize() {
+		if ( targetName.equals("_xi_out_of_bounds")) {
+			return 0;
+		} else if ( targetName.equals("_xi_alloc")) {
+			return 1;
+		}
+		try {
     		if (targetName != null) {
     			int index = targetName.lastIndexOf("t");
     			if ( index != -1) {	// assume less than 100 arguments
@@ -51,10 +57,13 @@ public class CallTile extends Tile {
     					return Integer.parseInt(targetName.substring(index+1,index+2));
     				}
     			}
-    			return -1;
+    			return 0;
     		} else {
-    			return -1;
+    			return 0;
     		}
+		} catch (Exception e) {
+			return 0;
+		}
     }
     
     @Override
