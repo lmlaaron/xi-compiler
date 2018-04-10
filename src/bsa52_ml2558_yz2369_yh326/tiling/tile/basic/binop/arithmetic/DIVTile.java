@@ -22,15 +22,18 @@ public class DIVTile extends ArithmeticBinopTile {
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
 
-        //TODO: implementing 64 bit div is tricky. This probably doesn't work in all cases...
-
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
         AssemblyOperand srcOpt =new AssemblyOperand();
+
+        // move dividend into RAX
         statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), srcOpt));
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand()));
-        statements.add(new AssemblyStatement("mov", srcOpt, new AssemblyOperand("rax")));
-            
-        Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
+        // IMUL divides dividend RDX:RAX by the given argument, so we need to sign-extend RAX into RDX:
+        statements.add(new AssemblyStatement("cqo")); // "convert quad-word to oct-word"
+        // now run the div operation
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand()));
+
+        // Quotient is in RAX, remainder is in RDX
+        Assembly assm = new Assembly(statements, new AssemblyOperand("rax"));
 
         return assm;
     }
