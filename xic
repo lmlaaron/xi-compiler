@@ -1,3 +1,3 @@
 #!/bin/bash
 dir=`cd $(dirname "$0"); pwd`
-java -cp $dir/lib/java_cup.jar:$dir/bin/ yh326.Main "$@"
+java -cp $dir/lib/java_cup.jar:$dir/bin/ bsa52_ml2558_yz2369_yh326.Main "$@"

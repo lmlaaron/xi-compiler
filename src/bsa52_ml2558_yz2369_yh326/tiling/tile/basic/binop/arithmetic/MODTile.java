@@ -1,0 +1,35 @@
+package bsa52_ml2558_yz2369_yh326.tiling.tile.basic.binop.arithmetic;
+
+import java.util.LinkedList;
+
+import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
+import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+
+public class MODTile extends ArithmeticBinopTile {
+    protected IRBinOp.OpType validIRBinOpType() {
+        return IRBinOp.OpType.MOD;
+    }
+
+    protected String binOpAssmName() {
+        return "idiv";
+    }
+    @Override
+    protected Assembly generateLocalAssembly() {
+        String freshTemp = freshTemp();
+
+        //TODO: implementing 64 bit div is tricky. This probably doesn't work in all cases...
+
+        LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
+        AssemblyOperand srcOpt =new AssemblyOperand();
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), srcOpt));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand()));
+        statements.add(new AssemblyStatement("mov", srcOpt, new AssemblyOperand("rax")));
+            
+        Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
+
+        return assm;
+    }
+}

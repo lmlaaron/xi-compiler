@@ -4,10 +4,11 @@ import subprocess
 import os
 
 # Parent directories for each test category
-LEXER_TESTS = "./tests/yh326_a1"
-PARSER_TESTS = "./tests/yh326_a2"
-TYPECHECKER_TESTS = "./tests/yh326_a3"
-IRRUN_TESTS = "./tests/yh326_a4"
+LEXER_TESTS = "./tests/a1"
+PARSER_TESTS = "./tests/a2"
+TYPECHECKER_TESTS = "./tests/a3"
+IRRUN_TESTS = "./tests/a4"
+ASSEM_TESTS = "./tests/a5"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -233,10 +234,10 @@ def grade_by_matching_output(output, correct_output):
 def assm_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '-libpath', 'lib/runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-libpath', 'runtime/include/', testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
-    run_shell(['lib/runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
+    run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
     if not os.path.isfile('xi_executable'):
         return (False, "Couldn't find generated executable")
     _, stdout, _ = run_shell(['./xi_executable'], print_results=False)
@@ -253,9 +254,9 @@ def compile_and_run(xi_f):
 
     assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
     print_log("Generating Assembly")
-    run_shell(['./xic', '--comment','-libpath', 'lib/runtime/include/', xi_f], end_on_error=True)
+    run_shell(['./xic', '--comment','-libpath', 'runtime/include/', xi_f], end_on_error=True)
     print_log("Linking Assembly")
-    run_shell(['lib/runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
+    run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
     print_log("Running Executable")
     run_shell(['./xi_executable'], end_on_error=True)
 
@@ -282,10 +283,10 @@ if __name__ == "__main__":
     # print("====RUNNING IRRUN TESTS====")
     # run_test_set(IRRUN_TESTS, irrun_grader)
     print("====BUILDING BINARY RUNTIME====")
-    run_shell(['make', '-C', 'lib/runtime'], print_results=False)
+    run_shell(['make', '-C', 'runtime'], print_results=False)
     print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
     print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
-    run_test_set("tests/yh326_a5", assm_grader) # reuse old tests because they test by output
+    run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
     
 
     print("Test Harness End!")

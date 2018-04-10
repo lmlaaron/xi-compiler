@@ -3,7 +3,7 @@
 rm -rf temp
 mkdir temp
 if [ $1 == "a3" ] || [ $1 == "a4" ] || [ $1 == "a5" ]; then
-    pkg=yh326_$1
+    pkg=$1
     mkdir temp/xi
     cp tests/$pkg/testcases/* temp/xi
     cp tests/$pkg/answers/* temp/xi
