@@ -1,5 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.tiling.tile.basic;
 
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -27,10 +28,22 @@ public class ConstTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
+        // TODO: some operations, including 'cmp', cannot accept a literal as a direct operand.
+        //       to compensate for those cases, we allocate a temp to hold the constant value.
+        //       however, this is inefficient for cases where we tile operations which do allow
+        //       constants
+
         String constValue = Long.toString(((IRConst)this.root).constant());
+
+        String freshTemp = freshTemp();
+
+        LinkedList<AssemblyStatement> statements = new LinkedList<>();
+        statements.add(new AssemblyStatement("mov", freshTemp, constValue));
+
         return new Assembly(
+            statements,
             new AssemblyOperand(
-                    constValue
+                    freshTemp
             )
         );
     }
