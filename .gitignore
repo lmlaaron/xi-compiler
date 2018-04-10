@@ -1,5 +1,5 @@
 # during runtime build a lot of files are modified
-lib/runtime
+runtime/
 
 # any text files you may want to generate, but not share with others
 *.ignore
@@ -18,7 +18,7 @@ xi_executable
 *.typed
 *.ir
 *.s
-xthScript.results
+*.results
 lexer.java
 parser.java
 sym.java
