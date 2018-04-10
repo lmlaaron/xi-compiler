@@ -6,5 +6,10 @@ xic ("Test --irgen") "-libpath $(testpath) --irgen" {
     arracc06.xi;
     arrinit05.xi;
     arrinit06.xi;
+    binary11.xi;
+    binary12.xi;
+    functioncall04.xi;
+    localdecl06.xi;
+    localdecl14.xi;
     medley01.xi;
 }

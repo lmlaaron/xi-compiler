@@ -147,6 +147,7 @@ public class Main {
 
                 String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
                 realAssemblyOutputDir = realAssemblyOutputDir.substring(0, realAssemblyOutputDir.lastIndexOf("/"));
+                String realAssemblyOutputFile = Paths.get(realAssemblyOutputDir, fileName).toString();
 
                 // ======= ASSEMBLY GENERATION ======= 
                 Tile rootTile = MaxMunch.munch(irNode);
@@ -164,9 +165,9 @@ public class Main {
                     // write assembly to file
                     File assmF = null;
                     if (argvArray.contains("--disasmgen")) {
-                        assmF = new File(realOutputFile + ".ra.s");
+                        assmF = new File(realAssemblyOutputFile + ".ra.s");
                     } else {
-                        assmF = new File(realOutputFile + ".s");
+                        assmF = new File(realAssemblyOutputFile + ".s");
                     }
                     BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
                     writer.write(".intel_syntax noprefix " + "\n");
