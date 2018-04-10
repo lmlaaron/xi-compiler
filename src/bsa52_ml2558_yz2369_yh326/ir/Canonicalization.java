@@ -279,7 +279,7 @@ public class Canonicalization {
             IRExpr e2 = ((IRMove) input).source();
             IRStmt s1 = null;
             if (e1 instanceof IRESeq) {
-                s1 = ((IRESeq) e1).stmt();
+                s1 = CanonicalizeStmt(((IRESeq) e1).stmt());
                 e1 = ((IRESeq) e1).expr();
             }
             IRESeq es2 = (IRESeq) CanonicalizeExpr(e2);
