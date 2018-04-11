@@ -1,5 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.tiling;
 
+import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.cjump.*;
+import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.validate_operands.MovMemMemTile;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -7,7 +9,6 @@ import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.exception.NotTilableException;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.*;
-import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.cjump.EQCJumpTile;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.basic.*;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.basic.binop.arithmetic.ANDTile;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.basic.binop.arithmetic.ARSHIFTTile;
@@ -62,7 +63,16 @@ public class MaxMunch {
         sortedTiles.add(new CallTile());
         sortedTiles.add(new EQTile());
         sortedTiles.add(new NEQTile());
+
         sortedTiles.add(new EQCJumpTile());
+        sortedTiles.add(new NEQCJumpTile());
+        sortedTiles.add(new GTCJumpTile());
+        sortedTiles.add(new GEQCJumpTile());
+        sortedTiles.add(new LTCJumpTile());
+        sortedTiles.add(new LEQCJumpTile());
+
+        sortedTiles.add(new MovMemMemTile());
+
 
 
         // sort by size in descending order

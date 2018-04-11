@@ -360,8 +360,8 @@ public class Assembly {
        				}
        				retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
        				stmt.operands[0] = retOpt;
-       				concreteStatements.add(stmt);
-       				continue;
+       				//concreteStatements.add(stmt);
+       				//continue;
        			}
  
        			// PASS 1: check the register and allocate address on stack

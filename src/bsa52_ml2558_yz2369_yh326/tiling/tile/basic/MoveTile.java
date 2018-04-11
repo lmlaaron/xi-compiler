@@ -1,5 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.tiling.tile.basic;
 
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -35,8 +36,13 @@ public class MoveTile extends Tile {
     @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand()));
+        if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
+        		String freshTemp = freshTemp();
+    			statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+    			statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));       		
+        } else {
+        		statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand()));
+        }
 
         return new Assembly(statements);
     }
