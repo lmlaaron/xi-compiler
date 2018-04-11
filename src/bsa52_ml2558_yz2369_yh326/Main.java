@@ -43,8 +43,8 @@ public class Main {
             System.out.println("option --typecheck to show the result from type checking.");
             System.out.println("option --irgen to show lowered ir code representation.");
             System.out.println("option --irlow (intended for internal use) to show canonical ir code representation.");
-            System.out.println(
-                    "option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
+            System.out.println("option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
+            System.out.println("option --abstract (internal usage) generate abstract assembly .aasm file");
             System.out.println("option --irrun to simulate running translated IR code.");
             System.out.println("option -sourcepath <path> to specify where to find input source files.");
             System.out.println("option -libpath <path> to specify where to find library interface files.");
@@ -57,6 +57,8 @@ public class Main {
 
         if (argvArray.contains("--comment"))
             Flags.asmComments = true;
+        if (argvArray.contains("--abstract"))
+            Flags.genAbstract = true;
 
         // Processing other options
         try {
@@ -152,9 +154,15 @@ public class Main {
                 // ======= ASSEMBLY GENERATION ======= 
                 Tile rootTile = MaxMunch.munch(irNode);
                 Assembly assm = rootTile.generateAssembly();
+
+                if (Flags.genAbstract) { // write abstract assembly
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(new File(realAssemblyOutputFile + ".aasm")));
+                    writer.write(assm.toString());
+                    writer.close();
+                }
                 // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
 
-                if (!argvArray.contains("--disasmgen")) {
+                if (!argvArray.contains("--disasmgen")) { // TODO: document option?
                     assm = assm.registerAlloc();
                 }
                 // ======= END ACTUAL ASSEMBLY GENERATION ==========
