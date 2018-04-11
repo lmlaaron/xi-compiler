@@ -63,24 +63,33 @@ public class Subscript extends Expr {
 
     @Override
     public IRNode translate() {
-        List<IRStmt> stmt = new ArrayList<IRStmt>();
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+        
         IRExpr var = (IRExpr) children.get(1).translate();
+        if (var instanceof IRConst || var instanceof IRTemp || var instanceof IRName) {}
+        else {
+            IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+            stmts.add(new IRMove(varTemp, var));
+            var = varTemp;
+        }
+        
         IRExpr index = (IRExpr) children.get(2).translate();
-
-        IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
-        IRTemp indTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
-        stmt.add(new IRMove(varTemp, var));
-        stmt.add(new IRMove(indTemp, index));
-
-        IRMem len = new IRMem(new IRBinOp(OpType.SUB, varTemp, new IRConst(8)));
-        IRBinOp lt0 = new IRBinOp(OpType.LT, indTemp, new IRConst(0));
-        IRBinOp gtN = new IRBinOp(OpType.GEQ, indTemp, len);
+        if (index instanceof IRConst || index instanceof IRTemp || index instanceof IRName) {}
+        else {
+            IRTemp indexTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+            stmts.add(new IRMove(indexTemp, index));
+            index = indexTemp;
+        }
+        
+        IRMem len = new IRMem(new IRBinOp(OpType.SUB, var, new IRConst(8)));
+        IRBinOp lt0 = new IRBinOp(OpType.LT, index, new IRConst(0));
+        IRBinOp gtN = new IRBinOp(OpType.GEQ, index, len);
         IRBinOp cond = new IRBinOp(OpType.OR, lt0, gtN);
         IRCall then = new IRCall(new IRName("_xi_out_of_bounds"));
-        stmt.add(If.getIRIf(cond, then));
-        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, varTemp, 
-                new IRBinOp(OpType.MUL, new IRConst(8), indTemp)));
-        return new IRESeq(new IRSeq(stmt), res);
+        stmts.add(If.getIRIf(cond, then));
+        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var, 
+                new IRBinOp(OpType.MUL, new IRConst(8), index)));
+        return new IRESeq(new IRSeq(stmts), res);
     }
 
 }
