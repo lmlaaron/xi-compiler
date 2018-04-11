@@ -35,8 +35,10 @@ public class ReturnTile extends Tile {
         		if ( this.subtreeRoots.size() > 0) {
         			statements.add(new AssemblyStatement("mov",new AssemblyOperand("rax"), new AssemblyOperand()));
         		}
+        		String RET1 = freshTemp();
         		if ( this.subtreeRoots.size() > 1) {
-        			statements.add(new AssemblyStatement("mov",new AssemblyOperand("rdx"), new AssemblyOperand()));
+        			// TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded before return)
+        			statements.add(new AssemblyStatement("mov",new AssemblyOperand(RET1), new AssemblyOperand()));
         		}
         		if ( this.subtreeRoots.size() > 2) {
         	
@@ -46,6 +48,10 @@ public class ReturnTile extends Tile {
         				retOpt.type = AssemblyOperand.OperandType.RET_UNRESOLVED;
         				statements.add(new AssemblyStatement("mov", retOpt, new AssemblyOperand()));	
         			}
+        		}
+        		if ( this.subtreeRoots.size() > 1) {
+        			// TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded before return)
+        			statements.add(new AssemblyStatement("mov",new AssemblyOperand("rdx"), new AssemblyOperand(RET1)));
         		}
         }
         statements.add(new AssemblyStatement("leave")); // restore the stack before calling
