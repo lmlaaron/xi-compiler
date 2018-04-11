@@ -1,7 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.tiling;
 
 import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.cjump.*;
-import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.validate_operands.MovMemMemTile;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -70,8 +69,6 @@ public class MaxMunch {
         sortedTiles.add(new GEQCJumpTile());
         sortedTiles.add(new LTCJumpTile());
         sortedTiles.add(new LEQCJumpTile());
-
-        //sortedTiles.add(new MovMemMemTile());
 
 
 
