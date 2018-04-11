@@ -20,8 +20,19 @@ public class MoveTile extends Tile {
             IRMove move = (IRMove) root;
 
             this.subtreeRoots = new LinkedList<>();
-            subtreeRoots.add(move.target());
-            subtreeRoots.add(move.source());
+            // mind the order of source and target
+            // in the generated assembly
+            // we have
+            // mov temp, src
+            // mov des, temp
+            // thus have to add source first then target
+            if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
+            		subtreeRoots.add(move.source());
+            		subtreeRoots.add(move.target());
+            } else {
+        		subtreeRoots.add(move.target());
+        		subtreeRoots.add(move.source());
+            }
 
             return true;
         }

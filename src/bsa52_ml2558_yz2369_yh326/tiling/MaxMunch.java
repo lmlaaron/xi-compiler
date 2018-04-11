@@ -71,7 +71,7 @@ public class MaxMunch {
         sortedTiles.add(new LTCJumpTile());
         sortedTiles.add(new LEQCJumpTile());
 
-        sortedTiles.add(new MovMemMemTile());
+        //sortedTiles.add(new MovMemMemTile());
 
 
 
