@@ -1,10 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.exception.TileMergeException;
 
@@ -264,6 +260,7 @@ public class Assembly {
 				ListFuncStatements.add(FuncStatements);
 				FuncStatements = new LinkedList<>();
 				FuncStatements.add(stmt);
+				System.out.println("Label: " + stmt);
 			}
 			else {
 				FuncStatements.add(stmt);
@@ -272,7 +269,9 @@ public class Assembly {
        ListFuncStatements.add(FuncStatements);
        //System.out.printf("sss "+String.valueOf(sss)+"\n");
        
-       for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {	
+       for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {
+       		System.out.println("Func Label : " + oneFuncStatements.get(0));
+
 			int thisFuncArgSize = 0;
 			// two-pass process
 			// PASS 1: establish RegisterTable
@@ -304,11 +303,14 @@ public class Assembly {
        			
        			// Per IR specification, replace _ARG0, _RET0 etc with respective register
        			for (AssemblyOperand op: stmt.operands) {
-       				String oldOperand = op.operand;
-       				op.operand = this.ARGRET2Reg(op.operand, lastCallArgc);
-       				if (oldOperand != op.operand) {
-       					op.type = AssemblyOperand.OperandType.REG_RESOLVED;
-       				}
+       				op.ResolveType();
+
+       				List<String> temps = op.getTemps();
+       				ListIterator<String> it = temps.listIterator();
+       				while (it.hasNext())
+						it.set(ARGRET2Reg(it.next(), lastCallArgc));
+
+       				op.setTemps(temps);
        			}
        			
        			// establish the registerTable
@@ -323,6 +325,7 @@ public class Assembly {
        		}
 
        		for (AssemblyStatement stmt: oneFuncStatements) {
+
        			// replace STACKSIZE with the real size
        			if (stmt.operands != null &&  stmt.operation.equals("sub") && stmt.operands[1].value().equals( "STACKSIZE")) {
        				//System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
@@ -391,6 +394,8 @@ public class Assembly {
 					concreteStatements.addAll(loadStatements);
 					concreteStatements.add(stmt);
 					concreteStatements.addAll(saveStatements);
+
+					System.out.println("Adding statement: " + stmt);
 
 				}
 
