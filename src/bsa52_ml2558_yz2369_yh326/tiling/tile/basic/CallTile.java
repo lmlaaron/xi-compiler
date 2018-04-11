@@ -94,7 +94,7 @@ public class CallTile extends Tile {
         if (operandNum > 5) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r9"), new AssemblyOperand()));
         
         // PUSH all other arguments onto stack
-        for ( int i = this.getSubtreeRoots().size() -1; i >=6; i-- ) {
+        for ( int i = this.getSubtreeRoots().size() -1; i > 6; i-- ) {
         		//statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         		statements.add(new AssemblyStatement("mov", new AssemblyOperand("[rsp-"+String.valueOf((this.getSubtreeRoots().size() - 1 -i)*8)+"]"),  new AssemblyOperand()));
         }
