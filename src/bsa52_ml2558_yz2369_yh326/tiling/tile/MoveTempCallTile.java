@@ -90,7 +90,7 @@ public class MoveTempCallTile extends Tile {
         if (operandNum > 5) statements.add(new AssemblyStatement("mov", new AssemblyOperand("r9"), new AssemblyOperand()));
         
         // PUSH all other arguments onto stack
-        for ( int i = this.getSubtreeRoots().size(); i >=6; i-- ) {
+        for ( int i = this.getSubtreeRoots().size(); i > 6; i-- ) {
         		statements.add( new AssemblyStatement("push", new AssemblyOperand()));
         }
         // check return size, if greater than 2, allocate space on stack first, rcx is reserved for this
