@@ -178,22 +178,22 @@ public class Canonicalization {
         } else if (input instanceof IRTemp) {
             return new IRESeq(null, (IRExpr) input);
         } else if (input instanceof IRBinOp) {
-            IRESeq es1 = CanonicalizeExpr(((IRBinOp) input).left());
-            IRESeq es2 = CanonicalizeExpr(((IRBinOp) input).right());
+            IRExpr left = ((IRBinOp) input).left();
+            IRExpr right = ((IRBinOp) input).right();
+            IRESeq es1 = CanonicalizeExpr(left);
+            IRESeq es2 = CanonicalizeExpr(right);
             IRStmt s1 = es1.stmt();
             IRExpr e1 = es1.expr();
             IRStmt s2 = es2.stmt();
             IRExpr e2 = es2.expr();
 
-            // only if right operand has no side effect or left operand is immutable
-            if ((((IRBinOp) input).right() instanceof IRName) || (((IRBinOp) input).right() instanceof IRConst
-                    || ((IRBinOp) input).right() instanceof IRTemp || ((IRBinOp) input).left() instanceof IRName
-                    || ((IRBinOp) input).left() instanceof IRConst)) {
+            if (right instanceof IRName || right instanceof IRConst || right instanceof IRTemp || left instanceof IRName
+                    || left instanceof IRConst || left instanceof IRTemp) {
                 return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(), e1, e2));
             } else {
                 IRTemp t1 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
                 return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2),
-                        new IRBinOp(((IRBinOp) input).opType(), (IRExpr) t1, e2));
+                        new IRBinOp(((IRBinOp) input).opType(), t1, e2));
             }
         } else if (input instanceof IRMem) {
             IRESeq es = CanonicalizeExpr(((IRMem) input).expr());
@@ -375,7 +375,7 @@ public class Canonicalization {
         } else if (input instanceof IRTemp) {
             return input;
         } else if (input instanceof IRBinOp) {
-        		return FoldingBinOp((IRBinOp) input);
+            return FoldingBinOp((IRBinOp) input);
         } else if (input instanceof IRMem) {
             return new IRMem(FoldingExpr(((IRMem) input).expr()));
         } else if (input instanceof IRCall) {
@@ -437,7 +437,7 @@ public class Canonicalization {
     static IRExpr FoldingBinOp(IRBinOp input) throws IRNodeNotMatchException {
         IRExpr lexp = ((IRBinOp) input).left();
         IRExpr rexp = ((IRBinOp) input).right();
-        
+
         if (!(lexp instanceof IRConst)) {
             lexp = FoldingExpr(lexp);
         }
@@ -445,9 +445,10 @@ public class Canonicalization {
             rexp = FoldingExpr(rexp);
         }
 
+        // Both left and right are constants
         if ((lexp instanceof IRConst && rexp instanceof IRConst)) {
             long l = lexp.constant();
-            long r = ((IRConst) rexp).constant();
+            long r = rexp.constant();
             switch (((IRBinOp) input).opType()) {
             case ADD:
                 return new IRConst(l + r);
@@ -461,13 +462,13 @@ public class Canonicalization {
                 if (r != 0) {
                     return new IRConst(l / r);
                 } else {
-                    return input;
+                    break;
                 }
             case MOD:
                 if (r != 0) {
                     return new IRConst(l % r);
                 } else {
-                    return input;
+                    break;
                 }
             case AND:
                 return new IRConst(l & r);
@@ -493,23 +494,59 @@ public class Canonicalization {
                 return new IRConst(l <= r ? 1 : 0);
             case GEQ:
                 return new IRConst(l >= r ? 1 : 0);
+            default:
+                break;
             }
-        } 
-        return new IRBinOp(input.opType(), lexp, rexp);
+        }
 
-        /*if (lexp instanceof IRConst) {
-        } else if (lexp instanceof IRBinOp) {
-            lexp = FoldingBinOp((IRBinOp) lexp);
+        if (lexp instanceof IRConst && lexp.constant() == 0 ||
+                rexp instanceof IRConst && rexp.constant() == 0) {
+            switch (((IRBinOp) input).opType()) {
+            case ADD:
+            case SUB:
+                return lexp instanceof IRConst ? rexp : lexp;
+            case MUL:
+            case HMUL:
+                return new IRConst(0);
+            case DIV:
+            case MOD:
+                if (lexp instanceof IRConst) {
+                    return new IRConst(0);
+                } else {
+                    break;
+                }
+            case AND:
+                return new IRConst(0);
+            case OR:
+                return lexp instanceof IRConst ? rexp : lexp;
+            default:
+                break;
+            }
         }
-        if (rexp instanceof IRConst) {
-        } else if (rexp instanceof IRBinOp) {
-            rexp = FoldingBinOp((IRBinOp) rexp);
+        
+        if (lexp instanceof IRConst && lexp.constant() == 1 ||
+                rexp instanceof IRConst && rexp.constant() == 1) {
+            switch (((IRBinOp) input).opType()) {
+            case MUL:
+            case HMUL:
+                return lexp instanceof IRConst ? rexp : lexp;
+            case DIV:
+            case MOD:
+                if (lexp instanceof IRConst) {
+                    break;
+                } else {
+                    return lexp;
+                }
+            case AND:
+                return lexp instanceof IRConst ? rexp : lexp;
+            case OR:
+                return new IRConst(1);
+            default:
+                break;
+            }
         }
-        if (lexp instanceof IRConst && rexp instanceof IRConst) {
-            return FoldingBinOp(new IRBinOp(input.opType(), lexp, rexp));
-        } else {
-            return new IRBinOp(input.opType(), lexp, rexp);
-        }*/
+
+        return new IRBinOp(input.opType(), lexp, rexp);
     }
 
     /**
