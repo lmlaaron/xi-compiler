@@ -203,39 +203,28 @@ public class Canonicalization {
         } else if (input instanceof IRCall) {
             IRExpr target = ((IRCall) input).target();
             List<IRExpr> e = ((IRCall) input).args();
-            List<IRStmt> sl = new ArrayList<IRStmt>();
-            List<IRExpr> el = new ArrayList<IRExpr>();
-            List<IRTemp> tl = new ArrayList<IRTemp>();
-            int count = 0;
             String tempArrayName = "_temp_" + NumberGetter.uniqueNumber();
-            for (IRExpr e1 : e) {
-                IRESeq ese1 = (IRESeq) Canonicalize(e1);
-                sl.add(ese1.stmt());
-                el.add(ese1.expr());
-                tl.add(new IRTemp(tempArrayName + "_" + Integer.toString(count)));
-                count++;
-            }
-
+            
             List<IRStmt> rsl = new ArrayList<IRStmt>();
             IRTemp t = new IRTemp(tempArrayName);
-            count = 0;
+            int count = 0;
             List<IRExpr> tle = new ArrayList<IRExpr>();
-            for (IRTemp stl : tl) {
-                tle.add(stl);
-            }
             for (IRExpr e1 : e) {
+                IRESeq ese1 = (IRESeq) Canonicalize(e1);
+                rsl.add(ese1.stmt());
+                e1 = ese1.expr();
                 if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
-                    tle.set(count, e1);
+                    tle.add(e1);
                 } else {
-                    rsl.add(sl.get(count));
-                    rsl.add(new IRMove(tl.get(count), el.get(count)));
+                    IRTemp argTemp = new IRTemp(tempArrayName + "_" + Integer.toString(count));
+                    rsl.add(new IRMove(argTemp, e1));
+                    tle.add(argTemp);
                 }
                 count++;
             }
 
             rsl.add(new IRMove(t, new IRCall(target, tle)));
-            IRStmt s = new IRSeq(rsl);
-            return new IRESeq(s, t);
+            return new IRESeq(new IRSeq(rsl), t);
         } else if (input instanceof IRName) {
             return new IRESeq(null, input);
         } else if (input instanceof IRESeq) {
@@ -503,7 +492,6 @@ public class Canonicalization {
                 rexp instanceof IRConst && rexp.constant() == 0) {
             switch (((IRBinOp) input).opType()) {
             case ADD:
-            case SUB:
                 return lexp instanceof IRConst ? rexp : lexp;
             case MUL:
             case HMUL:
