@@ -23,11 +23,23 @@ public class AssemblyOperand {
     public int reorderIndex; // for some tiles, the order of the operands in the generated assmbly are
                              // reordered, different from operands in IR
 
+    protected boolean memWrapped;
+
     public enum OperandType {
         TEMP, LABEL, MEM, CONSTANT, UNRESOLVED, REG_RESOLVED, RET_UNRESOLVED
     }
 
     public OperandType type;
+
+    /**
+     * MemWrapped operands are placeholders which, after being filled, are converted to
+     * memory operands by wrapping with []
+     */
+    public static AssemblyOperand MemWrapped() {
+        AssemblyOperand ao = new AssemblyOperand();
+        ao.memWrapped = true;
+        return ao;
+    }
 
     public AssemblyOperand(String op) {
         this.operand = op;
@@ -107,13 +119,15 @@ public class AssemblyOperand {
      */
     public void fillPlaceholder(String operand) {
         assert isPlaceholder();
+        if (memWrapped)
+            operand = "[" + operand + "]";
         this.operand = operand;
     }
 
     public void fillPlaceholder(AssemblyOperand operand) {
-        this.operand = operand.operand;
         this.type = operand.type;
         this.reorderIndex = operand.reorderIndex;
+        fillPlaceholder(operand.operand);
     }
 
     /**
