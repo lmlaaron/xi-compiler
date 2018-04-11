@@ -260,17 +260,32 @@ public class Assembly {
 				ListFuncStatements.add(FuncStatements);
 				FuncStatements = new LinkedList<>();
 				FuncStatements.add(stmt);
-				System.out.println("Label: " + stmt);
+//				System.out.println("Label: " + stmt);
 			}
 			else {
 				FuncStatements.add(stmt);
 			}
        }
        ListFuncStatements.add(FuncStatements);
+
+
+//       // Debug printing:
+//		int i = 1;
+//		for (List<AssemblyStatement> func : ListFuncStatements) {
+////			System.out.println("Function " + i);
+//			for (AssemblyStatement statement : func) {
+//				System.out.println(statement);
+//			}
+//			System.out.println();
+//		}
+
+//		System.out.println("====================================");
+//		System.out.println();
+
        //System.out.printf("sss "+String.valueOf(sss)+"\n");
        
        for (List<AssemblyStatement> oneFuncStatements: ListFuncStatements) {
-       		System.out.println("Func Label : " + oneFuncStatements.get(0));
+//       		System.out.println("Func Label : " + oneFuncStatements.get(0));
 
 			int thisFuncArgSize = 0;
 			// two-pass process
@@ -323,6 +338,12 @@ public class Assembly {
 					}
        			}
        		}
+
+//		   System.out.println("Function after first pass:");
+//       		for (AssemblyStatement statement : oneFuncStatements) {
+//       			System.out.println(statement);
+//			}
+//			System.out.println();
 
        		for (AssemblyStatement stmt: oneFuncStatements) {
 
@@ -389,17 +410,22 @@ public class Assembly {
 						saveStatements.add(new AssemblyStatement("mov", memLocation, allocatedRegister));
 					}
 					op.setTemps(tempReplacements);
-
-					// save all the generated statements
-					concreteStatements.addAll(loadStatements);
-					concreteStatements.add(stmt);
-					concreteStatements.addAll(saveStatements);
-
-					System.out.println("Adding statement: " + stmt);
-
 				}
 
+				// save all the generated statements
+				concreteStatements.addAll(loadStatements);
+				concreteStatements.add(stmt);
+				concreteStatements.addAll(saveStatements);
+
+//				System.out.println("Adding statement: " + stmt);
+
 			}
+
+//		   System.out.println("Function after second pass:");
+//		   for (AssemblyStatement statement : oneFuncStatements) {
+//			   System.out.println(statement);
+//		   }
+//		   System.out.println();
    		
    		
        }
