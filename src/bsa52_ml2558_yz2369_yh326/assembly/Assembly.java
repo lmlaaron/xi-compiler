@@ -334,6 +334,7 @@ public class Assembly {
        				for (String temp : op.getTemps()) {
        					if (!rTable.isInTable(temp)) {
        						rTable.add(temp);
+       						System.out.println("Register Table Adding " + temp);
 						}
 					}
        			}
@@ -409,7 +410,8 @@ public class Assembly {
 						loadStatements.add(new AssemblyStatement("mov", allocatedRegister, memLocation));
 						saveStatements.add(new AssemblyStatement("mov", memLocation, allocatedRegister));
 					}
-					op.setTemps(tempReplacements);
+					if (tempReplacements.size() > 0)
+						op.setTemps(tempReplacements);
 				}
 
 				// save all the generated statements

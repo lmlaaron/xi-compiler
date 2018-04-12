@@ -208,7 +208,8 @@ public class AssemblyOperand {
         }
         else if (type == OperandType.TEMP) {
             LinkedList ret = new LinkedList<String>();
-            ret.add(value());
+            if (!Utilities.isRealRegister(value()))
+                ret.add(value());
             return ret;
         }
         else {
