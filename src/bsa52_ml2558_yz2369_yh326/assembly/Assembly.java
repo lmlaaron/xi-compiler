@@ -3,6 +3,7 @@ package bsa52_ml2558_yz2369_yh326.assembly;
 import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.exception.TileMergeException;
+import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 
 
 /**
@@ -299,7 +300,10 @@ public class Assembly {
    			int maxSize = 0;    		
    			
    			int lastCallArgc = 0;
-       		for (AssemblyStatement stmt: oneFuncStatements) {
+
+   			ListIterator<AssemblyStatement> statementIt = oneFuncStatements.listIterator();
+       		while (statementIt.hasNext()) {
+       			AssemblyStatement stmt = statementIt.next();
        			// find out the size of the allocated return space via the ABI
        			// the return statement in this function body needs this value to find the stack 
        			//pointer to store the return value (like [rbp+...]
@@ -321,24 +325,68 @@ public class Assembly {
        				op.ResolveType();
 
        				List<String> temps = op.getTemps();
-       				ListIterator<String> it = temps.listIterator();
-       				while (it.hasNext())
-						it.set(ARGRET2Reg(it.next(), lastCallArgc));
 
-       				op.setTemps(temps);
-       			}
-       			
-       			// establish the registerTable
-       			for (AssemblyOperand op: stmt.operands) {
-       				op.ResolveType();
-       				for (String temp : op.getTemps()) {
-       					if (!rTable.isInTable(temp)) {
-       						rTable.add(temp);
-       						System.out.println("Register Table Adding " + temp);
+       				List<String> newTemps = new LinkedList<String>();
+       				List<Boolean> changed = new LinkedList<Boolean>();
+       				for (String temp : temps) {
+       					String convertedTemp = ARGRET2Reg(temp, lastCallArgc);
+       					newTemps.add(convertedTemp);
+
+       					if (temp.equals(convertedTemp)) {
+       						changed.add(false);
+						}
+						else {
+       						changed.add(true);
 						}
 					}
+
+					// perform conversions for newTemps so that new memory locations
+					// are converted into temps
+					ListIterator<Boolean> changedIt = changed.listIterator();
+       				ListIterator<String> newTempsIt = newTemps.listIterator();
+
+       				statementIt.previous(); // move back by one so that cursor is before stmt
+       				while (newTempsIt.hasNext()) {
+       					String possiblyMemory = newTempsIt.next();
+       					boolean didChange = changedIt.next();
+
+       					if (didChange && possiblyMemory.charAt(0) == '[') {
+       						// the temp was replaced by a memory location.
+							// just to be safe, we should convert the code so
+							// that a temp can still be used
+							String freshTemp = "__FreshTemp_" + NumberGetter.uniqueNumber();
+
+							// possiblymemory is of form "[register+const]". we want the register and const...
+							possiblyMemory = possiblyMemory.substring(1, possiblyMemory.length()-1); // cut off []
+							String[] parts = possiblyMemory.split("/+");
+
+							if (!(parts.length == 1 || parts.length == 2)) {
+								throw new RuntimeException("Assumption failed!");
+							}
+
+							statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), AssemblyOperand.Mem(parts[0])));
+
+							newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have gone
+						}
+					}
+					statementIt.next(); // move past stmt again
+
+       				op.setTemps(newTemps);
        			}
        		}
+
+		   // establish the registerTable
+       		for (AssemblyStatement stmt : oneFuncStatements) {
+				for (AssemblyOperand op: stmt.operands) {
+					op.ResolveType();
+					for (String temp : op.getTemps()) {
+						if (!rTable.isInTable(temp)) {
+							rTable.add(temp);
+							System.out.println("Register Table Adding " + temp);
+						}
+					}
+				}
+			}
 
 //		   System.out.println("Function after first pass:");
 //       		for (AssemblyStatement statement : oneFuncStatements) {
