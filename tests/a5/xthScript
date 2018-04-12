@@ -2,6 +2,16 @@
 #build
 
 xic ("Test -target linux") "-libpath $(testpath) -target linux" {
+hazardvarname.xi;
+hazardfuncname.xi;
+hazardargname.xi;
+longargcall.xi;
+longargcalltemp.xi;
+longargcallmemsame.xi;
+longargcallmem.xi;
+longargcalltempsame.xi;
+longret.xi;
+
 arithmetic01.xi;
 arithmetic02.xi;
 arithmetic03.xi;
