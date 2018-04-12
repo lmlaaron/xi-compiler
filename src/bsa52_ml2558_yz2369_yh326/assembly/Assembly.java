@@ -380,7 +380,7 @@ public class Assembly {
 				// TODO: support more than three registers
 				LinkedList<String> availableRegisters = new LinkedList<>();
 				availableRegisters.add("rbx");
-				availableRegisters.add("rcx");
+				//availableRegisters.add("rcx");
 				availableRegisters.add("rdx");
 
 				LinkedList<AssemblyStatement> loadStatements = new LinkedList<AssemblyStatement>();

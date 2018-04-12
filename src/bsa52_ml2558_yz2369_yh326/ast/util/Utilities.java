@@ -78,6 +78,9 @@ public class Utilities {
             realRegisters.add("rsi");
             realRegisters.add("rdi");
 
+            realRegisters.add("rbp");
+            realRegisters.add("rsp");
+
             for (int i = 8; i <= 15; i++) {
                 realRegisters.add("r" + Integer.toString(i));
             }
