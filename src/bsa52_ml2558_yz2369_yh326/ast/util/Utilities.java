@@ -1,6 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.ast.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
@@ -59,5 +60,39 @@ public class Utilities {
             result += type.toShortString();
         }
         return result;
+    }
+
+    private static HashSet<String> realRegisters;
+    private static void initRealRegisters() {
+        if (realRegisters == null) {
+            realRegisters = new HashSet<>();
+
+            realRegisters.add("rax");
+            realRegisters.add("rbx");
+            realRegisters.add("rcx");
+            realRegisters.add("rdx");
+
+            realRegisters.add("rsx");
+            realRegisters.add("rbx");
+
+            realRegisters.add("rsi");
+            realRegisters.add("rdi");
+
+            realRegisters.add("rbp");
+            realRegisters.add("rsp");
+
+            for (int i = 8; i <= 15; i++) {
+                realRegisters.add("r" + Integer.toString(i));
+            }
+        }
+    }
+
+    public static boolean isRealRegister(String s) {
+        initRealRegisters();
+        return realRegisters.contains(s);
+    }
+
+    public static boolean isNumber(String s) {
+        return s.matches("-?\\d+");
     }
 }
