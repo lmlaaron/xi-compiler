@@ -403,7 +403,7 @@ public class Assembly {
 
 						// location in memory corresponding to this temp
 						int mem_index = rTable.MemIndex(temp);
-						String memLocation = "QWORD PTR [rbp - " + String.valueOf(8 * mem_index) + "]";
+						String memLocation = "QWORD PTR [rbp-" + String.valueOf(8 * mem_index) + "]";
 
 						// statements for storing this register before and saving it after
 						loadStatements.add(new AssemblyStatement("mov", allocatedRegister, memLocation));
@@ -417,15 +417,8 @@ public class Assembly {
 				concreteStatements.add(stmt);
 				concreteStatements.addAll(saveStatements);
 
-//				System.out.println("Adding statement: " + stmt);
-
 			}
 
-//		   System.out.println("Function after second pass:");
-//		   for (AssemblyStatement statement : oneFuncStatements) {
-//			   System.out.println(statement);
-//		   }
-//		   System.out.println();
    		
    		
        }
