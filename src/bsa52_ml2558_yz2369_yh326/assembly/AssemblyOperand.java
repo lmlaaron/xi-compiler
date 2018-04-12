@@ -37,6 +37,7 @@ public class AssemblyOperand {
      */
     protected boolean isMemOperand;
     protected ArrayList<String> memOperandParts;
+    protected boolean memOperandPlus;
 
     protected boolean memWrapped;
 
@@ -60,38 +61,55 @@ public class AssemblyOperand {
      * TODO: does this make MemWrapped() obsolete?
      *
      * @See isMemOperand
-     *
-     * We currently operate under the assumption that Mem operands don't need placeholders.
-     * Because this function will be used with big tiles, we can assume that will hold.
      */
-    public static AssemblyOperand Mem(String... parts) {
+    public static AssemblyOperand MemPlus(String... parts) {
         assert parts.length > 1 && parts.length <= 3;
 
-        StringBuilder repr = new StringBuilder();
-        repr.append('[');
-        repr.append(parts[0]);
-        if (parts.length > 1) {
-            repr.append(" + ");
-            repr.append(parts[1]);
-            if (parts.length > 2) {
-                repr.append('*');
-                repr.append(parts[2]);
-            }
-        }
-        repr.append(']');
-
-        AssemblyOperand ao = new AssemblyOperand(repr.toString());
-
-        ao.isMemOperand = true;
+        AssemblyOperand ao = new AssemblyOperand();
 
         ao.memOperandParts = new ArrayList<String>(parts.length);
         for (int i = 0; i < parts.length; i++)
             ao.memOperandParts.add(parts[i]);
 
+        ao.memOperandPlus = true;
+
+        ao.operand = ao.MemRepr();
+
+        ao.isMemOperand = true;
+
         ao.type = OperandType.MEM;
 
         return ao;
     }
+    public static AssemblyOperand MemMinus(String... parts) {
+        AssemblyOperand ao = AssemblyOperand.MemPlus(parts);
+        ao.memOperandPlus = false;
+
+        return ao;
+    }
+
+    protected String MemRepr() {
+        StringBuilder repr = new StringBuilder();
+
+        repr.append('[');
+        repr.append(memOperandParts.get(0));
+        if (memOperandParts.size() > 1) {
+            if (memOperandPlus)
+                repr.append(" + ");
+            else
+                repr.append(" - ");
+
+            repr.append(memOperandParts.get(1));
+            if (memOperandParts.size() > 2) {
+                repr.append('*');
+                repr.append(memOperandParts.get(2));
+            }
+        }
+        repr.append(']');
+
+        return repr.toString();
+    }
+
 
     public AssemblyOperand(String op) {
         this.operand = op;
@@ -120,8 +138,7 @@ public class AssemblyOperand {
             // } else if (this.operand.contains("[")){
             this.type = OperandType.MEM;
             // System.out.println(this.operand);
-        } else if (this.operand.contains("__FreshTemp_") || this.operand.contains("_temp_")
-                || this.operand.contains("_array_")) {
+        } else if (!Utilities.isRealRegister(this.operand) && !Utilities.isNumber(this.operand)) {
             this.type = OperandType.TEMP;
         }
         // this.type=OperandType.TEMP;
@@ -197,6 +214,12 @@ public class AssemblyOperand {
                 }
             }
 
+            //TODO: remove debug printing
+            StringBuilder sb = new StringBuilder();
+            for (String r : registers)
+                sb.append(r + " ");
+            System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " + sb.toString());
+
             return registers;
         }
         else if (type == OperandType.MEM) {
@@ -226,6 +249,8 @@ public class AssemblyOperand {
      */
     public void setTemps(List<String> registers) {
         if (isMemOperand) {
+            String repr = MemRepr();
+
             ListIterator<String> it = registers.listIterator();
 
             for (int i = 0; i < memOperandParts.size(); i++) {
@@ -234,6 +259,13 @@ public class AssemblyOperand {
                     memOperandParts.set(i, it.next());
                 }
             }
+            operand = MemRepr();
+
+            //TODO: remove debug printing
+            StringBuilder sb = new StringBuilder();
+            for (String r : registers)
+                sb.append(r + " ");
+            System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() + " and is now " + MemRepr());
 
             if (it.hasNext()) {
                 throw new RuntimeException("Error: more registers were provided than can be used!");

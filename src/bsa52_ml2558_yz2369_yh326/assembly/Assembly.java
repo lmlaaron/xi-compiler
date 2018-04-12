@@ -249,6 +249,23 @@ public class Assembly {
     public Assembly registerAlloc() {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
         List<List<AssemblyStatement>> ListFuncStatements = new LinkedList<>();
+
+        // collect all the label names, to prevent mistaking them for temps when
+		// they appear as arguments (as with conditional jumps, etc)
+        HashSet<String> labelNames = new HashSet<String>();
+        for (AssemblyStatement stmt : statements) {
+        	if (stmt.operation.endsWith(":")) {
+        		labelNames.add(stmt.operation.substring(0, stmt.operation.length()-1));
+			}
+		}
+
+		//TODO: REMOVE DEBUG MESSAGES
+		System.out.println("=== Label Names: ===");
+		for (String label : labelNames) {
+        	System.out.println(label);
+		}
+		System.out.println();
+
         
         // the register allocation/spilling is based on the unit of functions,
         //we assume the entire abstract assembly is seperated by function call labels
@@ -358,35 +375,61 @@ public class Assembly {
 
 							// possiblymemory is of form "[register+const]". we want the register and const...
 							possiblyMemory = possiblyMemory.substring(1, possiblyMemory.length()-1); // cut off []
-							String[] parts = possiblyMemory.split("/+");
+							String[] parts = possiblyMemory.split("\\+");
 
 							if (!(parts.length == 1 || parts.length == 2)) {
 								throw new RuntimeException("Assumption failed!");
 							}
 
-							statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), AssemblyOperand.Mem(parts[0])));
+							statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), AssemblyOperand.MemPlus(parts)));
 
 							newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have gone
 						}
 					}
 					statementIt.next(); // move past stmt again
 
-       				op.setTemps(newTemps);
+                    //TODO: remove try/catch
+					try {
+						if (newTemps.size() > 0)
+							op.setTemps(newTemps);
+					}
+					catch (IndexOutOfBoundsException e) {
+						System.out.println("error at operand '" + op.toString() + "' of statement '" + stmt.toString() + "'");
+						System.out.println("original temps: ");
+						for (String s : temps) System.out.println(s + " ");
+						System.out.println("new temps:");
+						for (String s : newTemps) System.out.println(s + " ");
+						System.exit(1);
+					}
        			}
        		}
 
+
 		   // establish the registerTable
-       		for (AssemblyStatement stmt : oneFuncStatements) {
-				for (AssemblyOperand op: stmt.operands) {
-					op.ResolveType();
-					for (String temp : op.getTemps()) {
-						if (!rTable.isInTable(temp)) {
-							rTable.add(temp);
-							System.out.println("Register Table Adding " + temp);
-						}
-					}
-				}
-			}
+		   for (AssemblyStatement stmt : oneFuncStatements) {
+			   for (AssemblyOperand op : stmt.operands) {
+				   op.ResolveType();
+
+				   for (String temp : op.getTemps()) {
+					   if (labelNames.contains(temp)) {
+						   continue; // it's a label, not a temp. // TODO we should have a better way of expressing this
+					   } else if (stmt.operation.equals("call")) {
+						   continue; // external function names won't necessarily be a label in this file
+					   }
+					   if (temp.equals("STACKSIZE")) {
+					   		continue;
+					   }
+
+					   if (!rTable.isInTable(temp)) {
+						   rTable.add(temp);
+						   System.out.println("Register Table Adding " + temp);
+					   }
+				   }
+			   }
+		   }
+
+
+
 
 //		   System.out.println("Function after first pass:");
 //       		for (AssemblyStatement statement : oneFuncStatements) {
@@ -424,48 +467,70 @@ public class Assembly {
        				//continue;
        			}
 
+
+
        			// if the initial counter is 0, the ith register will be spilled to [rbp - 8 * i]
 
 				// TODO: support more than three registers
 				LinkedList<String> availableRegisters = new LinkedList<>();
 				availableRegisters.add("rbx");
-				//availableRegisters.add("rcx");
+				//availableRegisters.add("rcx"); //TODO: Uncomment - it should work!
 				availableRegisters.add("rdx");
 
 				LinkedList<AssemblyStatement> loadStatements = new LinkedList<AssemblyStatement>();
 				LinkedList<AssemblyStatement> saveStatements = new LinkedList<AssemblyStatement>();
 
-				// REGISTER ALLOCATION FOR THIS STATEMENT
-           		for (int op_i = 0; op_i < stmt.operands.length; op_i++) {
-           			AssemblyOperand op = stmt.operands[op_i];
+				if (!stmt.operation.toLowerCase().equals("call")) {
+					// REGISTER ALLOCATION FOR THIS STATEMENT
+					for (int op_i = 0; op_i < stmt.operands.length; op_i++) {
+						AssemblyOperand op = stmt.operands[op_i];
 
-           			op.ResolveType(); // just in case it wasn't resolved
+						op.ResolveType(); // just in case it wasn't resolved
 
-					List<String> tempReplacements = new LinkedList<String>();
-					List<String> temps = op.getTemps();
-					for (String temp : temps) {
-						// allocate a physical register for temp
-						String allocatedRegister = availableRegisters.removeFirst();
+						List<String> tempReplacements = new LinkedList<String>();
+						List<String> temps = op.getTemps();
+						for (String temp : temps) {
+							if (labelNames.contains(temp)) {
+								tempReplacements.add(temp);
+								continue; // again, temp is actually a label and shouldn't be touched!
+							}
 
-						// replace temp with this register
-						tempReplacements.add(allocatedRegister);
+							//TODO: debug printing:
+							if (temp.contains("rsp")) {
+								System.out.println("======================================");
+								System.out.println("Operand: " + op);
+								System.out.println("Operand Type: " + op.type);
+								System.out.println();
+							}
 
-						// location in memory corresponding to this temp
-						int mem_index = rTable.MemIndex(temp);
-						String memLocation = "QWORD PTR [rbp-" + String.valueOf(8 * mem_index) + "]";
 
-						// statements for storing this register before and saving it after
-						loadStatements.add(new AssemblyStatement("mov", allocatedRegister, memLocation));
-						saveStatements.add(new AssemblyStatement("mov", memLocation, allocatedRegister));
+							// allocate a physical register for temp
+							String allocatedRegister = availableRegisters.removeFirst();
+
+							// replace temp with this register
+							tempReplacements.add(allocatedRegister);
+
+							// location in memory corresponding to this temp
+							int mem_index = rTable.MemIndex(temp);
+							String memLocation = "QWORD PTR [rbp-" + String.valueOf(8 * mem_index) + "]";
+
+							// statements for storing this register before and saving it after
+							loadStatements.add(new AssemblyStatement("mov", allocatedRegister, memLocation));
+							saveStatements.add(new AssemblyStatement("mov", memLocation, allocatedRegister));
+						}
+						if (tempReplacements.size() > 0)
+							op.setTemps(tempReplacements);
 					}
-					if (tempReplacements.size() > 0)
-						op.setTemps(tempReplacements);
+
+					// save all the generated statements
+					concreteStatements.addAll(loadStatements);
+					concreteStatements.add(stmt);
+					concreteStatements.addAll(saveStatements);
+				}
+				else {
+					concreteStatements.add(stmt);
 				}
 
-				// save all the generated statements
-				concreteStatements.addAll(loadStatements);
-				concreteStatements.add(stmt);
-				concreteStatements.addAll(saveStatements);
 
 			}
 
