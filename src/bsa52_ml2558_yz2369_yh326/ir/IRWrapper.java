@@ -5,9 +5,11 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
+import bsa52_ml2558_yz2369_yh326.util.TempRenamer;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.interpret.IRSimulator;
 
 /**
@@ -53,7 +55,7 @@ public class IRWrapper {
 
     private static List<IRFuncDecl> findFuncDecls(IRNode root) {
         IRFuncDeclFinder funcFinder = new IRFuncDeclFinder();
-        root.visitChildren(funcFinder);
+        funcFinder.visit(root);
         return funcFinder.getFuncDecls();
     }
 
@@ -69,6 +71,12 @@ public class IRWrapper {
      */
     public static IRNode IRGeneration(Node ast, String realInputFile, boolean optimization) throws Exception {
         IRNode irNode = ast.translateProgram();
+
+        // add special dollar symbol to ensure if the variable
+        // name has this suffix, it's as a result of this function,
+        // and not just an original part of the variable name
+        markTempNames(irNode, "_irtmp$");
+
         // System.out.println(irNode.toString());
         if (optimization) {
             irNode = Canonicalization.Folding(irNode);
@@ -81,4 +89,18 @@ public class IRWrapper {
         // System.out.println(irNode.toString());
         return irNode;
     }
+
+    /**
+     * This step is added to avoid variable names such as "rax"
+     * causing trouble at assembly level
+     *
+     * @param root the root of all IR code
+     * @param suffix the suffix to append to all temp names
+     */
+    public static void markTempNames(IRNode root, String suffix) {
+        TempRenamer renamer = new TempRenamer(suffix);
+        renamer.visit(root);
+    }
+
+
 }
