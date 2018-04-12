@@ -70,13 +70,14 @@ public class IRWrapper {
     public static IRNode IRGeneration(Node ast, String realInputFile, boolean optimization) throws Exception {
         IRNode irNode = ast.translateProgram();
         // System.out.println(irNode.toString());
+        if (optimization) {
+            irNode = Canonicalization.Folding(irNode);
+        }
         irNode = Canonicalization.Canonicalize(irNode);
         irNode = Canonicalization.Lift(irNode);
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
-        if (optimization) {
-        		irNode = Canonicalization.Folding(irNode);
-        }
+        
         // System.out.println(irNode.toString());
         return irNode;
     }

@@ -85,7 +85,7 @@ public class CallTile extends Tile {
         //}
         
         // move first 6 arguments in rdi, rsi, rdx, rcx, r8 and r9.
-        int operandNum = this.getSubtreeRoots().size()-1;
+        int operandNum = this.getSubtreeRoots().size();
         if (operandNum > 0) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdi"), new AssemblyOperand()));
         if (operandNum > 1) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rsi"), new AssemblyOperand()));
         if (operandNum > 2) statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdx"), new AssemblyOperand()));

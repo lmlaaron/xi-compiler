@@ -66,6 +66,10 @@ public class Subscript extends Expr {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         
         IRExpr var = (IRExpr) children.get(1).translate();
+        if (var instanceof IRESeq) {
+            stmts.add(((IRESeq) var).stmt());
+            var = ((IRESeq) var).expr();
+        }
         if (var instanceof IRConst || var instanceof IRTemp || var instanceof IRName) {}
         else {
             IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
@@ -74,6 +78,10 @@ public class Subscript extends Expr {
         }
         
         IRExpr index = (IRExpr) children.get(2).translate();
+        if (index instanceof IRESeq) {
+            stmts.add(((IRESeq) index).stmt());
+            index = ((IRESeq) index).expr();
+        }
         if (index instanceof IRConst || index instanceof IRTemp || index instanceof IRName) {}
         else {
             IRTemp indexTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());

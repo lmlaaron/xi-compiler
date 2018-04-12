@@ -27,16 +27,16 @@ public class MoveTile extends Tile {
             // mov des, temp
             // thus have to add source first then target
             if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
-            		subtreeRoots.add(move.source());
-            		subtreeRoots.add(move.target());
+                subtreeRoots.add(move.source());
+                subtreeRoots.add(move.target());
             } else {
-        		subtreeRoots.add(move.target());
-        		subtreeRoots.add(move.source());
+                subtreeRoots.add(move.target());
+                subtreeRoots.add(move.source());
             }
 
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -48,11 +48,11 @@ public class MoveTile extends Tile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
-        		String freshTemp = freshTemp();
-    			statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
-    			statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));       		
+            String freshTemp = freshTemp();
+            statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+            statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
         } else {
-        		statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand()));
+            statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand()));
         }
 
         return new Assembly(statements);

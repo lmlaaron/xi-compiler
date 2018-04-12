@@ -173,10 +173,8 @@ public class Canonicalization {
      * @throws IRNodeNotMatchException
      */
     static IRESeq CanonicalizeExpr(IRExpr input) throws IRNodeNotMatchException {
-        if (input instanceof IRConst) {
-            return new IRESeq(null, (IRExpr) input);
-        } else if (input instanceof IRTemp) {
-            return new IRESeq(null, (IRExpr) input);
+        if (input instanceof IRConst || input instanceof IRTemp || input instanceof IRName) {
+            return new IRESeq(null, input);
         } else if (input instanceof IRBinOp) {
             IRExpr left = ((IRBinOp) input).left();
             IRExpr right = ((IRBinOp) input).right();
@@ -201,32 +199,10 @@ public class Canonicalization {
             IRExpr e = es.expr();
             return new IRESeq(s, new IRMem(e));
         } else if (input instanceof IRCall) {
-            IRExpr target = ((IRCall) input).target();
-            List<IRExpr> e = ((IRCall) input).args();
-            String tempArrayName = "_temp_" + NumberGetter.uniqueNumber();
-            
-            List<IRStmt> rsl = new ArrayList<IRStmt>();
-            IRTemp t = new IRTemp(tempArrayName);
-            int count = 0;
-            List<IRExpr> tle = new ArrayList<IRExpr>();
-            for (IRExpr e1 : e) {
-                IRESeq ese1 = (IRESeq) Canonicalize(e1);
-                rsl.add(ese1.stmt());
-                e1 = ese1.expr();
-                if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
-                    tle.add(e1);
-                } else {
-                    IRTemp argTemp = new IRTemp(tempArrayName + "_" + Integer.toString(count));
-                    rsl.add(new IRMove(argTemp, e1));
-                    tle.add(argTemp);
-                }
-                count++;
-            }
-
-            rsl.add(new IRMove(t, new IRCall(target, tle)));
-            return new IRESeq(new IRSeq(rsl), t);
-        } else if (input instanceof IRName) {
-            return new IRESeq(null, input);
+            IRESeq call = CanonicalizeIRCall((IRCall) input);
+            IRTemp t = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+            ((IRSeq) call.stmt()).stmts().add(new IRMove(t, call.expr()));
+            return new IRESeq(call.stmt(), t);
         } else if (input instanceof IRESeq) {
             IRStmt s1 = CanonicalizeStmt(((IRESeq) input).stmt());
             IRESeq es = CanonicalizeExpr(((IRESeq) input).expr());
@@ -235,8 +211,28 @@ public class Canonicalization {
             return new IRESeq(IRSeqNoEmpty(s1, s2), e);
         } else {
             throw new IRNodeNotMatchException(input);
-            // return new IRESeq(null,input);
         }
+    }
+    
+    private static IRESeq CanonicalizeIRCall(IRCall input) throws IRNodeNotMatchException {
+        IRExpr target = ((IRCall) input).target();
+        List<IRExpr> e = ((IRCall) input).args();
+        
+        List<IRStmt> rsl = new ArrayList<IRStmt>();
+        List<IRExpr> tle = new ArrayList<IRExpr>();
+        for (IRExpr e1 : e) {
+            IRESeq ese1 = (IRESeq) Canonicalize(e1);
+            rsl.add(ese1.stmt());
+            e1 = ese1.expr();
+            if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+                tle.add(e1);
+            } else {
+                IRTemp argTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                rsl.add(new IRMove(argTemp, e1));
+                tle.add(argTemp);
+            }
+        }
+        return new IRESeq(new IRSeq(rsl), new IRCall(target, tle));
     }
 
     /**
@@ -247,32 +243,27 @@ public class Canonicalization {
      * @throws IRNodeNotMatchException
      */
     static IRSeq CanonicalizeStmt(IRStmt input) throws IRNodeNotMatchException {
-        if (input instanceof IRLabel) {
-            return new IRSeq(input);
-        } else if (input instanceof IRSeq) {
+        if (input instanceof IRSeq) {
             List<IRStmt> stmts = ((IRSeq) input).stmts();
-            if (stmts.isEmpty()) {
-                return ((IRSeq) input);
-            }
             List<IRStmt> results = new ArrayList<IRStmt>();
             for (IRStmt stmt : stmts) {
-                IRStmt newStmt = (IRStmt) CanonicalizeStmt(stmt);
-                if (newStmt != null) {
-                    results.add(newStmt);
-                }
+                results.add(CanonicalizeStmt(stmt));
             }
             return new IRSeq(results);
         } else if (input instanceof IRMove) {
-            // System.out.println(input.toString());
+            // target maybe IRESeq, IRTemp, IRMem. If IRESeq, first canonicalize
+            // it to get stmt and expr (which can only IRTemp or IRMem).
             IRExpr e1 = ((IRMove) input).target();
             IRExpr e2 = ((IRMove) input).source();
-            IRStmt s1 = null;
-            if (e1 instanceof IRESeq) {
-                s1 = CanonicalizeStmt(((IRESeq) e1).stmt());
-                e1 = ((IRESeq) e1).expr();
-            }
-            IRESeq es2 = (IRESeq) CanonicalizeExpr(e2);
-            IRStmt s2p = es2.stmt();
+            IRESeq e1cano = CanonicalizeExpr(e1);
+            IRStmt s1 = e1cano.stmt();
+            e1 = e1cano.expr();
+            
+            // If source if IRCall (which will be allocated with a new temp),
+            // remove that new temp since it's useless.
+            // TODO However, since there are bugs in assembly implementation, don't use it for now.
+            IRESeq es2 = /*e2 instanceof IRCall ? CanonicalizeIRCall((IRCall) e2) :*/ CanonicalizeExpr(e2);
+            IRSeq s2p = (IRSeq) es2.stmt();
             IRExpr e2p = es2.expr();
             if (e1 instanceof IRTemp) {
                 return (IRSeqNoEmpty(s1, s2p, new IRMove(e1, e2p)));
@@ -288,11 +279,10 @@ public class Canonicalization {
             }
         } else if (input instanceof IRExp) {
             IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
-            IRStmt s = es.stmt();
-            return new IRSeq(s);
+            return new IRSeq(es.stmt());
         } else if (input instanceof IRReturn) {
             List<IRExpr> e = ((IRReturn) input).rets();
-            List<IRStmt> sl = new ArrayList<IRStmt>();
+            /*List<IRStmt> sl = new ArrayList<IRStmt>();
             List<IRExpr> el = new ArrayList<IRExpr>();
             List<IRTemp> tl = new ArrayList<IRTemp>();
             int count = 0;
@@ -319,8 +309,21 @@ public class Canonicalization {
                     rsl.add(new IRMove(tl.get(count), el.get(count)));
                 }
                 count++;
+            }*/
+            List<IRStmt> rsl = new ArrayList<IRStmt>();
+            List<IRExpr> tle = new ArrayList<IRExpr>();
+            for (IRExpr e1 : e) {
+                IRESeq ese1 = (IRESeq) Canonicalize(e1);
+                rsl.add(ese1.stmt());
+                e1 = ese1.expr();
+                if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+                    tle.add(e1);
+                } else {
+                    IRTemp argTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                    rsl.add(new IRMove(argTemp, e1));
+                    tle.add(argTemp);
+                }
             }
-
             rsl.add(new IRReturn(tle));
             IRStmt s = new IRSeq(rsl);
             return new IRSeq(s);
@@ -348,7 +351,6 @@ public class Canonicalization {
             return IRSeqNoEmpty(s, new IRJump(e));
         } else {
             return new IRSeq(input);
-            // throw new IRNodeNotMatchException(new IRSeq(seq));
         }
     }
 
