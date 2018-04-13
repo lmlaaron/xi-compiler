@@ -21,6 +21,10 @@ public class IRTemp extends IRExpr_c {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String label() {
         return "TEMP(" + name + ")";

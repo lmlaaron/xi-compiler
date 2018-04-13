@@ -50,7 +50,8 @@ main(argv:int[][]) {
    g55r1:int,g55r2:int,g55r3:int,g55r4:int,g55r5:int=g55(1,1,1,1,1)
    printInts(g55r1, g55r2, g55r3, g55r4, g55r5) 
    g56r1:int,g56r2:int,g56r3:int,g56r4:int,g56r5:int=g56(1,1,1,1,1,1)
-   printInts(g56r1, g56r2, g56r3, g56r4, g56r5) 
+   printInts(g56r1, g56r2, g56r3, g56r4, g56r5)
+
    g57r1:int,g57r2:int,g57r3:int,g57r4:int,g57r5:int=g57(1,1,1,1,1,1,1)
    printInts(g57r1, g57r2, g57r3, g57r4, g57r5) 
    g58r1:int,g58r2:int,g58r3:int,g58r4:int,g58r5:int=g58(1,1,1,1,1,1,1,1)
