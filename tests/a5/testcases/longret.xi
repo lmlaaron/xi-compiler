@@ -25,6 +25,8 @@ g55(a1:int, a2: int, a3:int, a4:int, a5:int): int, int, int, int, int {return 1,
 g56(a1:int, a2: int, a3:int, a4:int, a5:int, a6:int): int, int, int, int, int {return 1, 2, 3, 4, 5}
 g57(a1:int, a2: int, a3:int, a4:int, a5:int, a6:int, a7:int): int, int, int, int, int {return 1, 2, 3, 4, 5}
 g58(a1:int, a2: int, a3:int, a4:int, a5:int, a6:int, a7:int, a8:int): int, int, int, int, int {return 1, 2, 3, 4, 5}
+g59(a1:int, a2: int, a3:int, a4:int, a5:int, a6:int, a7:int, a8:int, a9:int): int, int, int, int, int {return 1, 2, 3, 4, 5}
+g510(a1:int, a2: int, a3:int, a4:int, a5:int, a6:int, a7:int, a8:int, a9:int, a10:int): int, int, int, int, int {return 1, 2, 3, 4, 5}
 main(argv:int[][]) {
    g0()
    g1r1:int=g1()
@@ -53,4 +55,8 @@ main(argv:int[][]) {
    printInts(g57r1, g57r2, g57r3, g57r4, g57r5) 
    g58r1:int,g58r2:int,g58r3:int,g58r4:int,g58r5:int=g58(1,1,1,1,1,1,1,1)
    printInts(g58r1, g58r2, g58r3, g58r4, g58r5) 
+   g59r1:int,g59r2:int,g59r3:int,g59r4:int,g59r5:int=g59(1,1,1,1,1,1,1,1,1)
+   printInts(g59r1, g59r2, g59r3, g59r4, g59r5) 
+   g510r1:int,g510r2:int,g510r3:int,g510r4:int,g510r5:int=g510(1,1,1,1,1,1,1,1,1,1)
+   printInts(g510r1, g510r2, g510r3, g510r4, g510r5) 
 }

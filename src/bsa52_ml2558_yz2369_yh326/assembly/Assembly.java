@@ -216,7 +216,7 @@ public class Assembly {
    
     // translate _ARG0, _RET0 to register or stack location
     static public String ARGRET2Reg(String name, int argc) {
-    		//System.out.println(name);
+    		//System.out.print("ARGRET2Reg"+ name);
     		//System.out.println(name.substring(0,4));
     		//System.out.println("_ARG".length());
     		if ( name != null && name.length() >= "_ARG".length() && name.substring(0, 4).equals("_ARG")) {
@@ -228,16 +228,29 @@ public class Assembly {
     			case 3: return "rcx";
     			case 4: return "r8";
     			case 5: return "r9";
-    			default: return "[rbp+"+ String.valueOf((v-6+2)*8)+"]";		// rbp from callee point of view
+    			default:
     			}
+    			String ret= "QWORD PTR [rbp+"+ String.valueOf((v-6+2)*8)+"]";		// rbp from callee point of view		
+    			System.out.println("ARGRET2Reg"+ name+  ret);
+    			return ret;
+        	
     		} else if (name != null && name.length() >= "_RET".length() && name.substring(0,4).equals( "_RET")) {
     			int v = Integer.valueOf(name.substring(4));
     			switch (v) {
     			case 0: return "rax";
     			case 1: return "rdx";
-    			default: if ( argc > 6) return "QWORD PTR [rsp+"+String.valueOf(((v-2)+1+(argc-6))*8)+"]"; else return "[rsp+" +String.valueOf((v-2)*8)+ "]";
-    			// rsp from caller pointer of view
+    			default:
     			}
+    			if ( argc > 6) { 
+    				String ret ="QWORD PTR [rsp+"+String.valueOf(((v-2))*8)+"]"; 
+        			System.out.println("ARGRET2Reg"+ name+  ret + "argc :"+ String.valueOf(argc));
+        			return ret;
+    			} else {
+    				String ret = "QWORD PTR [rsp+" +String.valueOf((v-2)*8)+ "]";
+        			System.out.println("ARGRET2Reg"+ name+  ret);
+        			return ret;
+    			}
+    			// rsp from caller pointer of view
     		}
     		return name;
     }
@@ -367,7 +380,7 @@ public class Assembly {
        					String possiblyMemory = newTempsIt.next();
        					boolean didChange = changedIt.next();
 
-       					if (didChange && possiblyMemory.charAt(0) == '[') {
+       					/*if (didChange && possiblyMemory.charAt(0) == '[' ) {
        						// the temp was replaced by a memory location.
 							// just to be safe, we should convert the code so
 							// that a temp can still be used
@@ -384,7 +397,7 @@ public class Assembly {
 							statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), AssemblyOperand.MemPlus(parts)));
 
 							newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have gone
-						}
+						}*/
 					}
 					statementIt.next(); // move past stmt again
 
@@ -411,6 +424,9 @@ public class Assembly {
 				   op.ResolveType();
 
 				   for (String temp : op.getTemps()) {
+					   if (temp.contains("QWORD")) {
+						   continue;
+					   }
 					   if (labelNames.contains(temp)) {
 						   continue; // it's a label, not a temp. // TODO we should have a better way of expressing this
 					   } else if (stmt.operation.equals("call")) {
@@ -497,10 +513,16 @@ public class Assembly {
 
 							//TODO: debug printing:
 							if (temp.contains("rsp")) {
+								if ( temp.contains("QWORD")) {
+									continue;
+								}
 								System.out.println("======================================");
 								System.out.println("Operand: " + op);
 								System.out.println("Operand Type: " + op.type);
 								System.out.println();
+							}
+							if (temp.contains("rbp") &&  temp.contains("QWORD")) {
+								continue;
 							}
 
 
