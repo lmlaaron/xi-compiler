@@ -231,7 +231,7 @@ public class Assembly {
     			default:
     			}
     			String ret= "QWORD PTR [rbp+"+ String.valueOf((v-6+2)*8)+"]";		// rbp from callee point of view		
-    			System.out.println("ARGRET2Reg"+ name+  ret);
+    			//System.out.println("ARGRET2Reg"+ name+  ret);
     			return ret;
         	
     		} else if (name != null && name.length() >= "_RET".length() && name.substring(0,4).equals( "_RET")) {
@@ -243,11 +243,11 @@ public class Assembly {
     			}
     			if ( argc > 6) { 
     				String ret ="QWORD PTR [rsp+"+String.valueOf(((v-2))*8)+"]"; 
-        			System.out.println("ARGRET2Reg"+ name+  ret + "argc :"+ String.valueOf(argc));
+        			//System.out.println("ARGRET2Reg"+ name+  ret + "argc :"+ String.valueOf(argc));
         			return ret;
     			} else {
     				String ret = "QWORD PTR [rsp+" +String.valueOf((v-2)*8)+ "]";
-        			System.out.println("ARGRET2Reg"+ name+  ret);
+        			//System.out.println("ARGRET2Reg"+ name+  ret);
         			return ret;
     			}
     			// rsp from caller pointer of view
@@ -273,11 +273,11 @@ public class Assembly {
 		}
 
 		//TODO: REMOVE DEBUG MESSAGES
-		System.out.println("=== Label Names: ===");
+		//System.out.println("=== Label Names: ===");
 		for (String label : labelNames) {
-        	System.out.println(label);
+        //	System.out.println(label);
 		}
-		System.out.println();
+		//System.out.println();
 
         
         // the register allocation/spilling is based on the unit of functions,
@@ -438,7 +438,7 @@ public class Assembly {
 
 					   if (!rTable.isInTable(temp)) {
 						   rTable.add(temp);
-						   System.out.println("Register Table Adding " + temp);
+						   //System.out.println("Register Table Adding " + temp);
 					   }
 				   }
 			   }
@@ -516,10 +516,10 @@ public class Assembly {
 								if ( temp.contains("QWORD")) {
 									continue;
 								}
-								System.out.println("======================================");
-								System.out.println("Operand: " + op);
-								System.out.println("Operand Type: " + op.type);
-								System.out.println();
+								//System.out.println("======================================");
+								//System.out.println("Operand: " + op);
+								//System.out.println("Operand Type: " + op.type);
+								//System.out.println();
 							}
 							if (temp.contains("rbp") &&  temp.contains("QWORD")) {
 								continue;

@@ -218,7 +218,7 @@ public class AssemblyOperand {
             StringBuilder sb = new StringBuilder();
             for (String r : registers)
                 sb.append(r + " ");
-            System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " + sb.toString());
+            //System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " + sb.toString());
 
             return registers;
         }
@@ -265,7 +265,7 @@ public class AssemblyOperand {
             StringBuilder sb = new StringBuilder();
             for (String r : registers)
                 sb.append(r + " ");
-            System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() + " and is now " + MemRepr());
+           // System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() + " and is now " + MemRepr());
 
             if (it.hasNext()) {
                 throw new RuntimeException("Error: more registers were provided than can be used!");
