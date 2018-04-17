@@ -66,8 +66,50 @@ public class AssemblyWrapper {
 
         functions = systemVEnforce(functions, lastCallArgCounts);
 
-        assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames);
+        List<RegisterTable> registerTables = getRegisterTables(functions, labelNames);
+
+        assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames, registerTables);
         return assm;
+    }
+
+    public static List<RegisterTable> getRegisterTables(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
+        List<RegisterTable> ret = new ArrayList<>(functions.size());
+
+        // establish the registerTable
+        for (List<AssemblyStatement> function : functions) {
+            RegisterTable rTable = new RegisterTable();
+            rTable.SetCounter(0);
+
+            for (AssemblyStatement stmt : function) {
+                for (AssemblyOperand op : stmt.operands) {
+                    op.ResolveType();
+
+                    for (String temp : op.getTemps()) {
+                        if (temp.contains("QWORD")) {
+                            continue;
+                        }
+                        if (labelNames.contains(temp)) {
+                            continue; // it's a label, not a temp. // TODO we should have a better way of expressing
+                            // this
+                        } else if (stmt.operation.equals("call")) {
+                            continue; // external function names won't necessarily be a label in this file
+                        }
+                        if (temp.equals("STACKSIZE")) {
+                            continue;
+                        }
+
+                        if (!rTable.isInTable(temp)) {
+                            rTable.add(temp);
+                            // System.out.println("Register Table Adding " + temp);
+                        }
+                    }
+                }
+            }
+
+            ret.add(rTable);
+        }
+
+        return ret;
     }
 
     public static List<List<AssemblyStatement>> systemVEnforce(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs) {
@@ -198,7 +240,7 @@ public class AssemblyWrapper {
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs, List<Integer> maxStackSizes, HashSet<String> labelNames) {
+    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs, List<Integer> maxStackSizes, HashSet<String> labelNames, List<RegisterTable> rTables) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
 
         int func_i = 0;
@@ -207,13 +249,6 @@ public class AssemblyWrapper {
             // System.out.println("Func Label : " + oneFuncStatements.get(0));
 
             int thisFuncArgSize = 0;
-            // two-pass process
-            // PASS 1: establish RegisterTable
-            // PASS 2: replace register with respective stack location
-
-            RegisterTable rTable = new RegisterTable();
-            rTable.SetCounter(0); // set the counter which decides the position of the first spilled location on
-            // the stack
 
 
             ListIterator<AssemblyStatement> statementIt = function.listIterator();
@@ -228,107 +263,11 @@ public class AssemblyWrapper {
                     thisFuncArgSize = getArgSize(stmt.operation);
                 }
 
-                // Per IR specification, replace _ARG0, _RET0 etc with respective register
-                // MARK 4
-                for (AssemblyOperand op : stmt.operands) {
-                    op.ResolveType();
 
-                    List<String> temps = op.getTemps();
-
-                    List<String> newTemps = new LinkedList<String>();
-//                    List<Boolean> changed = new LinkedList<Boolean>();
-                    for (String temp : temps) {
-                        String convertedTemp = ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
-                        newTemps.add(convertedTemp);
-
-//                        if (temp.equals(convertedTemp)) {
-//                            changed.add(false);
-//                        } else {
-//                            changed.add(true);
-//                        }
-                    }
-
-//                    // perform conversions for newTemps so that new memory locations
-//                    // are converted into temps
-//                    ListIterator<Boolean> changedIt = changed.listIterator();
-//                    ListIterator<String> newTempsIt = newTemps.listIterator();
-
-//                    statementIt.previous(); // move back by one so that cursor is before stmt
-//                    while (newTempsIt.hasNext()) {
-//                        String possiblyMemory = newTempsIt.next();
-//                        boolean didChange = changedIt.next();
-//
-//                        /*
-//                         * if (didChange && possiblyMemory.charAt(0) == '[' ) { // the temp was replaced
-//                         * by a memory location. // just to be safe, we should convert the code so //
-//                         * that a temp can still be used String freshTemp = "__FreshTemp_" +
-//                         * NumberGetter.uniqueNumber();
-//                         *
-//                         * // possiblymemory is of form "[register+const]". we want the register and
-//                         * const... possiblyMemory = possiblyMemory.substring(1,
-//                         * possiblyMemory.length()-1); // cut off [] String[] parts =
-//                         * possiblyMemory.split("\\+");
-//                         *
-//                         * if (!(parts.length == 1 || parts.length == 2)) { throw new
-//                         * RuntimeException("Assumption failed!"); }
-//                         *
-//                         * statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp),
-//                         * AssemblyOperand.MemPlus(parts)));
-//                         *
-//                         * newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have
-//                         * gone }
-//                         */
-//                    }
-//                    statementIt.next(); // move past stmt again
-
-                    // TODO: remove try/catch
-//                    try {
-                    if (newTemps.size() > 0)
-                        op.setTemps(newTemps);
-//                    } catch (IndexOutOfBoundsException e) {
-//                        System.out.println(
-//                                "error at operand '" + op.toString() + "' of statement '" + stmt.toString() + "'");
-//                        System.out.println("original temps: ");
-//                        for (String s : temps)
-//                            System.out.println(s + " ");
-//                        System.out.println("new temps:");
-//                        for (String s : newTemps)
-//                            System.out.println(s + " ");
-//                        System.exit(1);
-//                    }
-                }
                 stmt_i++;
             }
 
-            // establish the registerTable
-            // MARK 5
-            stmt_i = 0;
-            for (AssemblyStatement stmt : function) {
-                for (AssemblyOperand op : stmt.operands) {
-                    op.ResolveType();
 
-                    for (String temp : op.getTemps()) {
-                        if (temp.contains("QWORD")) {
-                            continue;
-                        }
-                        if (labelNames.contains(temp)) {
-                            continue; // it's a label, not a temp. // TODO we should have a better way of expressing
-                            // this
-                        } else if (stmt.operation.equals("call")) {
-                            continue; // external function names won't necessarily be a label in this file
-                        }
-                        if (temp.equals("STACKSIZE")) {
-                            continue;
-                        }
-
-                        if (!rTable.isInTable(temp)) {
-                            rTable.add(temp);
-                            // System.out.println("Register Table Adding " + temp);
-                        }
-                    }
-                }
-                stmt_i++;
-            }
 
             // System.out.println("Function after first pass:");
             // for (AssemblyStatement statement : oneFuncStatements) {
@@ -345,7 +284,7 @@ public class AssemblyWrapper {
                         && stmt.operands[1].value().equals("STACKSIZE")) {
                     // System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
                     // calculate the size (pad if not 16byte aligned)
-                    int stacksize = rTable.size() + maxStackSizes.get(func_i);
+                    int stacksize = rTables.get(func_i).size() + maxStackSizes.get(func_i);
                     if (stacksize % 2 != 0) {
                         stacksize++;
                     }
@@ -423,7 +362,7 @@ public class AssemblyWrapper {
                             tempReplacements.add(allocatedRegister);
 
                             // location in memory corresponding to this temp
-                            int mem_index = rTable.MemIndex(temp);
+                            int mem_index = rTables.get(func_i).MemIndex(temp);
                             String memLocation = "QWORD PTR [rbp-" + String.valueOf(8 * mem_index) + "]";
 
                             // statements for storing this register before and saving it after
