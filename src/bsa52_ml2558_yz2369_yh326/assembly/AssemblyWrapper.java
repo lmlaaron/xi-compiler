@@ -60,12 +60,47 @@ public class AssemblyWrapper {
     public static Assembly processAbstractAssm(Assembly assm) {
         HashSet<String> labelNames = collectLabels(assm);
         List<List<AssemblyStatement>> functions = partitionFunctions(assm);
+
         List<List<Integer>> lastCallArgCounts = getLastCallArgCounts(functions);
         List<Integer> maxStackSizes = getMaxStackSizes(functions);
+
+        functions = systemVEnforce(functions, lastCallArgCounts);
+
         assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames);
         return assm;
     }
 
+    public static List<List<AssemblyStatement>> systemVEnforce(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs) {
+        int func_i = 0;
+        for (List<AssemblyStatement> function : functions) {
+            int stmt_i = 0;
+            for (AssemblyStatement stmt : function) {
+                for (AssemblyOperand op : stmt.operands) {
+                    op.ResolveType();
+
+                    List<String> temps = op.getTemps();
+
+                    List<String> newTemps = new LinkedList<String>();
+                    for (String temp : temps) {
+                        String convertedTemp = ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
+                        newTemps.add(convertedTemp);
+                    }
+
+                    if (newTemps.size() > 0)
+                        op.setTemps(newTemps);
+                }
+
+                stmt_i++;
+            }
+
+            func_i++;
+        }
+
+        return functions;
+    }
+
+    // TODO: there's a lot of shared code between this and getLastCallArgCounts...
+    //       is there any way to consolidate?
     public static List<Integer> getMaxStackSizes(List<List<AssemblyStatement>> functions) {
         List<Integer> ret = new ArrayList<>(functions.size());
 
@@ -97,18 +132,14 @@ public class AssemblyWrapper {
         for (List<AssemblyStatement> function : functions) {
             List<Integer> lastCallArgCount = new ArrayList<>(function.size());
 
-            int retSize = 0;
             int argSize = 0;
-            int maxSize = 0;
 
             int lastCallArgc = 0;
 
             for (AssemblyStatement stmt : function) {
                 // calculate the stacksize
                 if (stmt.operation == "call") {
-                    retSize = getRetSize(stmt.operands[0].value());
                     argSize = getArgSize(stmt.operands[0].value());
-                    maxSize = Math.max(retSize+argSize, maxSize);
 
                     lastCallArgc = argSize;
                 }
@@ -205,66 +236,66 @@ public class AssemblyWrapper {
                     List<String> temps = op.getTemps();
 
                     List<String> newTemps = new LinkedList<String>();
-                    List<Boolean> changed = new LinkedList<Boolean>();
+//                    List<Boolean> changed = new LinkedList<Boolean>();
                     for (String temp : temps) {
                         String convertedTemp = ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
                         newTemps.add(convertedTemp);
 
-                        if (temp.equals(convertedTemp)) {
-                            changed.add(false);
-                        } else {
-                            changed.add(true);
-                        }
+//                        if (temp.equals(convertedTemp)) {
+//                            changed.add(false);
+//                        } else {
+//                            changed.add(true);
+//                        }
                     }
 
-                    // perform conversions for newTemps so that new memory locations
-                    // are converted into temps
-                    ListIterator<Boolean> changedIt = changed.listIterator();
-                    ListIterator<String> newTempsIt = newTemps.listIterator();
+//                    // perform conversions for newTemps so that new memory locations
+//                    // are converted into temps
+//                    ListIterator<Boolean> changedIt = changed.listIterator();
+//                    ListIterator<String> newTempsIt = newTemps.listIterator();
 
-                    statementIt.previous(); // move back by one so that cursor is before stmt
-                    while (newTempsIt.hasNext()) {
-                        String possiblyMemory = newTempsIt.next();
-                        boolean didChange = changedIt.next();
-
-                        /*
-                         * if (didChange && possiblyMemory.charAt(0) == '[' ) { // the temp was replaced
-                         * by a memory location. // just to be safe, we should convert the code so //
-                         * that a temp can still be used String freshTemp = "__FreshTemp_" +
-                         * NumberGetter.uniqueNumber();
-                         *
-                         * // possiblymemory is of form "[register+const]". we want the register and
-                         * const... possiblyMemory = possiblyMemory.substring(1,
-                         * possiblyMemory.length()-1); // cut off [] String[] parts =
-                         * possiblyMemory.split("\\+");
-                         *
-                         * if (!(parts.length == 1 || parts.length == 2)) { throw new
-                         * RuntimeException("Assumption failed!"); }
-                         *
-                         * statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp),
-                         * AssemblyOperand.MemPlus(parts)));
-                         *
-                         * newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have
-                         * gone }
-                         */
-                    }
-                    statementIt.next(); // move past stmt again
+//                    statementIt.previous(); // move back by one so that cursor is before stmt
+//                    while (newTempsIt.hasNext()) {
+//                        String possiblyMemory = newTempsIt.next();
+//                        boolean didChange = changedIt.next();
+//
+//                        /*
+//                         * if (didChange && possiblyMemory.charAt(0) == '[' ) { // the temp was replaced
+//                         * by a memory location. // just to be safe, we should convert the code so //
+//                         * that a temp can still be used String freshTemp = "__FreshTemp_" +
+//                         * NumberGetter.uniqueNumber();
+//                         *
+//                         * // possiblymemory is of form "[register+const]". we want the register and
+//                         * const... possiblyMemory = possiblyMemory.substring(1,
+//                         * possiblyMemory.length()-1); // cut off [] String[] parts =
+//                         * possiblyMemory.split("\\+");
+//                         *
+//                         * if (!(parts.length == 1 || parts.length == 2)) { throw new
+//                         * RuntimeException("Assumption failed!"); }
+//                         *
+//                         * statementIt.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp),
+//                         * AssemblyOperand.MemPlus(parts)));
+//                         *
+//                         * newTempsIt.set(freshTemp); // use freshTemp where possiblyMemory would have
+//                         * gone }
+//                         */
+//                    }
+//                    statementIt.next(); // move past stmt again
 
                     // TODO: remove try/catch
-                    try {
-                        if (newTemps.size() > 0)
-                            op.setTemps(newTemps);
-                    } catch (IndexOutOfBoundsException e) {
-                        System.out.println(
-                                "error at operand '" + op.toString() + "' of statement '" + stmt.toString() + "'");
-                        System.out.println("original temps: ");
-                        for (String s : temps)
-                            System.out.println(s + " ");
-                        System.out.println("new temps:");
-                        for (String s : newTemps)
-                            System.out.println(s + " ");
-                        System.exit(1);
-                    }
+//                    try {
+                    if (newTemps.size() > 0)
+                        op.setTemps(newTemps);
+//                    } catch (IndexOutOfBoundsException e) {
+//                        System.out.println(
+//                                "error at operand '" + op.toString() + "' of statement '" + stmt.toString() + "'");
+//                        System.out.println("original temps: ");
+//                        for (String s : temps)
+//                            System.out.println(s + " ");
+//                        System.out.println("new temps:");
+//                        for (String s : newTemps)
+//                            System.out.println(s + " ");
+//                        System.exit(1);
+//                    }
                 }
                 stmt_i++;
             }
