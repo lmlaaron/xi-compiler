@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.exception.LexingException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
@@ -18,190 +19,163 @@ import bsa52_ml2558_yz2369_yh326.parse.ParserWrapper;
 import bsa52_ml2558_yz2369_yh326.tiling.MaxMunch;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import bsa52_ml2558_yz2369_yh326.typecheck.TypecheckerWrapper;
-import bsa52_ml2558_yz2369_yh326.util.Flags;
+import bsa52_ml2558_yz2369_yh326.util.Settings;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class Main {
+    
+    public static void Usage() {
+        String usage = "Usage: xic [options] <source files>\n";
+        usage += "  --help           Print this synopsis.\n";
+        usage += "  --report-opts    Output a list of optimizations supported by the compiler.\n";
+        usage += "  --lex            Generate output from lexical analysis.\n";
+        usage += "  --parse          Generate output from syntatical analysis.\n";
+        usage += "  --typecheck      Generate output from semantic analysis.\n";
+        usage += "  --irgen          Generate output from intermediate code generation.\n";
+        usage += "  --irrun          Interpret generated intermediate code (optional).\n";
+        usage += "  --optir <phase>  Report the intermediate code at the specified phase of optimization.\n";
+        usage += "  --optcfg <phase> Report the control-flow graph at the specified phase of optimization.\n";
+        usage += "  -sourcepath <path> Specify where to find input source files.\n";
+        usage += "  -libpath <path>  Specify where to find library interface files.\n";
+        usage += "  -D <path>        Specify where to place generated diagnostic files.\n";
+        usage += "  -d <path>        Specify where to place generated assembly output files.\n";
+        usage += "  -target <OS>     Specify the operating system for which to generate code.\n";
+        usage += "  -O<opt>          Enable optimization <opt>.\n";
+        usage += "  -O               Disable all optimizations.\n";
+        usage += "  -O-no-<opt>      Disable only optimization <opt>.\n";
+        
+        usage += "\nOptions for internal usage:\n";
+        usage += "  --irlow          Print canonical ir code representation.\n";
+        usage += "  --abstract       Generate abstract assembly .aasm file.\n";
+        usage += "  --disasmgen      Generate acutal assembly by transforming abtract assembly.\n";
+        usage += "  --comment        Add comments to generated assembly.\n";
+        System.out.println(usage);
+    }
+    
+    public static void Support() {
+        System.out.println("cf");
+    }
+    
+    public static void HandleArgv(String[] argv) {
+        // Processing other options
+        for (int i = 0; i < argv.length; i++) {
+            if (argv[i].equals("-O")) {
+                Settings.optimization = false;
+            } else if (argv[i].startsWith("-O-no-")) {
+                Settings.noOpts.add(argv[i].substring(6));
+            } else if (argv[i].startsWith("-O")) {
+                Settings.noOpts.add(argv[i].substring(2));
+            } else if (argv[i].startsWith("--")) {
+                if (argv[i].equals("--help")) {
+                    Usage();
+                } else if (argv[i].equals("--report-opts")) {
+                    Support();
+                } else if (argv[i].equals("--lex")) {
+                    Settings.lex = true;
+                } else if (argv[i].equals("--parse")) {
+                    Settings.parse = true;
+                } else if (argv[i].equals("--typecheck")) {
+                    Settings.typeCheck = true;
+                } else if (argv[i].equals("--irgen")) {
+                    Settings.irgen = true;
+                } else if (argv[i].equals("--irrun")) {
+                    Settings.irrun = true;
+                } else if (argv[i].equals("--optir")) {
+                    i++;
+                    Settings.optIRList.add(argv[i]);
+                } else if (argv[i].equals("--optcfg")) {
+                    i++;
+                    Settings.optCFGList.add(argv[i]);
+                } else if (argv[i].equals("--abstract")) {
+                    Settings.genAbstract = true;
+                } else if (argv[i].equals("--disasmgen")) {
+                    Settings.disAsmGen = true;
+                } else if (argv[i].equals("--comment")) {
+                    Settings.asmComments = true;
+                } else {
+                    System.out.println("Unrecognized option \"" + argv[i] + "\". Ignoring.");
+                }
+            } else if (argv[i].startsWith("-")) {
+                if (argv[i].equals("-sourcepath")) {
+                    Settings.inputSourcePath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
+                } else if (argv[i].equals("-libpath")) {
+                    Settings.libPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
+                } else if (argv[i].equals("-D")) {
+                    Settings.outputPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
+                } else if (argv[i].equals("-d")) {
+                    Settings.assemblyOutputPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
+                } else if (argv[i].equals("-target")) {
+                    if (!argv[i + 1].equals("linux"))
+                        System.out.println("Unsupported target OS. Using \"linux\"");
+                } else {
+                    System.out.println("Unrecognized option \"" + argv[i] + "\". Ignoring.");
+                    i--; // Cancel the i++ below
+                }
+                i++;
+            } else if (argv[i].endsWith(".ixi")) {
+                Settings.ixiList.add(argv[i].substring(0, argv[i].length() - 4));
+            } else if (argv[i].endsWith(".xi")) {
+                Settings.xiList.add(argv[i].substring(0, argv[i].length() - 3));
+            } else {
+                System.out.println("Unrecognized file \"" + argv[i] + "\". Ignoring.");
+            }
+        }
+    }
 
     public static void main(String[] argv) {
-        // Note: all ".replace('\\', '/')" is to support Windows 10 path convention.
-        ArrayList<String> argvArray = new ArrayList<String>(Arrays.asList(argv));
+        HandleArgv(argv);
 
-        // Source, output, library file location (relative pwd by default)
-        String inputSourcePath = ".";
-        String outputPath = ".";
-        String libPath = ".";
-        String assemblyOutputPath = ".";
-        String targetOS = "linux";
-        boolean optimization = true;
-
-        // Detect options
-        if (argvArray.contains("--help")) {
-            System.out.println("option --help to show this synopsis.");
-            System.out.println("option --lex to show the result from lexical analysis.");
-            System.out.println("option --parse to show the result from syntatical analysis.");
-            System.out.println("option --typecheck to show the result from type checking.");
-            System.out.println("option --irgen to show lowered ir code representation.");
-            System.out.println("option --irlow (intended for internal use) to show canonical ir code representation.");
-            System.out.println("option --asmgen (interal usage) generate acutal assembly by transforming abtract assembly");
-            System.out.println("option --abstract (internal usage) generate abstract assembly .aasm file");
-            System.out.println("option --irrun to simulate running translated IR code.");
-            System.out.println("option -sourcepath <path> to specify where to find input source files.");
-            System.out.println("option -libpath <path> to specify where to find library interface files.");
-            System.out.println("option -D <path> to specify where to place generated diagnostic files.");
-            System.out.println("option -d <path> to specify where to place generated assembly output files.");
-            System.out.println("option -O to diable optimizations.");
-            System.out.println("option -target <OS> to specify the operating system for which to generate code.");
-            System.out.println("option --comment to add comments to generated assembly");
-        }
-
-        if (argvArray.contains("--comment"))
-            Flags.asmComments = true;
-        if (argvArray.contains("--abstract"))
-            Flags.genAbstract = true;
-
-        // Processing other options
-        try {
-            if (argvArray.contains("-sourcepath")) {
-                inputSourcePath = argv[argvArray.indexOf("-sourcepath") + 1].replace('\\', '/');
-            }
-            if (argvArray.contains("-D")) {
-                outputPath = argv[argvArray.indexOf("-D") + 1].replace('\\', '/');
-            }
-            if (argvArray.contains("-d")) {
-                assemblyOutputPath = argv[argvArray.indexOf("-d") + 1].replace('\\', '/');
-            }
-            if (argvArray.contains("-libpath")) {
-                libPath = argv[argvArray.indexOf("-libpath") + 1].replace('\\', '/');
-            }
-            if (argvArray.contains("-O")) {
-                optimization = false;
-            }
-            if (argvArray.contains("-target")) {
-                targetOS = argv[argvArray.indexOf("-target") + 1];
-                if (!targetOS.equals("linux")) {
-                    System.out.println("Unsupported target OS.");
-                    System.exit(1);
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("input format incorrect");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        // Convert to absolute path
-        inputSourcePath = Paths.get(inputSourcePath).toAbsolutePath().toString();
-        outputPath = Paths.get(outputPath).toAbsolutePath().toString();
-        libPath = Paths.get(libPath).toAbsolutePath().toString();
-
-        // Add all source files (.xi or .ixi file)
-        ArrayList<String> sourceFiles = new ArrayList<String>();
-        for (int i = 0; i < argv.length; i++) {
-            if (argv[i].indexOf(".xi") != -1 || argv[i].indexOf(".ixi") != -1) {
-                sourceFiles.add(argv[i].replace('\\', '/')); // to support operations in Windows 10
-            }
-        }
-
-        // For each file, diagnose.
-        for (String sourceFile : sourceFiles) {
-            // Get real source path and output path. For example, if
-            // inputSourcePath is "./a/b" and sourceFile is "c/d.xi", then
-            // the real source path is "./a/b/c". Same for real output path.
-            String realInputFile = realPath(inputSourcePath, sourceFile);
-            String realOutputDir = realPath(outputPath, sourceFile);
-            realOutputDir = realOutputDir.substring(0, realOutputDir.lastIndexOf("/"));
-            String extension = sourceFile.substring(sourceFile.lastIndexOf(".") + 1);
-            String fileName = sourceFile.substring(sourceFile.lastIndexOf("/") + 1, sourceFile.lastIndexOf("."));
-            String realOutputFile = Paths.get(realOutputDir, fileName).toString();
-
+        // For each interface file, diagnose.
+        for (String file : Settings.ixiList) {
+            String inputFile = realPath(Settings.inputSourcePath, file) + ".ixi";
+            String outputFile = realPath(Settings.outputPath, file);
+            
             try {
-                // ====== LEXING ======
-                lexer xiLexer = LexerWrapper.Lexing(realInputFile);
-                if (argvArray.contains("--lex")) {
-                    LexerWrapper.WriteLexingResult(xiLexer, realOutputFile + ".lexed");
-                }
-
-                // ====== PARSING ======
-                Node ast = ParserWrapper.Parsing(xiLexer, realInputFile, extension);
-                ast.fileName = fileName;
-                String outExtension = extension.equals("xi") ? ".parsed" : ".iparsed";
-                if (argvArray.contains("--parse")) {
-                    ParserWrapper.WriteParsingResult(ast, realOutputFile + outExtension);
-                }
-                if (!extension.equals("xi"))
-                    continue;
-
-                // ====== TYPE-CHECKING ======
-                ast = TypecheckerWrapper.Typechecking(ast, realInputFile, libPath);
-                if (argvArray.contains("--typecheck")) {
-                    TypecheckerWrapper.WriteTypecheckingResult(realOutputFile + ".typed");
-                }
-
-                // ====== IR GENERATION ======
-                IRNode irNode = IRWrapper.IRGeneration(ast, realInputFile, optimization);
-                if (argvArray.contains("--irgen")) {
-                    IRWrapper.WriteIRResult(irNode, realOutputFile + ".ir");
-                }
-                if (argvArray.contains("--irrun")) {
-                    IRWrapper.IRRun(irNode);
-                }
-
-                String realAssemblyOutputDir = realPath(assemblyOutputPath, sourceFile);
-                realAssemblyOutputDir = realAssemblyOutputDir.substring(0, realAssemblyOutputDir.lastIndexOf("/"));
-                String realAssemblyOutputFile = Paths.get(realAssemblyOutputDir, fileName).toString();
-
-                // ======= ASSEMBLY GENERATION ======= 
-                Tile rootTile = MaxMunch.munch(irNode);
-                Assembly assm = rootTile.generateAssembly();
-
-                if (Flags.genAbstract) { // write abstract assembly
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(new File(realAssemblyOutputFile + ".aasm")));
-                    writer.write(assm.toString());
-                    writer.close();
-                }
-                // ======= ACTUAL ASSEMBLY GENERATION BY SPILLING REGISTER ===
-
-                if (!argvArray.contains("--disasmgen")) { // TODO: document option?
-                    assm = assm.registerAlloc();
-                }
-                // ======= END ACTUAL ASSEMBLY GENERATION ==========
-                if (assm.incomplete()) {
-                    System.out.println("Incomplete assembly code!:");
-                    System.out.println(assm.toString());
-                } else {
-                    // write assembly to file
-                    File assmF = null;
-                    if (argvArray.contains("--disasmgen")) {
-                        assmF = new File(realAssemblyOutputFile + ".ra.s");
-                    } else {
-                        assmF = new File(realAssemblyOutputFile + ".s");
-                    }
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(assmF));
-                    writer.write(".intel_syntax noprefix " + "\n");
-                    // intel syntax annotation
-                    writer.write(assm.toString());
-                    writer.close();
-                }
-
+                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
+                ParserWrapper.Parsing(xiLexer, inputFile, outputFile, ".iparsed");
             } catch (LexingException | ParsingException e) {
-                e.print(fileName);
-                if (argvArray.contains("--parse")) {
-                    String outExtension = extension.equals("xi") ? ".parsed" : ".iparsed";
-                    WriteException(realOutputFile + outExtension, e);
-                } else if (argvArray.contains("--typecheck")) {
-                    WriteException(realOutputFile + ".typed", e);
+                e.print(file + ".ixi");
+                if (Settings.parse)
+                    WriteException(outputFile + ".iparsed", e);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // Foe each xi file, diagnose.
+        for (String file : Settings.xiList) {
+            String inputFile = realPath(Settings.inputSourcePath, file) + ".xi";
+            String outputFile = realPath(Settings.outputPath, file);
+            String assmOutputFile = realPath(Settings.assemblyOutputPath, file);
+            
+            // Lexing, parsing, type checking, IR generation
+            try {
+                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
+                Node ast = ParserWrapper.Parsing(xiLexer, inputFile, outputFile, ".parsed");
+                ast.fileName = file + ".xi";
+                ast = TypecheckerWrapper.Typechecking(ast, outputFile);
+                IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
+                if (Settings.irrun)
+                    IRWrapper.IRRun(irNode);
+                Tile rootTile = MaxMunch.munch(irNode);
+                /*Assembly assm = */AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
+            } catch (LexingException | ParsingException e) {
+                e.print(file + ".xi");
+                if (Settings.typeCheck) {
+                    WriteException(outputFile + ".typed", e);
+                } else if (Settings.parse) {
+                    WriteException(outputFile + ".parsed", e);
                 }
             } catch (TypecheckingException e) {
-                e.print(fileName);
-                if (argvArray.contains("--typecheck")) {
-                    WriteException(realOutputFile + ".typed", e);
+                e.print(file + ".xi");
+                if (Settings.typeCheck) {
+                    WriteException(outputFile + ".typed", e);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                continue;
             }
         }
+        
         return;
     }
 
@@ -233,4 +207,5 @@ public class Main {
             e1.printStackTrace();
         }
     }
+    
 }

@@ -1,2 +1,2 @@
 ./clean
-zip -r submission.zip xic xic-build src lib tests
+zip -r submission.zip xic xic-build src lib tests runtime

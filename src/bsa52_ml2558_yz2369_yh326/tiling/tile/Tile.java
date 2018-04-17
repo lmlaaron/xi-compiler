@@ -9,7 +9,7 @@ import java.util.List;
 import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.exception.TileMergeException;
-import bsa52_ml2558_yz2369_yh326.util.Flags;
+import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 
 public abstract class Tile {
@@ -107,7 +107,7 @@ public abstract class Tile {
 
         Assembly localAssm = generateLocalAssembly();
 
-        if (Flags.asmComments) {
+        if (Settings.asmComments) {
             // for debugging, add a comment for each tile to see how code was generated
             AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
             for(int i = 0; i < comment.length; i++) {

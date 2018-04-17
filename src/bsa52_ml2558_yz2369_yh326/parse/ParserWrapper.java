@@ -7,37 +7,22 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.gen.lexer;
 import bsa52_ml2558_yz2369_yh326.gen.parser;
+import bsa52_ml2558_yz2369_yh326.util.Settings;
 import edu.cornell.cs.cs4120.util.CodeWriterSExpPrinter;
 import edu.cornell.cs.cs4120.util.SExpPrinter;
 import polyglot.util.OptimalCodeWriter;
 
 public class ParserWrapper {
-    /**
-     * 
-     * @param realInputFile,
-     *            an absolute path to the input file
-     * @param realOutputDir,
-     *            an absolute path to the output directory
-     */
-    public static void WriteParsingResult(Node ast, String realOutputFile) {
-        try {
-            FileWriter writer = new FileWriter(realOutputFile);
-            write(ast, writer);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return;
-    }
 
     /**
      * @param x
      *            lexer object or null
-     * @param realInputFile
+     * @param inputFile
      * @return
      * @throws Exception
      */
-    public static Node Parsing(lexer x, String realInputFile, String extension) throws Exception {
+    public static Node Parsing(lexer x, String inputFile, String outputFile, 
+            String extension) throws Exception {
         @SuppressWarnings("deprecation")
         parser p = new parser(x);
 
@@ -47,8 +32,29 @@ public class ParserWrapper {
         } else if (extension.equals("ixi") && !node.isInterface) {
             throw new ParsingException(1, 1, "Expected Xi interface, found Xi program.\n");
         }
+        if (Settings.parse) {
+            ParserWrapper.WriteParsingResult(node, outputFile + extension);
+        }
         return node;
     }
+    
+    /**
+     * 
+     * @param realInputFile,
+     *            an absolute path to the input file
+     * @param realOutputDir,
+     *            an absolute path to the output directory
+     */
+    public static void WriteParsingResult(Node ast, String outputFile) {
+        try {
+            FileWriter writer = new FileWriter(outputFile);
+            write(ast, writer);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Print the AST to System.out.

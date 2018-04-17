@@ -1,6 +1,9 @@
 #!/bin/bash
 rm -rf bin/
 rm -rf src/yh326/gen/
+rm -rf __pycache__/
+rm -rf xi_executable
+rm -rf temp/
 find . -type f -name '*.lexed' -delete
 find . -type f -name '*.parsed' -delete
 find . -type f -name '*.typed' -delete
