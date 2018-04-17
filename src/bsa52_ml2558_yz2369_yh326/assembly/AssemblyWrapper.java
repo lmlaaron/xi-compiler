@@ -14,13 +14,14 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 
 public class AssemblyWrapper {
     public static Assembly GenerateAssembly(Tile tile, String outputFile) {
-        Assembly assm = tile.generateAssembly();
+        Assembly abstractAssm = tile.generateAssembly();
+        Assembly finalAssm = null;
 
         // For internal usage.
         try {
             if (Settings.genAbstract) { // write abstract assembly
                 BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputFile + ".aasm")));
-                writer.write(assm.toString());
+                writer.write(abstractAssm.toString());
                 writer.close();
             }
         } catch (IOException e) {
@@ -28,13 +29,17 @@ public class AssemblyWrapper {
             e.printStackTrace();
         }
 
-        if (!Settings.disAsmGen)
-            assm = registerAlloc(assm);
+        if (!Settings.disAsmGen) {
+            finalAssm = processAbstractAssm(abstractAssm);
+        }
+        else {
+            finalAssm = abstractAssm;
+        }
 
-        if (assm.incomplete()) {
+        if (finalAssm.incomplete()) {
             System.out.println("Incomplete assembly code!:");
-            System.out.println(assm.toString());
-            return assm;
+            System.out.println(finalAssm.toString());
+            return finalAssm;
         }
 
         // write assembly to file
@@ -46,13 +51,35 @@ public class AssemblyWrapper {
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputFile)));
             writer.write(".intel_syntax noprefix " + "\n");
             // intel syntax annotation
-            writer.write(assm.toString());
+            writer.write(finalAssm.toString());
             writer.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        return finalAssm;
+    }
+
+    public static Assembly processAbstractAssm(Assembly assm) {
+        HashSet<String> labelNames = collectLabels(assm);
+        assm = registerAlloc(assm, labelNames);
         return assm;
+    }
+
+    public static HashSet<String> collectLabels(Assembly assm) {
+        // collect all the label names, to prevent mistaking them for temps when
+        // they appear as arguments (as with conditional jumps, etc)
+        HashSet<String> labelNames = new HashSet<String>();
+
+        // assumption: all labels we jump to will appear with a colon at least once
+        //              in the assembly
+        for (AssemblyStatement stmt : assm.statements) {
+            if (stmt.operation.endsWith(":")) {
+                labelNames.add(stmt.operation.substring(0, stmt.operation.length() - 1));
+            }
+        }
+
+        return labelNames;
     }
 
     /**
@@ -60,18 +87,11 @@ public class AssemblyWrapper {
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly registerAlloc(Assembly assm) {
+    public static Assembly registerAlloc(Assembly assm, HashSet<String> labelNames) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
         List<List<AssemblyStatement>> ListFuncStatements = new LinkedList<>();
 
-        // collect all the label names, to prevent mistaking them for temps when
-        // they appear as arguments (as with conditional jumps, etc)
-        HashSet<String> labelNames = new HashSet<String>();
-        for (AssemblyStatement stmt : assm.statements) {
-            if (stmt.operation.endsWith(":")) {
-                labelNames.add(stmt.operation.substring(0, stmt.operation.length() - 1));
-            }
-        }
+
 
         // TODO: REMOVE DEBUG MESSAGES
         // System.out.println("=== Label Names: ===");
@@ -134,6 +154,7 @@ public class AssemblyWrapper {
             int lastCallArgc = 0;
 
             ListIterator<AssemblyStatement> statementIt = oneFuncStatements.listIterator();
+            // MARK 3
             while (statementIt.hasNext()) {
                 AssemblyStatement stmt = statementIt.next();
                 // find out the size of the allocated return space via the ABI
@@ -153,6 +174,7 @@ public class AssemblyWrapper {
                 }
 
                 // Per IR specification, replace _ARG0, _RET0 etc with respective register
+                // MARK 4
                 for (AssemblyOperand op : stmt.operands) {
                     op.ResolveType();
 
@@ -223,6 +245,7 @@ public class AssemblyWrapper {
             }
 
             // establish the registerTable
+            // MARK 5
             for (AssemblyStatement stmt : oneFuncStatements) {
                 for (AssemblyOperand op : stmt.operands) {
                     op.ResolveType();
@@ -255,6 +278,7 @@ public class AssemblyWrapper {
             // }
             // System.out.println();
 
+            // MARK 6
             for (AssemblyStatement stmt : oneFuncStatements) {
 
                 // replace STACKSIZE with the real size
@@ -303,6 +327,7 @@ public class AssemblyWrapper {
                 LinkedList<AssemblyStatement> loadStatements = new LinkedList<AssemblyStatement>();
                 LinkedList<AssemblyStatement> saveStatements = new LinkedList<AssemblyStatement>();
 
+                // MARK 7 : register allocation
                 if (!stmt.operation.toLowerCase().equals("call")) {
                     // REGISTER ALLOCATION FOR THIS STATEMENT
                     for (int op_i = 0; op_i < stmt.operands.length; op_i++) {
