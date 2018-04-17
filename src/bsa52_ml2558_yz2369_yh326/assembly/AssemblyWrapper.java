@@ -62,8 +62,31 @@ public class AssemblyWrapper {
 
     public static Assembly processAbstractAssm(Assembly assm) {
         HashSet<String> labelNames = collectLabels(assm);
-        assm = registerAlloc(assm, labelNames);
+        List<List<AssemblyStatement>> functions = partitionFunctions(assm);
+        assm = registerAlloc(functions, labelNames);
         return assm;
+    }
+
+    public static List<List<AssemblyStatement>> partitionFunctions(Assembly assm) {
+        List<List<AssemblyStatement>> ret = new LinkedList<List<AssemblyStatement>>();
+
+        // the register allocation/spilling is based on the unit of functions,
+        // we assume the entire abstract assembly is seperated by function call labels
+        List<AssemblyStatement> FuncStatements = new LinkedList<>();
+        // int sss =0;
+        for (AssemblyStatement stmt : assm.statements) {
+            if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) { // per Xi ABI specification, the
+                // we assume that function labels must start with "_I"
+                ret.add(FuncStatements);
+                FuncStatements = new LinkedList<>();
+                FuncStatements.add(stmt);
+            } else {
+                FuncStatements.add(stmt);
+            }
+        }
+        ret.add(FuncStatements);
+
+        return ret;
     }
 
     public static HashSet<String> collectLabels(Assembly assm) {
@@ -87,39 +110,11 @@ public class AssemblyWrapper {
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly registerAlloc(Assembly assm, HashSet<String> labelNames) {
+    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
-        List<List<AssemblyStatement>> ListFuncStatements = new LinkedList<>();
 
 
 
-        // TODO: REMOVE DEBUG MESSAGES
-        // System.out.println("=== Label Names: ===");
-        for (String label : labelNames) {
-            // System.out.println(label);
-        }
-        // System.out.println();
-
-        // the register allocation/spilling is based on the unit of functions,
-        // we assume the entire abstract assembly is seperated by function call labels
-        List<AssemblyStatement> FuncStatements = new LinkedList<>();
-        // int sss =0;
-        for (AssemblyStatement stmt : assm.statements) {
-            if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) { // per Xi ABI specification, the
-                // function labels must start
-                // with ``_I'', we assume that
-                // vice versa
-                // sss++;
-                // System.out.println(stmt.toString()+"\n");
-                ListFuncStatements.add(FuncStatements);
-                FuncStatements = new LinkedList<>();
-                FuncStatements.add(stmt);
-                // System.out.println("Label: " + stmt);
-            } else {
-                FuncStatements.add(stmt);
-            }
-        }
-        ListFuncStatements.add(FuncStatements);
 
         // // Debug printing:
         // int i = 1;
@@ -136,7 +131,7 @@ public class AssemblyWrapper {
 
         // System.out.printf("sss "+String.valueOf(sss)+"\n");
 
-        for (List<AssemblyStatement> oneFuncStatements : ListFuncStatements) {
+        for (List<AssemblyStatement> function : functions) {
             // System.out.println("Func Label : " + oneFuncStatements.get(0));
 
             int thisFuncArgSize = 0;
@@ -153,7 +148,7 @@ public class AssemblyWrapper {
 
             int lastCallArgc = 0;
 
-            ListIterator<AssemblyStatement> statementIt = oneFuncStatements.listIterator();
+            ListIterator<AssemblyStatement> statementIt = function.listIterator();
             // MARK 3
             while (statementIt.hasNext()) {
                 AssemblyStatement stmt = statementIt.next();
@@ -246,7 +241,7 @@ public class AssemblyWrapper {
 
             // establish the registerTable
             // MARK 5
-            for (AssemblyStatement stmt : oneFuncStatements) {
+            for (AssemblyStatement stmt : function) {
                 for (AssemblyOperand op : stmt.operands) {
                     op.ResolveType();
 
@@ -279,7 +274,7 @@ public class AssemblyWrapper {
             // System.out.println();
 
             // MARK 6
-            for (AssemblyStatement stmt : oneFuncStatements) {
+            for (AssemblyStatement stmt : function) {
 
                 // replace STACKSIZE with the real size
                 if (stmt.operands != null && stmt.operation.equals("sub")
