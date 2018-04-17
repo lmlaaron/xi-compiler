@@ -68,8 +68,68 @@ public class AssemblyWrapper {
 
         List<RegisterTable> registerTables = getRegisterTables(functions, labelNames);
 
+        functions = specifyStackSizes(functions, registerTables, maxStackSizes);
+
         assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames, registerTables);
         return assm;
+    }
+
+    public static List<List<AssemblyStatement>> specifyStackSizes(List<List<AssemblyStatement>> functions, List<RegisterTable> rTables, List<Integer> maxStackSizes) {
+        int func_i = 0;
+        for (List<AssemblyStatement> function : functions) {
+
+            int thisFuncArgSize = -1; // -1 indicates not being instantiated
+
+            for (AssemblyStatement stmt : function ) {
+
+                if (thisFuncArgSize == -1) { // if the argsize hasn't been set yet, attempt to set it
+                    if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) {
+                        thisFuncArgSize = getArgSize(stmt.operation);
+                    }
+                }
+
+                // replace STACKSIZE with the real size
+                if (stmt.operands != null && stmt.operation.equals("sub")
+                        && stmt.operands[1].value().equals("STACKSIZE")) {
+                    // System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
+                    // calculate the size (pad if not 16byte aligned)
+                    int stacksize = rTables.get(func_i).size() + maxStackSizes.get(func_i);
+                    if (stacksize % 2 != 0) {
+                        stacksize++;
+                    }
+
+                    stmt.operands[1] = new AssemblyOperand(String.valueOf(stacksize * 8));
+                }
+                // replace __RETURN_x (genereated using return tile) with the exact stack
+                // location
+                if (stmt.operands != null && stmt.operation.equals("mov")
+                        && stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED)) {
+
+                    // at this point, thisFuncArgSize NEEDS to be instantiated.
+                    //  if it isn't, we should throw an error
+                    if (thisFuncArgSize == -1){
+                        throw new RuntimeException("Error: function arg size not instantiated before use!");
+                    }
+
+                    int index = stmt.operands[0].operand.lastIndexOf("_");
+                    int offset = Integer.valueOf(stmt.operands[0].operand.substring(index + 1));
+                    AssemblyOperand retOpt = null;
+                    if (thisFuncArgSize <= 6) {
+                        retOpt = new AssemblyOperand("[rbp+" + String.valueOf((2 + offset - 2) * 8) + "]");
+                    } else {
+                        retOpt = new AssemblyOperand(
+                                "[rbp+" + String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8) + "]");
+                    }
+                    retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
+                    stmt.operands[0] = retOpt;
+                    // concreteStatements.add(stmt);
+                    // continue;
+                }
+            }
+            func_i++;
+        }
+
+        return functions;
     }
 
     public static List<RegisterTable> getRegisterTables(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
@@ -278,40 +338,6 @@ public class AssemblyWrapper {
             // MARK 6
             stmt_i = 0;
             for (AssemblyStatement stmt : function) {
-
-                // replace STACKSIZE with the real size
-                if (stmt.operands != null && stmt.operation.equals("sub")
-                        && stmt.operands[1].value().equals("STACKSIZE")) {
-                    // System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
-                    // calculate the size (pad if not 16byte aligned)
-                    int stacksize = rTables.get(func_i).size() + maxStackSizes.get(func_i);
-                    if (stacksize % 2 != 0) {
-                        stacksize++;
-                    }
-
-                    stmt.operands[1] = new AssemblyOperand(String.valueOf(stacksize * 8));
-                    concreteStatements.add(stmt);
-
-                    continue;
-                }
-                // replace __RETURN_x (genereated using return tile) with the exact stack
-                // location
-                if (stmt.operands != null && stmt.operation.equals("mov")
-                        && stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED)) {
-                    int index = stmt.operands[0].operand.lastIndexOf("_");
-                    int offset = Integer.valueOf(stmt.operands[0].operand.substring(index + 1));
-                    AssemblyOperand retOpt = null;
-                    if (thisFuncArgSize <= 6) {
-                        retOpt = new AssemblyOperand("[rbp+" + String.valueOf((2 + offset - 2) * 8) + "]");
-                    } else {
-                        retOpt = new AssemblyOperand(
-                                "[rbp+" + String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8) + "]");
-                    }
-                    retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
-                    stmt.operands[0] = retOpt;
-                    // concreteStatements.add(stmt);
-                    // continue;
-                }
 
                 // if the initial counter is 0, the ith register will be spilled to [rbp - 8 *
                 // i]
