@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
@@ -63,8 +60,66 @@ public class AssemblyWrapper {
     public static Assembly processAbstractAssm(Assembly assm) {
         HashSet<String> labelNames = collectLabels(assm);
         List<List<AssemblyStatement>> functions = partitionFunctions(assm);
-        assm = registerAlloc(functions, labelNames);
+        List<List<Integer>> lastCallArgCounts = getLastCallArgCounts(functions);
+        List<Integer> maxStackSizes = getMaxStackSizes(functions);
+        assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames);
         return assm;
+    }
+
+    public static List<Integer> getMaxStackSizes(List<List<AssemblyStatement>> functions) {
+        List<Integer> ret = new ArrayList<>(functions.size());
+
+        for (List<AssemblyStatement> function : functions) {
+
+            int retSize = 0;
+            int argSize = 0;
+            int maxSize = 0;
+
+            for (AssemblyStatement stmt : function) {
+                // calculate the stacksize
+                if (stmt.operation == "call") {
+                    retSize = getRetSize(stmt.operands[0].value());
+                    argSize = getArgSize(stmt.operands[0].value());
+
+                    maxSize = Math.max(retSize+argSize, maxSize);
+                }
+            }
+
+            ret.add(maxSize);
+        }
+
+        return ret;
+    }
+
+    public static List<List<Integer>> getLastCallArgCounts(List<List<AssemblyStatement>> functions) {
+        List<List<Integer>> ret = new ArrayList<>(functions.size());
+
+        for (List<AssemblyStatement> function : functions) {
+            List<Integer> lastCallArgCount = new ArrayList<>(function.size());
+
+            int retSize = 0;
+            int argSize = 0;
+            int maxSize = 0;
+
+            int lastCallArgc = 0;
+
+            for (AssemblyStatement stmt : function) {
+                // calculate the stacksize
+                if (stmt.operation == "call") {
+                    retSize = getRetSize(stmt.operands[0].value());
+                    argSize = getArgSize(stmt.operands[0].value());
+                    maxSize = Math.max(retSize+argSize, maxSize);
+
+                    lastCallArgc = argSize;
+                }
+
+                lastCallArgCount.add(lastCallArgc);
+            }
+
+            ret.add(lastCallArgCount);
+        }
+
+        return ret;
     }
 
     public static List<List<AssemblyStatement>> partitionFunctions(Assembly assm) {
@@ -105,32 +160,18 @@ public class AssemblyWrapper {
         return labelNames;
     }
 
+
+
     /**
      * top function for register allocation
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
+    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs, List<Integer> maxStackSizes, HashSet<String> labelNames) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
 
-
-
-
-        // // Debug printing:
-        // int i = 1;
-        // for (List<AssemblyStatement> func : ListFuncStatements) {
-        //// System.out.println("Function " + i);
-        // for (AssemblyStatement statement : func) {
-        // System.out.println(statement);
-        // }
-        // System.out.println();
-        // }
-
-        // System.out.println("====================================");
-        // System.out.println();
-
-        // System.out.printf("sss "+String.valueOf(sss)+"\n");
-
+        int func_i = 0;
+        int stmt_i = 0;
         for (List<AssemblyStatement> function : functions) {
             // System.out.println("Func Label : " + oneFuncStatements.get(0));
 
@@ -142,14 +183,11 @@ public class AssemblyWrapper {
             RegisterTable rTable = new RegisterTable();
             rTable.SetCounter(0); // set the counter which decides the position of the first spilled location on
             // the stack
-            int retSize = 0;
-            int argSize = 0;
-            int maxSize = 0;
 
-            int lastCallArgc = 0;
 
             ListIterator<AssemblyStatement> statementIt = function.listIterator();
             // MARK 3
+            stmt_i = 0;
             while (statementIt.hasNext()) {
                 AssemblyStatement stmt = statementIt.next();
                 // find out the size of the allocated return space via the ABI
@@ -157,15 +195,6 @@ public class AssemblyWrapper {
                 // pointer to store the return value (like [rbp+...]
                 if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) {
                     thisFuncArgSize = getArgSize(stmt.operation);
-                }
-                // calculate the stacksize
-                if (stmt.operation == "call") {
-                    retSize = getRetSize(stmt.operands[0].value());
-                    argSize = getArgSize(stmt.operands[0].value());
-                    if (retSize + argSize > maxSize) {
-                        maxSize = retSize + argSize;
-                    }
-                    lastCallArgc = argSize;
                 }
 
                 // Per IR specification, replace _ARG0, _RET0 etc with respective register
@@ -178,7 +207,7 @@ public class AssemblyWrapper {
                     List<String> newTemps = new LinkedList<String>();
                     List<Boolean> changed = new LinkedList<Boolean>();
                     for (String temp : temps) {
-                        String convertedTemp = ARGRET2Reg(temp, lastCallArgc);
+                        String convertedTemp = ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
                         newTemps.add(convertedTemp);
 
                         if (temp.equals(convertedTemp)) {
@@ -237,10 +266,12 @@ public class AssemblyWrapper {
                         System.exit(1);
                     }
                 }
+                stmt_i++;
             }
 
             // establish the registerTable
             // MARK 5
+            stmt_i = 0;
             for (AssemblyStatement stmt : function) {
                 for (AssemblyOperand op : stmt.operands) {
                     op.ResolveType();
@@ -265,6 +296,7 @@ public class AssemblyWrapper {
                         }
                     }
                 }
+                stmt_i++;
             }
 
             // System.out.println("Function after first pass:");
@@ -274,6 +306,7 @@ public class AssemblyWrapper {
             // System.out.println();
 
             // MARK 6
+            stmt_i = 0;
             for (AssemblyStatement stmt : function) {
 
                 // replace STACKSIZE with the real size
@@ -281,7 +314,7 @@ public class AssemblyWrapper {
                         && stmt.operands[1].value().equals("STACKSIZE")) {
                     // System.out.println("rTable.size()"+ String.valueOf(rTable.size()));
                     // calculate the size (pad if not 16byte aligned)
-                    int stacksize = rTable.size() + maxSize;
+                    int stacksize = rTable.size() + maxStackSizes.get(func_i);
                     if (stacksize % 2 != 0) {
                         stacksize++;
                     }
@@ -377,9 +410,9 @@ public class AssemblyWrapper {
                 } else {
                     concreteStatements.add(stmt);
                 }
-
+                stmt_i++;
             }
-
+            func_i++;
         }
         return new Assembly(concreteStatements);
     }
