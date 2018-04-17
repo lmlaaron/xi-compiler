@@ -70,7 +70,7 @@ public class AssemblyWrapper {
 
         functions = specifyStackSizes(functions, registerTables, maxStackSizes);
 
-        assm = registerAlloc(functions, lastCallArgCounts, maxStackSizes, labelNames, registerTables);
+        assm = spillTempsOnStack(functions, labelNames, registerTables);
         return assm;
     }
 
@@ -300,42 +300,14 @@ public class AssemblyWrapper {
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly registerAlloc(List<List<AssemblyStatement>> functions, List<List<Integer>> lastCallArgCs, List<Integer> maxStackSizes, HashSet<String> labelNames, List<RegisterTable> rTables) {
+    public static Assembly spillTempsOnStack(List<List<AssemblyStatement>> functions, HashSet<String> labelNames, List<RegisterTable> rTables) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
 
         int func_i = 0;
         int stmt_i = 0;
         for (List<AssemblyStatement> function : functions) {
-            // System.out.println("Func Label : " + oneFuncStatements.get(0));
-
-            int thisFuncArgSize = 0;
 
 
-            ListIterator<AssemblyStatement> statementIt = function.listIterator();
-            // MARK 3
-            stmt_i = 0;
-            while (statementIt.hasNext()) {
-                AssemblyStatement stmt = statementIt.next();
-                // find out the size of the allocated return space via the ABI
-                // the return statement in this function body needs this value to find the stack
-                // pointer to store the return value (like [rbp+...]
-                if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) {
-                    thisFuncArgSize = getArgSize(stmt.operation);
-                }
-
-
-                stmt_i++;
-            }
-
-
-
-            // System.out.println("Function after first pass:");
-            // for (AssemblyStatement statement : oneFuncStatements) {
-            // System.out.println(statement);
-            // }
-            // System.out.println();
-
-            // MARK 6
             stmt_i = 0;
             for (AssemblyStatement stmt : function) {
 
