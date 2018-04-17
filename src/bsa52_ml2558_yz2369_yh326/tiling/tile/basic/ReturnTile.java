@@ -19,8 +19,8 @@ public class ReturnTile extends Tile {
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.addAll(((IRReturn) root).rets());
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -31,32 +31,34 @@ public class ReturnTile extends Tile {
     @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        if (this.subtreeRoots != null ) {
-        		if ( this.subtreeRoots.size() > 0) {
-        			statements.add(new AssemblyStatement("mov",new AssemblyOperand("rax"), new AssemblyOperand()));
-        		}
-        		String RET1 = freshTemp();
-        		if ( this.subtreeRoots.size() > 1) {
-        			// TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded before return)
-        			statements.add(new AssemblyStatement("mov",new AssemblyOperand(RET1), new AssemblyOperand()));
-        		}
-        		if ( this.subtreeRoots.size() > 2) {
-        	
-    				// calulcate the distance between the stack pointer to the return value 
-        			for ( int i = 2; i < this.subtreeRoots.size(); i++ ) {
-        				AssemblyOperand retOpt = new AssemblyOperand("__RETURN_"+String.valueOf(i));
-        				retOpt.type = AssemblyOperand.OperandType.RET_UNRESOLVED;
-        				statements.add(new AssemblyStatement("mov", retOpt, new AssemblyOperand()));	
-        			}
-        		}
-        		if ( this.subtreeRoots.size() > 1) {
-        			// TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded before return)
-        			statements.add(new AssemblyStatement("mov",new AssemblyOperand("rdx"), new AssemblyOperand(RET1)));
-        		}
+        if (this.subtreeRoots != null) {
+            if (this.subtreeRoots.size() > 0) {
+                statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), new AssemblyOperand()));
+            }
+            String RET1 = freshTemp();
+            if (this.subtreeRoots.size() > 1) {
+                // TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded
+                // before return)
+                statements.add(new AssemblyStatement("mov", new AssemblyOperand(RET1), new AssemblyOperand()));
+            }
+            if (this.subtreeRoots.size() > 2) {
+
+                // calulcate the distance between the stack pointer to the return value
+                for (int i = 2; i < this.subtreeRoots.size(); i++) {
+                    AssemblyOperand retOpt = new AssemblyOperand("__RETURN_" + String.valueOf(i));
+                    retOpt.type = AssemblyOperand.OperandType.RET_UNRESOLVED;
+                    statements.add(new AssemblyStatement("mov", retOpt, new AssemblyOperand()));
+                }
+            }
+            if (this.subtreeRoots.size() > 1) {
+                // TODO tmp fix mov rdx in temp (rdx is used as return value while overloaded
+                // before return)
+                statements.add(new AssemblyStatement("mov", new AssemblyOperand("rdx"), new AssemblyOperand(RET1)));
+            }
         }
         statements.add(new AssemblyStatement("leave")); // restore the stack before calling
         statements.add(new AssemblyStatement("ret"));
-        //TODO: definitely need more than this. consult system V spec
+        // TODO: definitely need more than this. consult system V spec
 
         return new Assembly(statements);
     }

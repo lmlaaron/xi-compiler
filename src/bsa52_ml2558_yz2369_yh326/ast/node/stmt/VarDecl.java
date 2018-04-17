@@ -68,10 +68,11 @@ public class VarDecl extends Stmt {
     public IRNode translate() {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         List<IRExpr> sizesExpr = new ArrayList<IRExpr>();
-        
+
         for (int i = 0; i < sizes.size(); i++) {
-            if (sizes.get(i) == null) break;
-            
+            if (sizes.get(i) == null)
+                break;
+
             IRExpr size = (IRExpr) sizes.get(i).translate();
             if (size instanceof IRConst || size instanceof IRTemp || size instanceof IRName) {
                 sizesExpr.add(size);
@@ -80,9 +81,9 @@ public class VarDecl extends Stmt {
                 stmts.add(new IRMove(sizeTemp, size));
                 sizesExpr.add(sizeTemp);
             }
-            
+
         }
-        
+
         IRExpr t = generateIRNode(sizesExpr, 0);
         IRTemp var = new IRTemp(id.getId());
         if (t == null) {

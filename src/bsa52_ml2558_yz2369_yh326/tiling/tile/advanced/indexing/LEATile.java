@@ -10,13 +10,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-
 /**
  * Tile uses LEA instruction to efficiently match:
  *
- * MEM ( [ADD/SUB] (TEMP, [CONST/TEMP]))
- * and
- * MEM ( [ADD/SUB] (TEMP, MUL (TEMP, CONST)))
+ * MEM ( [ADD/SUB] (TEMP, [CONST/TEMP])) and MEM ( [ADD/SUB] (TEMP, MUL (TEMP,
+ * CONST)))
  */
 public class LEATile extends Tile {
     /**
@@ -38,8 +36,7 @@ public class LEATile extends Tile {
                 IRBinOp topBinop = (IRBinOp) mem.expr();
                 if (topBinop.opType() == IRBinOp.OpType.ADD) {
                     this.plus = true;
-                }
-                else if (topBinop.opType() == IRBinOp.OpType.SUB){
+                } else if (topBinop.opType() == IRBinOp.OpType.SUB) {
                     this.minus = true;
                 }
 
@@ -55,29 +52,23 @@ public class LEATile extends Tile {
 
                                     this.subtreeRoots = new LinkedList<>(); // no subtrees, this tile matches a leaf
 
-                                    String[] parts = new String[]{
-                                            topTemp.name(), temp.name(), Long.toString(cnst.constant())
-                                    };
+                                    String[] parts = new String[] { topTemp.name(), temp.name(),
+                                            Long.toString(cnst.constant()) };
 
                                     if (plus) {
                                         this.addrOperand = AssemblyOperand.MemPlus(parts);
                                         return true;
-                                    }
-                                    else if (minus) {
+                                    } else if (minus) {
                                         this.addrOperand = AssemblyOperand.MemMinus(parts);
                                         return true;
                                     }
                                 }
                             }
 
-
-                        }
-                        else if (topBinop.right() instanceof IRConst) {
+                        } else if (topBinop.right() instanceof IRConst) {
                             IRConst cnst = (IRConst) topBinop.right();
 
-                            String[] parts = new String[] {
-                                    topTemp.name(), Long.toString(cnst.value())
-                            };
+                            String[] parts = new String[] { topTemp.name(), Long.toString(cnst.value()) };
 
                             if (plus) {
                                 this.addrOperand = AssemblyOperand.MemPlus(parts);
@@ -87,13 +78,10 @@ public class LEATile extends Tile {
                                 this.addrOperand = AssemblyOperand.MemMinus(parts);
                                 return true;
                             }
-                        }
-                        else if (topBinop.right() instanceof  IRTemp) {
+                        } else if (topBinop.right() instanceof IRTemp) {
                             IRTemp tmp = (IRTemp) topBinop.right();
 
-                            String[] parts = new String[] {
-                                    topTemp.name(), tmp.name()
-                            };
+                            String[] parts = new String[] { topTemp.name(), tmp.name() };
 
                             if (plus) {
                                 this.addrOperand = AssemblyOperand.MemPlus(parts);

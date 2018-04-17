@@ -14,14 +14,14 @@ public class SeqTile extends Tile {
         if (root instanceof IRSeq) {
             this.root = root;
 
-            IRSeq seq = (IRSeq)root;
+            IRSeq seq = (IRSeq) root;
 
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.addAll(seq.stmts());
 
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override

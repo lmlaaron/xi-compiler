@@ -12,11 +12,11 @@ public class TypecheckerWrapper {
         SymbolTable sTable = new SymbolTable();
         ast.loadMethods(sTable, Settings.libPath);
         ast.typeCheck(sTable);
-        if (Settings.typeCheck) 
+        if (Settings.typeCheck)
             TypecheckerWrapper.WriteTypecheckingResult(outputFile + ".typed");
         return ast;
     }
-    
+
     /**
      * 
      * @param realInputFile,
@@ -35,6 +35,5 @@ public class TypecheckerWrapper {
         }
         return;
     }
-
 
 }

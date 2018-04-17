@@ -17,8 +17,8 @@ public class ConstTile extends Tile {
             this.root = root;
             this.subtreeRoots = new LinkedList<>();
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -28,23 +28,20 @@ public class ConstTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        // TODO: some operations, including 'cmp', cannot accept a literal as a direct operand.
-        //       to compensate for those cases, we allocate a temp to hold the constant value.
-        //       however, this is inefficient for cases where we tile operations which do allow
-        //       constants
+        // TODO: some operations, including 'cmp', cannot accept a literal as a direct
+        // operand.
+        // to compensate for those cases, we allocate a temp to hold the constant value.
+        // however, this is inefficient for cases where we tile operations which do
+        // allow
+        // constants
 
-        String constValue = Long.toString(((IRConst)this.root).constant());
+        String constValue = Long.toString(((IRConst) this.root).constant());
 
         String freshTemp = freshTemp();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         statements.add(new AssemblyStatement("mov", freshTemp, constValue));
 
-        return new Assembly(
-            statements,
-            new AssemblyOperand(
-                    freshTemp
-            )
-        );
+        return new Assembly(statements, new AssemblyOperand(freshTemp));
     }
 }

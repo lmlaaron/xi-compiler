@@ -63,6 +63,7 @@ public class Utilities {
     }
 
     private static HashSet<String> realRegisters;
+
     private static void initRealRegisters() {
         if (realRegisters == null) {
             realRegisters = new HashSet<>();

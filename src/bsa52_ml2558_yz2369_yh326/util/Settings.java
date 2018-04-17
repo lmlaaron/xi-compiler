@@ -15,7 +15,7 @@ public class Settings {
     public static boolean irrun = false;
     public static Set<String> optIRList = new HashSet<String>();
     public static Set<String> optCFGList = new HashSet<String>();
-    
+
     // Setting options
     public static String inputSourcePath = Paths.get(".").toAbsolutePath().toString();
     public static String outputPath = Paths.get(".").toAbsolutePath().toString();
@@ -25,11 +25,11 @@ public class Settings {
     public static boolean optimization = true;
     public static Set<String> opts = new HashSet<String>();
     public static Set<String> noOpts = new HashSet<String>();
-    
+
     // File lists
     public static List<String> xiList = new ArrayList<String>();
     public static List<String> ixiList = new ArrayList<String>();
-    
+
     // Internal usage options
     public static boolean asmComments = false;
     public static boolean genAbstract = false;

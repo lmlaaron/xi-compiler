@@ -23,7 +23,7 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class Main {
-    
+
     public static void Usage() {
         String usage = "Usage: xic [options] <source files>\n";
         usage += "  --help           Print this synopsis.\n";
@@ -43,7 +43,7 @@ public class Main {
         usage += "  -O<opt>          Enable optimization <opt>.\n";
         usage += "  -O               Disable all optimizations.\n";
         usage += "  -O-no-<opt>      Disable only optimization <opt>.\n";
-        
+
         usage += "\nOptions for internal usage:\n";
         usage += "  --irlow          Print canonical ir code representation.\n";
         usage += "  --abstract       Generate abstract assembly .aasm file.\n";
@@ -51,11 +51,11 @@ public class Main {
         usage += "  --comment        Add comments to generated assembly.\n";
         System.out.println(usage);
     }
-    
+
     public static void Support() {
         System.out.println("cf");
     }
-    
+
     public static void HandleArgv(String[] argv) {
         // Processing other options
         for (int i = 0; i < argv.length; i++) {
@@ -129,7 +129,7 @@ public class Main {
         for (String file : Settings.ixiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".ixi";
             String outputFile = realPath(Settings.outputPath, file);
-            
+
             try {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 ParserWrapper.Parsing(xiLexer, inputFile, outputFile, ".iparsed");
@@ -141,13 +141,13 @@ public class Main {
                 e.printStackTrace();
             }
         }
-        
+
         // Foe each xi file, diagnose.
         for (String file : Settings.xiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".xi";
             String outputFile = realPath(Settings.outputPath, file);
             String assmOutputFile = realPath(Settings.assemblyOutputPath, file);
-            
+
             // Lexing, parsing, type checking, IR generation
             try {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
@@ -158,7 +158,7 @@ public class Main {
                 if (Settings.irrun)
                     IRWrapper.IRRun(irNode);
                 Tile rootTile = MaxMunch.munch(irNode);
-                /*Assembly assm = */AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
+                /* Assembly assm = */AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
             } catch (LexingException | ParsingException e) {
                 e.print(file + ".xi");
                 if (Settings.typeCheck) {
@@ -175,7 +175,7 @@ public class Main {
                 e.printStackTrace();
             }
         }
-        
+
         return;
     }
 
@@ -207,5 +207,5 @@ public class Main {
             e1.printStackTrace();
         }
     }
-    
+
 }

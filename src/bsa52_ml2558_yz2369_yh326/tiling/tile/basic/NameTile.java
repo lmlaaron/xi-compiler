@@ -16,8 +16,8 @@ public class NameTile extends Tile {
             this.root = root;
             this.subtreeRoots = new LinkedList<IRNode>();
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -27,8 +27,6 @@ public class NameTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        return new Assembly(
-                new AssemblyOperand( ((IRName)root).name() )
-        );
+        return new Assembly(new AssemblyOperand(((IRName) root).name()));
     }
 }

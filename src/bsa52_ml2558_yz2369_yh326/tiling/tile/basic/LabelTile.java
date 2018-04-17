@@ -16,8 +16,8 @@ public class LabelTile extends Tile {
             this.root = root;
             this.subtreeRoots = new LinkedList<>();
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -27,11 +27,11 @@ public class LabelTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        String labelName = ((IRLabel)this.root).name();
+        String labelName = ((IRLabel) this.root).name();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        AssemblyStatement labelStmt = new AssemblyStatement(labelName+":");
-        labelStmt.isFunctionLabel = true;   // for printing reason, need to distinguish label and other statements
+        AssemblyStatement labelStmt = new AssemblyStatement(labelName + ":");
+        labelStmt.isFunctionLabel = true; // for printing reason, need to distinguish label and other statements
         statements.add(labelStmt);
         return new Assembly(statements);
     }

@@ -23,7 +23,7 @@ public class LexerWrapper {
             return null;
         }
     }
-    
+
     public static void WriteLexingResult(lexer xiLexer, String outputFile) throws LexingException {
         try {
             FileWriter writer = new FileWriter(outputFile);

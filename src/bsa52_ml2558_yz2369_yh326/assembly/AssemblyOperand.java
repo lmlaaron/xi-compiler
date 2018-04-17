@@ -28,10 +28,8 @@ public class AssemblyOperand {
     /**
      * In a perfect world, we would have handled this using polymorphism. oh well.
      *
-     * if true, this assemblyoperand instance is of one of the following forms:
-     * [a + b*c]
-     * [a + b]
-     * [a]
+     * if true, this assemblyoperand instance is of one of the following forms: [a +
+     * b*c] [a + b] [a]
      *
      * memOperandParts will contain [a [,b [,c]]].
      */
@@ -48,8 +46,8 @@ public class AssemblyOperand {
     public OperandType type;
 
     /**
-     * MemWrapped operands are placeholders which, after being filled, are converted to
-     * memory operands by wrapping with []
+     * MemWrapped operands are placeholders which, after being filled, are converted
+     * to memory operands by wrapping with []
      */
     public static AssemblyOperand MemWrapped() {
         AssemblyOperand ao = new AssemblyOperand();
@@ -81,6 +79,7 @@ public class AssemblyOperand {
 
         return ao;
     }
+
     public static AssemblyOperand MemMinus(String... parts) {
         AssemblyOperand ao = AssemblyOperand.MemPlus(parts);
         ao.memOperandPlus = false;
@@ -109,7 +108,6 @@ public class AssemblyOperand {
 
         return repr.toString();
     }
-
 
     public AssemblyOperand(String op) {
         this.operand = op;
@@ -144,22 +142,17 @@ public class AssemblyOperand {
         // this.type=OperandType.TEMP;
         // TODO implement other types
 
-        /*if (this.operand.contains("__FreshTemp_") ||
-                this.operand.contains("_temp_") ||
-                this.operand.contains("_array_") ||
-                this.operand.contains("_index_") ||
-                
-                ) {
-            this.type = OperandType.TEMP;
-        } else if ( this.operand.contains("FreshLabel") ||
-                ) { 
-        } else if () {
-            
-        } else if () {
-            
-        } else {
-            this.type = OperandType.UNRESOLVED;
-        }*/
+        /*
+         * if (this.operand.contains("__FreshTemp_") || this.operand.contains("_temp_")
+         * || this.operand.contains("_array_") || this.operand.contains("_index_") ||
+         * 
+         * ) { this.type = OperandType.TEMP; } else if (
+         * this.operand.contains("FreshLabel") || ) { } else if () {
+         * 
+         * } else if () {
+         * 
+         * } else { this.type = OperandType.UNRESOLVED; }
+         */
 
     }
 
@@ -200,8 +193,8 @@ public class AssemblyOperand {
     }
 
     /**
-     * @return all registers that are a component of this operand.
-     * Relies on ResolveType() already having been called
+     * @return all registers that are a component of this operand. Relies on
+     *         ResolveType() already having been called
      */
     public List<String> getTemps() {
         if (isMemOperand) {
@@ -214,38 +207,37 @@ public class AssemblyOperand {
                 }
             }
 
-            //TODO: remove debug printing
+            // TODO: remove debug printing
             StringBuilder sb = new StringBuilder();
             for (String r : registers)
                 sb.append(r + " ");
-            //System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " + sb.toString());
+            // System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " +
+            // sb.toString());
 
             return registers;
-        }
-        else if (type == OperandType.MEM) {
-            String val = value().substring(1, value().length()-1); // "[register]"
-            LinkedList ret =  new LinkedList<String>();
+        } else if (type == OperandType.MEM) {
+            String val = value().substring(1, value().length() - 1); // "[register]"
+            LinkedList ret = new LinkedList<String>();
             if (!Utilities.isRealRegister(val))
                 ret.add(val);
             return ret;
-        }
-        else if (type == OperandType.TEMP) {
+        } else if (type == OperandType.TEMP) {
             LinkedList ret = new LinkedList<String>();
             if (!Utilities.isRealRegister(value()))
                 ret.add(value());
             return ret;
-        }
-        else {
+        } else {
             return new LinkedList<String>();
         }
     }
 
     /**
-     * Resets the value of all temps returned by getTemps().
-     * Used during register allocation.
+     * Resets the value of all temps returned by getTemps(). Used during register
+     * allocation.
      *
-     * @param registers the new values of the temp/registers. Must bee of same length
-     *                  as getRegisters()
+     * @param registers
+     *            the new values of the temp/registers. Must bee of same length as
+     *            getRegisters()
      */
     public void setTemps(List<String> registers) {
         if (isMemOperand) {
@@ -261,21 +253,20 @@ public class AssemblyOperand {
             }
             operand = MemRepr();
 
-            //TODO: remove debug printing
+            // TODO: remove debug printing
             StringBuilder sb = new StringBuilder();
             for (String r : registers)
                 sb.append(r + " ");
-           // System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() + " and is now " + MemRepr());
+            // System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() +
+            // " and is now " + MemRepr());
 
             if (it.hasNext()) {
                 throw new RuntimeException("Error: more registers were provided than can be used!");
             }
-        }
-        else if (type == OperandType.MEM) {
+        } else if (type == OperandType.MEM) {
             assert registers.size() == 1;
             this.operand = "[" + registers.get(0) + "]";
-        }
-        else if (type == OperandType.TEMP) {
+        } else if (type == OperandType.TEMP) {
             assert registers.size() == 1;
             this.operand = registers.get(0);
         }

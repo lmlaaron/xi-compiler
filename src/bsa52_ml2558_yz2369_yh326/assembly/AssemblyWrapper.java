@@ -11,7 +11,7 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 public class AssemblyWrapper {
     public static Assembly GenerateAssembly(Tile tile, String outputFile) {
         Assembly assm = tile.generateAssembly();
-        
+
         // For internal usage.
         try {
             if (Settings.genAbstract) { // write abstract assembly
@@ -23,20 +23,20 @@ public class AssemblyWrapper {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         if (!Settings.disAsmGen)
             assm = assm.registerAlloc();
-        
+
         if (assm.incomplete()) {
             System.out.println("Incomplete assembly code!:");
             System.out.println(assm.toString());
             return assm;
         }
-        
+
         // write assembly to file
-        if (Settings.disAsmGen) 
+        if (Settings.disAsmGen)
             outputFile += ".ra.s";
-        else 
+        else
             outputFile += ".s";
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputFile)));

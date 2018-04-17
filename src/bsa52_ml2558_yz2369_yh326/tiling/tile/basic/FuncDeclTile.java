@@ -16,15 +16,14 @@ public class FuncDeclTile extends Tile {
         if (root instanceof IRFuncDecl) {
             this.root = root;
 
-            IRFuncDecl decl = (IRFuncDecl)root;
-
+            IRFuncDecl decl = (IRFuncDecl) root;
 
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(decl.body());
 
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -34,20 +33,35 @@ public class FuncDeclTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        IRFuncDecl decl = (IRFuncDecl)root;
+        IRFuncDecl decl = (IRFuncDecl) root;
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         // assembly annotations for function
         statements.add(new AssemblyStatement(".text"));
-        statements.add(new AssemblyStatement(".globl " + decl.name() ));
+        statements.add(new AssemblyStatement(".globl " + decl.name()));
         statements.add(new AssemblyStatement(".type " + decl.name() + ", @function"));
         statements.add(new AssemblyStatement(decl.name() + ":", true));
-        statements.add(new AssemblyStatement("push", "rbp"));						// push frame pointer to stack
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp")));	// save the current stack pointer as frame pointer
-        statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));      
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbx"))); //save callee safe register rbx
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbp"))); //save callee safe register rbp
-     
+        statements.add(new AssemblyStatement("push", "rbp")); // push frame pointer to stack
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"), new AssemblyOperand("rsp"))); // save
+                                                                                                              // the
+                                                                                                              // current
+                                                                                                              // stack
+                                                                                                              // pointer
+                                                                                                              // as
+                                                                                                              // frame
+                                                                                                              // pointer
+        statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbx"))); // save
+                                                                                                                    // callee
+                                                                                                                    // safe
+                                                                                                                    // register
+                                                                                                                    // rbx
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbp"))); // save
+                                                                                                                    // callee
+                                                                                                                    // safe
+                                                                                                                    // register
+                                                                                                                    // rbp
+
         return new Assembly(statements);
     }
 
@@ -57,22 +71,17 @@ public class FuncDeclTile extends Tile {
     }
 
     /**
-     * Function declarations are a special case, because we the code to
-     * be generated within the function comes after the function's label,
-     * not before.
+     * Function declarations are a special case, because we the code to be generated
+     * within the function comes after the function's label, not before.
      */
     /*
-    @Override
-    public Assembly generateAssembly() {
-        Assembly[] childAssm = new Assembly[subtreeTiles.size()];
-        for (int i = 0; i < childAssm.length; i++)
-            childAssm[i] = subtreeTiles.get(i).generateAssembly();
-
-        Assembly localAssm = generateLocalAssembly();
-        for (int i = 0; i < childAssm.length; i++) {
-            localAssm.statements.addAll(localAssm.statements.size()-1, childAssm[i].statements);
-        }
-        return localAssm;
-    }
-    */
+     * @Override public Assembly generateAssembly() { Assembly[] childAssm = new
+     * Assembly[subtreeTiles.size()]; for (int i = 0; i < childAssm.length; i++)
+     * childAssm[i] = subtreeTiles.get(i).generateAssembly();
+     * 
+     * Assembly localAssm = generateLocalAssembly(); for (int i = 0; i <
+     * childAssm.length; i++) {
+     * localAssm.statements.addAll(localAssm.statements.size()-1,
+     * childAssm[i].statements); } return localAssm; }
+     */
 }

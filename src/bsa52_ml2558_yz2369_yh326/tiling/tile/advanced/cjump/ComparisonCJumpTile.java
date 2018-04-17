@@ -12,10 +12,11 @@ import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 
 /**
- * Superclass of the set of tiles which efficiently tile cjumps which are conditional
- * on a single comparison operation. We gain efficiency by avoiding an additional
- * conditional jump for setting the value of the comparison and by immediately
- * using the value of said comparison rather than storing it in a temp
+ * Superclass of the set of tiles which efficiently tile cjumps which are
+ * conditional on a single comparison operation. We gain efficiency by avoiding
+ * an additional conditional jump for setting the value of the comparison and by
+ * immediately using the value of said comparison rather than storing it in a
+ * temp
  */
 public abstract class ComparisonCJumpTile extends Tile {
 
@@ -24,7 +25,7 @@ public abstract class ComparisonCJumpTile extends Tile {
 
     /**
      * @return the jump operation which jumps if and only if the result of
-     * comparisonType() is true
+     *         comparisonType() is true
      */
     protected abstract String cjumpOp();
 
@@ -33,11 +34,10 @@ public abstract class ComparisonCJumpTile extends Tile {
      */
     protected abstract IRBinOp.OpType comparisonType();
 
-
     @Override
     public boolean fits(IRNode root) {
         /*
-        CJUMP( *compare*(x, y) )
+         * CJUMP( *compare*(x, y) )
          */
 
         if (root instanceof IRCJump) {
@@ -67,8 +67,7 @@ public abstract class ComparisonCJumpTile extends Tile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         /*
-        cmp _, _
-        cjumpOp() trueLabel
+         * cmp _, _ cjumpOp() trueLabel
          */
         statements.add(new AssemblyStatement("cmp", new AssemblyOperand(), new AssemblyOperand()));
         statements.add(new AssemblyStatement(cjumpOp(), cjump.trueLabel()));

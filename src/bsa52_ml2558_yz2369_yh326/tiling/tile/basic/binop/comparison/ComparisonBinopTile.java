@@ -9,8 +9,8 @@ import bsa52_ml2558_yz2369_yh326.tiling.tile.basic.binop.BinopTile;
 
 public abstract class ComparisonBinopTile extends BinopTile {
     /**
-     * @return the name of the assembly conditional jump which occurs when
-     *          the 'return' value of the binary operator is true
+     * @return the name of the assembly conditional jump which occurs when the
+     *         'return' value of the binary operator is true
      */
     protected abstract String conditionalJump();
 

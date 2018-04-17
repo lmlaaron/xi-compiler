@@ -14,13 +14,13 @@ public class CJumpTile extends Tile {
     @Override
     public boolean fits(IRNode root) {
         if (root instanceof IRCJump) {
-            IRCJump cj = (IRCJump)root;
+            IRCJump cj = (IRCJump) root;
             this.root = root;
             subtreeRoots = new LinkedList<>();
             subtreeRoots.add(cj.cond());
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class CJumpTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        String cjLabel = ((IRCJump)this.root).trueLabel();
+        String cjLabel = ((IRCJump) this.root).trueLabel();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         String ft = freshTemp();

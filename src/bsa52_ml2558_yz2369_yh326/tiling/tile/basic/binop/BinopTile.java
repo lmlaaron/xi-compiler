@@ -17,8 +17,8 @@ public abstract class BinopTile extends Tile {
      * set attributes according to validRoot
      *
      * @param validRoot
-     *            the IRNode which is being tiled. We have already confirmed
-     *            that its type is consistent with validIRBinOpType()
+     *            the IRNode which is being tiled. We have already confirmed that
+     *            its type is consistent with validIRBinOpType()
      */
     protected void init(IRBinOp validRoot) {
         root = validRoot;
@@ -32,8 +32,6 @@ public abstract class BinopTile extends Tile {
      * @return The type of binop that this tile matches
      */
     protected abstract IRBinOp.OpType validIRBinOpType();
-
-
 
     public boolean fits(IRNode irRoot) {
         if (irRoot instanceof IRBinOp) {

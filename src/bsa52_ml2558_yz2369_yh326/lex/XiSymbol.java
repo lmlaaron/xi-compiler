@@ -7,7 +7,7 @@ public class XiSymbol extends java_cup.runtime.Symbol implements sym {
      * Has the same function as the "left" attribute of its super class "symbol".
      */
     private int line;
-    
+
     /**
      * Has the same function as the "right" attribute of its super class "symbol".
      */

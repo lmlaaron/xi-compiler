@@ -73,8 +73,6 @@ public class MaxMunch {
 
         sortedTiles.add(new LEATile());
 
-
-
         // sort by size in descending order
         Collections.sort(sortedTiles, new Comparator<Tile>() {
             @Override
@@ -106,12 +104,11 @@ public class MaxMunch {
             System.out.println("The " + sortedTiles.size() + " tiles we have were not enough to tile this node:");
             System.out.print(irRoot.getClass());
             if (irRoot instanceof IRBinOp) {
-                System.out.println(" " + ((IRBinOp)irRoot).opType());
-            }
-            else {
+                System.out.println(" " + ((IRBinOp) irRoot).opType());
+            } else {
                 System.out.println();
             }
-            //irRoot.printSExp(new CodeWriterSExpPrinter(new PrintWriter(System.out)));
+            // irRoot.printSExp(new CodeWriterSExpPrinter(new PrintWriter(System.out)));
             throw new NotTilableException();
         }
 

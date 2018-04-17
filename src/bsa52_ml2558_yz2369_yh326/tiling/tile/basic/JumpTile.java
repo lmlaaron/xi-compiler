@@ -21,8 +21,8 @@ public class JumpTile extends Tile {
             subtreeRoots.add(((IRJump) root).target());
 
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override

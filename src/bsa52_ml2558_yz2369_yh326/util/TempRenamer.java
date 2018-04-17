@@ -9,12 +9,9 @@ import edu.cornell.cs.cs4120.xic.ir.visit.IRVisitor;
 public class TempRenamer extends IRVisitor {
 
     /**
-     * names which hold special significance
-     * during the translation process
+     * names which hold special significance during the translation process
      */
-    static String[] specialPrefixes = new String[] {
-            "_ARG", "_RET"
-    };
+    static String[] specialPrefixes = new String[] { "_ARG", "_RET" };
 
     String suffix;
 
@@ -36,7 +33,7 @@ public class TempRenamer extends IRVisitor {
     @Override
     protected IRVisitor enter(IRNode parent, IRNode n) {
         if (n instanceof IRTemp) {
-            IRTemp tmp = (IRTemp)n;
+            IRTemp tmp = (IRTemp) n;
             if (!specialName(tmp.name()) && !tmp.name().endsWith(suffix)) {
                 tmp.setName(tmp.name() + suffix);
             }

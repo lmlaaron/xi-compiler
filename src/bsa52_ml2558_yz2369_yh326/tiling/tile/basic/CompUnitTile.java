@@ -14,15 +14,15 @@ public class CompUnitTile extends Tile {
     public boolean fits(IRNode root) {
         if (root instanceof IRCompUnit) {
             this.root = root;
-            IRCompUnit cu = (IRCompUnit)root;
+            IRCompUnit cu = (IRCompUnit) root;
 
             this.subtreeRoots = new LinkedList<>();
             for (IRFuncDecl decl : cu.functions().values())
                 subtreeRoots.add(decl);
 
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override

@@ -16,8 +16,8 @@ public class TempTile extends Tile {
             this.root = root;
             this.subtreeRoots = new LinkedList<>();
             return true;
-        }
-        else return false;
+        } else
+            return false;
     }
 
     @Override
@@ -27,11 +27,6 @@ public class TempTile extends Tile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        return new Assembly(
-                new AssemblyOperand(
-                        ((IRTemp)root).name(),
-                        AssemblyOperand.OperandType.TEMP
-                )
-        );
+        return new Assembly(new AssemblyOperand(((IRTemp) root).name(), AssemblyOperand.OperandType.TEMP));
     }
 }

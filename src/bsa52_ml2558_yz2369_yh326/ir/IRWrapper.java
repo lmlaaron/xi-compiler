@@ -45,14 +45,14 @@ public class IRWrapper {
         irNode = Canonicalization.Lift(irNode);
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
-        
+
         // System.out.println(irNode.toString());
         if (Settings.irgen) {
             IRWrapper.WriteIRResult(irNode, outputFile + ".ir");
         }
         return irNode;
     }
-    
+
     /**
      * Generate the IR file
      */
@@ -93,16 +93,17 @@ public class IRWrapper {
     }
 
     /**
-     * This step is added to avoid variable names such as "rax"
-     * causing trouble at assembly level
+     * This step is added to avoid variable names such as "rax" causing trouble at
+     * assembly level
      *
-     * @param root the root of all IR code
-     * @param suffix the suffix to append to all temp names
+     * @param root
+     *            the root of all IR code
+     * @param suffix
+     *            the suffix to append to all temp names
      */
     public static void markTempNames(IRNode root, String suffix) {
         TempRenamer renamer = new TempRenamer(suffix);
         renamer.visit(root);
     }
-
 
 }

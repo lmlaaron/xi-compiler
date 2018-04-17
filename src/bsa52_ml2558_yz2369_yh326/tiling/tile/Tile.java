@@ -28,9 +28,9 @@ public abstract class Tile {
     public abstract boolean fits(IRNode root);
 
     /**
-     * most tiles want the assembly for their children to go first. There are
-     * some exceptions to this, including function declarations (the label should
-     * go before the code)
+     * most tiles want the assembly for their children to go first. There are some
+     * exceptions to this, including function declarations (the label should go
+     * before the code)
      */
     protected boolean childAssmGoesFirst() {
         return true;
@@ -46,15 +46,14 @@ public abstract class Tile {
      * instance of the same type
      */
     public Tile blankClone() {
-        for (Constructor<?>  constructor : this.getClass().getConstructors()) {
+        for (Constructor<?> constructor : this.getClass().getConstructors()) {
             if (constructor.getParameterCount() == 0) {
                 try {
                     Object o = constructor.newInstance();
                     if (o instanceof Tile) {
-                        return (Tile)o;
+                        return (Tile) o;
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     // shouldn't ever happen
                     throw new RuntimeException(e);
                 }
@@ -70,8 +69,7 @@ public abstract class Tile {
     public List<IRNode> getSubtreeRoots() {
         if (subtreeRoots == null) {
             return new LinkedList<>();
-        }
-        else {
+        } else {
             return subtreeRoots;
         }
     }
@@ -89,32 +87,29 @@ public abstract class Tile {
     }
 
     /**
-     * @return the Assembly containing instructions local to this
-     * object, not children or parents
+     * @return the Assembly containing instructions local to this object, not
+     *         children or parents
      */
     protected abstract Assembly generateLocalAssembly();
 
     /**
-     * @return the Assembly containing instructions belonging to this
-     * tile and all children
+     * @return the Assembly containing instructions belonging to this tile and all
+     *         children
      */
     public Assembly generateAssembly() {
         Assembly[] childAssm = new Assembly[subtreeTiles.size()];
         for (int i = 0; i < childAssm.length; i++)
             childAssm[i] = subtreeTiles.get(i).generateAssembly();
 
-
-
         Assembly localAssm = generateLocalAssembly();
 
         if (Settings.asmComments) {
             // for debugging, add a comment for each tile to see how code was generated
             AssemblyStatement[] comment = AssemblyStatement.comment(this.getClass().getSimpleName().toString());
-            for(int i = 0; i < comment.length; i++) {
+            for (int i = 0; i < comment.length; i++) {
                 localAssm.statements.addFirst(comment[i]);
             }
         }
-
 
         // for debugging only
         StringBuilder localStatements = new StringBuilder();
@@ -122,12 +117,12 @@ public abstract class Tile {
 
         try {
             localAssm.merge(childAssmGoesFirst(), childAssm);
-        }
-        catch (TileMergeException e) {
+        } catch (TileMergeException e) {
             System.out.println("Issue merging parent tile " + this.getClass().getSimpleName() + " with child tiles: ");
             for (Tile child : subtreeTiles)
                 System.out.println(child.getClass().getSimpleName());
-            System.out.println("Hint: do the number of 'empty' arguments in the parent match the sum of the fillers in the children?");
+            System.out.println(
+                    "Hint: do the number of 'empty' arguments in the parent match the sum of the fillers in the children?");
             System.exit(1);
         }
 
