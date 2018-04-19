@@ -1,11 +1,10 @@
 package bsa52_ml2558_yz2369_yh326;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.exception.LexingException;

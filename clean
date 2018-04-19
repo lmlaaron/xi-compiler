@@ -8,4 +8,7 @@ find . -type f -name '*.lexed' -delete
 find . -type f -name '*.parsed' -delete
 find . -type f -name '*.typed' -delete
 find . -type f -name '*.ir' -delete
+find . -type f -name '*.ir.nml' -delete
 find . -type f -name '*.s' -delete
+find . -type f -name '*.s.nml' -delete
+find . -type f -name '*.dot' -delete

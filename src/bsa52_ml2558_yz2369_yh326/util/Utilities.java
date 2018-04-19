@@ -1,4 +1,4 @@
-package bsa52_ml2558_yz2369_yh326.ast.util;
+package bsa52_ml2558_yz2369_yh326.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;

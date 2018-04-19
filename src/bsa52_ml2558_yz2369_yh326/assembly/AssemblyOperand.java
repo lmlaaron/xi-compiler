@@ -1,8 +1,8 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
-import bsa52_ml2558_yz2369_yh326.ast.util.Utilities;
-
 import java.util.*;
+
+import bsa52_ml2558_yz2369_yh326.util.Utilities;
 
 class OperandComparator implements Comparator<AssemblyOperand> {
     @Override
