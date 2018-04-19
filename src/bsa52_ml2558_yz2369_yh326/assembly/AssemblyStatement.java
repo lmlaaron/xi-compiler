@@ -17,10 +17,10 @@ public class AssemblyStatement {
         return ret;
     }
 
-    String operation;
+    public String operation;
     public boolean isFunctionLabel;
     public boolean isOtherLabel;
-    AssemblyOperand[] operands;
+    public AssemblyOperand[] operands;
 
     public AssemblyStatement(String operation) {
         isFunctionLabel = false;

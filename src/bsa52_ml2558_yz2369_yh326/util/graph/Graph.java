@@ -13,23 +13,34 @@ public class Graph<T> {
     private String name;
     private Set<CFGNode<T>> vertices;
     private Map<CFGNode<T>, Set<CFGNode<T>>> edges;
+    private Map<CFGNode<T>, Set<CFGNode<T>>> reverseEdges;
     
     public Graph(String name) {
         this.name = name;
         this.vertices = new HashSet<CFGNode<T>>();
         this.edges = new HashMap<CFGNode<T>, Set<CFGNode<T>>>();
+        this.reverseEdges = new HashMap<>();
     }
     
     public Graph(String name, Set<CFGNode<T>> vertices) {
         this.name = name;
         this.vertices = vertices;
-        this.edges = new HashMap<CFGNode<T>, Set<CFGNode<T>>>();
+        this.edges = new HashMap<>();
+        this.reverseEdges = new HashMap<>();
     }
     
     public Graph(String name, Set<CFGNode<T>> vertices, Map<CFGNode<T>, Set<CFGNode<T>>> edges) {
         this.name = name;
         this.vertices = vertices;
-        this.edges = edges;
+
+        this.edges = new HashMap<>();
+        this.reverseEdges = new HashMap<>();
+
+        for (CFGNode from : edges.keySet()) {
+            for (CFGNode to : edges.get(from)) {
+                addEdge(from, to);
+            }
+        }
     }
     
     /**Add {@code vertex} to the graph.
@@ -43,22 +54,45 @@ public class Graph<T> {
     }
     
     public void addEdge(CFGNode<T> from, CFGNode<T> to) {
+        this.vertices.add(from);
+        this.vertices.add(to);
+
         if (!this.edges.containsKey(from)) {
             this.edges.put(from, new HashSet<CFGNode<T>>());
-            this.vertices.add(from);
         }
+        if (!this.reverseEdges.containsKey(to)) {
+            this.reverseEdges.put(to, new HashSet<>());
+        }
+
         this.edges.get(from).add(to);
+        this.reverseEdges.get(to).add(from);
+    }
+
+    public Set<CFGNode<T>> getPredecessors(CFGNode<T> node) {
+        if (reverseEdges.containsKey(node))
+            return reverseEdges.get(node);
+        else
+            return new HashSet<>();
+    }
+
+    public Set<CFGNode<T>> getSuccessors(CFGNode<T> node) {
+        if (edges.containsKey(node)) {
+            return edges.get(node);
+        }
+        else
+            return new HashSet<>();
     }
     
     public boolean removeVertex(CFGNode<T> vertex) {
         return this.vertices.remove(vertex);
     }
     
-    public boolean removeEdge(CFGNode<T> from, CFGNode<T> to) {
-        if (!this.edges.containsKey(from))
-            return false;
+    public void removeEdge(CFGNode<T> from, CFGNode<T> to) {
+        if (!this.edges.containsKey(from) || !this.reverseEdges.containsKey(to))
+            return;
         else {
-            return this.edges.get(from).remove(to);
+            this.edges.get(from).remove(to);
+            this.reverseEdges.get(to).remove(from);
         }
     }
 
@@ -90,18 +124,9 @@ public class Graph<T> {
     }
 
     public void reverseEdges() {
-        HashMap<CFGNode<T>, Set<CFGNode<T>>> newEdges = new HashMap<>();
-
-        for (CFGNode<T> fromNode : getVertices()) {
-            for (CFGNode<T> toNode : getEdges().get(fromNode)) {
-                if (!newEdges.containsKey(toNode)) {
-                    newEdges.put(toNode, new HashSet<>());
-                }
-                newEdges.get(toNode).add(fromNode);
-            }
-        }
-
-        this.edges = newEdges;
+        Map<CFGNode<T>, Set<CFGNode<T>>> placeholder = edges;
+        edges = reverseEdges;
+        reverseEdges = edges;
     }
 
     public static void main(String[] argv) {
