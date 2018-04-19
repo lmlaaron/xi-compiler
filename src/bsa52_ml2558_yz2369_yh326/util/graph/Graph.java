@@ -1,5 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.util.graph;
 
+import bsa52_ml2558_yz2369_yh326.util.graph.Node.CFGNode;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,24 +9,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Graph {
+public class Graph<T> {
     private String name;
-    private Set<CFGNode> vertices;
-    private Map<CFGNode, Set<CFGNode>> edges;
+    private Set<CFGNode<T>> vertices;
+    private Map<CFGNode<T>, Set<CFGNode<T>>> edges;
     
     public Graph(String name) {
         this.name = name;
-        this.vertices = new HashSet<CFGNode>();
+        this.vertices = new HashSet<CFGNode<T>>();
         this.edges = new HashMap<CFGNode, Set<CFGNode>>();
     }
     
     public Graph(String name, Set<CFGNode> vertices) {
         this.name = name;
         this.vertices = vertices;
-        this.edges = new HashMap<CFGNode, Set<CFGNode>>();
+        this.edges = new HashMap<CFGNode<T>, Set<CFGNode<T>>>();
     }
     
-    public Graph(String name, Set<CFGNode> vertices, Map<CFGNode, Set<CFGNode>> edges) {
+    public Graph(String name, Set<CFGNode<T>> vertices, Map<CFGNode<T>, Set<CFGNode<T>>> edges) {
         this.name = name;
         this.vertices = vertices;
         this.edges = edges;
@@ -36,13 +38,13 @@ public class Graph {
     public void addVertex(CFGNode vertex) {
         this.vertices.add(vertex);
         if (!this.edges.containsKey(vertex)) {
-            this.edges.put(vertex, new HashSet<CFGNode>());
+            this.edges.put(vertex, new HashSet<CFGNode<T>>());
         }
     }
     
     public void addEdge(CFGNode from, CFGNode to) {
         if (!this.edges.containsKey(from)) {
-            this.edges.put(from, new HashSet<CFGNode>());
+            this.edges.put(from, new HashSet<CFGNode<T>>());
             this.vertices.add(from);
         }
         this.edges.get(from).add(to);
@@ -71,7 +73,7 @@ public class Graph {
     public String toDotFormat() {
         String rs = "digraph " + name + "{\n    node [shape=box];\n";
         for (CFGNode vertex : this.vertices) {
-            rs += "    " + vertex.id + " " + "[label=\"" + vertex.label.replace("\"", "\\\"") + "\"];\n";
+            rs += "    " + vertex.id + " " + "[label=\"" + vertex.data.toString().replace("\"", "\\\"") + "\"];\n";
         }
         rs += "\n";
         for (CFGNode from : this.edges.keySet()) {
