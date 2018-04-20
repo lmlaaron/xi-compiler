@@ -1,5 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
+import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -43,6 +45,8 @@ public class AssemblyStatement {
     public AssemblyOperand[] operands;
 
     public AssemblyStatement(String operation) {
+        id = NumberGetter.uniqueNumber();
+
         isFunctionLabel = false;
         isOtherLabel = false;
         operands = new AssemblyOperand[0];

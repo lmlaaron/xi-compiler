@@ -48,6 +48,8 @@ public class Main {
         usage += "  --abstract       Generate abstract assembly .aasm file.\n";
         usage += "  --disasmgen      Generate acutal assembly by transforming abtract assembly.\n";
         usage += "  --comment        Add comments to generated assembly.\n";
+        usage += "  --aasmGraph      Generate Dot graph for abstract assembly.\n";
+
         System.out.println(usage);
     }
 
@@ -56,6 +58,7 @@ public class Main {
     }
 
     public static void HandleArgv(String[] argv) {
+
         // Processing other options
         for (int i = 0; i < argv.length; i++) {
             if (argv[i].equals("-O")) {
@@ -67,7 +70,11 @@ public class Main {
             } else if (argv[i].startsWith("--")) {
                 if (argv[i].equals("--help")) {
                     Usage();
-                } else if (argv[i].equals("--report-opts")) {
+                }
+                else if (argv[i].equals("--aasmGraph")) {
+                    Settings.brentHack = true;
+                }
+                else if (argv[i].equals("--report-opts")) {
                     Support();
                 } else if (argv[i].equals("--lex")) {
                     Settings.lex = true;
@@ -157,7 +164,7 @@ public class Main {
                 if (Settings.irrun)
                     IRWrapper.IRRun(irNode);
                 Tile rootTile = MaxMunch.munch(irNode);
-                /* Assembly assm = */AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
+                AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
             } catch (LexingException | ParsingException e) {
                 e.print(file + ".xi");
                 if (Settings.typeCheck) {

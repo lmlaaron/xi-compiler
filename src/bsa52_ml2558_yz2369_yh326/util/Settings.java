@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 public class Settings {
+
+    public static boolean brentHack = false;
+
     // Output options
     public static boolean lex = false;
     public static boolean parse = false;

@@ -8,6 +8,8 @@ import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
+import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
+import bsa52_ml2558_yz2369_yh326.util.graph.Graph;
 
 public class AssemblyWrapper {
     public static Assembly GenerateAssembly(Tile tile, String outputFile) {
@@ -69,6 +71,20 @@ public class AssemblyWrapper {
         List<RegisterTable> registerTables = getRegisterTables(functions, labelNames);
 
         functions = specifyStackSizes(functions, registerTables, maxStackSizes);
+
+        if (Settings.brentHack) {
+            Graph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(assm);
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("ABSTRACT_ASSM.dot")));
+                writer.write(cfg.toDotFormat());
+                writer.close();
+            }
+            catch (Exception e) {
+                System.out.println("IO Error!");
+            }
+
+
+        }
 
         assm = spillTempsOnStack(functions, labelNames, registerTables);
         return assm;
