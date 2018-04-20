@@ -4,6 +4,26 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class AssemblyStatement {
+    protected String id; // used to uniquely identify a statement, even in cases
+                            // where instances are identical in content
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AssemblyStatement) {
+            AssemblyStatement stmt = (AssemblyStatement)obj;
+            return stmt.getID() == this.getID();
+        }
+        else return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    public String getID() { return id; }
+
     public static AssemblyStatement[] comment(String comment) {
         String newline = System.getProperty("line.separator");
 
@@ -25,30 +45,27 @@ public class AssemblyStatement {
     public AssemblyStatement(String operation) {
         isFunctionLabel = false;
         isOtherLabel = false;
-        this.operation = operation;
         operands = new AssemblyOperand[0];
+
+        this.operation = operation;
     }
 
     public AssemblyStatement(String operation, boolean funcLabel) {
+        this(operation);
         isFunctionLabel = funcLabel;
         isOtherLabel = false;
-        this.operation = operation;
-        operands = new AssemblyOperand[0];
     }
 
     public AssemblyStatement(String operation, String... operands) {
-        isFunctionLabel = false;
-        isOtherLabel = false;
-        this.operation = operation;
+        this(operation);
+
         this.operands = new AssemblyOperand[operands.length];
         for (int i = 0; i < operands.length; i++)
             this.operands[i] = new AssemblyOperand(operands[i]);
     }
 
     public AssemblyStatement(String operation, AssemblyOperand... operands) {
-        isOtherLabel = false;
-        isFunctionLabel = false;
-        this.operation = operation;
+        this(operation);
         this.operands = operands;
     }
 
