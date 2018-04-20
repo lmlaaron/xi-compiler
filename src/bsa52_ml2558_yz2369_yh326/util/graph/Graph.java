@@ -14,21 +14,21 @@ public class Graph<T> {
     private Map<T, Set<T>> reverseEdges;
     
     public Graph(String name) {
-        this.name = name;
+        this.name = variableName(name);
         this.vertices = new HashSet<T>();
         this.edges = new HashMap<T, Set<T>>();
         this.reverseEdges = new HashMap<>();
     }
     
     public Graph(String name, Set<T> vertices) {
-        this.name = name;
+        this.name = variableName(name);
         this.vertices = vertices;
         this.edges = new HashMap<>();
         this.reverseEdges = new HashMap<>();
     }
     
     public Graph(String name, Set<T> vertices, Map<T, Set<T>> edges) {
-        this.name = name;
+        this.name = variableName(name);
         this.vertices = vertices;
 
         this.edges = new HashMap<>();
@@ -39,6 +39,18 @@ public class Graph<T> {
                 addEdge(from, to);
             }
         }
+    }
+    
+    private String variableName(String name) {
+        String rs = "";
+        for (int i = 0; i < name.length(); i++) {
+            char ch = name.charAt(i);
+            if ('A' <= ch && ch <= 'Z' || 'a' <= ch && ch <= 'z'
+                    || '0' <= ch && ch <= '9' || ch == '_')
+                rs += ch;
+            else rs += "_";
+        }
+        return rs;
     }
     
     /**Add {@code vertex} to the graph.
@@ -112,7 +124,8 @@ public class Graph<T> {
 
         String rs = "digraph " + name + "{\n    node [shape=box];\n";
         for (T vertex : this.vertices) {
-            rs += "    " + ids.get(vertex) + " " + "[label=\"" + vertex.toString().replace("\"", "\\\"") + "\"];\n";
+            String label = vertex.toString().trim().replace("\"", "\\\"");
+            rs += "    " + ids.get(vertex) + " " + "[label=\"" + label + "\"];\n";
         }
         rs += "\n";
         for (T from : this.edges.keySet()) {
@@ -135,7 +148,7 @@ public class Graph<T> {
     }
 
     public static void main(String[] argv) {
-        Graph g = new Graph("testFunction");
+        Graph<String> g = new Graph<String>("testFunction");
         String n1 = "a = 1",
                 n2 = "if a < 3",
                 n3 = "b = 4",
