@@ -58,7 +58,7 @@ public class AssemblyWrapper {
     }
 
     public static Assembly processAbstractAssm(Assembly assm) {
-        HashSet<String> labelNames = collectLabels(assm);
+        HashSet<String> labelNames = collectLabels(assm, false);
         List<List<AssemblyStatement>> functions = partitionFunctions(assm);
 
         List<List<Integer>> lastCallArgCounts = getLastCallArgCounts(functions);
@@ -277,7 +277,7 @@ public class AssemblyWrapper {
         return ret;
     }
 
-    public static HashSet<String> collectLabels(Assembly assm) {
+    public static HashSet<String> collectLabels(Assembly assm, boolean includeColon) {
         // collect all the label names, to prevent mistaking them for temps when
         // they appear as arguments (as with conditional jumps, etc)
         HashSet<String> labelNames = new HashSet<String>();
@@ -286,7 +286,10 @@ public class AssemblyWrapper {
         //              in the assembly
         for (AssemblyStatement stmt : assm.statements) {
             if (stmt.operation.endsWith(":")) {
-                labelNames.add(stmt.operation.substring(0, stmt.operation.length() - 1));
+                if (includeColon)
+                    labelNames.add(stmt.operation);
+                else
+                    labelNames.add(stmt.operation.substring(0, stmt.operation.length() - 1));
             }
         }
 
