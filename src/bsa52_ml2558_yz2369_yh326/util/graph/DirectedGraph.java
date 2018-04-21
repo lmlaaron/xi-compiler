@@ -2,12 +2,9 @@ package bsa52_ml2558_yz2369_yh326.util.graph;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class DirectedGraph<T> {
+public class DirectedGraph<T> implements Graph<T> {
     private String name;
     private Set<T> vertices;
     private Map<T, Set<T>> edges;
@@ -93,10 +90,19 @@ public class DirectedGraph<T> {
             return new HashSet<>();
     }
     
-    public boolean removeVertex(T vertex) {
-        return this.vertices.remove(vertex);
+    public void removeVertex(T vertex) {
+        this.vertices.remove(vertex);
+        if (vertices.contains(vertex))
+            vertices.remove(vertex);
+        if (reverseEdges.containsKey(vertex)) {
+            LinkedList<T> froms  = new LinkedList(reverseEdges.get(vertex));
+            for (T from : froms)
+                removeEdge(from, vertex);
+        }
+        if (edges.containsKey(vertex))
+            edges.remove(vertex);
     }
-    
+
     public void removeEdge(T from, T to) {
         if (!this.edges.containsKey(from) || !this.reverseEdges.containsKey(to))
             return;
