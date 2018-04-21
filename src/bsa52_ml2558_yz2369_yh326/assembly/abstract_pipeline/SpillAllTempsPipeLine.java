@@ -1,6 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.assembly.abstract_pipeline;
 
 import bsa52_ml2558_yz2369_yh326.assembly.*;
+import bsa52_ml2558_yz2369_yh326.optimization.register_allocation.RegisterAllocation;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
@@ -39,10 +40,8 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
                 System.out.println("IO Error!");
             }
 
-
-
-            System.out.println("Coloring Graph...");
-            // TODO
+            // testing out graph coloring, etc
+            RegisterAllocation.RegisterAllocation(abstractAssembly);
         }
 
         abstractAssembly = spillTempsOnStack(functions, labelNames, registerTables);

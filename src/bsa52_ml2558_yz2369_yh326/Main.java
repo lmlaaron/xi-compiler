@@ -71,7 +71,7 @@ public class Main {
                 if (argv[i].equals("--help")) {
                     Usage();
                 }
-                else if (argv[i].equals("--aasmGraph")) {
+                else if (argv[i].equals("--brentHack")) {
                     Settings.brentHack = true;
                 }
                 else if (argv[i].equals("--report-opts")) {
