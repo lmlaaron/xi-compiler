@@ -7,27 +7,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Graph<T> {
+public class DirectedGraph<T> {
     private String name;
     private Set<T> vertices;
     private Map<T, Set<T>> edges;
     private Map<T, Set<T>> reverseEdges;
     
-    public Graph(String name) {
+    public DirectedGraph(String name) {
         this.name = variableName(name);
         this.vertices = new HashSet<T>();
         this.edges = new HashMap<T, Set<T>>();
         this.reverseEdges = new HashMap<>();
     }
     
-    public Graph(String name, Set<T> vertices) {
+    public DirectedGraph(String name, Set<T> vertices) {
         this.name = variableName(name);
         this.vertices = vertices;
         this.edges = new HashMap<>();
         this.reverseEdges = new HashMap<>();
     }
     
-    public Graph(String name, Set<T> vertices, Map<T, Set<T>> edges) {
+    public DirectedGraph(String name, Set<T> vertices, Map<T, Set<T>> edges) {
         this.name = variableName(name);
         this.vertices = vertices;
 
@@ -137,8 +137,8 @@ public class Graph<T> {
     }
 
     @Override
-    public Graph<T> clone() {
-        return new Graph<T>(name, new HashSet<>(getVertices()), new HashMap<>(getEdges()));
+    public DirectedGraph<T> clone() {
+        return new DirectedGraph<T>(name, new HashSet<>(getVertices()), new HashMap<>(getEdges()));
     }
 
     public void reverseEdges() {
@@ -148,7 +148,7 @@ public class Graph<T> {
     }
 
     public static void main(String[] argv) {
-        Graph<String> g = new Graph<String>("testFunction");
+        DirectedGraph<String> g = new DirectedGraph<String>("testFunction");
         String n1 = "a = 1",
                 n2 = "if a < 3",
                 n3 = "b = 4",

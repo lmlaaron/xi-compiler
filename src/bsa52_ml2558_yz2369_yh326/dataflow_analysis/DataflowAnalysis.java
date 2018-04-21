@@ -1,6 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.dataflow_analysis;
 
-import bsa52_ml2558_yz2369_yh326.util.graph.Graph;
+import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 
 import java.util.*;
 
@@ -12,11 +12,11 @@ import java.util.*;
  */
 public abstract class DataflowAnalysis<GT, IT> {
     /**
-     * Control Flow Graph for this instance to perform analysis on
+     * Control Flow DirectedGraph for this instance to perform analysis on
      */
-    protected Graph<GT> cfg;
+    protected DirectedGraph<GT> cfg;
 
-    public DataflowAnalysis(Graph<GT> cfg) {
+    public DataflowAnalysis(DirectedGraph<GT> cfg) {
         this.cfg = cfg;
 
         // By reversing the direction of the graph, we can

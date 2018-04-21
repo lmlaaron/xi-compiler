@@ -2,8 +2,7 @@ package bsa52_ml2558_yz2369_yh326.dataflow_analysis;
 
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
-import bsa52_ml2558_yz2369_yh326.util.graph.Graph;
-import jdk.jshell.spi.ExecutionControl;
+import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LiveVariableAnalysis extends DataflowAnalysisGenKill<AssemblyStatement, Set<String>> {
-    public LiveVariableAnalysis(Graph<AssemblyStatement> cfg) {super(cfg);}
+    public LiveVariableAnalysis(DirectedGraph<AssemblyStatement> cfg) {super(cfg);}
 
     @Override
     protected Set<String> kill(AssemblyStatement stmt) {

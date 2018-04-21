@@ -1,11 +1,9 @@
 package bsa52_ml2558_yz2369_yh326.dataflow_analysis;
 
-import bsa52_ml2558_yz2369_yh326.util.graph.Graph;
+import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Dataflow Analysis superclass providing a general-purpose implementation of the
@@ -15,7 +13,7 @@ import java.util.Set;
  * @param <IT>
  */
 public abstract class DataflowAnalysisGenKill<GT, IT> extends DataflowAnalysis<GT, IT> {
-    public DataflowAnalysisGenKill(Graph<GT> cfg) {
+    public DataflowAnalysisGenKill(DirectedGraph<GT> cfg) {
         super(cfg);
     }
 

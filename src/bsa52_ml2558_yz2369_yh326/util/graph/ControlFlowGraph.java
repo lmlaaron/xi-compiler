@@ -2,7 +2,7 @@ package bsa52_ml2558_yz2369_yh326.util.graph;
 
 import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
-import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class ControlFlowGraph {
      * @param assm
      * @return
      */
-    public static Graph<AssemblyStatement> fromAssembly (Assembly assm) {
+    public static DirectedGraph<AssemblyStatement> fromAssembly (Assembly assm) {
         if (assm.incomplete()) {
             throw new RuntimeException("Assembly must be complete to form a CFG");
         }
@@ -25,9 +25,9 @@ public class ControlFlowGraph {
         // arraylist allows for easier access by index
         ArrayList<AssemblyStatement> statements = new ArrayList<>(assm.statements);
 
-        Graph<AssemblyStatement> g = new Graph<>("Assembly Control Flow Graph");
+        DirectedGraph<AssemblyStatement> g = new DirectedGraph<>("Assembly Control Flow DirectedGraph");
 
-        HashSet<String> labels = AssemblyWrapper.collectLabels(assm, true);
+        HashSet<String> labels = AssemblyUtils.collectLabels(assm, true);
 
         // collect mapping of label name to location by index
         HashMap<String, Integer> labelToIndex = new HashMap<String, Integer>();

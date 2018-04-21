@@ -14,7 +14,7 @@ import java.util.Map;
  * @author lmlaaron utilities for mapping temp variables in abstract assembly to
  *         rel variables int concrete assembly
  */
-class RegisterTable {
+public class RegisterTable {
     /**
      * Register lookup table mapping the Abstract register to actual stack position
      */
