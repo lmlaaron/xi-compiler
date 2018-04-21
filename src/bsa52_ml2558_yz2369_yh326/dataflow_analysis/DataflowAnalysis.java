@@ -71,21 +71,21 @@ public abstract class DataflowAnalysis<GT, IT> {
 
     public void worklist() {
         // each vertex has associated data
-        Map<CFGNode<GT>, IT> inForNode = new HashMap<>();
-        Map<CFGNode<GT>, IT> outForNode = new HashMap<>();
+        Map<GT, IT> inForNode = new HashMap<>();
+        Map<GT, IT> outForNode = new HashMap<>();
 
         // all nodes start out with 'top'
-        for (CFGNode<GT> node : cfg.getVertices()) {
+        for (GT node : cfg.getVertices()) {
             inForNode.put(node, top());
             outForNode.put(node, top());
         }
 
         // all nodes start on worklist
-        Stack<CFGNode<GT>> worklist = new Stack<CFGNode<GT>>();
+        Stack<GT> worklist = new Stack<GT>();
         worklist.addAll(cfg.getVertices());
 
         while (!worklist.isEmpty()) {
-            CFGNode<GT> node = worklist.pop();
+            GT node = worklist.pop();
 
             boolean changed = false;
 
@@ -94,7 +94,7 @@ public abstract class DataflowAnalysis<GT, IT> {
 
             // update in[n]
             IT oldIn = inForNode.get(node);
-            IT newIn = in(node.data, outsFromPredecessors);
+            IT newIn = in(node, outsFromPredecessors);
 
             if (!newIn.equals(oldIn)) {
                 inForNode.put(node, newIn);
@@ -103,7 +103,7 @@ public abstract class DataflowAnalysis<GT, IT> {
 
             // update out[n]
             IT oldOut = outForNode.get(node);
-            IT newOut = out(node.data, newIn);
+            IT newOut = out(node, newIn);
 
             if (!newOut.equals(oldOut)) {
                 outForNode.put(node, newOut);
@@ -115,6 +115,8 @@ public abstract class DataflowAnalysis<GT, IT> {
                 worklist.addAll(cfg.getSuccessors(node));
             }
         }
+
+
 
         // TODO: RETURN inForNode, outForNode in whatever format most convenient (augmented CFG?)
     }
