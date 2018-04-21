@@ -69,7 +69,12 @@ public abstract class DataflowAnalysis<GT, IT> {
      */
     protected abstract IT top();
 
-    public void worklist() {
+    /**
+     * @return object containing the result of the dataflow analysis. Note that in and out
+     *          are defined in terms of the direction of the analysis, so for backwards,
+     *          in flows to predecessors
+     */
+    public DataflowAnalysisResult<GT, IT> worklist() {
         // each vertex has associated data
         Map<GT, IT> inForNode = new HashMap<>();
         Map<GT, IT> outForNode = new HashMap<>();
@@ -116,8 +121,6 @@ public abstract class DataflowAnalysis<GT, IT> {
             }
         }
 
-
-
-        // TODO: RETURN inForNode, outForNode in whatever format most convenient (augmented CFG?)
+        return new DataflowAnalysisResult<>(cfg, inForNode, outForNode);
     }
 }
