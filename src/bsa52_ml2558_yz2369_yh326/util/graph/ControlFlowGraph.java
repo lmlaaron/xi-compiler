@@ -53,25 +53,7 @@ public class ControlFlowGraph {
 
             // some sort of jump
             if (statement.operation.substring(0,1).equals("j")) {
-                AssemblyStatement labelStatement = null;
-                try {
-                    System.out.println(statement == null);
-                    System.out.println(statement.operands == null);
-                    System.out.println(statement.operands[0] == null);
-                    System.out.println(labelToIndex.get(statement.operands[0] == null));
-                    System.out.println(labelToIndex.containsKey(statement.operands[0].value()));
-
-                    int index = labelToIndex.get(statement.operands[0].value());
-                    labelStatement = statements.get(index);
-                }
-                catch (Exception e) {
-                    System.out.println(statement);
-                    System.out.println();
-                    labelToIndex.keySet().forEach(k -> System.out.println(k));
-                    System.out.println();
-
-                    throw e;
-                }
+                AssemblyStatement labelStatement = statements.get(labelToIndex.get(statement.operands[0].value()));
 
                 // unconditional
                 if (statement.operation.equals("jmp")) {
