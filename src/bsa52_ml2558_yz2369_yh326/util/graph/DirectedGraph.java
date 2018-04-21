@@ -23,6 +23,15 @@ public class DirectedGraph<T> implements Graph<T> {
         this.edges = new HashMap<>();
         this.reverseEdges = new HashMap<>();
     }
+
+    public Set<T> getAdj(T node) {
+        if (edges.containsKey(node)) {
+            return edges.get(node);
+        }
+        else {
+            return new HashSet<>();
+        }
+    }
     
     public DirectedGraph(String name, Set<T> vertices, Map<T, Set<T>> edges) {
         this.name = variableName(name);

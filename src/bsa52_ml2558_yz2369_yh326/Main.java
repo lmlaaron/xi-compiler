@@ -48,7 +48,7 @@ public class Main {
         usage += "  --abstract       Generate abstract assembly .aasm file.\n";
         usage += "  --disasmgen      Generate acutal assembly by transforming abtract assembly.\n";
         usage += "  --comment        Add comments to generated assembly.\n";
-        usage += "  --aasmGraph      Generate Dot graph for abstract assembly.\n";
+        usage += "  --brentHack      Does whatever Brent wants it to do, for testing.\n";
 
         System.out.println(usage);
     }

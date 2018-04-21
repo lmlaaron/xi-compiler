@@ -11,6 +11,19 @@ public class UndirectedGraph<T> implements Graph<T> {
         vertices = new HashSet<>();
     }
 
+    public Set<T> getSuccessors(T node) {
+        if (edges.containsKey(node)) {
+            return edges.get(node);
+        }
+        else {
+            return new HashSet<>();
+        }
+    }
+
+    public Set<T> getPredecessors(T node) {
+        return getSuccessors(node);
+    }
+
 
     @Override
     public void addVertex(T vertex) {

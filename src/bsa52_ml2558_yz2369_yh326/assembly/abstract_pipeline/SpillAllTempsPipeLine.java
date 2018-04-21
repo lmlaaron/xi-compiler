@@ -38,6 +38,11 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
             catch (Exception e) {
                 System.out.println("IO Error!");
             }
+
+
+
+            System.out.println("Coloring Graph...");
+            // TODO
         }
 
         abstractAssembly = spillTempsOnStack(functions, labelNames, registerTables);
