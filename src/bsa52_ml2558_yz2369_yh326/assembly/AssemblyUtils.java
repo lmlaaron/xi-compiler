@@ -129,6 +129,13 @@ public class AssemblyUtils {
                 else
                     labelNames.add(stmt.operation.substring(0, stmt.operation.length() - 1));
             }
+            // external functions won't be covered by previous branch
+            else if (stmt.operation.equals("call")) {
+                String label = stmt.operands[0].value();
+                if (includeColon)
+                    label = label + ":";
+                labelNames.add(label);
+            }
         }
 
         return labelNames;

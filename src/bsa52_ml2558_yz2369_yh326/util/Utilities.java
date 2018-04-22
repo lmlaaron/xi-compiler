@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
@@ -73,9 +74,6 @@ public class Utilities {
             realRegisters.add("rcx");
             realRegisters.add("rdx");
 
-            realRegisters.add("rsx");
-            realRegisters.add("rbx");
-
             realRegisters.add("rsi");
             realRegisters.add("rdi");
 
@@ -91,6 +89,18 @@ public class Utilities {
     public static boolean isRealRegister(String s) {
         initRealRegisters();
         return realRegisters.contains(s);
+    }
+
+    public static List<String> registersForAllocation() {
+        initRealRegisters();
+        LinkedList<String> ret = new LinkedList<String>(realRegisters);
+        ret.remove("rsp");
+        ret.remove("rbp");
+        return ret;
+    }
+
+    public static String freshTemp() {
+        return "__FreshTemp_" + NumberGetter.uniqueNumber();
     }
 
     public static boolean isNumber(String s) {

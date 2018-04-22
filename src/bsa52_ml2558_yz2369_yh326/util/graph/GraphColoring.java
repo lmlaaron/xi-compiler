@@ -12,9 +12,21 @@ public class GraphColoring<GT, CT> {
 
     /**
      * @param colors the set of colors which can be used for this graph
-     * @return true if all nodes were successfully colored
+     * @return a list of the nodes that couldn't be colored
      */
-    public boolean colorBasic(Collection<CT> colors, Map<GT, CT> colorings) {
+    public List<GT> colorBasic(Collection<CT> colors, Map<GT, CT> colorings) {
+        return colorRestricted(colors, colorings, new HashSet<CT>());
+    }
+
+    /**
+     * Operates similarly to colorBasic, but imposes the restriction that
+     * some subset of nodes must be colored
+     *
+     * @param mustColor
+     *
+     * @throws RuntimeException if the restriction couldn't be satisfied
+     */
+    public List<GT> colorRestricted(Collection<CT> colors, Map<GT, CT> colorings, Set<CT> mustColor) {
         // accumulate in-degree counts
         Map<GT, Integer> inDegree = getInDegree();
 
@@ -29,7 +41,7 @@ public class GraphColoring<GT, CT> {
         LinkedList<GT> toColor = new LinkedList<>();
         // simplification phase: remove nodes until graph is empty
         while (!currentNodes.isEmpty()) {
-            toColor.addAll(simplify(k, currentNodes, inDegree));
+            toColor.addAll(simplify(k, currentNodes, inDegree, mustColor));
         }
 
         // coloring phase: add nodes back in reverse order of removal
@@ -38,7 +50,9 @@ public class GraphColoring<GT, CT> {
             colorings.put(node, colorNode(node, colorings, colors));
         }
 
-        return graph.getVertices().stream().allMatch(v -> colorings.containsKey(v));
+        return graph.getVertices().stream().filter(
+                v -> !colorings.containsKey(v)
+        ).collect(Collectors.toList());
     }
 
     protected CT colorNode(GT node, Map<GT, CT> colorings, Collection<CT> colors) {
@@ -68,7 +82,7 @@ public class GraphColoring<GT, CT> {
         return inDegree;
     }
 
-    protected List<GT> simplify(int k, HashSet<GT> currentNodes, Map<GT, Integer> inDegree) {
+    protected List<GT> simplify(int k, HashSet<GT> currentNodes, Map<GT, Integer> inDegree, Set<CT> mustColor) {
         LinkedList<GT> removed = new LinkedList<GT>();
 
         // trivially removable nodes have an in degree less than or equal to k
@@ -79,8 +93,22 @@ public class GraphColoring<GT, CT> {
 
         if (removable.isEmpty()) {
             // pick a node and remove it - it won't be colored
-            GT uncolored = currentNodes.iterator().next();
-            currentNodes.remove(uncolored);
+            GT uncolored = null;
+
+            Iterator<GT> it = currentNodes.iterator();
+            while (it.hasNext() && uncolored == null) {
+                GT node = it.next();
+                if (!mustColor.contains(node)) {
+                    uncolored = node;
+                    it.remove();
+                }
+            }
+
+            if (uncolored == null) {
+                // TODO: turn into some kind of checked exception
+                throw new RuntimeException("Couldn't satisfy restrictions!");
+            }
+
             for (GT adj : graph.getSuccessors(uncolored))
                 inDegree.put(adj, inDegree.get(adj)-1);
         }

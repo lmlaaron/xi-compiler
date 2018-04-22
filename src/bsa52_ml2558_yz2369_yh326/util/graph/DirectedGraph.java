@@ -101,15 +101,20 @@ public class DirectedGraph<T> implements Graph<T> {
     
     public void removeVertex(T vertex) {
         this.vertices.remove(vertex);
-        if (vertices.contains(vertex))
+        if (vertices.contains(vertex)) {
             vertices.remove(vertex);
+        }
         if (reverseEdges.containsKey(vertex)) {
             LinkedList<T> froms  = new LinkedList(reverseEdges.get(vertex));
             for (T from : froms)
                 removeEdge(from, vertex);
         }
-        if (edges.containsKey(vertex))
+        if (edges.containsKey(vertex)) {
+            Set<T> tos = edges.get(vertex);
+            for (T to : tos)
+                removeEdge(vertex, to);
             edges.remove(vertex);
+        }
     }
 
     public void removeEdge(T from, T to) {

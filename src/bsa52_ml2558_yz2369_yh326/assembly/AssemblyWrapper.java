@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import bsa52_ml2558_yz2369_yh326.assembly.abstract_pipeline.OptimizedRegisterAllocationPipeline;
 import bsa52_ml2558_yz2369_yh326.assembly.abstract_pipeline.SpillAllTempsPipeLine;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
@@ -27,7 +28,12 @@ public class AssemblyWrapper {
         }
 
         if (!Settings.disAsmGen) {
-            finalAssm = new SpillAllTempsPipeLine().process(abstractAssm);
+            if (Settings.brentHack) {
+                finalAssm = new OptimizedRegisterAllocationPipeline().process(abstractAssm);
+            }
+            else {
+                finalAssm = new SpillAllTempsPipeLine().process(abstractAssm);
+            }
         }
         else {
             finalAssm = abstractAssm;

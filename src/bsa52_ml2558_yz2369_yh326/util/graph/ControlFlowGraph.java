@@ -41,9 +41,6 @@ public class ControlFlowGraph {
             }
         }
 
-        // error checking...
-        if (labelToIndex.size() != labels.size()) { throw new RuntimeException("Something went wrong!"); }
-
         // iterate through statements again to build up graph
         for (int i = 0; i < statements.size(); i++) {
 
