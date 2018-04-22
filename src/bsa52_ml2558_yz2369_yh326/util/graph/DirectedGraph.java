@@ -159,7 +159,7 @@ public class DirectedGraph<T> implements Graph<T> {
     public void reverseEdges() {
         Map<T, Set<T>> placeholder = edges;
         edges = reverseEdges;
-        reverseEdges = edges;
+        reverseEdges = placeholder;
     }
 
     public static void main(String[] argv) {

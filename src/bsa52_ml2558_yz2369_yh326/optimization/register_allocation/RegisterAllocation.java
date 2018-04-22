@@ -16,8 +16,30 @@ public class RegisterAllocation {
         LiveVariableAnalysis lva = new LiveVariableAnalysis(cfg);
         DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = lva.worklist();
 
+        System.out.println("Live Variable Analysis Result:");
+        for (Set<String> tempGroup : lvResult.out.values()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("{");
+
+            for (String s : tempGroup) {
+                sb.append (s);
+                sb.append(", ");
+            }
+
+            sb.append("}");
+
+            System.out.println(sb.toString());
+        }
+        System.out.println();
+
         // construct interference graph:
         Graph<String> iGraph = constructInterferenceGraph(lvResult);
+
+        System.out.println("Interference graph temps:");
+        for (String t : iGraph.getVertices())
+            System.out.println(t);
+        System.out.println();
+
 
         System.out.println("Graph coloring...");
 
@@ -63,6 +85,7 @@ public class RegisterAllocation {
         // each set is a set of interfering temps. connect them in the graph
         ArrayList<String> tempList = new ArrayList<String>(interferences);
         for (int i = 0; i < tempList.size(); i++) {
+            graph.addVertex(tempList.get(i));
             for (int j = i+1; j < tempList.size(); j++) {
                 graph.addEdge(tempList.get(i), tempList.get(j));
             }

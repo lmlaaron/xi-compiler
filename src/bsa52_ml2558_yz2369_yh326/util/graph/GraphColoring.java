@@ -79,7 +79,7 @@ public class GraphColoring<GT, CT> {
 
         if (removable.isEmpty()) {
             // pick a node and remove it - it won't be colored
-            currentNodes.iterator().remove();
+            currentNodes.remove(currentNodes.iterator().next());
         }
         else {
             for (GT node : removable) {
