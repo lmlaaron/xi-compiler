@@ -88,10 +88,10 @@ public class Main {
                     Settings.irrun = true;
                 } else if (argv[i].equals("--optir")) {
                     i++;
-                    Settings.optIRList.add(argv[i]);
+                    Settings.optIRSet.add(argv[i]);
                 } else if (argv[i].equals("--optcfg")) {
                     i++;
-                    Settings.optCFGList.add(argv[i]);
+                    Settings.optCFGSet.add(argv[i]);
                 } else if (argv[i].equals("--abstract")) {
                     Settings.genAbstract = true;
                 } else if (argv[i].equals("--disasmgen")) {

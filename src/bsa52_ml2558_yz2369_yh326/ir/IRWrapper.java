@@ -2,12 +2,14 @@ package bsa52_ml2558_yz2369_yh326.ir;
 
 import java.io.FileWriter;
 import java.util.List;
+import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.optimization.cse.CommonSubexpressionElimination;
 import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.TempRenamer;
+import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -39,21 +41,27 @@ public class IRWrapper {
         markTempNames(irNode, "_irtmp$");
 
         // System.out.println(irNode.toString());
-        if (Settings.opts.contains("cf")) {
-            irNode = Canonicalization.Folding(irNode);
-        }
         irNode = Canonicalization.Canonicalize(irNode);
         irNode = Canonicalization.Lift(irNode);
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
         
+        if (Settings.optCFGSet.contains("initial"))
+            WriteDotResult(irNode, outputFile, "initial");
+        
         if (Settings.opts.contains("cse")) {
             CommonSubexpressionElimination.DoCSE(irNode);
         }
+        
+        if (Settings.opts.contains("cf"))
+            irNode = Canonicalization.Folding(irNode);
+        if (Settings.optCFGSet.contains("cf"))
+            WriteDotResult(irNode, outputFile, "cf");
+        
 
         // System.out.println(irNode.toString());
         if (Settings.irgen) {
-            IRWrapper.WriteIRResult(irNode, outputFile + ".ir");
+            WriteIRResult(irNode, outputFile + ".ir");
         }
         return irNode;
     }
@@ -69,6 +77,22 @@ public class IRWrapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return;
+    }
+    
+    public static void WriteDotResult(IRNode irNode, String outputFile, String phase) {
+        Map<String, IRFuncDecl> funcMap = ((IRCompUnit) irNode).functions();
+        for (String name : funcMap.keySet()) {
+            String dot = ControlFlowGraph.fromIRFuncDecl(funcMap.get(name)).toDotFormat();
+            try {
+                FileWriter writer = new FileWriter(outputFile + "_" + name + "_initial.dot");
+                writer.write(dot);
+                writer.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
         return;
     }
 

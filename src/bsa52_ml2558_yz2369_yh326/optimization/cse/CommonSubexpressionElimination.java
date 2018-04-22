@@ -1,7 +1,5 @@
 package bsa52_ml2558_yz2369_yh326.optimization.cse;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,8 +17,13 @@ public class CommonSubexpressionElimination {
         Map<String, IRFuncDecl> funcMap = ((IRCompUnit) irNode).functions();
         for (String name : funcMap.keySet()) {
             DirectedGraph<IRStmt> cfg = ControlFlowGraph.fromIRFuncDecl(funcMap.get(name));
-            //AvailableExpressionAnalysis aea = new AvailableExpressionAnalysis(cfg);
-            //DataflowAnalysisResult<IRStmt, Set<String>> aeResult = aea.worklist();
+            AvailableExpressionAnalysis aea = new AvailableExpressionAnalysis(cfg);
+            DataflowAnalysisResult<IRStmt, Set<String>> aeResult = aea.worklist();
+            Map<IRStmt, Set<String>> a = aeResult.in;
+            for (IRStmt s : a.keySet()) {
+                System.out.println(s);
+                a.get(s).forEach(st -> System.out.println("    " + st));
+            }
         }
     }
 }

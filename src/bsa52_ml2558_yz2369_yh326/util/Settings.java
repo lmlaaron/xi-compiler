@@ -22,8 +22,8 @@ public class Settings {
     public static boolean typeCheck = false;
     public static boolean irgen = false;
     public static boolean irrun = false;
-    public static Set<String> optIRList = new HashSet<String>();
-    public static Set<String> optCFGList = new HashSet<String>();
+    public static Set<String> optIRSet = new HashSet<String>();
+    public static Set<String> optCFGSet = new HashSet<String>();
 
     // Setting options
     public static String inputSourcePath = Paths.get(".").toAbsolutePath().toString();

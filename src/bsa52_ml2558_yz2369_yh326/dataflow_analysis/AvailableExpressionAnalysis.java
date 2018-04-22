@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.dataflow_analysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
 
     public AvailableExpressionAnalysis(DirectedGraph<IRStmt> cfg) {
         super(cfg);
+        exprToVar = new HashMap<String, Set<String>>();
     }
 
     @Override
@@ -47,7 +49,10 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     }
     
     private void addVar(IRExpr expr) {
+        if (!exprToVar.containsKey(expr.toString()))
+            exprToVar.put(expr.toString(), new HashSet<String>());
         Set<String> value = exprToVar.get(expr.toString());
+
         if (expr instanceof IRTemp) {
             value.add(((IRTemp) expr).name());
         } else if (expr instanceof IRBinOp) {
@@ -80,20 +85,28 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     }
     
     private void killExprContainTemp(Set<String> kill, IRTemp t) {
+        List<String> toBeRemoved = new ArrayList<String>();
         for (String key : exprToVar.keySet()) {
             if (exprToVar.get(key).contains(t.name())) {
-                exprToVar.remove(key);
+                toBeRemoved.add(key);
                 kill.add(key);
             }
+        }
+        for (String key : toBeRemoved) {
+            exprToVar.remove(key);
         }
     }
     
     private void killExprMem(Set<String> kill) {
+        List<String> toBeRemoved = new ArrayList<String>();
         for (String key : exprToVar.keySet()) {
             if (exprToVar.get(key).contains(MemoryForm)) {
-                exprToVar.remove(key);
+                toBeRemoved.add(key);
                 kill.add(key);
             }
+        }
+        for (String key : toBeRemoved) {
+            exprToVar.remove(key);
         }
     }
 
