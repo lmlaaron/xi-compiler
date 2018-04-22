@@ -13,4 +13,14 @@ public class Tuple<T1, T2> {
     public String toString() {
         return "(" + t1 + ", " + t2 + ")";
     }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Tuple) {
+            Tuple<?, ?> otherTuple = (Tuple<?, ?>) other;
+            if (otherTuple.t1.equals(t1) && otherTuple.t2.equals(t2)) {
+                return true;
+            } else return false;
+        } else return false;
+    }
 }
