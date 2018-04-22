@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class DirectedGraph<T> implements Graph<T> {
-    private String name;
+    public String name;
     private Set<T> vertices;
     private Map<T, Set<T>> edges;
     private Map<T, Set<T>> reverseEdges;
@@ -105,7 +105,7 @@ public class DirectedGraph<T> implements Graph<T> {
             vertices.remove(vertex);
         }
         if (reverseEdges.containsKey(vertex)) {
-            LinkedList<T> froms  = new LinkedList(reverseEdges.get(vertex));
+            LinkedList<T> froms  = new LinkedList<T>(reverseEdges.get(vertex));
             for (T from : froms)
                 removeEdge(from, vertex);
         }

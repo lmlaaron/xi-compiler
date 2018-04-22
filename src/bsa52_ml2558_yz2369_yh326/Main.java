@@ -62,11 +62,11 @@ public class Main {
         // Processing other options
         for (int i = 0; i < argv.length; i++) {
             if (argv[i].equals("-O")) {
-                Settings.optimization = false;
+                //Settings.opts.retainAll(null);
             } else if (argv[i].startsWith("-O-no-")) {
-                Settings.noOpts.add(argv[i].substring(6));
+                //Settings.noOpts.add(argv[i].substring(6));
             } else if (argv[i].startsWith("-O")) {
-                Settings.noOpts.add(argv[i].substring(2));
+                //Settings.opts.add(argv[i].substring(2));
             } else if (argv[i].startsWith("--")) {
                 if (argv[i].equals("--help")) {
                     Usage();

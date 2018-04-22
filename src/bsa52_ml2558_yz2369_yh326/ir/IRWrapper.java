@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.optimization.cse.CommonSubexpressionElimination;
 import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.TempRenamer;
@@ -38,13 +39,17 @@ public class IRWrapper {
         markTempNames(irNode, "_irtmp$");
 
         // System.out.println(irNode.toString());
-        if (Settings.optimization || Settings.opts.contains("cf")) {
+        if (Settings.opts.contains("cf")) {
             irNode = Canonicalization.Folding(irNode);
         }
         irNode = Canonicalization.Canonicalize(irNode);
         irNode = Canonicalization.Lift(irNode);
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
+        
+        if (Settings.opts.contains("cse")) {
+            CommonSubexpressionElimination.DoCSE(irNode);
+        }
 
         // System.out.println(irNode.toString());
         if (Settings.irgen) {

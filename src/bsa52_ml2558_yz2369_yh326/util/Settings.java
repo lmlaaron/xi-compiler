@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.util;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,11 @@ import java.util.Set;
 public class Settings {
 
     public static boolean brentHack = false;
+    
+    // Supported optimizations
+    public static Set<String> supportedOpt = new HashSet<String>(Arrays.asList(
+            "reg", "cse", "cf"
+            ));
 
     // Output options
     public static boolean lex = false;
@@ -25,10 +31,8 @@ public class Settings {
     public static String libPath = Paths.get(".").toAbsolutePath().toString();
     public static String assemblyOutputPath = Paths.get(".").toAbsolutePath().toString();
     public static String targetOS = "linux";
-    public static boolean optimization = true;
-    public static Set<String> opts = new HashSet<String>();
-    public static Set<String> noOpts = new HashSet<String>();
-
+    public static Set<String> opts = new HashSet<String>(supportedOpt);
+    
     // File lists
     public static List<String> xiList = new ArrayList<String>();
     public static List<String> ixiList = new ArrayList<String>();
