@@ -32,7 +32,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     }
 
     @Override
-    protected Set<String> gen(IRStmt node) {
+    public Set<String> gen(IRStmt node) {
         if (node instanceof IRMove && ((IRMove) node).target() instanceof IRTemp) {
             IRExpr source = ((IRMove) node).source();
             if (source instanceof IRBinOp || source instanceof IRMem) {
