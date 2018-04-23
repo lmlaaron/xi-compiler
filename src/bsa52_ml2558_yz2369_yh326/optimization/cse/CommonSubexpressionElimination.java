@@ -27,14 +27,14 @@ public class CommonSubexpressionElimination {
             for (IRStmt stmt : cfg.getVertices()) {
                 Set<String> in = aeResult.in.get(stmt);
                 Set<String> out = aeResult.out.get(stmt);
-                System.out.println("NODE:    " + stmt);
-                in.forEach(st -> System.out.println("  in   " + st));
-                out.forEach(st -> System.out.println("  out  " + st));
+                //System.out.println("NODE:    " + stmt.toString().trim());
+                //in.forEach(st -> System.out.println("  in   " + st.toString().trim()));
+                //out.forEach(st -> System.out.println("  out  " + st.toString().trim()));
                 if (stmt instanceof IRMove && ((IRMove) stmt).target() instanceof IRTemp) {
                     IRExpr source = ((IRMove) stmt).source();
                     if (source instanceof IRBinOp || source instanceof IRMem) {
                         if (in.contains(source.toString())) {
-                            System.out.println("Found duplicate");
+                            //System.out.println("Found duplicate");
                         }
                     }
                 }

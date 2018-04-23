@@ -65,7 +65,6 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     }
     
     private void killExprContainTemp(Set<String> kill, IRTemp t) {
-        System.out.println("exprToVar: " + exprToVar);
         for (String key : exprToVar.keySet()) {
             if (exprToVar.get(key).contains(t.name())) {
                 kill.add(key);
