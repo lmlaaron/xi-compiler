@@ -58,6 +58,12 @@ public class IRWrapper {
         if (Settings.optCFGSet.contains("cf"))
             WriteDotResult(irNode, outputFile, "cf");
         
+        if (Settings.opts.contains("copy")) {
+        	
+        }
+        if (Settings.opts.contains("dce")) {
+        	
+        }
 
         // System.out.println(irNode.toString());
         if (Settings.irgen) {
