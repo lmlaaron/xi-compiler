@@ -185,13 +185,26 @@ public class Canonicalization {
             IRStmt s2 = es2.stmt();
             IRExpr e2 = es2.expr();
 
-            if (right instanceof IRName || right instanceof IRConst || right instanceof IRTemp || left instanceof IRName
-                    || left instanceof IRConst || left instanceof IRTemp) {
+            if ((right instanceof IRConst || right instanceof IRTemp) &&
+                    (left instanceof IRConst || left instanceof IRTemp)) {
+                // Both left and right are not recursive
                 return new IRESeq(IRSeqNoEmpty(s1, s2), new IRBinOp(((IRBinOp) input).opType(), e1, e2));
-            } else {
+            } else if (right instanceof IRConst || right instanceof IRTemp) {
+                // Only right is not recursive
                 IRTemp t1 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
                 return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2),
                         new IRBinOp(((IRBinOp) input).opType(), t1, e2));
+            } else if (left instanceof IRConst || left instanceof IRTemp) {
+                // Only left is not recursive
+                IRTemp t2 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                return new IRESeq(new IRSeq(s1, s2, new IRMove(t2, e2)),
+                        new IRBinOp(((IRBinOp) input).opType(), e1, t2));
+            } else  {
+                // Both left and right are not recursive
+                IRTemp t1 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                IRTemp t2 = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                return new IRESeq(new IRSeq(s1, new IRMove(t1, e1), s2, new IRMove(t2, e2)),
+                        new IRBinOp(((IRBinOp) input).opType(), t1, t2));
             }
         } else if (input instanceof IRMem) {
             IRESeq es = CanonicalizeExpr(((IRMem) input).expr());
@@ -224,7 +237,7 @@ public class Canonicalization {
             IRESeq ese1 = (IRESeq) Canonicalize(e1);
             rsl.add(ese1.stmt());
             e1 = ese1.expr();
-            if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+            if (e1 instanceof IRTemp || e1 instanceof IRConst) {
                 tle.add(e1);
             } else {
                 IRTemp argTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
