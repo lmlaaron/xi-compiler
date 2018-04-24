@@ -13,7 +13,7 @@ public class Settings {
     
     // Supported optimizations
     public static Set<String> supportedOpt = new HashSet<String>(Arrays.asList(
-            "reg", "cse", "cf"
+            "reg", "cse", "cf", "copy", "dce"
             ));
 
     // Output options

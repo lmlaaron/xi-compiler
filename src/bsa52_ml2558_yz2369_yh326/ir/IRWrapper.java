@@ -52,14 +52,6 @@ public class IRWrapper {
         if (Settings.optCFGSet.contains("initial"))
             WriteDotResult(irNode, outputFile, "initial");
         
-        // Perform Common Subexpression Elimination
-        if (Settings.opts.contains("cse"))
-            CommonSubexpressionElimination.DoCSE(irNode);
-        if (Settings.optIRSet.contains("cse"))
-            WriteIRResult(irNode, outputFile + "_cse.ir");
-        if (Settings.optCFGSet.contains("cse"))
-            WriteDotResult(irNode, outputFile, "cse");
-        
         // Perform Constant Folding
         if (Settings.opts.contains("cf"))
             irNode = Canonicalization.Folding(irNode);
@@ -68,6 +60,31 @@ public class IRWrapper {
         if (Settings.optCFGSet.contains("cf"))
             WriteDotResult(irNode, outputFile, "cf");
         
+        // Perform Common Subexpression Elimination
+        if (Settings.opts.contains("cse"))
+            CommonSubexpressionElimination.DoCSE(irNode);
+        if (Settings.optIRSet.contains("cse"))
+            WriteIRResult(irNode, outputFile + "_cse.ir");
+        if (Settings.optCFGSet.contains("cse"))
+            WriteDotResult(irNode, outputFile, "cse");
+        
+        // Perform Copy Propagation
+        if (Settings.opts.contains("copy"))
+            ;
+        if (Settings.optIRSet.contains("copy"))
+            WriteIRResult(irNode, outputFile + "_copy.ir");
+        if (Settings.optCFGSet.contains("copy"))
+            WriteDotResult(irNode, outputFile, "copy");
+        
+        // Perform Dead Code Elimination
+        if (Settings.opts.contains("dce"))
+            ;
+        if (Settings.optIRSet.contains("dce"))
+            WriteIRResult(irNode, outputFile + "_dce.ir");
+        if (Settings.optCFGSet.contains("dce"))
+            WriteDotResult(irNode, outputFile, "dce");
+        
+        // Final IR result
         if (Settings.optIRSet.contains("final"))
             WriteIRResult(irNode, outputFile + "_final.ir");
         // Note: the final result of optCFG is generated after assembly is generated
