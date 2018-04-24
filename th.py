@@ -248,6 +248,23 @@ def assm_grader(testcase_f, answer_f):
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
 
+def register_alloc_grader(testcase_f, answer_f):
+    assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
+
+    run_shell(['./xic', '--brentHack','-libpath', 'runtime/include/', testcase_f], print_results=False)
+    if not os.path.isfile(assembly_f):
+        return (False, "Couldnt find generated assembly file")
+    run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
+    if not os.path.isfile('xi_executable'):
+        return (False, "Couldn't find generated executable")
+    _, stdout, _ = run_shell(['./xi_executable'], print_results=False)
+
+    os.remove('./xi_executable')
+    os.remove(assembly_f)
+
+    answer_contents = ''.join(open(answer_f))
+    return grade_by_matching_output(stdout, answer_contents)
+
 def compile_and_run(xi_f, custom=False):
     if os.path.isfile('./xi_executable'):
         os.remove('./xi_executable')
@@ -290,9 +307,13 @@ if __name__ == "__main__":
     # run_test_set(IRRUN_TESTS, irrun_grader)
     print("====BUILDING BINARY RUNTIME====")
     run_shell(['make', '-C', 'runtime'], print_results=False)
-    print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
-    print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
-    run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
+
+    # print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
+    # print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
+    # run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
+
+    print("==== RUNNING ASSM TESTS ====")
+    run_test_set(ASSEM_TESTS, register_alloc_grader)
     
 
     print("Test Harness End!")

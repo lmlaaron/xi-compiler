@@ -54,6 +54,15 @@ public class AssemblyFunction extends Assembly {
             ).collect(Collectors.toSet())
         );
 
+        System.out.println("===== CALLER SAVE FOR " + functionName);
+        System.out.println("all registers used in function:");
+        for (String r : registerAllocations.values())
+            System.out.println("\t" + r);
+        System.out.println("caller save registers used in function:");
+        for (String r : callerSave)
+            System.out.println("\t" + r);
+        System.out.println();
+
         if (callerSave.isEmpty()) return;
 
         List<AssemblyStatement> pushes = new LinkedList<>();
@@ -67,10 +76,12 @@ public class AssemblyFunction extends Assembly {
             pops.add(new AssemblyStatement("pop", r));
 
 
-        ListIterator<AssemblyStatement> it = pushes.listIterator();
+        ListIterator<AssemblyStatement> it = statements.listIterator();
         while (it.hasNext()) {
             AssemblyStatement stmt = it.next();
             if (stmt.operation.equals("call")) {
+                System.out.println("Encountered call for " + stmt.operands[0].value());
+
                 it.previous();
                 for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pushes for call to " + stmt.operands[0].value()))
                     it.add(commentPart);
