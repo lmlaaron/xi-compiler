@@ -14,31 +14,31 @@ import java.util.Map;
  * @author lmlaaron utilities for mapping temp variables in abstract assembly to
  *         rel variables int concrete assembly
  */
-public class RegisterTable {
+public class StackTable {
     /**
      * Register lookup table mapping the Abstract register to actual stack position
      */
-    public Map<String, Integer> registerTable;
+    public Map<String, Integer> stackTable;
     public Integer globalCounter;
 
     public void SetCounter(Integer i) {
         globalCounter = i;
     }
 
-    public RegisterTable() {
+    public StackTable() {
         globalCounter = 0;
-        registerTable = new HashMap<String, Integer>();
+        stackTable = new HashMap<String, Integer>();
     }
 
     public boolean isInTable(String op) {
-        return (registerTable.containsKey(op));
+        return (stackTable.containsKey(op));
     }
 
     public boolean add(String op) {
         if (isInTable(op)) {
             return false;
         } else {
-            registerTable.put(op, globalCounter);
+            stackTable.put(op, globalCounter);
             globalCounter++;
             return true;
         }
@@ -48,11 +48,11 @@ public class RegisterTable {
         if (!isInTable(op)) {
             return -1;
         } else {
-            return registerTable.get(op);
+            return stackTable.get(op);
         }
     }
 
     public int size() {
-        return registerTable.size();
+        return stackTable.size();
     }
 }

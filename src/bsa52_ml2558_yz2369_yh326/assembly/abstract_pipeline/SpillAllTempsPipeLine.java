@@ -25,9 +25,9 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
 
         functions = systemVEnforce(functions, lastCallArgCounts);
 
-        List<RegisterTable> registerTables = getRegisterTables(functions, labelNames);
+        List<StackTable> stackTables = getRegisterTables(functions, labelNames);
 
-        functions = specifyStackSizes(functions, registerTables, maxStackSizes);
+        functions = specifyStackSizes(functions, stackTables, maxStackSizes);
 
         if (Settings.brentHack) {
             DirectedGraph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(abstractAssembly);
@@ -44,7 +44,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
             RegisterAllocation.RegisterAllocation(abstractAssembly);
         }
 
-        abstractAssembly = spillTempsOnStack(functions, labelNames, registerTables);
+        abstractAssembly = spillTempsOnStack(functions, labelNames, stackTables);
         return abstractAssembly;
     }
 
@@ -53,7 +53,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
      *
      * @return real assembly elimiating all temp
      */
-    public static Assembly spillTempsOnStack(List<List<AssemblyStatement>> functions, HashSet<String> labelNames, List<RegisterTable> rTables) {
+    public static Assembly spillTempsOnStack(List<List<AssemblyStatement>> functions, HashSet<String> labelNames, List<StackTable> rTables) {
         LinkedList<AssemblyStatement> concreteStatements = new LinkedList<>();
 
         int func_i = 0;
@@ -138,7 +138,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
         return new Assembly(concreteStatements);
     }
 
-    public List<List<AssemblyStatement>> specifyStackSizes(List<List<AssemblyStatement>> functions, List<RegisterTable> rTables, List<Integer> maxStackSizes) {
+    public List<List<AssemblyStatement>> specifyStackSizes(List<List<AssemblyStatement>> functions, List<StackTable> rTables, List<Integer> maxStackSizes) {
         int func_i = 0;
         for (List<AssemblyStatement> function : functions) {
 
@@ -196,12 +196,12 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
         return functions;
     }
 
-    public static List<RegisterTable> getRegisterTables(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
-        List<RegisterTable> ret = new ArrayList<>(functions.size());
+    public static List<StackTable> getRegisterTables(List<List<AssemblyStatement>> functions, HashSet<String> labelNames) {
+        List<StackTable> ret = new ArrayList<>(functions.size());
 
-        // establish the registerTable
+        // establish the stackTable
         for (List<AssemblyStatement> function : functions) {
-            RegisterTable rTable = new RegisterTable();
+            StackTable rTable = new StackTable();
             rTable.SetCounter(2);
 
             for (AssemblyStatement stmt : function) {

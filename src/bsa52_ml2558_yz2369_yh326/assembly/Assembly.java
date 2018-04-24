@@ -21,7 +21,7 @@ public class Assembly {
 //    /**
 //     * Save the mapping of assembly operand to memory location by spilling
 //     */
-//    RegisterTable rTable;
+//    StackTable rTable;
 
     /**
      * All other assembly besides filler

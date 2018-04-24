@@ -7,11 +7,8 @@ import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import bsa52_ml2558_yz2369_yh326.util.graph.*;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand.MemMinus;
 
 public class RegisterAllocation {
     public static void RegisterAllocation(Assembly assm) {
@@ -26,10 +23,12 @@ public class RegisterAllocation {
 
             AssemblyUtils.systemVEnforce(f); // replace _ARGX, _RETX, __RETURN_X with appropriate register/stack location
 
-            RegisterTable rTable = new RegisterTable(); // will be populated with all temps that were spilled to stack
+            StackTable rTable = new StackTable(); // will be populated with all temps that were spilled to stack
             rTable.SetCounter(2);
             Map<String, String> colorings = new HashMap<>(); // map temp to register
             colorings = registerAllocation(f, rTable, colorings);
+
+            sTableComment(rTable, f);
 
             // perform appropriate loads, saves according to system V
             f.calleeSave(colorings);
@@ -46,7 +45,32 @@ public class RegisterAllocation {
         }
     }
 
-    protected static Map<String, String> registerAllocation(Assembly assm, RegisterTable rTable, Map<String, String> preColorings) {
+    protected static void sTableComment(StackTable sTable, AssemblyFunction f) {
+        if (!f.actuallyAFunction() || sTable.size() == 0) return;
+
+        ListIterator<AssemblyStatement> it = f.statements.listIterator();
+
+        // iterate to the function label
+        while (true) {
+            AssemblyStatement stmt = it.next();
+            if (stmt.operation.length() >= 2 && stmt.operation.substring(0,2).equals("_I")) {
+                it.previous();
+
+                StringBuilder comment = new StringBuilder();
+                comment.append("=== Stack Locations For " + f.getFunctionName() + " ===\n");
+                for (String temp : sTable.stackTable.keySet()) {
+                    comment.append(String.format("%-15s -> %d\n", temp, sTable.MemIndex(temp)*8));
+                }
+
+                for (AssemblyStatement commentPart : AssemblyStatement.comment(comment.toString()))
+                    it.add(commentPart);
+
+                return;
+            }
+        }
+    }
+
+    protected static Map<String, String> registerAllocation(Assembly assm, StackTable rTable, Map<String, String> preColorings) {
         // labels do not change, so we only need to find them once
         Set<String> labels = AssemblyUtils.collectLabels(assm, false);
         List<String> registers = Utilities.registersForAllocation();
@@ -84,7 +108,11 @@ public class RegisterAllocation {
                 // easy part. Allocate registers appropriately, as we have a proper allocation
                 System.out.println("Allocated Registers for all temps!");
 
-                for (AssemblyStatement stmt : assm.statements) {
+                ListIterator<AssemblyStatement> it = assm.statements.listIterator();
+                while (it.hasNext()) {
+                    AssemblyStatement stmt = it.next();
+                    String originalStmt = stmt.toString();
+
                     for (AssemblyOperand op : stmt.operands) {
                         op.ResolveType();
                         op.setTemps(
@@ -105,6 +133,15 @@ public class RegisterAllocation {
                             }
                         }
                     }
+
+                    // commenting
+                    if (!stmt.toString().equals(originalStmt)) {
+                        it.previous();
+                        for (AssemblyStatement commentPart : AssemblyStatement.comment(originalStmt))
+                            it.add(commentPart);
+                        it.next();
+                    }
+
                 }
 
                 return colorings; // we're done
@@ -139,7 +176,7 @@ public class RegisterAllocation {
                             temp -> {
                                 if (spilled.contains(temp)) {
                                     // create a new temp to handle reads and writes for this statement
-                                    String freshTemp = Utilities.freshTemp() + "_MUST_COLOR";
+                                    String freshTemp = temp + "_COMPENSATOR";
 
                                     // this new temp's purpose is to compensate for a temp that was spilled
                                     // to the stack. It would be silly if we had to spill this one also

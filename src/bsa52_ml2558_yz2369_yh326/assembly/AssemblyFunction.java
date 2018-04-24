@@ -28,6 +28,10 @@ public class AssemblyFunction extends Assembly {
         }
     }
 
+    public String getFunctionName() {
+        return functionName;
+    }
+
     public void setStackSize(int stackSize) {
         if (!actuallyAFunction()) return;
 
@@ -68,9 +72,13 @@ public class AssemblyFunction extends Assembly {
             AssemblyStatement stmt = it.next();
             if (stmt.operation.equals("call")) {
                 it.previous();
+                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pushes for call to " + stmt.operands[0].value()))
+                    it.add(commentPart);
                 for (AssemblyStatement push : pushes)
                     it.add(push);
                 it.next();
+                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pops for call to " + stmt.operands[0].value()))
+                    it.add(commentPart);
                 for (AssemblyStatement pop : pops)
                     it.add(pop);
             }
@@ -104,6 +112,8 @@ public class AssemblyFunction extends Assembly {
         }
 
         // insert push statements:
+        for (AssemblyStatement commentPart : AssemblyStatement.comment("Callee Pushes for " + functionName))
+            it.add(commentPart);
         for (String toPush : calleeSave) {
             it.add(new AssemblyStatement("push", toPush));
         }
@@ -116,6 +126,8 @@ public class AssemblyFunction extends Assembly {
             AssemblyStatement statement = it.next();
             if (statement.operation.equals("ret")) {
                 it.previous();
+                for (AssemblyStatement commentPart : AssemblyStatement.comment("Callee Pops for " + functionName))
+                    it.add(commentPart);
                 for (String toPop : calleeSave) {
                     it.add(new AssemblyStatement("pop", toPop));
                 }
