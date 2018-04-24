@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.optimization.copy.CopyPropagation;
 import bsa52_ml2558_yz2369_yh326.optimization.cse.CommonSubexpressionElimination;
 import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
@@ -59,7 +60,7 @@ public class IRWrapper {
             WriteDotResult(irNode, outputFile, "cf");
         
         if (Settings.opts.contains("copy")) {
-        	
+        		CopyPropagation.DoCopyPropagation(irNode);
         }
         if (Settings.opts.contains("dce")) {
         	
