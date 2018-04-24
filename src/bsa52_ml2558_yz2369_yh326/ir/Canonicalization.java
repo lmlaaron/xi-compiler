@@ -296,27 +296,13 @@ public class Canonicalization {
             return new IRSeq(es.stmt());
         } else if (input instanceof IRReturn) {
             List<IRExpr> e = ((IRReturn) input).rets();
-            /*
-             * List<IRStmt> sl = new ArrayList<IRStmt>(); List<IRExpr> el = new
-             * ArrayList<IRExpr>(); List<IRTemp> tl = new ArrayList<IRTemp>(); int count =
-             * 0; String tempArrayName = "_temp_" + NumberGetter.uniqueNumber(); for (IRExpr
-             * e1 : e) { IRESeq ese1 = (IRESeq) CanonicalizeExpr(e1); sl.add(ese1.stmt());
-             * el.add(ese1.expr()); tl.add(new IRTemp(tempArrayName + "_" +
-             * Integer.toString(count))); count++; }
-             * 
-             * List<IRStmt> rsl = new ArrayList<IRStmt>(); count = 0; List<IRExpr> tle = new
-             * ArrayList<IRExpr>(); for (IRTemp stl : tl) { tle.add(stl); } for (IRExpr e1 :
-             * e) { if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof
-             * IRName) { tle.set(count, e1); } else { rsl.add(sl.get(count)); rsl.add(new
-             * IRMove(tl.get(count), el.get(count))); } count++; }
-             */
             List<IRStmt> rsl = new ArrayList<IRStmt>();
             List<IRExpr> tle = new ArrayList<IRExpr>();
             for (IRExpr e1 : e) {
                 IRESeq ese1 = (IRESeq) Canonicalize(e1);
                 rsl.add(ese1.stmt());
                 e1 = ese1.expr();
-                if (e1 instanceof IRTemp || e1 instanceof IRConst || e1 instanceof IRName) {
+                if (e1 instanceof IRTemp || e1 instanceof IRConst) {
                     tle.add(e1);
                 } else {
                     IRTemp argTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
@@ -327,21 +313,19 @@ public class Canonicalization {
             rsl.add(new IRReturn(tle));
             IRStmt s = new IRSeq(rsl);
             return new IRSeq(s);
-
-            /*
-             * List<IRExpr> e = ((IRReturn) input).rets(); List<IRStmt> sl = new
-             * ArrayList<IRStmt>(); List<IRExpr> el = new ArrayList<IRExpr>(); for (IRExpr
-             * e1: e) { IRESeq es = (IRESeq) Canonicalize(e1); if (es.stmt() != null) {
-             * sl.add( CanonicalizeStmt( es.stmt() ) ); } el.add(es.expr()); } sl.add(new
-             * IRReturn(el)); return new IRSeq(sl);
-             */
         } else if (input instanceof IRCJump) {
             IRESeq es = CanonicalizeExpr(((IRCJump) input).cond());
             IRStmt s = es.stmt();
             IRExpr e = es.expr();
             String l1 = ((IRCJump) input).trueLabel();
             String l2 = ((IRCJump) input).falseLabel();
-            return IRSeqNoEmpty(s, new IRCJump(e, l1, l2));
+            if (e instanceof IRTemp || e instanceof IRConst) {
+                return IRSeqNoEmpty(s, new IRCJump(e, l1, l2));
+            } else {
+                IRTemp temp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                return IRSeqNoEmpty(s, new IRMove(temp, e), new IRCJump(temp, l1, l2));
+            }
+            
         } else if (input instanceof IRJump) {
             IRESeq es = CanonicalizeExpr(((IRJump) input).target());
             IRStmt s = es.stmt();

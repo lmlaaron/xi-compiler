@@ -21,7 +21,7 @@ public class ParserWrapper {
      * @return
      * @throws Exception
      */
-    public static Node Parsing(lexer x, String inputFile, String outputFile, String extension) throws Exception {
+    public static Node Parsing(lexer x, String outputFile, String extension) throws Exception {
         @SuppressWarnings("deprecation")
         parser p = new parser(x);
 
