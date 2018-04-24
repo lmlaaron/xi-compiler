@@ -1,6 +1,5 @@
 package bsa52_ml2558_yz2369_yh326.lex;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,16 +11,11 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 
 public class LexerWrapper {
 
-    public static lexer Lexing(String inputFile, String outputFile) throws LexingException {
-        try {
-            lexer xiLexer = new lexer(new FileReader(inputFile));
-            if (Settings.lex)
-                LexerWrapper.WriteLexingResult(xiLexer, outputFile + ".lexed");
-            return xiLexer;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static lexer Lexing(FileReader file, String outputFile) throws LexingException {
+        lexer xiLexer = new lexer(file);
+        if (Settings.lex)
+            LexerWrapper.WriteLexingResult(xiLexer, outputFile + ".lexed");
+        return xiLexer;
     }
 
     public static void WriteLexingResult(lexer xiLexer, String outputFile) throws LexingException {

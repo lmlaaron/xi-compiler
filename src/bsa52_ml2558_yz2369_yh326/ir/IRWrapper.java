@@ -46,20 +46,31 @@ public class IRWrapper {
         irNode = Canonicalization.BlockReordering(irNode);
         irNode = Canonicalization.TameCjump(irNode);
         
+        
+        if (Settings.optIRSet.contains("initial"))
+            WriteIRResult(irNode, outputFile + "_initial.ir");
         if (Settings.optCFGSet.contains("initial"))
             WriteDotResult(irNode, outputFile, "initial");
         
-        if (Settings.opts.contains("cse")) {
+        // Perform Common Subexpression Elimination
+        if (Settings.opts.contains("cse"))
             CommonSubexpressionElimination.DoCSE(irNode);
-        }
+        if (Settings.optIRSet.contains("cse"))
+            WriteIRResult(irNode, outputFile + "_cse.ir");
+        if (Settings.optCFGSet.contains("cse"))
+            WriteDotResult(irNode, outputFile, "cse");
         
+        // Perform Constant Folding
         if (Settings.opts.contains("cf"))
             irNode = Canonicalization.Folding(irNode);
+        if (Settings.optIRSet.contains("cf"))
+            WriteIRResult(irNode, outputFile + "_cf.ir");
         if (Settings.optCFGSet.contains("cf"))
             WriteDotResult(irNode, outputFile, "cf");
         
-
-        // System.out.println(irNode.toString());
+        if (Settings.optIRSet.contains("final"))
+            WriteIRResult(irNode, outputFile + "_final.ir");
+        // Note: the final result of optCFG is generated after assembly is generated
         if (Settings.irgen) {
             WriteIRResult(irNode, outputFile + ".ir");
         }
@@ -77,7 +88,6 @@ public class IRWrapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return;
     }
     
     public static void WriteDotResult(IRNode irNode, String outputFile, String phase) {
@@ -85,15 +95,13 @@ public class IRWrapper {
         for (String name : funcMap.keySet()) {
             String dot = ControlFlowGraph.fromIRFuncDecl(funcMap.get(name)).toDotFormat();
             try {
-                FileWriter writer = new FileWriter(outputFile + "_" + name + "_initial.dot");
+                FileWriter writer = new FileWriter(outputFile + "_" + name + "_" + phase + ".dot");
                 writer.write(dot);
                 writer.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        
-        return;
     }
 
     /*
