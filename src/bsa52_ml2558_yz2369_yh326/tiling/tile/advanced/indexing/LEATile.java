@@ -115,8 +115,10 @@ public class LEATile extends Tile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
 
-        statements.add(new AssemblyStatement("lea", new AssemblyOperand("rsi"), addrOperand));
+        String freshTemp = freshTemp();
 
-        return new Assembly(statements, new AssemblyOperand("[rsi]"));
+        statements.add(new AssemblyStatement("lea", new AssemblyOperand(freshTemp)/*new AssemblyOperand("rsi")*/, addrOperand));
+
+        return new Assembly(statements, AssemblyOperand.MemPlus(freshTemp)/*new AssemblyOperand("[rsi]")*/);
     }
 }
