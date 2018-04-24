@@ -146,10 +146,10 @@ public abstract class Tile {
     }
 
     protected String freshTemp() {
-        return "__FreshTemp_" + NumberGetter.uniqueNumber();
+        return "__FreshTemp_" + NumberGetter.uniqueNumberStr();
     }
 
     protected String freshLabel() {
-        return "__FreshLabel_" + NumberGetter.uniqueNumber();
+        return "__FreshLabel_" + NumberGetter.uniqueNumberStr();
     }
 }

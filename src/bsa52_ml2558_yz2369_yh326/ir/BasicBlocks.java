@@ -58,7 +58,7 @@ public class BasicBlocks {
         int count = 0;
         boolean first = true;
         List<IRStmt> block = null;
-        String blockId = NumberGetter.uniqueNumber();
+        String blockId = NumberGetter.uniqueNumberStr();
 
         // slicing out basicblocks, starting with label and end with jump/cjump
         for (IRStmt stmt : stmts) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -65,7 +66,7 @@ public class Utilities {
 
     private static HashSet<String> realRegisters;
 
-    private static void initRealRegisters() {
+    private static void initRegisters() {
         if (realRegisters == null) {
             realRegisters = new HashSet<>();
 
@@ -83,24 +84,57 @@ public class Utilities {
             for (int i = 8; i <= 15; i++) {
                 realRegisters.add("r" + Integer.toString(i));
             }
+
+
+            // divide between caller, callee save registers
+            calleeSaveRegisters = new HashSet<>();
+
+            calleeSaveRegisters.add("rbx");
+            calleeSaveRegisters.add("rbp");
+            calleeSaveRegisters.add("r12");
+            calleeSaveRegisters.add("r13");
+            calleeSaveRegisters.add("r14");
+            calleeSaveRegisters.add("r15");
+
+            callerSaveRegisters = new HashSet<>(
+                realRegisters.stream().filter(
+                    r -> isRegisterForAllocation(r) && !calleeSaveRegisters.contains(r)
+                ).collect(Collectors.toSet())
+            );
         }
     }
 
+    private static HashSet<String> callerSaveRegisters;
+    private static HashSet<String> calleeSaveRegisters;
+
+    public static boolean isCallerSave(String reg) {
+        return callerSaveRegisters.contains(reg);
+    }
+    public static boolean isCalleeSave(String reg) {
+        return calleeSaveRegisters.contains(reg);
+    }
+
+
     public static boolean isRealRegister(String s) {
-        initRealRegisters();
+        initRegisters();
         return realRegisters.contains(s);
     }
 
     public static List<String> registersForAllocation() {
-        initRealRegisters();
+        initRegisters();
         LinkedList<String> ret = new LinkedList<String>(realRegisters);
         ret.remove("rsp");
         ret.remove("rbp");
         return ret;
     }
 
+    public static boolean isRegisterForAllocation(String r) {
+        initRegisters();
+        return realRegisters.contains(r) && !r.equals("rsp") && !r.equals("rbp");
+    }
+
     public static String freshTemp() {
-        return "__FreshTemp_" + NumberGetter.uniqueNumber();
+        return "__FreshTemp_" + NumberGetter.uniqueNumberStr();
     }
 
     public static boolean isNumber(String s) {

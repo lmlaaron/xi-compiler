@@ -7,35 +7,75 @@ import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import bsa52_ml2558_yz2369_yh326.util.graph.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand.MemMinus;
 
 public class RegisterAllocation {
     public static void RegisterAllocation(Assembly assm) {
+        List<AssemblyFunction> functions = AssemblyUtils.partitionFunctions(assm);
 
+        assm.statements = new LinkedList<>();
+        for (AssemblyFunction f : functions) {
+
+            // NOTE: we increase the value of stacksize by two and set the counter of rtable to 2
+            // to compensate for a bug that is not currently understood. removing these countermeasures
+            // will introduce bugs!!
+
+            AssemblyUtils.systemVEnforce(f); // replace _ARGX, _RETX, __RETURN_X with appropriate register/stack location
+
+            RegisterTable rTable = new RegisterTable(); // will be populated with all temps that were spilled to stack
+            rTable.SetCounter(2);
+            Map<String, String> colorings = new HashMap<>(); // map temp to register
+            colorings = registerAllocation(f, rTable, colorings);
+
+            // perform appropriate loads, saves according to system V
+            f.calleeSave(colorings);
+            f.callerSave(colorings);
+
+            // calculate and specify stack size
+            int stacksize = rTable.size() + AssemblyUtils.getMaxStackOverHeadForFunctionCalls(f.statements);
+            if (stacksize % 2 != 0) stacksize++; // align to nearest 16 bytes
+            stacksize+=2;
+            stacksize *= 8;
+            f.setStackSize(stacksize);
+
+            assm.statements.addAll(f.statements);
+        }
+    }
+
+    protected static Map<String, String> registerAllocation(Assembly assm, RegisterTable rTable, Map<String, String> preColorings) {
         // labels do not change, so we only need to find them once
         Set<String> labels = AssemblyUtils.collectLabels(assm, false);
-
         List<String> registers = Utilities.registersForAllocation();
 
-        RegisterTable rTable = new RegisterTable();
-
-        Map<String, String> precolorings = new HashMap<>(); // TODO: remove?
 
         Set<String> mustColor = new HashSet<>();
 
-        // TODO: this should be done per function, not to the whole assembly at once!
         while (true) {
-            DirectedGraph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(assm);
-            LiveVariableAnalysis lva = new LiveVariableAnalysis(cfg);
-            DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = lva.worklist();
+            HashMap<String, String> colorings = new HashMap<>(preColorings);
 
-            Graph<String> interferenceG = constructInterferenceGraph(lvResult, labels);
+            System.out.println("===== ITERATION =====");
+
+            DirectedGraph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(assm);
+
+            DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = new LiveVariableAnalysis(cfg).worklist();
+
+            Graph<String> interferenceG = constructInterferenceGraph(assm, lvResult, labels);
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
+            interferenceG.removeVertex("STACKSIZE"); // this is a special marker that serves another purpose.
 
-            Map<String, String> colorings = new HashMap(precolorings);
+            // TODO: REMOVE
+            System.out.println();
+            System.out.println("TEMPS:");
+            for (String temp : interferenceG.getVertices()) {
+                System.out.println(temp);
+            }
+            System.out.println("");
+
 
             GraphColoring<String, String> gc = new GraphColoring<>(interferenceG);
             HashSet<String> spilled = new HashSet<>(gc.colorRestricted(registers, colorings, mustColor));
@@ -43,7 +83,31 @@ public class RegisterAllocation {
             if (spilled.isEmpty()) {
                 // easy part. Allocate registers appropriately, as we have a proper allocation
                 System.out.println("Allocated Registers for all temps!");
-                return;
+
+                for (AssemblyStatement stmt : assm.statements) {
+                    for (AssemblyOperand op : stmt.operands) {
+                        op.ResolveType();
+                        op.setTemps(
+                            // replace temps with 'color'
+                            op.getTemps().stream().map(
+                                t -> {
+                                    if (colorings.containsKey(t)) return colorings.get(t);
+                                    else return t;
+                                }
+                            ).collect(Collectors.toList())
+                        );
+
+                        // integrity check: make sure there aren't any temps:
+                        for (String temp : op.getTemps()) {
+                            if (!temp.equals("STACKSIZE") && !labels.contains(temp)){
+                                System.out.println("WARN: REMAINING TEMP -> " + temp);
+                                System.out.println("\tContained by Interference Graph: " + interferenceG.getVertices().contains(temp));
+                            }
+                        }
+                    }
+                }
+
+                return colorings; // we're done
             }
             else {
                 System.out.println("Didn't allocate registers for all temps!");
@@ -75,7 +139,7 @@ public class RegisterAllocation {
                             temp -> {
                                 if (spilled.contains(temp)) {
                                     // create a new temp to handle reads and writes for this statement
-                                    String freshTemp = Utilities.freshTemp();
+                                    String freshTemp = Utilities.freshTemp() + "_MUST_COLOR";
 
                                     // this new temp's purpose is to compensate for a temp that was spilled
                                     // to the stack. It would be silly if we had to spill this one also
@@ -83,6 +147,9 @@ public class RegisterAllocation {
 
                                     String stackOffset = Integer.toString(rTable.MemIndex(temp) * 8);
                                     AssemblyOperand stackLocation = AssemblyOperand.MemMinus("rbp", stackOffset);
+
+                                    //TODO: remove
+                                    System.out.println("Stack Location: " + stackLocation.value());
 
                                     // TODO: this is excessive! There are some cases where we could just load, or just save
                                     loads.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), stackLocation));
@@ -95,6 +162,7 @@ public class RegisterAllocation {
                                 }
                             }
                         ).collect(Collectors.toList());
+
                         op.setTemps(temps);
                     }
 
@@ -114,9 +182,33 @@ public class RegisterAllocation {
     }
 
     protected static Graph<String> constructInterferenceGraph
-            (DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult, Set<String> labels) {
+            (Assembly assm,
+             DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult,
+             Set<String> labels) {
 
         Graph<String> interferenceGraph = new UndirectedGraph<>();
+
+        //TODO: REMOVE
+        // debug the live variable analysis output:
+        Set<String> lvTemps = new HashSet<>();
+        Stream.concat(lvResult.in.values().stream(), lvResult.out.values().stream()).forEach(
+                s ->  lvTemps.addAll(s)
+        );
+        System.out.println();
+        System.out.println("LIVE VARIABLE TEMPS:");
+        for (String temp : lvTemps)
+            System.out.println(temp);
+        System.out.println();
+
+
+        // There seem to be cases when live variable analysis doesn't catch all temps! Add the temps directly
+        // from the assembly, just to be sure
+        // TODO: Figure out why live variable analysis doesn't catch everything!
+        for (AssemblyStatement stmt : assm.statements) {
+            for (AssemblyOperand op : stmt.operands) {
+                interferenceGraph.getVertices().addAll(op.getTemps());
+            }
+        }
 
         for (Set<String> interferences : lvResult.in.values())
             addInterferences(interferences, interferenceGraph, labels);
@@ -127,9 +219,9 @@ public class RegisterAllocation {
         return interferenceGraph;
     }
 
-    protected static void addInterferences(Set<String> interferences, Graph<String> graph, Set<String> labels) {
+    protected static void addInterferences(Set<String> liveTemps, Graph<String> graph, Set<String> labels) {
         // each set is a set of interfering temps (and labels). connect the temps in the graph
-        ArrayList<String> tempList = new ArrayList<String>(interferences);
+        ArrayList<String> tempList = new ArrayList<String>(liveTemps);
         for (int i = 0; i < tempList.size(); i++) {
             String ti = tempList.get(i);
             if (labels.contains(ti))
@@ -169,7 +261,7 @@ public class RegisterAllocation {
         System.out.println();
 
         // construct interference graph:
-        Graph<String> iGraph = constructInterferenceGraph(lvResult, AssemblyUtils.collectLabels(assm, false));
+        Graph<String> iGraph = constructInterferenceGraph(assm, lvResult, AssemblyUtils.collectLabels(assm, false));
 
         System.out.println("Interference graph temps:");
         for (String t : iGraph.getVertices())

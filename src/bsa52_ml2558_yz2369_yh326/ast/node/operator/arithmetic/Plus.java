@@ -3,7 +3,6 @@ package bsa52_ml2558_yz2369_yh326.ast.node.operator.arithmetic;
 import java.util.ArrayList;
 import java.util.List;
 
-import bsa52_ml2558_yz2369_yh326.ast.node.operator.arithmetic.ArithmeticOperator;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.While;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
@@ -49,7 +48,7 @@ public class Plus extends ArithmeticOperator {
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {
         if (addingArray) {
-            labelNumber = NumberGetter.uniqueNumber();
+            labelNumber = NumberGetter.uniqueNumberStr();
             newArray = new IRTemp("_array_" + labelNumber);
             List<IRStmt> stmts = new ArrayList<IRStmt>();
 

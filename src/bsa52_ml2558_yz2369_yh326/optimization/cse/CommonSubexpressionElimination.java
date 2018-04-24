@@ -66,7 +66,7 @@ public class CommonSubexpressionElimination {
                     in.contains(((IRMove) stmt).source().toString())) {
                 List<IRStmt> origins = findOrigin(aea, cfg, stmt);
                 //System.out.println("The origin of stmt" + stmt + " are " + origins);
-                String newTemp = "_temp_" + NumberGetter.uniqueNumber();
+                String newTemp = "_temp_" + NumberGetter.uniqueNumberStr();
                 origins.forEach(origin -> modification.put(origin, new Tuple<>(ModType.NEWVAR, newTemp)));
                 modification.put(stmt, new Tuple<>(ModType.USEVAR, newTemp));
             }

@@ -84,7 +84,7 @@ public class IfElse extends Stmt {
     }
 
     public static IRSeq getIRIfElse(IRExpr cond, IRNode then, IRNode otherwise) {
-        String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumberStr();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRCJump(cond, "_then_" + labelNumber));

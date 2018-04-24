@@ -22,7 +22,7 @@ public class LogicAnd extends LogicalOperator {
 
     @Override
     public IRNode translateWithOperands(IRExpr... operands) {
-        String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumberStr();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         IRTemp result = new IRTemp("_and_" + labelNumber);

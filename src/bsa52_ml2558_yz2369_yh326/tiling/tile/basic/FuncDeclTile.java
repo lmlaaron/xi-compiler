@@ -21,6 +21,7 @@ public class FuncDeclTile extends Tile {
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(decl.body());
 
+            System.out.println("Tiling: FuncDecl Found! " + decl.name());
             return true;
         } else
             return false;
@@ -51,12 +52,19 @@ public class FuncDeclTile extends Tile {
                                                                                                               // frame
                                                                                                               // pointer
         statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("STACKSIZE")));
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbx"))); // save
-                                                                                                                    // callee
-                                                                                                                    // safe
-                                                                                                                    // register
-                                                                                                                    // rbx
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand("rbp"))); // save
+
+        //String ft = freshTemp();
+        freshTemp();
+        freshTemp();
+
+        //statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp()), new AssemblyOperand(freshTemp())));
+        //statements.add(new AssemblyStatement("mov", /*new AssemblyOperand(freshTemp())*/ new AssemblyOperand("QWORD PTR [rbp]"), new AssemblyOperand("rbx"))); // save
+//                                                                                                                     callee
+//                                                                                                                     safe
+//                                                                                                                     register
+//                                                                                                                     rbx
+        //statements.add(new AssemblyStatement("mov", ft, ft));
+        //statements.add(new AssemblyStatement("mov", /*new AssemblyOperand(freshTemp())*/new AssemblyOperand("QWORD PTR [rbp-8]"), new AssemblyOperand("rbp"))); // save
                                                                                                                     // callee
                                                                                                                     // safe
                                                                                                                     // register

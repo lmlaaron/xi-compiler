@@ -42,7 +42,6 @@ public class ReturnTile extends Tile {
                 statements.add(new AssemblyStatement("mov", new AssemblyOperand(RET1), new AssemblyOperand()));
             }
             if (this.subtreeRoots.size() > 2) {
-
                 // calulcate the distance between the stack pointer to the return value
                 for (int i = 2; i < this.subtreeRoots.size(); i++) {
                     AssemblyOperand retOpt = new AssemblyOperand("__RETURN_" + String.valueOf(i));

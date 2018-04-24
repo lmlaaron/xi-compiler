@@ -83,6 +83,7 @@ public class AssemblyOperand {
     public static AssemblyOperand MemMinus(String... parts) {
         AssemblyOperand ao = AssemblyOperand.MemPlus(parts);
         ao.memOperandPlus = false;
+        ao.operand = ao.MemRepr();
 
         return ao;
     }
@@ -240,6 +241,7 @@ public class AssemblyOperand {
      *            getRegisters()
      */
     public void setTemps(List<String> registers) {
+        if (registers.isEmpty()) return;
         if (isMemOperand) {
             String repr = MemRepr();
 

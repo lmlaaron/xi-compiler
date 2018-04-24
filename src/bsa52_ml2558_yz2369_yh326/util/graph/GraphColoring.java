@@ -24,9 +24,17 @@ public class GraphColoring<GT, CT> {
      *
      * @param mustColor
      *
+     * @return a list of graph nodes that couldn't be colored
+     *
      * @throws RuntimeException if the restriction couldn't be satisfied
      */
     public List<GT> colorRestricted(Collection<CT> colors, Map<GT, CT> colorings, Set<CT> mustColor) {
+        System.out.println();
+        System.out.println("Coloring Attempt:");
+        System.out.println("Must color the following:");
+        for (CT mc : mustColor) System.out.println(mc.toString());
+        System.out.println();
+
         // accumulate in-degree counts
         Map<GT, Integer> inDegree = getInDegree();
 
@@ -87,7 +95,7 @@ public class GraphColoring<GT, CT> {
 
         // trivially removable nodes have an in degree less than or equal to k
         List<GT> removable = currentNodes.stream().filter(
-                node ->inDegree.get(node) < k
+                node -> inDegree.get(node) < k
         ).collect(Collectors.toList());
 
 

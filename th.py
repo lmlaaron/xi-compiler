@@ -248,13 +248,19 @@ def assm_grader(testcase_f, answer_f):
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
 
-def compile_and_run(xi_f):
+def compile_and_run(xi_f, custom=False):
     if os.path.isfile('./xi_executable'):
         os.remove('./xi_executable')
 
     assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
     print_log("Generating Assembly")
-    run_shell(['./xic', '--comment','-libpath', 'runtime/include/', xi_f], end_on_error=True)
+
+    if custom:
+        cmd = ['./xic', '--brentHack', '-libpath', 'runtime/include/', '--abstract', xi_f]# --brentHack -libpath runtime/include/ --abstract
+    else:
+        cmd = ['./xic', '--comment','-libpath', 'runtime/include/', xi_f]
+
+    run_shell(cmd)
     print_log("Linking Assembly")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
     print_log("Running Executable")

@@ -1,6 +1,10 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * implements functionalities that do not belong in Assembly.java,
@@ -54,6 +58,97 @@ public class AssemblyUtils {
             // rsp from caller pointer of view
         }
         return name;
+    }
+
+    public static void systemVEnforce(AssemblyFunction function) {
+        if (!function.actuallyAFunction()) return;
+
+        ArrayList<Integer> lastCallArgC = argCountOfLastCall(function.statements);
+
+        int thisFuncArgSize = AssemblyUtils.getArgSize(function.functionName);
+
+        int stmt_i = 0;
+        for (AssemblyStatement stmt : function.statements) {
+            for (AssemblyOperand op : stmt.operands) {
+                op.ResolveType();
+
+                // Per the ReturnTile, replace __RETURN_X temps with the appropriate memory
+                // location
+                if (stmt.operands != null && stmt.operation.equals("mov") &&
+                        stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED)) {
+
+                    // at this point, thisFuncArgSize NEEDS to be instantiated.
+                    //  if it isn't, we should throw an error
+                    if (thisFuncArgSize == -1){
+                        throw new RuntimeException("Error: function arg size not instantiated before use!");
+                    }
+
+                    int index = stmt.operands[0].value().lastIndexOf("_");
+                    int offset = Integer.valueOf(stmt.operands[0].value().substring(index + 1));
+                    AssemblyOperand retOpt = null;
+                    if (thisFuncArgSize <= 6) {
+                        retOpt = new AssemblyOperand("[rbp+" + String.valueOf((2 + offset - 2) * 8) + "]");
+                    } else {
+                        retOpt = new AssemblyOperand(
+                                "[rbp+" + String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8) + "]");
+                    }
+                    retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
+                    stmt.operands[0] = retOpt;
+                }
+
+
+                // also replace _ARGXX and _RETXX with registers, memory locations
+                List<String> temps = op.getTemps();
+
+                List<String> newTemps = new LinkedList<String>();
+                for (String temp : temps) {
+                    String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgC.get(stmt_i));
+                    newTemps.add(convertedTemp);
+                }
+
+                if (newTemps.size() > 0)
+                    op.setTemps(newTemps);
+            }
+
+            stmt_i++;
+        }
+    }
+
+    public static int getMaxStackOverHeadForFunctionCalls(List<AssemblyStatement> statements) {
+        int ret = 0;
+
+        for (AssemblyStatement stmt : statements) {
+            // calculate the stacksize
+            if (stmt.operation == "call") {
+                int retSize = AssemblyUtils.getRetSize(stmt.operands[0].value());
+                int argSize = AssemblyUtils.getArgSize(stmt.operands[0].value());
+
+                ret = Math.max(retSize+argSize, ret);
+            }
+        }
+
+        return ret;
+    }
+
+    protected static ArrayList<Integer> argCountOfLastCall(List<AssemblyStatement> statements) {
+        ArrayList<Integer> ret = new ArrayList<>(statements.size());
+
+        int argSize = 0;
+
+        int lastCallArgc = 0;
+
+        for (AssemblyStatement stmt : statements) {
+            // calculate the stacksize
+            if (stmt.operation == "call") {
+                argSize = AssemblyUtils.getArgSize(stmt.operands[0].value());
+
+                lastCallArgc = argSize;
+            }
+
+            ret.add(lastCallArgc);
+        }
+
+        return ret;
     }
 
     // per ABI specification, calculate the argument size
@@ -139,5 +234,28 @@ public class AssemblyUtils {
         }
 
         return labelNames;
+    }
+
+    public static List<AssemblyFunction> partitionFunctions(Assembly assm) {
+        List<AssemblyFunction> ret = new LinkedList<>();
+
+        // the register allocation/spilling is based on the unit of functions,
+        // we assume the entire abstract assembly is seperated by function call labels
+        LinkedList<AssemblyStatement> FuncStatements = new LinkedList<>();
+        // int sss =0;
+        for (AssemblyStatement stmt : assm.statements) {
+            if (stmt.isFunctionLabel && stmt.operation.substring(0, 2).equals("_I")) { // per Xi ABI specification, the
+                // we assume that function labels must start with "_I"
+                ret.add(new AssemblyFunction(FuncStatements));
+                FuncStatements = new LinkedList<>();
+                FuncStatements.add(stmt);
+            } else {
+                FuncStatements.add(stmt);
+            }
+        }
+        if (!FuncStatements.isEmpty())
+            ret.add(new AssemblyFunction(FuncStatements));
+
+        return ret;
     }
 }

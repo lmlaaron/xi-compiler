@@ -56,7 +56,7 @@ public class If extends Stmt {
     }
 
     public static IRSeq getIRIf(IRExpr cond, IRNode then) {
-        String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumberStr();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRCJump(cond, "_then_" + labelNumber));

@@ -77,7 +77,7 @@ public class VarDecl extends Stmt {
             if (size instanceof IRConst || size instanceof IRTemp || size instanceof IRName) {
                 sizesExpr.add(size);
             } else {
-                IRTemp sizeTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+                IRTemp sizeTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumberStr());
                 stmts.add(new IRMove(sizeTemp, size));
                 sizesExpr.add(sizeTemp);
             }
@@ -100,7 +100,7 @@ public class VarDecl extends Stmt {
         }
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
-        String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumberStr();
         IRTemp newArray = new IRTemp("_array_" + labelNumber);
 
         // Allocate an array with size + 1 (each unit is 8 bytes)

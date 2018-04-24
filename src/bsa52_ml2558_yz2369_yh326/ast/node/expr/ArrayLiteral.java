@@ -54,7 +54,7 @@ public class ArrayLiteral extends ExprAtom {
 
     @Override
     public IRNode translate() {
-        String name = "_array_" + NumberGetter.uniqueNumber();
+        String name = "_array_" + NumberGetter.uniqueNumberStr();
         List<IRStmt> stmts = new ArrayList<IRStmt>();
 
         // Allocate an array with size of children + 1 for length (each unit is 8 bytes)

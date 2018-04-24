@@ -45,7 +45,7 @@ public class AssemblyStatement {
     public AssemblyOperand[] operands;
 
     public AssemblyStatement(String operation) {
-        id = NumberGetter.uniqueNumber();
+        id = NumberGetter.uniqueNumberStr();
 
         isFunctionLabel = false;
         isOtherLabel = false;

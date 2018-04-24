@@ -162,7 +162,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
                         stacksize++;
                     }
 
-                    stmt.operands[1] = new AssemblyOperand(String.valueOf(stacksize * 8));
+                    stmt.operands[1] = new AssemblyOperand(String.valueOf((stacksize+2) * 8));
                 }
                 // replace __RETURN_x (genereated using return tile) with the exact stack
                 // location
@@ -202,7 +202,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
         // establish the registerTable
         for (List<AssemblyStatement> function : functions) {
             RegisterTable rTable = new RegisterTable();
-            rTable.SetCounter(0);
+            rTable.SetCounter(2);
 
             for (AssemblyStatement stmt : function) {
                 for (AssemblyOperand op : stmt.operands) {

@@ -53,7 +53,7 @@ public class While extends Stmt {
     }
 
     public static IRSeq getIRWhile(IRExpr cond, IRNode then) {
-        String labelNumber = NumberGetter.uniqueNumber();
+        String labelNumber = NumberGetter.uniqueNumberStr();
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRLabel("_head_" + labelNumber));

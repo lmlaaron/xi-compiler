@@ -72,7 +72,7 @@ public class Subscript extends Expr {
         }
         if (var instanceof IRConst || var instanceof IRTemp || var instanceof IRName) {
         } else {
-            IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+            IRTemp varTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumberStr());
             stmts.add(new IRMove(varTemp, var));
             var = varTemp;
         }
@@ -84,7 +84,7 @@ public class Subscript extends Expr {
         }
         if (index instanceof IRConst || index instanceof IRTemp || index instanceof IRName) {
         } else {
-            IRTemp indexTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumber());
+            IRTemp indexTemp = new IRTemp("_temp_" + NumberGetter.uniqueNumberStr());
             stmts.add(new IRMove(indexTemp, index));
             index = indexTemp;
         }

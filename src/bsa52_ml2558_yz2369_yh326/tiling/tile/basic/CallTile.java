@@ -37,36 +37,6 @@ public class CallTile extends Tile {
             return false;
     }
 
-    public int retSize() {
-        if (targetName.equals("_xi_out_of_bounds")) {
-            return 0;
-        } else if (targetName.equals("_xi_alloc")) {
-            return 1;
-        }
-        try {
-            if (targetName != null) {
-                int index = targetName.lastIndexOf("t");
-                if (index != -1) { // assume less than 100 arguments
-                    if (targetName.toCharArray()[(index + 1)] == 'p') {
-                        return 0;
-                    } else if (targetName.toCharArray()[(index + 2)] != 'a'
-                            && targetName.toCharArray()[(index + 2)] != 'b'
-                            && targetName.toCharArray()[(index + 2)] != 'i') {
-                        String v = targetName.substring(index + 1, index + 3);
-                        return Integer.parseInt(v);
-                    } else {
-                        return Integer.parseInt(targetName.substring(index + 1, index + 2));
-                    }
-                }
-                return 0;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     @Override
     public int size() {
         return 1;
