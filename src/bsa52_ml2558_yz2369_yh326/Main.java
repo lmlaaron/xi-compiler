@@ -1,9 +1,13 @@
 package bsa52_ml2558_yz2369_yh326;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -53,29 +57,29 @@ public class Main {
         System.out.println(usage);
     }
 
-    public static void Support() {
-        System.out.println("cf");
-    }
-
     public static void HandleArgv(String[] argv) {
-
-        // Processing other options
+        boolean optimization = true;
+        List<String> opts = new ArrayList<String>();
+        List<String> noOpts = new ArrayList<String>();
+        
         for (int i = 0; i < argv.length; i++) {
             if (argv[i].equals("-O")) {
-                //Settings.opts.retainAll(null);
+                optimization = false;
             } else if (argv[i].startsWith("-O-no-")) {
-                //Settings.noOpts.add(argv[i].substring(6));
+                String opt = argv[i].substring(6);
+                if (!Settings.supportedOpt.contains(opt))
+                    System.out.println("WARNING: unrecognized optimization \"" + opt + "\". Ignoring.");
+                noOpts.add(opt);
             } else if (argv[i].startsWith("-O")) {
-                //Settings.opts.add(argv[i].substring(2));
+                String opt = argv[i].substring(2);
+                if (!Settings.supportedOpt.contains(opt))
+                    System.out.println("WARNING: unrecognized optimization \"" + opt + "\". Ignoring.");
+                opts.add(opt);
             } else if (argv[i].startsWith("--")) {
                 if (argv[i].equals("--help")) {
                     Usage();
-                }
-                else if (argv[i].equals("--brentHack")) {
-                    Settings.brentHack = true;
-                }
-                else if (argv[i].equals("--report-opts")) {
-                    Support();
+                } else if (argv[i].equals("--report-opts")) {
+                    Settings.supportedOpt.forEach(opt -> System.out.println(opt));
                 } else if (argv[i].equals("--lex")) {
                     Settings.lex = true;
                 } else if (argv[i].equals("--parse")) {
@@ -98,8 +102,10 @@ public class Main {
                     Settings.disAsmGen = true;
                 } else if (argv[i].equals("--comment")) {
                     Settings.asmComments = true;
+                } else if (argv[i].equals("--brentHack")) {
+                    Settings.brentHack = true;
                 } else {
-                    System.out.println("Unrecognized option \"" + argv[i] + "\". Ignoring.");
+                    System.out.println("WARNING: unrecognized option \"" + argv[i] + "\". Ignoring.");
                 }
             } else if (argv[i].startsWith("-")) {
                 if (argv[i].equals("-sourcepath")) {
@@ -112,9 +118,9 @@ public class Main {
                     Settings.assemblyOutputPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
                 } else if (argv[i].equals("-target")) {
                     if (!argv[i + 1].equals("linux"))
-                        System.out.println("Unsupported target OS. Using \"linux\"");
+                        System.out.println("WARNING: unsupported target OS. Using \"linux\"");
                 } else {
-                    System.out.println("Unrecognized option \"" + argv[i] + "\". Ignoring.");
+                    System.out.println("WARNING: unrecognized option \"" + argv[i] + "\". Ignoring.");
                     i--; // Cancel the i++ below
                 }
                 i++;
@@ -123,8 +129,20 @@ public class Main {
             } else if (argv[i].endsWith(".xi")) {
                 Settings.xiList.add(argv[i].substring(0, argv[i].length() - 3));
             } else {
-                System.out.println("Unrecognized file \"" + argv[i] + "\". Ignoring.");
+                System.out.println("WARNING: unrecognized argument \"" + argv[i] + "\". Ignoring.");
             }
+        }
+        
+        // Detect conflicting optimization options
+        if ((!optimization && (!noOpts.isEmpty() || !opts.isEmpty())) || 
+                (!noOpts.isEmpty() && !opts.isEmpty())) {
+            System.out.println("WARNING: conflicting optimization option detected. Set to do all optimizations.");
+        } else if (!optimization) {
+            Settings.opts.clear();
+        } else if (!opts.isEmpty()) {
+            Settings.opts.retainAll(opts);
+        } else if (!noOpts.isEmpty()) {
+            Settings.opts.removeAll(noOpts);
         }
     }
 
@@ -137,12 +155,15 @@ public class Main {
             String outputFile = realPath(Settings.outputPath, file);
 
             try {
-                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
-                ParserWrapper.Parsing(xiLexer, inputFile, outputFile, ".iparsed");
+                FileReader fileReader = new FileReader(inputFile);
+                lexer xiLexer = LexerWrapper.Lexing(fileReader, outputFile);
+                ParserWrapper.Parsing(xiLexer, outputFile, ".iparsed");
             } catch (LexingException | ParsingException e) {
                 e.print(file + ".ixi");
                 if (Settings.parse)
                     WriteException(outputFile + ".iparsed", e);
+            } catch (FileNotFoundException e) {
+                System.out.println("WARNING: \"" + inputFile + "\" not found. Ignoring.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -156,8 +177,9 @@ public class Main {
 
             // Lexing, parsing, type checking, IR generation
             try {
-                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
-                Node ast = ParserWrapper.Parsing(xiLexer, inputFile, outputFile, ".parsed");
+                FileReader fileReader = new FileReader(inputFile);
+                lexer xiLexer = LexerWrapper.Lexing(fileReader, outputFile);
+                Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
                 IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
@@ -177,11 +199,12 @@ public class Main {
                 if (Settings.typeCheck) {
                     WriteException(outputFile + ".typed", e);
                 }
+            } catch (FileNotFoundException e) {
+                System.out.println("WARNING: \"" + inputFile + "\" not found. Ignoring.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
         return;
     }
 

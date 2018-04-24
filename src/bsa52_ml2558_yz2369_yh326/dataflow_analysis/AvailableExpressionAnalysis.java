@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
@@ -24,7 +25,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
      * Mapping from expression to the set of variables used
      */
     private Map<String, Set<String>> exprToVar;
-
+    
     public AvailableExpressionAnalysis(DirectedGraph<IRStmt> cfg) {
         super(cfg);
         
@@ -83,7 +84,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     @Override
     protected Set<String> dataTransferFunction(IRStmt node, Set<String> in) {
         initExprToVar(in);
-        return set_union(gen(node), set_difference(in, kill(node)));
+        return set_difference(set_union(gen(node), in), kill(node));
     }
     
     private void initExprToVar(Set<String> in) {
