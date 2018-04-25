@@ -70,9 +70,11 @@ public class IRWrapper {
         if (Settings.optCFGSet.contains("cse"))
             WriteDotResult(irNode, outputFile, "cse");
         
-        // Perform Copy Propagation
-        if (Settings.opts.contains("copy"))
+        // Perform Copy Propagation (copy propagation need dce to be effective)
+        if (Settings.opts.contains("copy")) {
             CopyPropagation.DoCopyPropagation(irNode);
+            DeadCodeElimination.DoDeadCodeElimination(irNode);
+        }
         if (Settings.optIRSet.contains("copy"))
             WriteIRResult(irNode, outputFile + "_copy.ir");
         if (Settings.optCFGSet.contains("copy"))
