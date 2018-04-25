@@ -117,7 +117,20 @@ public class AssemblyUtils {
             case "lea":
                 ret.addAll(stmt.operands[1].getEntities());
                 break;
+            case "add":
+                ret.addAll(stmt.operands[0].getEntities());
+                ret.addAll(stmt.operands[1].getEntities());
+                break;
+            case "sub":
+                ret.addAll(stmt.operands[0].getEntities());
+                ret.addAll(stmt.operands[1].getEntities());
+                break;
         }
+
+        StringBuilder sb = new StringBuilder();
+        for (String s : ret)
+            sb.append(s + " ");
+        System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
 
         return ret;
     }
@@ -173,7 +186,18 @@ public class AssemblyUtils {
             case "lea":
                 ret.addAll(stmt.operands[0].getEntities());
                 break;
+            case "add":
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
+            case "sub":
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
         }
+
+        StringBuilder sb = new StringBuilder();
+        for (String s : ret)
+            sb.append(s + " ");
+        System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
 
         return ret;
     }
