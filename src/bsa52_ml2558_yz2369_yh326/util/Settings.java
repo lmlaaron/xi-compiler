@@ -12,7 +12,7 @@ public class Settings {
     public static boolean brentHack = false;
     
     // Supported optimizations
-    public static Set<String> supportedOpt = new HashSet<String>(Arrays.asList(
+    public static List<String> supportedOpt = new ArrayList<String>(Arrays.asList(
             "reg", "cse", "cf", "copy", "dce"
             ));
 

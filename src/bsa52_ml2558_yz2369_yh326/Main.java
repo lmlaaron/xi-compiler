@@ -58,6 +58,11 @@ public class Main {
     }
 
     public static void HandleArgv(String[] argv) {
+        if (argv.length == 0) {
+            Usage();
+            return;
+        }
+        
         boolean optimization = true;
         List<String> opts = new ArrayList<String>();
         List<String> noOpts = new ArrayList<String>();
