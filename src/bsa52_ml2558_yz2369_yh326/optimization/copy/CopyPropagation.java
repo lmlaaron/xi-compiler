@@ -46,8 +46,12 @@ public class CopyPropagation {
                 ListIterator<IRStmt> it = ((IRSeq) func.body()).stmts().listIterator();
                 while (it.hasNext()) {
                     IRStmt cur = it.next();
+                    //System.out.println("node:   "+cur.toString());
                     if (modifications.containsKey(cur)) {
-                    		Set<String> str_set= modifications.get(cur);                    		
+                    		Set<String> str_set= modifications.get(cur);         
+                    		for (String s: str_set) {
+                    		//	System.out.println("inflow:           "+s);
+                    		}
                                     		
                     		if ( cur instanceof IRMove ) {
                         		IRMove replace = (IRMove) cur;
@@ -55,7 +59,11 @@ public class CopyPropagation {
                     			for ( String str: str_set) {
                         			String src = getSource(str);
                             		String des = getDestination(str);
+                            		//System.out.println("src        :"+src);
+                            		//System.out.println("des       :"+des);
+                            		//System.out.println("before replace "+replace);
                             		replace = ReplaceTempRHS(replace, src, des);
+                            		//System.out.println("after replace "+replace);
                     			}
                     			it.remove();
                     			it.add(replace);
@@ -151,7 +159,7 @@ public class CopyPropagation {
         					ReplaceTempExpr(((IRMem) replace).expr(), src, des));
         		} else if ( replace instanceof IRTemp) {
         			if (((IRTemp) replace).name().equals(des)) {
-        				return new IRTemp(des);
+        				return new IRTemp(src);
         			}
         			return replace;
         		} else if ( replace instanceof IRESeq) {
