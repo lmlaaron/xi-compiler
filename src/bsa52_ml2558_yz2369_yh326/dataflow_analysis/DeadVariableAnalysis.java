@@ -83,7 +83,12 @@ public class DeadVariableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<IR
                         			Iterator<IRStmt> from_ret_iter= ret.iterator();
                                 while (from_ret_iter.hasNext()) {
                             		IRStmt from_ret= from_ret_iter.next();
-                                        if (from_ret instanceof IRMove && ((IRMove) from_ret).target() == move.target()) {
+                            			
+                            				// notice that for killing a element, we match by value (not reference)
+                                        if (from_ret instanceof IRMove && 
+                                        		((IRMove) from_ret).target() instanceof IRTemp &&
+                                        		((IRTemp) ((IRMove) from_ret).target()).name().equals(((IRTemp) move.target()).name())) {
+                                        		
            	                                            	   	from_ret_iter.remove();
                                                
                                         }

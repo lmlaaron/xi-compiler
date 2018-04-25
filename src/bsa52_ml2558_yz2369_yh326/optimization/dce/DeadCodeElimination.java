@@ -51,16 +51,20 @@ public class DeadCodeElimination {
             ListIterator<IRStmt> it = ((IRSeq) func.body()).stmts().listIterator();
             
             //for each node in CFG, check the respective in(n)
-            while (it.hasNext()) {
+            while (it.hasNext()) {				
             		IRStmt cur = it.next();
+            		System.out.println("current node:" + cur.toString());
             		if ( modifications.containsKey(cur)) {
             			Set<IRStmt> modification = modifications.get(cur);
             			
             				// for each value in the incoming edge, check if it is used in the node or not
             				for ( IRStmt in: modification ) {
+            					//System.out.println("in set                    :" + in.toString());
             					if ( in instanceof IRMove && ((IRMove) in).target() instanceof IRTemp ) {
             						boolean occur = CheckOccuranceStmt(cur, ((IRTemp) ((IRMove)in).target()));
             						if ( occur ) {
+            							//System.out.println("in string:"+in.toString());
+            							//System.out.println("current ir:" + cur.toString());
             							assert useCountTable.get(in) == 0;
             							useCountTable.put(in, useCountTable.get(in)+1);
             						}
@@ -70,17 +74,43 @@ public class DeadCodeElimination {
             }
             
             // remove the nodes with useCount 0
+            boolean isUseCountChange = true;
+            while (isUseCountChange) {
+            	isUseCountChange = false;
             it = ((IRSeq) func.body()).stmts().listIterator();
             while (it.hasNext()) {
+            	    //System.out.println("in set                    :" + in.toString());
+ 
             		IRStmt cur = it.next();
-            		
+                   	System.out.println("current node:" + cur.toString());
+                	System.out.println("use count: "+ useCountTable.get(cur));
             		// findout IRMove that is not used
             		if ( cur instanceof IRMove &&
             				((IRMove) cur).target() instanceof IRTemp &&
             				useCountTable.containsKey(cur) &&
             				useCountTable.get(cur) == 0) {
-            					it.remove();
+            					isUseCountChange = true;  // delete something, need to run another round
+            					
+            					// UPDATE the useCountTable for entries that define TEMP used by the deleted node
+            					ListIterator<IRStmt> it_table = ((IRSeq) func.body()).stmts().listIterator();
+            					while ( it_table.hasNext()) {
+            						IRStmt it_table_cur = it_table.next();
+            						if ( it_table_cur instanceof IRMove &&
+            								((IRMove) it_table_cur).target() instanceof IRTemp &&
+            								useCountTable.containsKey(it_table_cur) &&
+            								useCountTable.get(it_table_cur) > 0 &&
+            								CheckOccuranceStmt(cur, (IRTemp) ((IRMove) it_table_cur).target())) {
+            							useCountTable.put(it_table_cur, useCountTable.get(it_table_cur)-1);
+            							if (useCountTable.get(it_table_cur) == 0) {
+            								//it_table.remove();
+            							}
+            						}
+            					}
+            					
+            					// remove the current node 
+            					it.remove(); 
             		}
+            }
             }
         }
 	}
