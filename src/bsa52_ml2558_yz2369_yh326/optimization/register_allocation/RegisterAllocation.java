@@ -25,7 +25,10 @@ public class RegisterAllocation {
 
             StackTable rTable = new StackTable(); // will be populated with all temps that were spilled to stack
             rTable.SetCounter(2);
-            Map<String, String> colorings = new HashMap<>(); // map temp to register
+            Map<String, String> colorings = new HashMap<>(); // map temp/register to register
+            for (String r : Utilities.registersForAllocation()) { // registers are precolored
+                colorings.put(r, r);
+            }
             colorings = registerAllocation(f, rTable, colorings);
 
             sTableComment(rTable, f);
@@ -91,6 +94,25 @@ public class RegisterAllocation {
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
             interferenceG.removeVertex("STACKSIZE"); // this is a special marker that serves another purpose.
+
+            // hardcoded fix for cases such as "call", where a register may have a def but no use.
+            //  For registers, this should still mean that the register still interferes with any temps
+            //  live at that point
+            for (AssemblyStatement stmt : lvResult.in.keySet()) { // confusingly for reverse dataflow analysis, in is out
+                // for each register defined by this statement,
+                // force it to intersect with all temps that are live here
+                AssemblyUtils.def(stmt).stream().filter(
+                        entity -> Utilities.isRealRegister(entity)
+                ).forEach(
+                        register -> lvResult.in.get(stmt).stream().forEach(
+                                interfering -> {
+                                    interferenceG.addEdge(register, interfering);
+                                    interferenceG.addEdge(interfering, register);
+                                }
+                        )
+                );
+            }
+
 
             // TODO: REMOVE
             System.out.println();
@@ -224,6 +246,9 @@ public class RegisterAllocation {
              Set<String> labels) {
 
         Graph<String> interferenceGraph = new UndirectedGraph<>();
+
+        for (String r : Utilities.registersForAllocation())
+            interferenceGraph.addVertex(r);
 
         //TODO: REMOVE
         // debug the live variable analysis output:

@@ -48,11 +48,19 @@ public class AssemblyFunction extends Assembly {
         // wherever this function calls other functions, it must save all caller save registers it uses
         if (!actuallyAFunction()) return;
 
-        List<String> callerSave = new LinkedList<>(
+        LinkedList<String> callerSave = new LinkedList<>(
             registerAllocations.values().stream().filter(
                 r -> Utilities.isCallerSave(r)
             ).collect(Collectors.toSet())
         );
+
+        callerSave.remove("rax");
+        callerSave.remove("rdx");
+        // ^^^ HOWEVER rax and rdx are can be used as return values. for now, we'll just say that
+        // we never push them before or pop them after. AssemblyUtils.def() is consistent
+        // with this behavior
+        // TODO: alter pushes based on number of arguments of the called function AND
+        //       change gen()/kill() to reflect this change
 
         System.out.println("===== CALLER SAVE FOR " + functionName);
         System.out.println("all registers used in function:");

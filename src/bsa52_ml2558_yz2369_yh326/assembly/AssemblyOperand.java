@@ -193,84 +193,97 @@ public class AssemblyOperand {
         fillPlaceholder(operand.operand);
     }
 
+    protected boolean entityMatches(String s, boolean includeTemps, boolean includeRegisters) {
+        if (!Utilities.isNumber(s)) {
+            if (!includeRegisters && Utilities.isRealRegister(s))
+                return false;
+            else if (!includeTemps && !Utilities.isRealRegister(s))
+                return false;
+            return true;
+        }
+        else return false;
+    }
+
+    protected void getEntityIf(List<String> entities, String s, boolean includeTemps, boolean includeRegisters) {
+        if (entityMatches(s, includeTemps, includeRegisters))
+            entities.add(s);
+    }
+
+    protected List<String> getEntities(boolean includeTemps, boolean includeRegisters) {
+        LinkedList<String> entities = new LinkedList<String>();
+        if (isMemOperand) {
+            // Assuming elements are either constants or registers
+            for (String s : memOperandParts) {
+                getEntityIf(entities, s, includeTemps, includeRegisters);
+            }
+        } else if (type == OperandType.MEM) {
+            String val = value().substring(1, value().length() - 1); // "[register]"
+            getEntityIf(entities, val, includeTemps, includeRegisters);
+        } else if (type == OperandType.TEMP) {
+            getEntityIf(entities, value(), includeTemps, includeRegisters);
+        }
+
+        return entities;
+    }
     /**
      * @return all registers that are a component of this operand. Relies on
      *         ResolveType() already having been called
      */
     public List<String> getTemps() {
-        if (isMemOperand) {
-            LinkedList<String> registers = new LinkedList<String>();
+        return getEntities(true, false);
+    }
 
-            // Assuming elements are either constants or registers
-            for (String s : memOperandParts) {
-                if (!Utilities.isNumber(s) && !Utilities.isRealRegister(s)) {
-                    registers.add(s);
-                }
-            }
+    public List<String> getRegisters() {
+        return getEntities(false, true);
+    }
 
-            // TODO: remove debug printing
-            StringBuilder sb = new StringBuilder();
-            for (String r : registers)
-                sb.append(r + " ");
-            // System.out.println("=== GET TEMPS FOR " + MemRepr() + " returned " +
-            // sb.toString());
-
-            return registers;
-        } else if (type == OperandType.MEM) {
-            String val = value().substring(1, value().length() - 1); // "[register]"
-            LinkedList ret = new LinkedList<String>();
-            if (!Utilities.isRealRegister(val))
-                ret.add(val);
-            return ret;
-        } else if (type == OperandType.TEMP) {
-            LinkedList ret = new LinkedList<String>();
-            if (!Utilities.isRealRegister(value()))
-                ret.add(value());
-            return ret;
-        } else {
-            return new LinkedList<String>();
-        }
+    public List<String> getEntities() {
+        return getEntities(true, true);
     }
 
     /**
      * Resets the value of all temps returned by getTemps(). Used during register
      * allocation.
      *
-     * @param registers
+     * @param temps
      *            the new values of the temp/registers. Must bee of same length as
      *            getRegisters()
      */
-    public void setTemps(List<String> registers) {
-        if (registers.isEmpty()) return;
-        if (isMemOperand) {
-            String repr = MemRepr();
+    public void setTemps(List<String> temps) {
+        setEntities(temps, true, false);
+    }
 
-            ListIterator<String> it = registers.listIterator();
+    public void setRegisters(List<String> registers) {
+        setEntities(registers, false, true);
+    }
+
+    public void setEntities(List<String> entities) {
+        getEntities(true, true);
+    }
+
+    protected void setEntities(List<String> entities, boolean containsTemps, boolean containsRegisters) {
+        if (entities.isEmpty()) return;
+        if (isMemOperand) {
+
+            ListIterator<String> it = entities.listIterator();
 
             for (int i = 0; i < memOperandParts.size(); i++) {
                 String part = memOperandParts.get(i);
-                if (!Utilities.isNumber(part) && !Utilities.isRealRegister(part)) {
+                if (entityMatches(part, containsTemps, containsRegisters))
                     memOperandParts.set(i, it.next());
-                }
             }
             operand = MemRepr();
 
-            // TODO: remove debug printing
-            StringBuilder sb = new StringBuilder();
-            for (String r : registers)
-                sb.append(r + " ");
-            // System.out.println("=== SET TEMPS FOR " + repr + " passed " + sb.toString() +
-            // " and is now " + MemRepr());
 
             if (it.hasNext()) {
                 throw new RuntimeException("Error: more registers were provided than can be used!");
             }
         } else if (type == OperandType.MEM) {
-            assert registers.size() == 1;
-            this.operand = "[" + registers.get(0) + "]";
+            assert entities.size() == 1;
+            this.operand = "[" + entities.get(0) + "]";
         } else if (type == OperandType.TEMP) {
-            assert registers.size() == 1;
-            this.operand = registers.get(0);
+            assert entities.size() == 1;
+            this.operand = entities.get(0);
         }
     }
 
