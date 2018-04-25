@@ -1,5 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.tiling;
 
+import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.MoveTempCallTile;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.cjump.*;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.advanced.indexing.LEATile;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
@@ -60,7 +61,7 @@ public class MaxMunch {
         sortedTiles.add(new SeqTile());
         sortedTiles.add(new TempTile());
         sortedTiles.add(new MoveTile());
-        sortedTiles.add(new CallTile());
+        sortedTiles.add(new ExpCallTile());
         sortedTiles.add(new EQTile());
         sortedTiles.add(new NEQTile());
 

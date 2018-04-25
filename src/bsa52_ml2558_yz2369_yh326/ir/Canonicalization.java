@@ -292,8 +292,14 @@ public class Canonicalization {
                 return IRSeqNoEmpty(input);
             }
         } else if (input instanceof IRExp) {
-            IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
-            return new IRSeq(es.stmt());
+            if (((IRExp) input).expr() instanceof IRCall) {
+                IRESeq es = CanonicalizeIRCall((IRCall) ((IRExp) input).expr());
+                return new IRSeq(es.stmt(), new IRExp(es.expr()));
+            }
+            else {
+                IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
+                return new IRSeq(es.stmt());
+            }
         } else if (input instanceof IRReturn) {
             List<IRExpr> e = ((IRReturn) input).rets();
             List<IRStmt> rsl = new ArrayList<IRStmt>();
