@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,16 +75,20 @@ public class DeadVariableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<IR
 
     @Override
     protected Set<IRStmt> dataTransferFunction(IRStmt node, Set<IRStmt> in) {
-            Set<IRStmt> ret = in;
+            //Set<IRStmt> ret = in;	// Not correct to copy a HashMap like this
+            Set<IRStmt> ret = new HashSet<>(in);
             if (node instanceof IRMove) {
                         IRMove move = (IRMove) node;
                         if (move.target() instanceof IRTemp ) {
-                                for ( IRStmt from_ret: ret) {
-                                        if (from_ret instanceof IRMove &&
-                                                ((IRMove) from_ret).target() == move.target()) {
-                                                ret.remove(from_ret);
+                        			Iterator<IRStmt> from_ret_iter= ret.iterator();
+                                while (from_ret_iter.hasNext()) {
+                            		IRStmt from_ret= from_ret_iter.next();
+                                        if (from_ret instanceof IRMove && ((IRMove) from_ret).target() == move.target()) {
+           	                                            	   	from_ret_iter.remove();
+                                               
                                         }
                                 }
+                                
                         }
             }
         return this.set_union(gen(node),  ret);
