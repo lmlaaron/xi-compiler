@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
@@ -20,7 +19,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<String>> {
     
-    private static final String MemoryForm = "_m";
     /*
      * Mapping from expression to the set of variables used
      */
@@ -56,8 +54,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
                 killExprMem(kill);
             }
         } else if (node instanceof IRMove && 
-                ((IRMove) node).target() instanceof IRMem && 
-                ((IRMove) node).source() instanceof IRTemp) {
+                ((IRMove) node).target() instanceof IRMem) {
             killExprMem(kill);
         }
         // Impossible case: Procedure call (must be move to a temp)
@@ -75,7 +72,7 @@ public class AvailableExpressionAnalysis extends DataflowAnalysisGenKill<IRStmt,
     
     private void killExprMem(Set<String> kill) {
         for (String key : exprToVar.keySet()) {
-            if (exprToVar.get(key).contains(MemoryForm)) {
+            if (key.startsWith("(MEM ")) {
                 kill.add(key);
             }
         }

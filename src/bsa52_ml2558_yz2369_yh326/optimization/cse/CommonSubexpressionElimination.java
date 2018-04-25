@@ -16,7 +16,9 @@ import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
@@ -80,7 +82,9 @@ public class CommonSubexpressionElimination {
         Map<IRStmt, List<Tuple<ModType, String>>> modification = new HashMap<>();
         for (IRStmt stmt : ((IRSeq) func.body()).stmts()) {
             Set<String> in = aeResult.in.get(stmt);
-            if (stmt instanceof IRMove && ((IRMove) stmt).source() instanceof IRBinOp && 
+            if (!(stmt instanceof IRMove)) continue;
+            IRExpr source = ((IRMove) stmt).source();
+            if ((source instanceof IRBinOp || source instanceof IRMem) && 
                     in.contains(((IRMove) stmt).source().toString())) {
                 List<IRStmt> origins = findOrigin(aea, cfg, stmt);
                 String newTemp = "_temp_" + NumberGetter.uniqueNumber();

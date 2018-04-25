@@ -183,8 +183,6 @@ public class Main {
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
                 IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
-                if (Settings.irrun)
-                    IRWrapper.IRRun(irNode);
                 Tile rootTile = MaxMunch.munch(irNode);
                 AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
             } catch (LexingException | ParsingException e) {

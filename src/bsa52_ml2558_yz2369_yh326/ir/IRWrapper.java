@@ -89,9 +89,11 @@ public class IRWrapper {
         if (Settings.optIRSet.contains("final"))
             WriteIRResult(irNode, outputFile + "_final.ir");
         // Note: the final result of optCFG is generated after assembly is generated
-        if (Settings.irgen) {
+        if (Settings.irgen)
             WriteIRResult(irNode, outputFile + ".ir");
-        }
+        if (Settings.irrun)
+            IRRun(irNode);
+        
         return irNode;
     }
 

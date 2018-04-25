@@ -25,12 +25,13 @@ public abstract class DataflowAnalysisGenKill<GT, IT> extends DataflowAnalysis<G
     protected abstract IT kill(GT node);
     protected abstract IT gen(GT node);
 
-    protected IT set_union(IT... information) {
-        ArrayList<IT> list = new ArrayList<>(information.length);
-        for (int i = 0; i < information.length; i++)
-            list.add(information[i]);
+    protected IT set_union(IT a, IT b) {
+        ArrayList<IT> list = new ArrayList<>();
+        list.add(a);
+        list.add(b);
         return set_union(list);
     }
+    
     protected abstract IT set_union(Collection<IT> information);
     protected abstract IT set_difference(IT a, IT b);
 }
