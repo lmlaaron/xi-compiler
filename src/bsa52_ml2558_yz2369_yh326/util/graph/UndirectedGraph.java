@@ -65,12 +65,13 @@ public class UndirectedGraph<T> implements Graph<T> {
 
     @Override
     public void removeVertex(T vertex) {
-        vertices.remove(vertex);
-        if (vertices.contains(vertex)) {
+        if (edges.containsKey(vertex)) {
             LinkedList<T> adjs = new LinkedList<T>(edges.get(vertex));
             for (T adj : adjs)
                 removeEdge(adj, vertex);
+            edges.remove(vertex);
         }
+        vertices.remove(vertex);
     }
 
     @Override

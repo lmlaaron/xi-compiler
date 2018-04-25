@@ -234,7 +234,7 @@ def grade_by_matching_output(output, correct_output):
 def assm_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-O', '-libpath', 'runtime/include/', testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -251,7 +251,7 @@ def assm_grader(testcase_f, answer_f):
 def register_alloc_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '--brentHack','-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '--brentHack', '-O', '-libpath', 'runtime/include/', testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -273,7 +273,7 @@ def compile_and_run(xi_f, custom=False):
     print_log("Generating Assembly")
 
     if custom:
-        cmd = ['./xic', '--brentHack', '-libpath', 'runtime/include/', '--abstract', xi_f]# --brentHack -libpath runtime/include/ --abstract
+        cmd = ['./xic', '--brentHack', '-O', '-libpath', 'runtime/include/', '--abstract', xi_f]# --brentHack -libpath runtime/include/ --abstract
     else:
         cmd = ['./xic', '--comment','-libpath', 'runtime/include/', xi_f]
 
