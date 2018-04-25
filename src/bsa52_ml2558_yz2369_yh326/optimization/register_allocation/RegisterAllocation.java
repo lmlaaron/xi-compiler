@@ -79,7 +79,8 @@ public class RegisterAllocation {
         List<String> registers = Utilities.registersForAllocation();
 
 
-        Set<String> mustColor = new HashSet<>();
+        Set<String> cantSpill = new HashSet<>();
+        cantSpill.addAll(Utilities.allRegisters());
 
         while (true) {
             HashMap<String, String> colorings = new HashMap<>(preColorings);
@@ -114,17 +115,17 @@ public class RegisterAllocation {
             }
 
 
-            // TODO: REMOVE
-            System.out.println();
-            System.out.println("TEMPS:");
-            for (String temp : interferenceG.getVertices()) {
-                System.out.println(temp);
-            }
-            System.out.println("");
+//            // TODO: REMOVE
+//            System.out.println();
+//            System.out.println("TEMPS:");
+//            for (String temp : interferenceG.getVertices()) {
+//                System.out.println(temp);
+//            }
+//            System.out.println("");
 
 
             GraphColoring<String, String> gc = new GraphColoring<>(interferenceG);
-            HashSet<String> spilled = new HashSet<>(gc.colorRestricted(registers, colorings, mustColor));
+            HashSet<String> spilled = new HashSet<>(gc.colorRestricted(registers, colorings, cantSpill));
 
             if (spilled.isEmpty()) {
                 // easy part. Allocate registers appropriately, as we have a proper allocation
@@ -202,13 +203,13 @@ public class RegisterAllocation {
 
                                     // this new temp's purpose is to compensate for a temp that was spilled
                                     // to the stack. It would be silly if we had to spill this one also
-                                    mustColor.add(freshTemp);
+                                    cantSpill.add(freshTemp);
 
                                     String stackOffset = Integer.toString(rTable.MemIndex(temp) * 8);
                                     AssemblyOperand stackLocation = AssemblyOperand.MemMinus("rbp", stackOffset);
 
-                                    //TODO: remove
-                                    System.out.println("Stack Location: " + stackLocation.value());
+//                                    //TODO: remove
+//                                    System.out.println("Stack Location: " + stackLocation.value());
 
                                     // TODO: this is excessive! There are some cases where we could just load, or just save
                                     loads.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), stackLocation));
