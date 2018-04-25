@@ -35,16 +35,16 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 // note that defs(x) is expressed as all the previous nodes that do x=e1, ... 
 // Thus, we use IRTemp(x) to represent 
 // to keep the use count the IRStmt has to be uniquely labeled
-public class DeadIRVairableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<IRStmt>> {
-    
+public class DeadVariableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<IRStmt>> {
+
     //private static final String MemoryForm = "_m";
     /*
      * Mapping from expression to the set of variables used
      */
     //private Map<String, Set<String>> exprToVar;
-	
-    public DeadIRVairableAnalysis(DirectedGraph<IRStmt> cfg) {
-    		super(cfg);
+
+    public DeadVariableAnalysis(DirectedGraph<IRStmt> cfg) {
+                super(cfg);
     }
 
     @Override
@@ -52,43 +52,43 @@ public class DeadIRVairableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<
         Set<IRStmt> set = new HashSet<IRStmt>();
         assert false;
         if (node instanceof IRMove) {
-        		IRMove move = (IRMove) node;
-        		if (move.target() instanceof IRTemp) {
-        			set.add(node);
-        		}
+                        IRMove move = (IRMove) node;
+                        if (move.target() instanceof IRTemp) {
+                                set.add(node);
+                        }
         }
         return set;
     }
-    
-    
+
+
     @Override
     protected Set<IRStmt> kill(IRStmt node) {
-    		assert false;
-    		// for kill need to know what is z in x=z and z=x, use   pointer instead 
+                assert false;
+                // for kill need to know what is z in x=z and z=x, use   pointer instead 
         Set<IRStmt> set = new HashSet<IRStmt>();
         if (node instanceof IRMove) {
-        	
+
         }
         return set;
     }
 
     @Override
     protected Set<IRStmt> dataTransferFunction(IRStmt node, Set<IRStmt> in) {
-    	    Set<IRStmt> ret = in;
-    	    if (node instanceof IRMove) {
-    	    		IRMove move = (IRMove) node;
-    	    		if (move.target() instanceof IRTemp ) {
-    	    			for ( IRStmt from_ret: ret) {
-    	    				if (from_ret instanceof IRMove && 
-    	    					((IRMove) from_ret).target() == move.target()) {
-    	    					ret.remove(from_ret);
-    	    				}
-    	    			}
-    	    		}
-    	    }
+            Set<IRStmt> ret = in;
+            if (node instanceof IRMove) {
+                        IRMove move = (IRMove) node;
+                        if (move.target() instanceof IRTemp ) {
+                                for ( IRStmt from_ret: ret) {
+                                        if (from_ret instanceof IRMove &&
+                                                ((IRMove) from_ret).target() == move.target()) {
+                                                ret.remove(from_ret);
+                                        }
+                                }
+                        }
+            }
         return this.set_union(gen(node),  ret);
     }
-  
+
     @Override
     protected Set<IRStmt> set_union( Collection<Set<IRStmt>> information) {
         Set<IRStmt> set = new HashSet<>();
@@ -96,18 +96,18 @@ public class DeadIRVairableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<
             info.forEach(s -> set.add(s));
         return set;
     }
-    
+
     @Override
     protected Set<IRStmt> set_difference(Set<IRStmt> a, Set<IRStmt> b) {
-    		Set<IRStmt> ret = new HashSet<>(a);
-    		// normal set difference
-    		for (IRStmt from_b: b) {
-    			for (IRStmt from_ret:ret) {
-    				if ( from_b.equals(from_ret)) {
-    					assert ret.remove(from_ret);
-    				}
-    			}
-    		}
+                Set<IRStmt> ret = new HashSet<>(a);
+                // normal set difference
+                for (IRStmt from_b: b) {
+                        for (IRStmt from_ret:ret) {
+                                if ( from_b.equals(from_ret)) {
+                                        assert ret.remove(from_ret);
+                                }
+                        }
+                }
         return ret;
     }
 
@@ -120,11 +120,11 @@ public class DeadIRVairableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<
     protected Set<IRStmt> meet(Collection<Set<IRStmt>> information) {
         return set_union(information);
     }
-    
+
     private Set<IRStmt> set_intersect(Collection<Set<IRStmt>> information) {
         if (information.size() == 0)
             return new HashSet<IRStmt>();
-        
+
         List<Set<IRStmt>> infoList = new ArrayList<>(information);
         Set<IRStmt> set = infoList.get(0);
         for (int i = 1; i < infoList.size(); i++) {
@@ -132,12 +132,10 @@ public class DeadIRVairableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<
         }
         return set;
     }
-    
+
     @Override
     protected Set<IRStmt> top() {
         return new HashSet<IRStmt>();
     }
 }
-
-
 
