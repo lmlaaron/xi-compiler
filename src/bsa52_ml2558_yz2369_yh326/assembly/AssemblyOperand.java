@@ -132,8 +132,9 @@ public class AssemblyOperand {
         }
 
         // TODO fix this pattern matching but propagate from IR instead
-
-        if ((this.operand.charAt(0) == '[') && (this.operand.charAt(this.operand.length() - 1) == ']')) {
+        if (Utilities.isRealRegister(this.operand))
+            this.type = OperandType.REG_RESOLVED;
+        else if ((this.operand.charAt(0) == '[') && (this.operand.charAt(this.operand.length() - 1) == ']')) {
             // } else if (this.operand.contains("[")){
             this.type = OperandType.MEM;
             // System.out.println(this.operand);
@@ -195,13 +196,23 @@ public class AssemblyOperand {
 
     protected boolean entityMatches(String s, boolean includeTemps, boolean includeRegisters) {
         if (!Utilities.isNumber(s)) {
-            if (!includeRegisters && Utilities.isRealRegister(s))
+            if (!includeRegisters && Utilities.isRealRegister(s)) {
+                System.out.printf("Entity %s IS a real register!%n", s);
                 return false;
-            else if (!includeTemps && !Utilities.isRealRegister(s))
+            }
+            else if (!includeTemps && !Utilities.isRealRegister(s)) {
+                System.out.printf("Entity %s ISNT a real register!%n", s);
                 return false;
-            return true;
+            }
+            else {
+                System.out.printf("Entity %s matches%n", s);
+                return true;
+            }
         }
-        else return false;
+        else {
+            System.out.printf("Entity %s is a number!%n", s);
+            return false;
+        }
     }
 
     protected void getEntityIf(List<String> entities, String s, boolean includeTemps, boolean includeRegisters) {
@@ -210,6 +221,8 @@ public class AssemblyOperand {
     }
 
     protected List<String> getEntities(boolean includeTemps, boolean includeRegisters) {
+        ResolveType();
+
         LinkedList<String> entities = new LinkedList<String>();
         if (isMemOperand) {
             // Assuming elements are either constants or registers
@@ -221,6 +234,14 @@ public class AssemblyOperand {
             getEntityIf(entities, val, includeTemps, includeRegisters);
         } else if (type == OperandType.TEMP) {
             getEntityIf(entities, value(), includeTemps, includeRegisters);
+        }
+        else if (type == OperandType.REG_RESOLVED) {
+            if (!Utilities.isRealRegister(value()))
+                throw new RuntimeException(value());
+            getEntityIf(entities, value(), includeTemps, includeRegisters);
+        }
+        else {
+            System.out.printf("TYPE -> %s%n", type);
         }
 
         return entities;
@@ -238,7 +259,10 @@ public class AssemblyOperand {
     }
 
     public List<String> getEntities() {
-        return getEntities(true, true);
+        System.out.println("=== GET ENTITIES ===");
+        List<String> ret = getEntities(true, true);
+        System.out.println();
+        return ret;
     }
 
     /**
@@ -258,7 +282,7 @@ public class AssemblyOperand {
     }
 
     public void setEntities(List<String> entities) {
-        getEntities(true, true);
+        setEntities(entities, true, true);
     }
 
     protected void setEntities(List<String> entities, boolean containsTemps, boolean containsRegisters) {
@@ -285,6 +309,8 @@ public class AssemblyOperand {
             assert entities.size() == 1;
             this.operand = entities.get(0);
         }
+        else if (type == OperandType.REG_RESOLVED)
+            this.operand = entities.get(0);
     }
 
     /**

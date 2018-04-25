@@ -131,7 +131,8 @@ public class Utilities {
     }
 
     public static Set<String> allRegisters() {
-        return realRegisters;
+        initRegisters();
+        return new HashSet<>(realRegisters);
     }
 
     public static String freshTemp() {
