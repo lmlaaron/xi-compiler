@@ -18,6 +18,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
@@ -90,12 +91,26 @@ public class Subscript extends Expr {
         }
 
         IRMem len = new IRMem(new IRBinOp(OpType.SUB, var, new IRConst(8)));
-        IRBinOp lt0 = new IRBinOp(OpType.LT, index, new IRConst(0));
         IRBinOp gtN = new IRBinOp(OpType.GEQ, index, len);
-        IRBinOp cond = new IRBinOp(OpType.OR, lt0, gtN);
         IRCall then = new IRCall(new IRName("_xi_out_of_bounds"));
-        stmts.add(If.getIRIf(cond, then));
-        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var, new IRBinOp(OpType.MUL, new IRConst(8), index)));
+        if (index instanceof IRConst) {
+            if (((IRConst)index).constant() < 0) {
+                stmts.add(new IRExp(then));
+            } else {
+                stmts.add(If.getIRIf(gtN, then));
+            }
+        } else {
+            IRBinOp lt0 = new IRBinOp(OpType.LT, index, new IRConst(0));
+            IRBinOp cond = new IRBinOp(OpType.OR, lt0, gtN);
+            stmts.add(If.getIRIf(cond, then));
+        }
+        IRExpr offset;
+        if (index instanceof IRConst) {
+            offset = new IRConst(8 * ((IRConst)index).constant());
+        } else {
+            offset = new IRBinOp(OpType.MUL, new IRConst(8), index);
+        }
+        IRExpr res = new IRMem(new IRBinOp(OpType.ADD, var, offset));
         return new IRESeq(new IRSeq(stmts), res);
     }
 

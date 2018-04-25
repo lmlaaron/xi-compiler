@@ -58,6 +58,11 @@ public class Main {
     }
 
     public static void HandleArgv(String[] argv) {
+        if (argv.length == 0) {
+            Usage();
+            return;
+        }
+        
         boolean optimization = true;
         List<String> opts = new ArrayList<String>();
         List<String> noOpts = new ArrayList<String>();
@@ -183,8 +188,6 @@ public class Main {
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
                 IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
-                if (Settings.irrun)
-                    IRWrapper.IRRun(irNode);
                 Tile rootTile = MaxMunch.munch(irNode);
                 AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
             } catch (LexingException | ParsingException e) {

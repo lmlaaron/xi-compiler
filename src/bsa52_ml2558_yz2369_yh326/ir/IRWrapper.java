@@ -7,6 +7,7 @@ import java.util.Map;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.optimization.copy.CopyPropagation;
 import bsa52_ml2558_yz2369_yh326.optimization.cse.CommonSubexpressionElimination;
+import bsa52_ml2558_yz2369_yh326.optimization.dce.DeadCodeElimination;
 import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.TempRenamer;
@@ -79,7 +80,7 @@ public class IRWrapper {
         
         // Perform Dead Code Elimination
         if (Settings.opts.contains("dce"))
-            ;
+            DeadCodeElimination.DoDeadCodeElimination(irNode);
         if (Settings.optIRSet.contains("dce"))
             WriteIRResult(irNode, outputFile + "_dce.ir");
         if (Settings.optCFGSet.contains("dce"))
@@ -89,9 +90,11 @@ public class IRWrapper {
         if (Settings.optIRSet.contains("final"))
             WriteIRResult(irNode, outputFile + "_final.ir");
         // Note: the final result of optCFG is generated after assembly is generated
-        if (Settings.irgen) {
+        if (Settings.irgen)
             WriteIRResult(irNode, outputFile + ".ir");
-        }
+        if (Settings.irrun)
+            IRRun(irNode);
+        
         return irNode;
     }
 

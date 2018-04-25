@@ -276,7 +276,11 @@ public class Canonicalization {
             // remove that new temp since it's useless.
             // TODO However, since there are bugs in assembly implementation, don't use it
             // for now.
-            IRESeq es2 = /* e2 instanceof IRCall ? CanonicalizeIRCall((IRCall) e2) : */ CanonicalizeExpr(e2);
+            IRESeq es2;
+            if (e1 instanceof IRTemp && e2 instanceof IRCall)
+                es2 = CanonicalizeIRCall((IRCall) e2);
+            else
+                es2 = CanonicalizeExpr(e2);
             IRSeq s2p = (IRSeq) es2.stmt();
             IRExpr e2p = es2.expr();
             if (e1 instanceof IRTemp) {
@@ -292,8 +296,14 @@ public class Canonicalization {
                 return IRSeqNoEmpty(input);
             }
         } else if (input instanceof IRExp) {
-            IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
-            return new IRSeq(es.stmt());
+            if (((IRExp) input).expr() instanceof IRCall) {
+                IRESeq es = CanonicalizeIRCall((IRCall) ((IRExp) input).expr());
+                return new IRSeq(es.stmt(), new IRExp(es.expr()));
+            }
+            else {
+                IRESeq es = CanonicalizeExpr(((IRExp) input).expr());
+                return new IRSeq(es.stmt());
+            }
         } else if (input instanceof IRReturn) {
             List<IRExpr> e = ((IRReturn) input).rets();
             List<IRStmt> rsl = new ArrayList<IRStmt>();

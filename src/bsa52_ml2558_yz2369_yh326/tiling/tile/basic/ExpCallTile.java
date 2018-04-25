@@ -1,6 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.tiling.tile.basic;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -10,15 +11,15 @@ import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 
-public class CallTile extends Tile {
+public class ExpCallTile extends Tile {
     String targetName;
 
     @Override
     public boolean fits(IRNode root) {
-        if (root instanceof IRCall) {
+        if (root instanceof IRExp && ((IRExp) root).expr() instanceof IRCall) {
             this.root = root;
 
-            IRCall call = (IRCall) root;
+            IRCall call = (IRCall) ((IRExp) root).expr();
 
             this.subtreeRoots = new LinkedList<>();
 
@@ -38,7 +39,7 @@ public class CallTile extends Tile {
 
     @Override
     public int size() {
-        return 1;
+        return 2;
     }
 
     @Override
