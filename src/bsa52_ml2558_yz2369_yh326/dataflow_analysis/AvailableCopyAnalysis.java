@@ -23,7 +23,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 
 // brief for available copy analysis
-//       n                                 *                gen(n)                     *              kill(n)
+//       n                                 *                use(n)                     *              def(n)
 //    x = y                              *                {x=y}                       *   x=z, z=x for all z
 //    x = e  where e!=z          *               nothing                   *   x=z, z=x
 //     if e                                 *               nothing                  * nothing
@@ -31,7 +31,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 //     START                            *              nothing                  * {all nodes}
 //     EXIT                                *              nothing or RV       *     nothing
 
-// the gen and kill set should be assignment x=y, however, sometimes z cannot be 
+// the gen and kill set should be assignment x=y, however, sometimes z cannot be
 // decided only on the node n itself (e.g., z=x for all z, z cannot decided), in order to
 // resolve this, we use string to represent values of DFA, and use the string should 
 // be fall into the following categories
@@ -73,7 +73,7 @@ public class AvailableCopyAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<S
     
     @Override
     protected Set<String> kill(IRStmt node) {
-    		// for kill need to know what is z in x=z and z=x, use   pointer instead 
+    		// for def need to know what is z in x=z and z=x, use   pointer instead
         Set<String> set = new HashSet<String>();
         if (node instanceof IRMove && ((IRMove) node).target() instanceof IRTemp) {
             IRExpr source = ((IRMove) node).source();

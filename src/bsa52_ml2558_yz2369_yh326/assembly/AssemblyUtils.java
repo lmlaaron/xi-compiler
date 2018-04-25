@@ -1,9 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -58,6 +55,127 @@ public class AssemblyUtils {
             // rsp from caller pointer of view
         }
         return name;
+    }
+
+    public static Set<String> use(AssemblyStatement stmt) {
+        // equivalent to 'use' from lecture materials
+
+        // it is correct to say a temp is used in every context in which it appears, except where it is killed
+//        HashSet<String> set = new HashSet<String>();
+//        Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
+//        if (stmt.operation.equals("mov")) {
+//            AssemblyOperand dest = stmt.operands[0];
+//            // don't want to say a temp is used if it's being assigned to
+//            if (!dest.type.equals(AssemblyOperand.OperandType.TEMP)) {
+//                set.addAll(dest.getTemps());
+//            }
+//            set.addAll(stmt.operands[1].getTemps());
+//        }
+//        // aside from mov, anywhere a temp is used everywhere it appears
+//        else {
+//            Arrays.stream(stmt.operands).forEach(op -> set.addAll(op.getTemps()));
+//        }
+//        return set;
+
+        Set<String> ret = new HashSet<String>();
+        Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
+        switch (stmt.operation) {
+            case "call":
+                // call uses the registers which are used as arguments, and this depends on the particular function
+                int argc = getArgSize(stmt.operands[0].value());
+                if (argc >= 1) ret.add("rdi");
+                if (argc >= 2) ret.add("rsi");
+                if (argc >= 3) ret.add("rdx");
+                if (argc >= 4) ret.add("rcx");
+                if (argc >= 5) ret.add("r8");
+                if (argc >= 6) ret.add("r9");
+                break;
+            case "mov":
+                ret.addAll(stmt.operands[1].getEntities());
+                break;
+            case "imul":
+                if (stmt.operands.length == 2) {
+                    ret.addAll(stmt.operands[0].getEntities());
+                    ret.addAll(stmt.operands[1].getEntities());
+                }
+                else if (stmt.operands.length == 1) {
+                    ret.addAll(stmt.operands[0].getEntities());
+                    ret.add("rax");
+                }
+                else {
+                    throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
+                }
+                break;
+            case "cqo":
+                ret.add("rax");
+                break;
+            case "idiv":
+                ret.add("rax");
+                ret.add("rdx");
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
+            case "lea":
+                ret.addAll(stmt.operands[1].getEntities());
+                break;
+        }
+
+        return ret;
+    }
+
+    public static Set<String> def(AssemblyStatement stmt) {
+        // equivalent to 'def' from lecture materials
+
+        // statements of the form MOV TEMP, *SOMETHING*
+        // define TEMP
+
+//        HashSet<String> set = new HashSet<String>();
+//        if (stmt.operands.length != 2) return set;
+//        else if (stmt.operation.equals("mov")) {
+//            AssemblyOperand possiblyTemp = stmt.operands[0];
+//
+//            possiblyTemp.ResolveType();
+//            if (possiblyTemp.type.equals(AssemblyOperand.OperandType.TEMP)) {
+//                set.add(possiblyTemp.value());
+//            }
+//        }
+        Set<String> ret = new HashSet<>();
+        Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
+        switch (stmt.operation) {
+            case "call":
+                // in general, call defines all caller-saved registers. BUT, we already have a pipeline
+                // that performs appropriate pushes and pops, so the only registers that are defined are the ones
+                // that can be used as return values according to system V: RAX and RDX
+                ret.add("rax");
+                ret.add("rdx");
+                break;
+            case "mov":
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
+            case "imul":
+                if (stmt.operands.length == 2) {
+                    ret.addAll(stmt.operands[0].getEntities());
+                }
+                else if (stmt.operands.length == 1) {
+                    ret.add("rdx");
+                    ret.add("rax");
+                }
+                else {
+                    throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
+                }
+                break;
+            case "cqo":
+                ret.add("rdx");
+                break;
+            case "idiv":
+                ret.add("rax");
+                ret.add("rdx");
+                break;
+            case "lea":
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
+        }
+
+        return ret;
     }
 
     public static void systemVEnforce(AssemblyFunction function) {

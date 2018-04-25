@@ -25,7 +25,10 @@ public class RegisterAllocation {
 
             StackTable rTable = new StackTable(); // will be populated with all temps that were spilled to stack
             rTable.SetCounter(2);
-            Map<String, String> colorings = new HashMap<>(); // map temp to register
+            Map<String, String> colorings = new HashMap<>(); // map temp/register to register
+            for (String r : Utilities.registersForAllocation()) { // registers are precolored
+                colorings.put(r, r);
+            }
             colorings = registerAllocation(f, rTable, colorings);
 
             sTableComment(rTable, f);
@@ -224,6 +227,9 @@ public class RegisterAllocation {
              Set<String> labels) {
 
         Graph<String> interferenceGraph = new UndirectedGraph<>();
+
+        for (String r : Utilities.registersForAllocation())
+            interferenceGraph.addVertex(r);
 
         //TODO: REMOVE
         // debug the live variable analysis output:
