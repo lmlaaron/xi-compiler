@@ -127,6 +127,9 @@ public class AssemblyUtils {
                 ret.addAll(stmt.operands[0].getEntities());
                 ret.addAll(stmt.operands[1].getEntities());
                 break;
+            case "push":
+                ret.addAll(stmt.operands[0].getEntities());
+                break;
         }
 
         // print out values in the specific case where the temp is a_artmp$

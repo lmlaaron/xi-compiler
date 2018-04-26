@@ -49,8 +49,8 @@ x9:int = 9
   f3(x0,x1,x2,x3)
   f4(x0,x1,x2,x3,x4)
   f5(x0,x1,x2,x3,x4,x5)
-  //f6(x0,x1,x2,x3,x4,x5,x6)
-  //f7(x0,x1,x2,x3,x4,x5,x6,x7)
-  //f8(x0,x1,x2,x3,x4,x5,x6,x7,x8)
-  //f9(x0,x1,x2,x3,x4,x5,x6,x7,x8,x9)
+  f6(x0,x1,x2,x3,x4,x5,x6)
+  f7(x0,x1,x2,x3,x4,x5,x6,x7)
+  f8(x0,x1,x2,x3,x4,x5,x6,x7,x8)
+  f9(x0,x1,x2,x3,x4,x5,x6,x7,x8,x9)
 }
