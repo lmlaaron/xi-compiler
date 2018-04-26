@@ -132,13 +132,13 @@ public class AssemblyUtils {
                 break;
         }
 
-        // print out values in the specific case where the temp is a_artmp$
-        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("x2_irtmp$_COMPENSATOR") || o.getEntities().contains("__FreshTemp_490"))) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : ret)
-                sb.append(s + " ");
-            System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
-        }
+//        // print out values in the specific case where the temp is a_artmp$
+//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("x2_irtmp$_COMPENSATOR") || o.getEntities().contains("__FreshTemp_490"))) {
+//            StringBuilder sb = new StringBuilder();
+//            for (String s : ret)
+//                sb.append(s + " ");
+//            System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
+//        }
 
         return ret;
     }
@@ -214,13 +214,13 @@ public class AssemblyUtils {
 //            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
 //        }
 
-        // print out values in the specific case where the temp is a_artmp$
-        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("x2_irtmp$_COMPENSATOR") || o.getEntities().contains("__FreshTemp_490"))) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : ret)
-                sb.append(s + " ");
-            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
-        }
+//        // print out values in the specific case where the temp is a_artmp$
+//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("x2_irtmp$_COMPENSATOR") || o.getEntities().contains("__FreshTemp_490"))) {
+//            StringBuilder sb = new StringBuilder();
+//            for (String s : ret)
+//                sb.append(s + " ");
+//            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+//        }
 
         return ret;
     }

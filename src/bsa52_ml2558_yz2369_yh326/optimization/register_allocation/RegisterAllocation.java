@@ -88,7 +88,7 @@ public class RegisterAllocation {
         while (true) {
             HashMap<String, String> colorings = new HashMap<>(preColorings);
 
-            System.out.println("===== ITERATION =====");
+            // System.out.println("===== ITERATION =====");
 
             DirectedGraph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(assm);
 
@@ -96,18 +96,18 @@ public class RegisterAllocation {
 
             Graph<String> interferenceG = constructInterferenceGraph(assm, lvResult, labels);
 
-            System.out.println("INTERFERENCE GRAPH:");
-            for (String s : interferenceG.getVertices()) {
-                StringBuilder sb = new StringBuilder();
-                if (interferenceG.getEdges().containsKey(s)) {
-                    for (String adj : interferenceG.getEdges().get(s))
-                        sb.append(adj + " ");
-                }
-                System.out.printf("%-15s : {%s}%n", s, sb);
-            }
-            System.out.println();
-
-            System.out.printf("Interference Graph Contains STACKSIZE : %b%n", interferenceG.getEdges().containsKey("STACKSIZE"));
+//            System.out.println("INTERFERENCE GRAPH:");
+//            for (String s : interferenceG.getVertices()) {
+//                StringBuilder sb = new StringBuilder();
+//                if (interferenceG.getEdges().containsKey(s)) {
+//                    for (String adj : interferenceG.getEdges().get(s))
+//                        sb.append(adj + " ");
+//                }
+//                System.out.printf("%-15s : {%s}%n", s, sb);
+//            }
+//            System.out.println();
+//
+//            System.out.printf("Interference Graph Contains STACKSIZE : %b%n", interferenceG.getEdges().containsKey("STACKSIZE"));
 
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
@@ -146,11 +146,11 @@ public class RegisterAllocation {
 
             if (spilled.isEmpty()) {
                 // easy part. Allocate registers appropriately, as we have a proper allocation
-                System.out.println("Allocated Registers for all temps!");
+                //System.out.println("Allocated Registers for all temps!");
 
 
                 colorings.remove("STACKSIZE");
-                System.out.printf("Colorings Contains STACKSIZE : %b%n", colorings.containsKey("STACKSIZE"));
+                //System.out.printf("Colorings Contains STACKSIZE : %b%n", colorings.containsKey("STACKSIZE"));
 
                 ListIterator<AssemblyStatement> it = assm.statements.listIterator();
                 while (it.hasNext()) {
@@ -169,13 +169,13 @@ public class RegisterAllocation {
                             ).collect(Collectors.toList())
                         );
 
-                        // integrity check: make sure there aren't any temps:
-                        for (String temp : op.getTemps()) {
-                            if (!temp.equals("STACKSIZE") && !labels.contains(temp)){
-                                System.out.println("WARN: REMAINING TEMP -> " + temp);
-                                System.out.println("\tContained by Interference Graph: " + interferenceG.getVertices().contains(temp));
-                            }
-                        }
+//                        // integrity check: make sure there aren't any temps:
+//                        for (String temp : op.getTemps()) {
+//                            if (!temp.equals("STACKSIZE") && !labels.contains(temp)){
+//                                System.out.println("WARN: REMAINING TEMP -> " + temp);
+//                                System.out.println("\tContained by Interference Graph: " + interferenceG.getVertices().contains(temp));
+//                            }
+//                        }
                     }
 
                     // commenting
@@ -191,11 +191,11 @@ public class RegisterAllocation {
                 return colorings; // we're done
             }
             else {
-                System.out.println("Didn't allocate registers for all temps!");
-                System.out.println("Spilled Temps:");
-                for (String t : spilled)
-                    System.out.println(t);
-                System.out.println();
+//                System.out.println("Didn't allocate registers for all temps!");
+//                System.out.println("Spilled Temps:");
+//                for (String t : spilled)
+//                    System.out.println(t);
+//                System.out.println();
 
                 // 1) assign a space on stack for each spilled temp
                 for (String t : spilled) {
@@ -269,14 +269,14 @@ public class RegisterAllocation {
              DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult,
              Set<String> labels) {
 
-        if (Stream.concat(lvResult.out.values().stream(), lvResult.in.values().stream()).anyMatch(
-                s -> s.contains("x2_irtmp$_COMPENSATOR") && s.contains("__FreshTemp_490")
-        )) {
-            System.out.println("$$$ SUCCESS");
-        }
-        else {
-            System.out.println("$$$ FAILURE");
-        }
+//        if (Stream.concat(lvResult.out.values().stream(), lvResult.in.values().stream()).anyMatch(
+//                s -> s.contains("x2_irtmp$_COMPENSATOR") && s.contains("__FreshTemp_490")
+//        )) {
+//            System.out.println("$$$ SUCCESS");
+//        }
+//        else {
+//            System.out.println("$$$ FAILURE");
+//        }
 
         Graph<String> interferenceGraph = new UndirectedGraph<>();
 
@@ -342,21 +342,21 @@ public class RegisterAllocation {
         LiveVariableAnalysis lva = new LiveVariableAnalysis(cfg);
         DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = lva.worklist();
 
-        System.out.println("Live Variable Analysis Result:");
-        for (Set<String> tempGroup : lvResult.out.values()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{");
-
-            for (String s : tempGroup) {
-                sb.append (s);
-                sb.append(", ");
-            }
-
-            sb.append("}");
-
-            System.out.println(sb.toString());
-        }
-        System.out.println();
+//        System.out.println("Live Variable Analysis Result:");
+//        for (Set<String> tempGroup : lvResult.out.values()) {
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("{");
+//
+//            for (String s : tempGroup) {
+//                sb.append (s);
+//                sb.append(", ");
+//            }
+//
+//            sb.append("}");
+//
+//            System.out.println(sb.toString());
+//        }
+//        System.out.println();
 
         // construct interference graph:
         Graph<String> iGraph = constructInterferenceGraph(assm, lvResult, AssemblyUtils.collectLabels(assm, false));

@@ -21,7 +21,6 @@ public class FuncDeclTile extends Tile {
             this.subtreeRoots = new LinkedList<>();
             subtreeRoots.add(decl.body());
 
-            System.out.println("Tiling: FuncDecl Found! " + decl.name());
             return true;
         } else
             return false;

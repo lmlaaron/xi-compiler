@@ -29,11 +29,11 @@ public class GraphColoring<GT, CT> {
      * @throws RuntimeException if the restriction couldn't be satisfied
      */
     public List<GT> colorRestricted(Collection<CT> colors, Map<GT, CT> colorings, Set<CT> mustColor) {
-        System.out.println();
-        System.out.println("Coloring Attempt:");
-        System.out.println("Must color the following:");
-        for (CT mc : mustColor) System.out.println(mc.toString());
-        System.out.println();
+//        System.out.println();
+//        System.out.println("Coloring Attempt:");
+//        System.out.println("Must color the following:");
+//        for (CT mc : mustColor) System.out.println(mc.toString());
+//        System.out.println();
 
         // accumulate in-degree counts
         Map<GT, Integer> inDegree = getInDegree();
