@@ -233,8 +233,10 @@ public class RegisterAllocation {
 //                                    System.out.println("Stack Location: " + stackLocation.value());
 
                                     // TODO: this is excessive! There are some cases where we could just load, or just save
-                                    loads.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), stackLocation));
-                                    saves.add(new AssemblyStatement("mov", stackLocation, new AssemblyOperand(freshTemp)));
+                                    if (AssemblyUtils.use(stmt).contains(temp))
+                                        loads.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), stackLocation));
+                                    if (AssemblyUtils.def(stmt).contains(temp))
+                                        saves.add(new AssemblyStatement("mov", stackLocation, new AssemblyOperand(freshTemp)));
 
                                     return freshTemp;
                                 }
