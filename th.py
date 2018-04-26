@@ -308,9 +308,9 @@ if __name__ == "__main__":
     print("====BUILDING BINARY RUNTIME====")
     run_shell(['make', '-C', 'runtime'], print_results=False)
 
-    # print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
-    # print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
-    # run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
+    print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
+    print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
+    run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
 
     print("==== RUNNING ASSM TESTS ====")
     run_test_set(ASSEM_TESTS, register_alloc_grader)

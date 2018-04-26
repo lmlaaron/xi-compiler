@@ -1,5 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
+import bsa52_ml2558_yz2369_yh326.util.Utilities;
+
 import java.util.*;
 import java.util.function.Function;
 
@@ -9,52 +11,42 @@ import java.util.function.Function;
  */
 public class AssemblyUtils {
     // translate _ARG0, _RET0 to register or stack location
-    static public String ARGRET2Reg(String name, int argc) {
+    static public AssemblyOperand ARGRET2Reg(AssemblyOperand name, int argc) {
         // System.out.print("ARGRET2Reg"+ name);
         // System.out.println(name.substring(0,4));
         // System.out.println("_ARG".length());
-        if (name != null && name.length() >= "_ARG".length() && name.substring(0, 4).equals("_ARG")) {
-            int v = Integer.valueOf(name.substring(4));
+        if (name != null && name.value().length() >= "_ARG".length() && name.value().substring(0, 4).equals("_ARG")) {
+            int v = Integer.valueOf(name.value().substring(4));
             switch (v) {
                 case 0:
-                    return "rdi";
+                    return new AssemblyOperand("rdi");
                 case 1:
-                    return "rsi";
+                    return new AssemblyOperand("rsi");
                 case 2:
-                    return "rdx";
+                    return new AssemblyOperand("rdx");
                 case 3:
-                    return "rcx";
+                    return new AssemblyOperand("rcx");
                 case 4:
-                    return "r8";
+                    return new AssemblyOperand("r8");
                 case 5:
-                    return "r9";
+                    return new AssemblyOperand("r9");
                 default:
             }
-            String ret = "QWORD PTR [rbp+" + String.valueOf((v - 6 + 2) * 8) + "]"; // rbp from callee point of view
-            // System.out.println("ARGRET2Reg"+ name+ ret);
-            return ret;
+            return AssemblyOperand.MemPlus("rbp", String.valueOf((v - 6 + 2) * 8));
 
-        } else if (name != null && name.length() >= "_RET".length() && name.substring(0, 4).equals("_RET")) {
-            int v = Integer.valueOf(name.substring(4));
+        } else if (name != null && name.value().length() >= "_RET".length() && name.value().substring(0, 4).equals("_RET")) {
+            int v = Integer.valueOf(name.value().substring(4));
             switch (v) {
                 case 0:
-                    return "rax";
+                    return new AssemblyOperand("rax");
                 case 1:
-                    return "rdx";
+                    return new AssemblyOperand("rdx");
                 default:
             }
-            if (argc > 6) {
-                String ret = "QWORD PTR [rsp+" + String.valueOf(((v - 2)) * 8) + "]";
-                // System.out.println("ARGRET2Reg"+ name+ ret + "argc :"+ String.valueOf(argc));
-                return ret;
-            } else {
-                String ret = "QWORD PTR [rsp+" + String.valueOf((v - 2) * 8) + "]";
-                // System.out.println("ARGRET2Reg"+ name+ ret);
-                return ret;
-            }
+            return AssemblyOperand.MemPlus("rsp", String.valueOf(((v - 2)) * 8));
             // rsp from caller pointer of view
         }
-        return name;
+        else return name;
     }
 
     public static Set<String> use(AssemblyStatement stmt) {
@@ -91,6 +83,8 @@ public class AssemblyUtils {
                 if (argc >= 6) ret.add("r9");
                 break;
             case "mov":
+                if (stmt.operands[0].type == AssemblyOperand.OperandType.MEM)
+                    ret.addAll(stmt.operands[0].getEntities());
                 ret.addAll(stmt.operands[1].getEntities());
                 break;
             case "imul":
@@ -125,12 +119,19 @@ public class AssemblyUtils {
                 ret.addAll(stmt.operands[0].getEntities());
                 ret.addAll(stmt.operands[1].getEntities());
                 break;
+            case "cmp":
+                ret.addAll(stmt.operands[0].getEntities());
+                ret.addAll(stmt.operands[1].getEntities());
+                break;
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (String s : ret)
-            sb.append(s + " ");
-        System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
+//        // print out values in the specific case where the temp is a_artmp$
+//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("a_irtmp$"))) {
+//            StringBuilder sb = new StringBuilder();
+//            for (String s : ret)
+//                sb.append(s + " ");
+//            System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
+//        }
 
         return ret;
     }
@@ -155,14 +156,11 @@ public class AssemblyUtils {
         Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
         switch (stmt.operation) {
             case "call":
-                // in general, call defines all caller-saved registers. BUT, we already have a pipeline
-                // that performs appropriate pushes and pops, so the only registers that are defined are the ones
-                // that can be used as return values according to system V: RAX and RDX
-                ret.add("rax");
-                ret.add("rdx");
+                ret.addAll(Utilities.callerSaveRegisters());
                 break;
             case "mov":
-                ret.addAll(stmt.operands[0].getEntities());
+                if (stmt.operands[0].type != AssemblyOperand.OperandType.MEM)
+                    ret.addAll(stmt.operands[0].getEntities());
                 break;
             case "imul":
                 if (stmt.operands.length == 2) {
@@ -194,10 +192,17 @@ public class AssemblyUtils {
                 break;
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (String s : ret)
-            sb.append(s + " ");
-        System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+//        StringBuilder sb = new StringBuilder();
+//        for (String s : ret)
+//            sb.append(s + " ");
+//        System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+        // print out values in the specific case where the temp is a_artmp$
+//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("a_irtmp$"))) {
+//            StringBuilder sb = new StringBuilder();
+//            for (String s : ret)
+//                sb.append(s + " ");
+//            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+//        }
 
         return ret;
     }
@@ -211,7 +216,8 @@ public class AssemblyUtils {
 
         int stmt_i = 0;
         for (AssemblyStatement stmt : function.statements) {
-            for (AssemblyOperand op : stmt.operands) {
+            for (int i = 0; i < stmt.operands.length; i++) {
+                AssemblyOperand op = stmt.operands[i];
                 op.ResolveType();
 
                 // Per the ReturnTile, replace __RETURN_X temps with the appropriate memory
@@ -229,10 +235,9 @@ public class AssemblyUtils {
                     int offset = Integer.valueOf(stmt.operands[0].value().substring(index + 1));
                     AssemblyOperand retOpt = null;
                     if (thisFuncArgSize <= 6) {
-                        retOpt = new AssemblyOperand("[rbp+" + String.valueOf((2 + offset - 2) * 8) + "]");
+                        retOpt = AssemblyOperand.MemPlus("rbp", String.valueOf(offset * 8));
                     } else {
-                        retOpt = new AssemblyOperand(
-                                "[rbp+" + String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8) + "]");
+                        retOpt = AssemblyOperand.MemPlus("rbp", String.valueOf((offset + thisFuncArgSize - 6) * 8));
                     }
                     retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
                     stmt.operands[0] = retOpt;
@@ -240,16 +245,17 @@ public class AssemblyUtils {
 
 
                 // also replace _ARGXX and _RETXX with registers, memory locations
-                List<String> temps = op.getTemps();
-
-                List<String> newTemps = new LinkedList<String>();
-                for (String temp : temps) {
-                    String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgC.get(stmt_i));
-                    newTemps.add(convertedTemp);
-                }
-
-                if (newTemps.size() > 0)
-                    op.setTemps(newTemps);
+                stmt.operands[i] = AssemblyUtils.ARGRET2Reg(stmt.operands[i], lastCallArgC.get(stmt_i));
+//                List<String> temps = op.getTemps();
+//
+//                List<String> newTemps = new LinkedList<String>();
+//                for (String temp : temps) {
+//                    String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgC.get(stmt_i));
+//                    newTemps.add(convertedTemp);
+//                }
+//
+//                if (newTemps.size() > 0)
+//                    op.setTemps(newTemps);
             }
 
             stmt_i++;

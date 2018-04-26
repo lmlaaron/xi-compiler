@@ -197,20 +197,20 @@ public class AssemblyOperand {
     protected boolean entityMatches(String s, boolean includeTemps, boolean includeRegisters) {
         if (!Utilities.isNumber(s)) {
             if (!includeRegisters && Utilities.isRealRegister(s)) {
-                System.out.printf("Entity %s IS a real register!%n", s);
+                //System.out.printf("Entity %s IS a real register!%n", s);
                 return false;
             }
             else if (!includeTemps && !Utilities.isRealRegister(s)) {
-                System.out.printf("Entity %s ISNT a real register!%n", s);
+                //System.out.printf("Entity %s ISNT a real register!%n", s);
                 return false;
             }
             else {
-                System.out.printf("Entity %s matches%n", s);
+                //System.out.printf("Entity %s matches%n", s);
                 return true;
             }
         }
         else {
-            System.out.printf("Entity %s is a number!%n", s);
+            //System.out.printf("Entity %s is a number!%n", s);
             return false;
         }
     }
@@ -236,12 +236,10 @@ public class AssemblyOperand {
             getEntityIf(entities, value(), includeTemps, includeRegisters);
         }
         else if (type == OperandType.REG_RESOLVED) {
-            if (!Utilities.isRealRegister(value()))
-                throw new RuntimeException(value());
             getEntityIf(entities, value(), includeTemps, includeRegisters);
         }
         else {
-            System.out.printf("TYPE -> %s%n", type);
+            //System.out.printf("TYPE -> %s%n", type);
         }
 
         return entities;
@@ -259,9 +257,9 @@ public class AssemblyOperand {
     }
 
     public List<String> getEntities() {
-        System.out.println("=== GET ENTITIES ===");
+//        System.out.println("=== GET ENTITIES ===");
         List<String> ret = getEntities(true, true);
-        System.out.println();
+//        System.out.println();
         return ret;
     }
 

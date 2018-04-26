@@ -92,6 +92,20 @@ public class RegisterAllocation {
             DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = new LiveVariableAnalysis(cfg).worklist();
 
             Graph<String> interferenceG = constructInterferenceGraph(assm, lvResult, labels);
+
+            System.out.println("INTERFERENCE GRAPH:");
+            for (String s : interferenceG.getVertices()) {
+                StringBuilder sb = new StringBuilder();
+                if (interferenceG.getEdges().containsKey(s)) {
+                    for (String adj : interferenceG.getEdges().get(s))
+                        sb.append(adj + " ");
+                }
+                System.out.printf("%-15s : {%s}%n", s, sb);
+            }
+            System.out.println();
+
+            System.out.printf("Interference Graph Contains STACKSIZE : %b%n", interferenceG.getEdges().containsKey("STACKSIZE"));
+
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
             interferenceG.removeVertex("STACKSIZE"); // this is a special marker that serves another purpose.
@@ -130,6 +144,10 @@ public class RegisterAllocation {
             if (spilled.isEmpty()) {
                 // easy part. Allocate registers appropriately, as we have a proper allocation
                 System.out.println("Allocated Registers for all temps!");
+
+
+                colorings.remove("STACKSIZE");
+                System.out.printf("Colorings Contains STACKSIZE : %b%n", colorings.containsKey("STACKSIZE"));
 
                 ListIterator<AssemblyStatement> it = assm.statements.listIterator();
                 while (it.hasNext()) {
@@ -251,17 +269,17 @@ public class RegisterAllocation {
         for (String r : Utilities.registersForAllocation())
             interferenceGraph.addVertex(r);
 
-        //TODO: REMOVE
-        // debug the live variable analysis output:
-        Set<String> lvTemps = new HashSet<>();
-        Stream.concat(lvResult.in.values().stream(), lvResult.out.values().stream()).forEach(
-                s ->  lvTemps.addAll(s)
-        );
-        System.out.println();
-        System.out.println("LIVE VARIABLE TEMPS:");
-        for (String temp : lvTemps)
-            System.out.println(temp);
-        System.out.println();
+//        //TODO: REMOVE
+//        // debug the live variable analysis output:
+//        Set<String> lvTemps = new HashSet<>();
+//        Stream.concat(lvResult.in.values().stream(), lvResult.out.values().stream()).forEach(
+//                s ->  lvTemps.addAll(s)
+//        );
+//        System.out.println();
+//        System.out.println("LIVE VARIABLE TEMPS:");
+//        for (String temp : lvTemps)
+//            System.out.println(temp);
+//        System.out.println();
 
 
         // There seem to be cases when live variable analysis doesn't catch all temps! Add the temps directly
@@ -269,7 +287,9 @@ public class RegisterAllocation {
         // TODO: Figure out why live variable analysis doesn't catch everything!
         for (AssemblyStatement stmt : assm.statements) {
             for (AssemblyOperand op : stmt.operands) {
-                interferenceGraph.getVertices().addAll(op.getTemps());
+                interferenceGraph.getVertices().addAll(op.getTemps().stream().filter(
+                        t -> !labels.contains(t) && !t.equals("STACKSIZE")
+                ).collect(Collectors.toList()));
             }
         }
 
@@ -287,15 +307,16 @@ public class RegisterAllocation {
         ArrayList<String> tempList = new ArrayList<String>(liveTemps);
         for (int i = 0; i < tempList.size(); i++) {
             String ti = tempList.get(i);
-            if (labels.contains(ti))
+            if (labels.contains(ti) || ti.equals("STACKSIZE"))
                 continue;
             graph.addVertex(ti);
             for (int j = i+1; j < tempList.size(); j++) {
                 String tj = tempList.get(j);
-                if (labels.contains(tj))
+                if (labels.contains(tj) || tj.equals("STACKSIZE"))
                     continue;
                 graph.addVertex(tj);
                 graph.addEdge(ti, tj);
+                //System.out.printf("Adding interference edge %s <-> %s%n",ti, tj);
             }
         }
     }

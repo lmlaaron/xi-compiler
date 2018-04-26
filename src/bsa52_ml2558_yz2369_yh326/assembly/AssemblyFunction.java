@@ -45,63 +45,63 @@ public class AssemblyFunction extends Assembly {
     }
 
     public void callerSave(Map<String, String> registerAllocations) {
-        // wherever this function calls other functions, it must save all caller save registers it uses
-        if (!actuallyAFunction()) return;
-
-        LinkedList<String> callerSave = new LinkedList<>(
-            registerAllocations.values().stream().filter(
-                r -> Utilities.isCallerSave(r)
-            ).collect(Collectors.toSet())
-        );
-
-        callerSave.remove("rax");
-        callerSave.remove("rdx");
-        // ^^^ HOWEVER rax and rdx are can be used as return values. for now, we'll just say that
-        // we never push them before or pop them after. AssemblyUtils.def() is consistent
-        // with this behavior
-        // TODO: alter pushes based on number of arguments of the called function AND
-        //       change gen()/kill() to reflect this change
-
-        System.out.println("===== CALLER SAVE FOR " + functionName);
-        System.out.println("all registers used in function:");
-        for (String r : registerAllocations.values())
-            System.out.println("\t" + r);
-        System.out.println("caller save registers used in function:");
-        for (String r : callerSave)
-            System.out.println("\t" + r);
-        System.out.println();
-
-        if (callerSave.isEmpty()) return;
-
-        List<AssemblyStatement> pushes = new LinkedList<>();
-        for (String r : callerSave)
-            pushes.add(new AssemblyStatement("push", r));
-
-        Collections.reverse(callerSave);
-
-        List<AssemblyStatement> pops = new LinkedList<>();
-        for (String r : callerSave)
-            pops.add(new AssemblyStatement("pop", r));
-
-
-        ListIterator<AssemblyStatement> it = statements.listIterator();
-        while (it.hasNext()) {
-            AssemblyStatement stmt = it.next();
-            if (stmt.operation.equals("call")) {
-                System.out.println("Encountered call for " + stmt.operands[0].value());
-
-                it.previous();
-                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pushes for call to " + stmt.operands[0].value()))
-                    it.add(commentPart);
-                for (AssemblyStatement push : pushes)
-                    it.add(push);
-                it.next();
-                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pops for call to " + stmt.operands[0].value()))
-                    it.add(commentPart);
-                for (AssemblyStatement pop : pops)
-                    it.add(pop);
-            }
-        }
+//        // wherever this function calls other functions, it must save all caller save registers it uses
+//        if (!actuallyAFunction()) return;
+//
+//        LinkedList<String> callerSave = new LinkedList<>(
+//            registerAllocations.values().stream().filter(
+//                r -> Utilities.isCallerSave(r)
+//            ).collect(Collectors.toSet())
+//        );
+//
+//        callerSave.remove("rax");
+//        callerSave.remove("rdx");
+//        // ^^^ HOWEVER rax and rdx are can be used as return values. for now, we'll just say that
+//        // we never push them before or pop them after. AssemblyUtils.def() is consistent
+//        // with this behavior
+//        // TODO: alter pushes based on number of arguments of the called function AND
+//        //       change gen()/kill() to reflect this change
+//
+//        System.out.println("===== CALLER SAVE FOR " + functionName);
+//        System.out.println("all registers used in function:");
+//        for (String r : registerAllocations.values())
+//            System.out.println("\t" + r);
+//        System.out.println("caller save registers used in function:");
+//        for (String r : callerSave)
+//            System.out.println("\t" + r);
+//        System.out.println();
+//
+//        if (callerSave.isEmpty()) return;
+//
+//        List<AssemblyStatement> pushes = new LinkedList<>();
+//        for (String r : callerSave)
+//            pushes.add(new AssemblyStatement("push", r));
+//
+//        Collections.reverse(callerSave);
+//
+//        List<AssemblyStatement> pops = new LinkedList<>();
+//        for (String r : callerSave)
+//            pops.add(new AssemblyStatement("pop", r));
+//
+//
+//        ListIterator<AssemblyStatement> it = statements.listIterator();
+//        while (it.hasNext()) {
+//            AssemblyStatement stmt = it.next();
+//            if (stmt.operation.equals("call")) {
+//                System.out.println("Encountered call for " + stmt.operands[0].value());
+//
+//                it.previous();
+//                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pushes for call to " + stmt.operands[0].value()))
+//                    it.add(commentPart);
+//                for (AssemblyStatement push : pushes)
+//                    it.add(push);
+//                it.next();
+//                for (AssemblyStatement commentPart : AssemblyStatement.comment("Caller Pops for call to " + stmt.operands[0].value()))
+//                    it.add(commentPart);
+//                for (AssemblyStatement pop : pops)
+//                    it.add(pop);
+//            }
+//        }
     }
 
     public void calleeSave(Map<String, String> registerAllocations) {

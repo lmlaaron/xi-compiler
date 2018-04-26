@@ -179,10 +179,9 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
                     int offset = Integer.valueOf(stmt.operands[0].value().substring(index + 1));
                     AssemblyOperand retOpt = null;
                     if (thisFuncArgSize <= 6) {
-                        retOpt = new AssemblyOperand("[rbp+" + String.valueOf((2 + offset - 2) * 8) + "]");
+                        retOpt = AssemblyOperand.MemPlus("rbp", String.valueOf((2 + offset - 2) * 8));
                     } else {
-                        retOpt = new AssemblyOperand(
-                                "[rbp+" + String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8) + "]");
+                        retOpt = AssemblyOperand.MemPlus("rbp", String.valueOf((2 + offset - 2 + thisFuncArgSize - 6) * 8));
                     }
                     retOpt.type = AssemblyOperand.OperandType.REG_RESOLVED;
                     stmt.operands[0] = retOpt;
@@ -241,19 +240,21 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
         for (List<AssemblyStatement> function : functions) {
             int stmt_i = 0;
             for (AssemblyStatement stmt : function) {
-                for (AssemblyOperand op : stmt.operands) {
+                for (int i = 0; i < stmt.operands.length; i++) {
+                    AssemblyOperand op = stmt.operands[i];
                     op.ResolveType();
 
-                    List<String> temps = op.getTemps();
-
-                    List<String> newTemps = new LinkedList<String>();
-                    for (String temp : temps) {
-                        String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
-                        newTemps.add(convertedTemp);
-                    }
-
-                    if (newTemps.size() > 0)
-                        op.setTemps(newTemps);
+                    stmt.operands[i] = AssemblyUtils.ARGRET2Reg(stmt.operands[i], lastCallArgCs.get(func_i).get(stmt_i));
+//                    List<String> temps = op.getTemps();
+//
+//                    List<String> newTemps = new LinkedList<String>();
+//                    for (String temp : temps) {
+//                        String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgCs.get(func_i).get(stmt_i));
+//                        newTemps.add(convertedTemp);
+//                    }
+//
+//                    if (newTemps.size() > 0)
+//                        op.setTemps(newTemps);
                 }
 
                 stmt_i++;

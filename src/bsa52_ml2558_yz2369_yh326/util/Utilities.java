@@ -111,6 +111,10 @@ public class Utilities {
         return calleeSaveRegisters.contains(reg);
     }
 
+    public static Set<String> callerSaveRegisters() {
+        return new HashSet<>(callerSaveRegisters);
+    }
+
 
     public static boolean isRealRegister(String s) {
         initRegisters();
