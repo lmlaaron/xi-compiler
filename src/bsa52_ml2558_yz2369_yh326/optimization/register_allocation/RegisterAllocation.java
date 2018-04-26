@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RegisterAllocation {
+
     public static void RegisterAllocation(Assembly assm) {
         List<AssemblyFunction> functions = AssemblyUtils.partitionFunctions(assm);
 
@@ -265,6 +266,15 @@ public class RegisterAllocation {
             (Assembly assm,
              DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult,
              Set<String> labels) {
+
+        if (Stream.concat(lvResult.out.values().stream(), lvResult.in.values().stream()).anyMatch(
+                s -> s.contains("x2_irtmp$_COMPENSATOR") && s.contains("__FreshTemp_490")
+        )) {
+            System.out.println("$$$ SUCCESS");
+        }
+        else {
+            System.out.println("$$$ FAILURE");
+        }
 
         Graph<String> interferenceGraph = new UndirectedGraph<>();
 
