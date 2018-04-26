@@ -120,36 +120,58 @@ public class AssemblyFunction extends Assembly {
 
         if (calleeSave.isEmpty()) return;
 
-        // iterate to get past function label
+        // iterate to get past function label,
+        //    push rbp
+        //    mov rbp, rsp
+        //    sub rsp, STACKSIZE
         ListIterator<AssemblyStatement> it = statements.listIterator();
         while (true) {
             AssemblyStatement stmt = it.next();
-            if (stmt.operation.length() >=2 && stmt.operation.substring(0, 2).equals("_I"))
+            if (stmt.operation.length() >= 2 && stmt.operation.substring(0, 2).equals("_I"))
             {
+                while (!stmt.operation.equals("push")) {
+                    stmt = it.next();
+                }
+                while (!stmt.operation.equals("mov")) {
+                    stmt = it.next();
+                }
+                while (!stmt.operation.equals("sub")) {
+                    stmt = it.next();
+                }
                 break;
             }
         }
 
-        // insert push statements:
-        for (AssemblyStatement commentPart : AssemblyStatement.comment("Callee Pushes for " + functionName))
-            it.add(commentPart);
-        for (String toPush : calleeSave) {
-            it.add(new AssemblyStatement("push", toPush));
+        List<AssemblyStatement> saveStmts = new LinkedList<>();
+        List<AssemblyStatement> loadStmts = new LinkedList<>();
+        if (!functionName.equals("_Imain_paai")) {
+            int i = 0;
+            int base = 3;
+            if (AssemblyUtils.getArgSize(functionName) > 6)
+                base += AssemblyUtils.getArgSize(functionName) - 6;
+            saveStmts.add(AssemblyStatement.comment("Callee Saves for " + functionName)[0]);
+            loadStmts.add(AssemblyStatement.comment("Callee Restores for " + functionName)[0]);
+            for (String reg : calleeSave) {
+                AssemblyOperand stackLocation = AssemblyOperand.MemPlus("rbp", Integer.toString((i++ + base) * 8));
+                saveStmts.add(new AssemblyStatement("mov", stackLocation, new AssemblyOperand(reg)));
+                loadStmts.add(new AssemblyStatement("mov", new AssemblyOperand(reg), stackLocation));
+            }
         }
 
-        // reverse because pushes and pops should be done in reverse order
-        Collections.reverse(calleeSave);
+        // insert save statements:
+        for (AssemblyStatement saveStmt : saveStmts)
+            it.add(saveStmt);
+
 
         // now iterate through to every ret statement and add pop statements before:
         while (it.hasNext()) {
             AssemblyStatement statement = it.next();
-            if (statement.operation.equals("ret")) {
+            // leave always comes before ret.
+            // because leave changes rbp, we must do restores before
+            if (statement.operation.equals("leave")) {
                 it.previous();
-                for (AssemblyStatement commentPart : AssemblyStatement.comment("Callee Pops for " + functionName))
-                    it.add(commentPart);
-                for (String toPop : calleeSave) {
-                    it.add(new AssemblyStatement("pop", toPop));
-                }
+                for (AssemblyStatement loadStmt : loadStmts)
+                    it.add(loadStmt);
                 it.next();
             }
         }
