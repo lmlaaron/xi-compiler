@@ -35,31 +35,4 @@ public class CallTileUtil {
         }
 
     }
-
-    public static int retSize(String targetName) {
-        if (targetName.equals("_xi_out_of_bounds")) {
-            return 0;
-        } else if (targetName.equals("_xi_alloc")) {
-            return 1;
-        }
-        try { // library function does not follow the naming convention, just return 0 (assume
-              // they do not have large return size)
-            int index = targetName.lastIndexOf("t");
-            if (index != -1) { // assume less than 100 arguments
-                if (targetName.toCharArray()[(index + 1)] == 'p') {
-                    return 0;
-                } else if (targetName.toCharArray()[(index + 2)] != 'a' && targetName.toCharArray()[(index + 2)] != 'b'
-                        && targetName.toCharArray()[(index + 2)] != 'i') {
-                    String v = targetName.substring(index + 1, index + 3);
-                    return Integer.parseInt(v);
-                } else {
-                    return Integer.parseInt(targetName.substring(index + 1, index + 2));
-                }
-            }
-            return 0;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
 }

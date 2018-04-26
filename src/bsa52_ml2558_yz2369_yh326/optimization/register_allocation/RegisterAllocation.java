@@ -42,6 +42,8 @@ public class RegisterAllocation {
             if (stacksize % 2 != 0) stacksize++; // align to nearest 16 bytes
             stacksize+=2;
             stacksize *= 8;
+            // extra adjustment for the six callee-save registers
+            stacksize += 8*8;
             f.setStackSize(stacksize);
 
             assm.statements.addAll(f.statements);
