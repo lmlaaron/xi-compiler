@@ -15,7 +15,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 
 // brief for available copy analysis
-//       n                                 *                use(n)                     *              def(n)
+//       n                                 *                gen(n)                     *              kill(n)
 //    x = y                              *                {x=y}                       *   x=z, z=x for all z
 //    x = e  where e!=z          *               nothing                   *   x=z, z=x
 //     if e                                 *               nothing                  * nothing
@@ -48,9 +48,16 @@ public class AvailableCopyAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<S
 
     @Override
     public Set<String> gen(IRStmt node) {
-    	
+
         Set<String> set = new HashSet<String>();
-        if (node instanceof IRMove && ((IRMove) node).target() instanceof IRTemp) {
+        
+        // for _ARG and _RET Temps, they are volatile and do not do copy propagation on them
+       if (node instanceof IRMove && ((IRMove) node).target() instanceof IRTemp) {
+        	     if (((IRMove) node).source() instanceof IRTemp  &&
+            		(((IRTemp) ((IRMove) node).source()).name().startsWith("_ARG") ||
+            		((IRTemp) ((IRMove) node).source()).name().startsWith("_RET")) ) {
+        	    	     return set;
+        		}
             IRExpr source = ((IRMove) node).source();
             if (source instanceof IRTemp) {
             		set.add(node.toString());
