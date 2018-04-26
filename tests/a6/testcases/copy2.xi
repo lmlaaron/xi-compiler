@@ -8,13 +8,19 @@ main(argv:int[][]) {
   b:int
   c:int
   d:int
-  while (i < 200000000 ) {
+  while (i < 100000000 ) {
     y  = x
+    if ( i % 2 == 0 ) { 
     a = y
     b=a
     c=b
     d=c
-    z = 3+d
+    } else {
+    b=x
+    a=b
+    d=a
+    }
+    z =d
 
     i = i + 1
   }
