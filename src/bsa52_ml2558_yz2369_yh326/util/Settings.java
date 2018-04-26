@@ -9,7 +9,6 @@ import java.util.Set;
 
 public class Settings {
 
-    public static boolean brentHack = false;
     
     // Supported optimizations
     public static List<String> supportedOpt = new ArrayList<String>(Arrays.asList(

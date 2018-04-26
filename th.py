@@ -248,10 +248,10 @@ def assm_grader(testcase_f, answer_f):
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
 
-def register_alloc_grader(testcase_f, answer_f):
+def optimization_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '--brentHack', '-O', '-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-libpath', 'runtime/include/', testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -273,7 +273,7 @@ def compile_and_run(xi_f, custom=False):
     print_log("Generating Assembly")
 
     if custom:
-        cmd = ['./xic', '--brentHack', '-O', '-libpath', 'runtime/include/', '--abstract', xi_f]# --brentHack -libpath runtime/include/ --abstract
+        cmd = ['./xic', '-Oreg', '-libpath', 'runtime/include/', '--abstract', xi_f]
     else:
         cmd = ['./xic', '--comment','-libpath', 'runtime/include/', xi_f]
 
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     # run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
 
     print("==== RUNNING ASSM TESTS ====")
-    run_test_set(ASSEM_TESTS, register_alloc_grader)
+    run_test_set(ASSEM_TESTS, optimization_grader)
     
 
     print("Test Harness End!")

@@ -26,7 +26,7 @@ public class AssemblyWrapper {
         // Generate assembly
         Assembly assm;
         if (!Settings.disAsmGen) {
-            if (Settings.brentHack)
+            if (Settings.opts.contains("reg"))
                 assm = new OptimizedRegisterAllocationPipeline().process(abstractAssm);
             else
                 assm = new SpillAllTempsPipeLine().process(abstractAssm);

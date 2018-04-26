@@ -29,21 +29,6 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
 
         functions = specifyStackSizes(functions, stackTables, maxStackSizes);
 
-        if (Settings.brentHack) {
-            DirectedGraph<AssemblyStatement> cfg = ControlFlowGraph.fromAssembly(abstractAssembly);
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("ABSTRACT_ASSM.dot")));
-                writer.write(cfg.toDotFormat());
-                writer.close();
-            }
-            catch (Exception e) {
-                System.out.println("IO Error!");
-            }
-
-            // testing out graph coloring, etc
-            RegisterAllocation.RegisterAllocation(abstractAssembly);
-        }
-
         abstractAssembly = spillTempsOnStack(functions, labelNames, stackTables);
         return abstractAssembly;
     }
