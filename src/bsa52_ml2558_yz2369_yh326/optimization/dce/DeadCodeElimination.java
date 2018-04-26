@@ -53,7 +53,7 @@ public class DeadCodeElimination {
             //for each node in CFG, check the respective in(n)
             while (it.hasNext()) {				
             		IRStmt cur = it.next();
-            		System.out.println("current node:" + cur.toString());
+      //      		System.out.println("current node:" + cur.toString());
             		if ( modifications.containsKey(cur)) {
             			Set<IRStmt> modification = modifications.get(cur);
             			
@@ -82,8 +82,8 @@ public class DeadCodeElimination {
             	    //System.out.println("in set                    :" + in.toString());
  
             		IRStmt cur = it.next();
-                   	System.out.println("current node:" + cur.toString());
-                	System.out.println("use count: "+ useCountTable.get(cur));
+                //   	System.out.println("current node:" + cur.toString());
+              //  	System.out.println("use count: "+ useCountTable.get(cur));
             		// findout IRMove that is not used
             		if ( cur instanceof IRMove &&
             				((IRMove) cur).target() instanceof IRTemp &&
@@ -123,7 +123,13 @@ public class DeadCodeElimination {
 	 */
 	private static boolean CheckOccuranceStmt(IRStmt stmt, IRTemp temp) {
 		if ( stmt instanceof IRMove) {
-			return CheckOccuranceExpr(((IRMove) stmt).source(), temp);
+			if ( CheckOccuranceExpr(((IRMove) stmt).source(), temp)) {
+				return true;
+			}
+			// can also be used as target
+			if (((IRMove) stmt).target() instanceof IRMem ) {
+				return CheckOccuranceExpr(((IRMem) ((IRMove) stmt).target()).expr(),temp);
+			}
 		} else if ( stmt instanceof IRExp) {
 			return CheckOccuranceExpr(((IRExp) stmt).expr(), temp);
 		} else if ( stmt instanceof IRReturn) {
