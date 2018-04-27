@@ -97,25 +97,26 @@ public class RegisterAllocation {
 
             DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult = new LiveVariableAnalysis(cfg).worklist();
 
+
             Graph<String> interferenceG = constructInterferenceGraph(assm, lvResult, labels);
 
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
             interferenceG.removeVertex("STACKSIZE"); // this is a special marker that serves another purpose.
 
-            // hardcoded fix for cases such as "call", where a register may have a def but no use.
-            //  For registers, this should still mean that the register still interferes with any temps
-            //  live at that point
+            // hardcoded fix for cases where a temp or register has definitions but no uses. In such cases it can interfere
+            // with some other value that has been allocated the same register, even though technically it's never 'live'
+            // TODO: for any temp (not register) that's never live, just remove its definitions?
             for (AssemblyStatement stmt : lvResult.in.keySet()) { // confusingly for reverse dataflow analysis, in is out
-                // for each register defined by this statement,
-                // force it to intersect with all temps that are live here
                 AssemblyUtils.def(stmt).stream().filter(
-                        entity -> Utilities.isRealRegister(entity)
+                        entity -> Utilities.isRealRegister(entity) || !Utilities.isNumber(entity)
                 ).forEach(
-                        register -> lvResult.in.get(stmt).stream().forEach(
+                        entity -> lvResult.in.get(stmt).stream().forEach(
                                 interfering -> {
-                                    interferenceG.addEdge(register, interfering);
-                                    interferenceG.addEdge(interfering, register);
+                                    if (!entity.equals(interfering)) {
+                                        interferenceG.addEdge(entity, interfering);
+                                        interferenceG.addEdge(interfering, entity);
+                                    }
                                 }
                         )
                 );
@@ -314,7 +315,8 @@ public class RegisterAllocation {
                         replaceWith.put(a, b);
                         // add a's interferences to b
                         int before = interferenceG.getSuccessors(b).size();
-                        for (String aSucc : interferenceG.getSuccessors(a))
+                        LinkedList<String> succ = new LinkedList<>(interferenceG.getSuccessors(a));
+                        for (String aSucc : succ)
                             interferenceG.addEdge(aSucc, b);
                         int after = interferenceG.getSuccessors(b).size();
                         //System.out.printf("Merge set: %d -> %d%n", before, after);
