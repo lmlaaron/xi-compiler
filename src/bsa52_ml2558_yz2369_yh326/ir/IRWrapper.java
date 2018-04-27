@@ -12,11 +12,9 @@ import bsa52_ml2558_yz2369_yh326.util.IRFuncDeclFinder;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.TempRenamer;
 import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
-import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
-import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.interpret.IRSimulator;
 
 /**
@@ -118,8 +116,7 @@ public class IRWrapper {
     public static void WriteDotResult(IRNode irNode, String outputFile, String phase) {
         Map<String, IRFuncDecl> funcMap = ((IRCompUnit) irNode).functions();
         for (String name : funcMap.keySet()) {
-            DirectedGraph<IRStmt> cfg = ControlFlowGraph.fromIRFuncDecl(funcMap.get(name));
-            String dot = DirectedGraph.GenerateDotString(cfg);
+            String dot = ControlFlowGraph.fromIRFuncDecl(funcMap.get(name)).toDotFormat();
             try {
                 FileWriter writer = new FileWriter(outputFile + "_" + name + "_" + phase + ".dot");
                 writer.write(dot);

@@ -138,69 +138,50 @@ public class DirectedGraph<T> implements Graph<T> {
     }
 
     public String toDotFormat() {
-        // assign an id to each node
+        DirectedGraph<List<T>> minimized = MinimizeGraph(this);
+        HashMap<List<T>, Integer> ids = new HashMap<>();
         int id = 0;
-        HashMap<T, Integer> ids = new HashMap<T, Integer>();
-        for (T vert : vertices)
-            ids.put(vert, id++);
-
-
+        for (List<T> v : minimized.vertices) ids.put(v, id++);
         String rs = "digraph " + name + "{\n    node [shape=box];\n";
-        for (T vertex : this.vertices) {
-            String label = vertex.toString().trim().replace("\"", "\\\"");
-            rs += "    " + ids.get(vertex) + " " + "[label=\"" + label + "\"];\n";
-        }
-        rs += "\n";
-        for (T from : this.edges.keySet()) {
-            for (T to : this.edges.get(from)) {
-                rs += "    " + ids.get(from) + " -> " + ids.get(to) + ";\n";
-            }
-        }
-        return rs + "}\n";
-    }
-    
-    public static String GenerateDotString(DirectedGraph<IRStmt> g) {
-        DirectedGraph<IRStmt> minimized = MinimizeGraph(g);
-        HashMap<IRStmt, Integer> ids = new HashMap<IRStmt, Integer>();
-        int id = 0;
-        for (IRStmt v : minimized.vertices) ids.put(v, id++);
-        String rs = "digraph " + g.name + "{\n    node [shape=box];\n";
-        for (IRStmt vertex : minimized.vertices) {
+        for (List<T> vertex : minimized.vertices) {
             String label = "";
-            if (vertex instanceof IRSeq) {
-                for (IRStmt s : ((IRSeq) vertex).stmts()) label += s.toString().trim() + "\\l";
-            } else {
-                label += vertex.toString();
-            }
+            for (T s : vertex) 
+                label += s.toString().trim() + "\\l";
             label = label.trim().replace("\"", "\\\"");
             rs += "    " + ids.get(vertex) + " " + "[label=\"" + label + "\"];\n";
         }
         rs += "\n";
-        for (IRStmt from : minimized.getEdges().keySet()) {
-            for (IRStmt to : minimized.getEdges().get(from)) {
+        for (List<T> from : minimized.edges.keySet()) {
+            for (List<T> to : minimized.edges.get(from)) {
                 rs += "    " + ids.get(from) + " -> " + ids.get(to) + ";\n";
             }
         }
         return rs + "}\n";
     }
     
-    public static DirectedGraph<IRStmt> MinimizeGraph(DirectedGraph<IRStmt> g) {
-        DirectedGraph<IRStmt> minimized = new DirectedGraph<>(g.name);
-        Stack<IRStmt> vertices = new Stack<>();
+    public DirectedGraph<List<T>> MinimizeGraph(DirectedGraph<T> g) {
+        DirectedGraph<List<T>> minimized = new DirectedGraph<>(g.name);
+        Map<T, List<T>> vMap = new HashMap<>();
+        Stack<List<T>> vertices = new Stack<>();
         g.vertices.forEach(v -> {
-            vertices.push(v);
-            Set<IRStmt> next = g.edges.get(v);
-            if (next != null) next.forEach(e -> minimized.addEdge(v, e));
+            List<T> vList = new ArrayList<>();
+            vList.add(v);
+            vMap.put(v, vList);
+            vertices.push(vList);
+        });
+        g.vertices.forEach(v -> {
+            Set<T> next = g.edges.get(v);
+            if (next != null) next.forEach(e -> minimized.addEdge(vMap.get(v), vMap.get(e)));
         });
         while (!vertices.isEmpty()) {
-            IRStmt vert = vertices.pop();
-            IRStmt next = CheckSingleAndGetChild(minimized, vert);
+            List<T> vert = vertices.pop();
+            List<T> next = CheckSingleAndGetChild(minimized, vert);
             if (next != null) {
                 vertices.remove(next);
-                IRSeq newVert = combineStmt(vert, next);
-                Set<IRStmt> nextNext = minimized.edges.get(next);
+                List<T> newVert = combineStmt(vert, next);
+                Set<List<T>> nextNext = minimized.edges.get(next);
                 if (nextNext != null) nextNext.forEach(v -> minimized.addEdge(newVert, v));
-                Set<IRStmt> prev = minimized.reverseEdges.get(vert);
+                Set<List<T>> prev = minimized.reverseEdges.get(vert);
                 if (prev != null) prev.forEach(v -> minimized.addEdge(v, newVert));
                 minimized.removeVertex(vert);
                 minimized.removeVertex(next);
@@ -210,11 +191,11 @@ public class DirectedGraph<T> implements Graph<T> {
         return minimized;
     }
     
-    public static IRStmt CheckSingleAndGetChild(DirectedGraph<IRStmt> minimized, IRStmt vert) {
-        Set<IRStmt> succ = minimized.edges.get(vert);
+    public List<T> CheckSingleAndGetChild(DirectedGraph<List<T>> minimized, List<T> vert) {
+        Set<List<T>> succ = minimized.edges.get(vert);
         if (succ != null && succ.size() == 1) {
-            IRStmt next = (new ArrayList<>(succ)).get(0);
-            Set<IRStmt> pred = minimized.reverseEdges.get(next);
+            List<T> next = succ.iterator().next();
+            Set<List<T>> pred = minimized.reverseEdges.get(next);
             if (pred != null && pred.size() == 1) {
                 return next;
             }
@@ -222,17 +203,11 @@ public class DirectedGraph<T> implements Graph<T> {
         return null;
     }
     
-    public static IRSeq combineStmt(IRStmt vert, IRStmt next) {
-        List<IRStmt> newVertList = new ArrayList<>();
-        if (vert instanceof IRSeq)
-            newVertList.addAll(((IRSeq) vert).stmts());
-        else
-            newVertList.add(vert);
-        if (next instanceof IRSeq)
-            newVertList.addAll(((IRSeq) next).stmts());
-        else
-            newVertList.add(next);
-        return new IRSeq(newVertList);
+    public List<T> combineStmt(List<T> vert, List<T> next) {
+        List<T> newVertList = new ArrayList<>();
+        newVertList.addAll(vert);
+        newVertList.addAll(next);
+        return newVertList;
     }
 
     @Override
