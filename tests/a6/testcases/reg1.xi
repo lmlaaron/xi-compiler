@@ -1,6 +1,7 @@
 use io use conv
 main(argv:int[][]) {
-  i:int = 0; x:int[] = {2, 2, 2}
+  i:int = 0;
+  x:int[] = {2, 2, 2}
   a:int = x[0]*x[1]*x[2]*x[0]*x[1]*x[2]
   b:int = 0
   while i < 2000000 {
@@ -14,6 +15,7 @@ main(argv:int[][]) {
     b = b-x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]
     b = b+x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]
     b = b-x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]*x[1]*x[2]*x[0]
-    i = i + 1}
+    i = i + 1
+  }
   println(unparseInt(b))
 }

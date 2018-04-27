@@ -3,7 +3,7 @@ use conv
 
 main(argv:int[][]) {
     ii:int =0
-    while ( ii <80000000 ) {
+    while ( ii < 80000000 ) {
     ii = ii + 1
     a : int = 0
     b : int = 1

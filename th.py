@@ -275,7 +275,7 @@ def compile_and_run(xi_f, custom=False):
     if custom:
         cmd = ['./xic', '-Oreg', '-libpath', 'runtime/include/', '--abstract', xi_f]
     else:
-        cmd = ['./xic', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
+        cmd = ['./xic', '-Oreg', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
 
     run_shell(cmd)
     print_log("Linking Assembly")

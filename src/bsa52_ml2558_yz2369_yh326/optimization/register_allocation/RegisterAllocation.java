@@ -310,7 +310,7 @@ public class RegisterAllocation {
                             a = b;
                             b = temp;
                         }
-                        System.out.printf("Replace %-20s with %20s%n", a, b);
+                        //System.out.printf("Replace %-20s with %20s%n", a, b);
                         replaceWith.put(a, b);
                         // add a's interferences to b
                         int before = interferenceG.getSuccessors(b).size();
