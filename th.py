@@ -251,7 +251,7 @@ def assm_grader(testcase_f, answer_f):
 def optimization_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '-Oreg', '-Ocse','-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-libpath', 'runtime/include/', testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -275,7 +275,7 @@ def compile_and_run(xi_f, custom=False):
     if custom:
         cmd = ['./xic', '-Oreg', '-libpath', 'runtime/include/', '--abstract', xi_f]
     else:
-        cmd = ['./xic', '--comment','-libpath', 'runtime/include/', xi_f]
+        cmd = ['./xic', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
 
     run_shell(cmd)
     print_log("Linking Assembly")

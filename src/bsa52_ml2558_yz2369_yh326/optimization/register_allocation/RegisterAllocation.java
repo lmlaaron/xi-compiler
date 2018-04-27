@@ -3,8 +3,10 @@ package bsa52_ml2558_yz2369_yh326.optimization.register_allocation;
 import bsa52_ml2558_yz2369_yh326.assembly.*;
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.DataflowAnalysisResult;
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.LiveVariableAnalysis;
+import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import bsa52_ml2558_yz2369_yh326.util.graph.*;
+import edu.cornell.cs.cs4120.util.Copy;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,6 +54,7 @@ public class RegisterAllocation {
     }
 
     protected static void sTableComment(StackTable sTable, AssemblyFunction f) {
+        if (!Settings.asmComments) return;
         if (!f.actuallyAFunction() || sTable.size() == 0) return;
 
         ListIterator<AssemblyStatement> it = f.statements.listIterator();
@@ -96,19 +99,6 @@ public class RegisterAllocation {
 
             Graph<String> interferenceG = constructInterferenceGraph(assm, lvResult, labels);
 
-//            System.out.println("INTERFERENCE GRAPH:");
-//            for (String s : interferenceG.getVertices()) {
-//                StringBuilder sb = new StringBuilder();
-//                if (interferenceG.getEdges().containsKey(s)) {
-//                    for (String adj : interferenceG.getEdges().get(s))
-//                        sb.append(adj + " ");
-//                }
-//                System.out.printf("%-15s : {%s}%n", s, sb);
-//            }
-//            System.out.println();
-//
-//            System.out.printf("Interference Graph Contains STACKSIZE : %b%n", interferenceG.getEdges().containsKey("STACKSIZE"));
-
             for (String label : labels) // labels aren't temps
                 interferenceG.removeVertex(label);
             interferenceG.removeVertex("STACKSIZE"); // this is a special marker that serves another purpose.
@@ -131,15 +121,8 @@ public class RegisterAllocation {
                 );
             }
 
-
-//            // TODO: REMOVE
-//            System.out.println();
-//            System.out.println("TEMPS:");
-//            for (String temp : interferenceG.getVertices()) {
-//                System.out.println(temp);
-//            }
-//            System.out.println("");
-
+            int numColors = Utilities.registersForAllocation().size();
+            while (moveCoalesce(assm, interferenceG, numColors-1)) {}
 
             GraphColoring<String, String> gc = new GraphColoring<>(interferenceG);
             HashSet<String> spilled = new HashSet<>(gc.colorRestricted(registers, colorings, cantSpill));
@@ -179,7 +162,7 @@ public class RegisterAllocation {
                     }
 
                     // commenting
-                    if (!stmt.toString().equals(originalStmt)) {
+                    if (!stmt.toString().equals(originalStmt) /*&& Settings.asmComments*/) {
                         it.previous();
                         for (AssemblyStatement commentPart : AssemblyStatement.comment(originalStmt))
                             it.add(commentPart);
@@ -264,36 +247,127 @@ public class RegisterAllocation {
         }
     }
 
+    protected static boolean moveCoalesce(Assembly assm, Graph<String> interferenceG, int maxInDegree) {
+        Map<String, String> replaceWith = new HashMap<String, String>();
+        HashSet<String> nono = new HashSet<String>();
+
+        ListIterator<AssemblyStatement> it = assm.statements.listIterator();
+        while (it.hasNext()) {
+            AssemblyStatement stmt = it.next();
+
+            if (stmt.operation.equals("mov")) {
+                boolean validPair = true;
+
+                int numRegisters = 0;
+                for (AssemblyOperand op : stmt.operands) {
+                    if (op.type == AssemblyOperand.OperandType.MEM) {
+                        //System.out.printf("%-20s is a Memory Operand%n", op);
+                        validPair = false;
+                    }
+                    else if (op.value().charAt(0) == '[') {
+                        validPair = false; // the previous check doesn't seem to work in all cases. WHY?
+                    }
+                    else if (Utilities.isNumber(op.value())) {
+                        validPair = false;
+                        //System.out.printf("%-20s is a Number%n", op);
+                    }
+                    if (Utilities.isRealRegister(op.value())) numRegisters++;
+                }
+                if (numRegisters >= 2) {
+                    //System.out.printf("Both operands were registers%n");
+                    validPair = false;
+                }
+
+                String a = stmt.operands[0].value();
+                String b = stmt.operands[1].value();
+
+                if (nono.contains(a) || nono.contains(b)) {
+                    validPair = false;
+                    //System.out.printf("NONO%n");
+                }
+                else if (a.equals(b)) {
+                    //System.out.printf("Operands are equal: %s %s%n", a, b);
+                    validPair = false;
+                }
+                else if (interferenceG.getSuccessors(a).contains(b) || interferenceG.getSuccessors(b).contains(a)) {
+                    //System.out.printf("Operands Interfere!%n");
+                    validPair = false;
+                }
+
+                if (validPair) {
+                    // the union of the set of thing interfering with a and b must be <= maxInDegree in size
+                    HashSet<String> union = new HashSet<>(interferenceG.getSuccessors(a));
+                    union.addAll(interferenceG.getSuccessors(b));
+
+                    if (union.size() > maxInDegree) {
+                        //System.out.printf("Collective in-degree is %d%n", union.size());
+                        continue;
+                    }
+                    else {
+                        // replace a with b
+                        if (Utilities.isRealRegister(a)) {
+                            String temp = a;
+                            a = b;
+                            b = temp;
+                        }
+                        System.out.printf("Replace %-20s with %20s%n", a, b);
+                        replaceWith.put(a, b);
+                        // add a's interferences to b
+                        int before = interferenceG.getSuccessors(b).size();
+                        for (String aSucc : interferenceG.getSuccessors(a))
+                            interferenceG.addEdge(aSucc, b);
+                        int after = interferenceG.getSuccessors(b).size();
+                        //System.out.printf("Merge set: %d -> %d%n", before, after);
+                        interferenceG.removeVertex(a);
+
+                        boolean b1 = interferenceG.getVertices().contains(a);
+                        boolean b2 = interferenceG.getEdges().containsKey(a);
+                        String af = a;
+                        boolean b3 = interferenceG.getEdges().values().stream().anyMatch(
+                                s -> s.contains(af)
+                        );
+                        //System.out.printf("INTEGRITY CHECKS: %b %b %b%n", b1, b2, b3);
+
+                        it.remove();
+
+                        nono.add(a);
+                        nono.add(b);
+                    }
+                }
+            }
+        }
+
+        if (nono.isEmpty()) {
+            //System.out.println("couldn't coalesce ANYTHING");
+            return false;
+        }
+        else {
+            // we have a set of temps to be replaced
+            for (AssemblyStatement stmt : assm.statements) {
+                for (AssemblyOperand op : stmt.operands) {
+                    op.setEntities(
+                        op.getEntities().stream().map(
+                            e ->  {
+                                if (replaceWith.containsKey(e)) return replaceWith.get(e);
+                                else return e;
+                            }
+                        ).collect(Collectors.toList())
+                    );
+                }
+            }
+            return true;
+        }
+    }
+
     protected static Graph<String> constructInterferenceGraph
             (Assembly assm,
              DataflowAnalysisResult<AssemblyStatement, Set<String>> lvResult,
              Set<String> labels) {
 
-//        if (Stream.concat(lvResult.out.values().stream(), lvResult.in.values().stream()).anyMatch(
-//                s -> s.contains("x2_irtmp$_COMPENSATOR") && s.contains("__FreshTemp_490")
-//        )) {
-//            System.out.println("$$$ SUCCESS");
-//        }
-//        else {
-//            System.out.println("$$$ FAILURE");
-//        }
-
         Graph<String> interferenceGraph = new UndirectedGraph<>();
 
         for (String r : Utilities.registersForAllocation())
             interferenceGraph.addVertex(r);
-
-//        //TODO: REMOVE
-//        // debug the live variable analysis output:
-//        Set<String> lvTemps = new HashSet<>();
-//        Stream.concat(lvResult.in.values().stream(), lvResult.out.values().stream()).forEach(
-//                s ->  lvTemps.addAll(s)
-//        );
-//        System.out.println();
-//        System.out.println("LIVE VARIABLE TEMPS:");
-//        for (String temp : lvTemps)
-//            System.out.println(temp);
-//        System.out.println();
 
 
         // There seem to be cases when live variable analysis doesn't catch all temps! Add the temps directly
@@ -312,6 +386,17 @@ public class RegisterAllocation {
 
         for (Set<String> interferences : lvResult.out.values())
             addInterferences(interferences, interferenceGraph, labels);
+
+        /*
+        System.out.println("Interference Graph Debugging:");
+        for (String k : interferenceGraph.getVertices()) {
+            StringBuilder sb = new StringBuilder();
+            for  (String adj : interferenceGraph.getSuccessors(k))
+                sb.append(adj + " ");
+            System.out.printf("%-23s {%s}%n", k, sb);
+        }
+        System.out.println();
+        */
 
         return interferenceGraph;
     }
@@ -361,10 +446,10 @@ public class RegisterAllocation {
         // construct interference graph:
         Graph<String> iGraph = constructInterferenceGraph(assm, lvResult, AssemblyUtils.collectLabels(assm, false));
 
-        System.out.println("Interference graph temps:");
-        for (String t : iGraph.getVertices())
-            System.out.println(t);
-        System.out.println();
+//        System.out.println("Interference graph temps:");
+//        for (String t : iGraph.getVertices())
+//            System.out.println(t);
+//        System.out.println();
 
 
         System.out.println("Graph coloring...");

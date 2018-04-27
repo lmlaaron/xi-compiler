@@ -67,8 +67,9 @@ public class UndirectedGraph<T> implements Graph<T> {
     public void removeVertex(T vertex) {
         if (edges.containsKey(vertex)) {
             LinkedList<T> adjs = new LinkedList<T>(edges.get(vertex));
-            for (T adj : adjs)
-                removeEdge(adj, vertex);
+            // inefficient, but other methods don't seem to work
+            for (Set<T> set : edges.values())
+                set.remove(vertex);
             edges.remove(vertex);
         }
         vertices.remove(vertex);
