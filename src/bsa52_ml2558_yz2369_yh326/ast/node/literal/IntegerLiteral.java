@@ -23,7 +23,7 @@ public class IntegerLiteral extends ExprAtom {
 
     @Override
     public IRNode translate() {
-        return new IRConst(Long.parseLong(this.value));
+        return new IRConst(Long.parseUnsignedLong(this.value));
     }
 
     @Override
