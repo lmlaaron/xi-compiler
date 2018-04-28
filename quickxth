@@ -8,9 +8,9 @@ if [ $1 == "a3" ] || [ $1 == "a4" ] || [ $1 == "a5" ]; then
     cp tests/$pkg/testcases/* temp/xi
     cp tests/$pkg/answers/* temp/xi
     xth -compilerpath . -testpath temp/xi -workpath temp tests/$pkg/xthScript
-elif [ $1 == "f4" ]; then
-    pkg=failedcases_a4
-    mkdir temp/xi
+elif [ $1 == "f4" ] || [ $1 == "f5" ]; then
+    an=$(echo $1 | cut -c2-2)
+    pkg=failedcases_a$an
     xth -compilerpath . -testpath tests/$pkg -workpath temp tests/$pkg/xthScript
 else
     pa=pa$1
