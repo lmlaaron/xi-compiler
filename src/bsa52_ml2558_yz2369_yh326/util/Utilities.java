@@ -10,6 +10,18 @@ import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRESeq;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class Utilities {
     /**
@@ -59,6 +71,26 @@ public class Utilities {
             result += type.toShortString();
         }
         return result;
+    }
+    
+    public static IRESeq xiAlloc(IRExpr size) {
+        String labelNumber = NumberGetter.uniqueNumberStr();
+        List<IRStmt> stmts = new ArrayList<IRStmt>();
+
+        IRExpr realSize;
+        if (size instanceof IRConst) {
+            realSize = new IRConst(((IRConst) size).constant() * 8 + 8);
+        } else {
+            IRBinOp mult = new IRBinOp(OpType.MUL, size, new IRConst(8));
+            realSize = new IRBinOp(OpType.ADD, mult, new IRConst(8));
+        }
+        IRTemp arrayLen = new IRTemp("_arrayLen_" + labelNumber);
+        stmts.add(new IRMove(arrayLen, new IRCall(new IRName("_xi_alloc"), realSize)));
+        stmts.add(new IRMove(new IRMem(arrayLen), size));
+        IRTemp newArray = new IRTemp("_array_" + labelNumber);
+        stmts.add(new IRMove(newArray, new IRBinOp(OpType.ADD, arrayLen, new IRConst(8))));
+
+        return new IRESeq(new IRSeq(stmts), newArray);
     }
 
     private static HashSet<String> realRegisters;

@@ -12,8 +12,8 @@ import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
+import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
@@ -98,25 +98,16 @@ public class VarDecl extends Stmt {
         if (i >= sizes.size() || sizes.get(i) == null) {
             return null;
         }
-
-        List<IRStmt> stmts = new ArrayList<IRStmt>();
-        String labelNumber = NumberGetter.uniqueNumberStr();
-        IRTemp newArray = new IRTemp("_array_" + labelNumber);
-
-        // Allocate an array with size + 1 (each unit is 8 bytes)
-        IRBinOp irSize = new IRBinOp(OpType.MUL, sizesExpr.get(i), new IRConst(8));
-        IRCall call = new IRCall(new IRName("_xi_alloc"), new IRBinOp(OpType.ADD, irSize, new IRConst(8)));
-        stmts.add(new IRMove(newArray, new IRBinOp(OpType.ADD, call, new IRConst(8))));
-
-        // Length is located at index of -1
-        IRBinOp indexNegOne = new IRBinOp(OpType.SUB, newArray, new IRConst(8));
-        stmts.add(new IRMove(new IRMem(indexNegOne), sizesExpr.get(i)));
+        
+        IRESeq newArrayESeq = Utilities.xiAlloc(sizesExpr.get(i));
+        List<IRStmt> stmts = ((IRSeq) newArrayESeq.stmt()).stmts();
+        IRExpr newArray = newArrayESeq.expr();
 
         // The last bracket with value
         if (i + 1 >= sizes.size() || sizes.get(i + 1) == null) {
             return new IRESeq(new IRSeq(stmts), newArray);
         } else {
-            IRTemp curIndex = new IRTemp("_index_" + labelNumber);
+            IRTemp curIndex = new IRTemp("_index_" + NumberGetter.uniqueNumberStr());
             stmts.add(new IRMove(curIndex, new IRConst(0)));
             // the condition of the loop
             IRBinOp cond = new IRBinOp(OpType.LT, curIndex, sizesExpr.get(i));
