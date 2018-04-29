@@ -1,0 +1,12 @@
+# build compiler first
+#build
+
+xic ("Test --typecheck") "--typecheck" {
+    arracc06.xi;
+    call04.xi;
+    vardecl01.xi;
+    vardecl02.xi;
+    vardecl08.xi;
+    group_of_anonymous07_01.xi;
+    block01.xi;
+}
