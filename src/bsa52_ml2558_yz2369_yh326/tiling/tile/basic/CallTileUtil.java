@@ -1,9 +1,13 @@
 package bsa52_ml2558_yz2369_yh326.tiling.tile.basic;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
+import edu.cornell.cs.cs4120.xic.ir.IRCall;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class CallTileUtil {
     public static void generateCallAssembly(List<AssemblyStatement> statements, int operandNum, String targetName) {
@@ -33,6 +37,19 @@ public class CallTileUtil {
             statements.add(new AssemblyStatement("add", new AssemblyOperand("rsp"),
                     new AssemblyOperand(String.valueOf(8 * (operandNum - 6)))));
         }
-
+    }
+    
+    public static List<IRNode> fillCallSubtree(IRCall call) {
+        List<IRNode> subtreeRoots = new LinkedList<>();
+        List<IRExpr> args = call.args();
+        if (args.size() <= 6)
+            subtreeRoots.addAll(args);
+        else {
+            for (int i = 0; i < 6; i++)
+                subtreeRoots.add(args.get(i));
+            for (int i = args.size() - 1; i >= 6; i--)
+                subtreeRoots.add(args.get(i));
+        }
+        return subtreeRoots;
     }
 }

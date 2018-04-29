@@ -1,20 +1,12 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.assembly.abstract_pipeline.OptimizedRegisterAllocationPipeline;
 import bsa52_ml2558_yz2369_yh326.assembly.abstract_pipeline.SpillAllTempsPipeLine;
-import bsa52_ml2558_yz2369_yh326.ir.Canonicalization;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
-import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
-import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class AssemblyWrapper {
     public static Assembly GenerateAssembly(Tile tile, String outputFile) {

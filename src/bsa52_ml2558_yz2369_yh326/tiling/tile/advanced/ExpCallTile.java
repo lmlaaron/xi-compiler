@@ -1,4 +1,4 @@
-package bsa52_ml2558_yz2369_yh326.tiling.tile.basic;
+package bsa52_ml2558_yz2369_yh326.tiling.tile.advanced;
 
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRExp;
@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
+import bsa52_ml2558_yz2369_yh326.tiling.tile.basic.CallTileUtil;
 
 public class ExpCallTile extends Tile {
     String targetName;
@@ -20,13 +21,7 @@ public class ExpCallTile extends Tile {
             this.root = root;
 
             IRCall call = (IRCall) ((IRExp) root).expr();
-
-            this.subtreeRoots = new LinkedList<>();
-
-            // first add arguments then target MUST follow this order
-            subtreeRoots.addAll(call.args());
-
-            // subtreeRoots.add(call.target());
+            subtreeRoots = CallTileUtil.fillCallSubtree(call);
             if (call.target() instanceof IRName) {
                 IRName target = (IRName) call.target();
                 targetName = target.name();

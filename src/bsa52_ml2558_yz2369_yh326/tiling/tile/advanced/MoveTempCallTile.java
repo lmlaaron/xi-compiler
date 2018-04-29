@@ -24,13 +24,8 @@ public class MoveTempCallTile extends Tile {
 
             IRMove move = (IRMove) root;
             if (move.target() instanceof IRTemp && move.source() instanceof IRCall) {
-                // IRTemp temp =(IRTemp) move.target();
                 IRCall call = (IRCall) move.source();
-
-                this.subtreeRoots = new LinkedList<>();
-                // first add arguments then target MUST follow this order
-                subtreeRoots.addAll(call.args());
-                // subtreeRoots.add(call.target());
+                subtreeRoots = CallTileUtil.fillCallSubtree(call);
                 if (call.target() instanceof IRName) {
                     IRName target = (IRName) call.target();
                     targetName = target.name();

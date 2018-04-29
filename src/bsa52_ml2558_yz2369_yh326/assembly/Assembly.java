@@ -1,9 +1,11 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Optional;
 
 import bsa52_ml2558_yz2369_yh326.exception.TileMergeException;
-import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 
 /**
  * Represents a block of assembly instructions, either complete or a fragment
@@ -109,8 +111,6 @@ public class Assembly {
      *             of empty operands in the parent
      */
     public void merge(boolean childrenFirst, Assembly... childAssemblies) throws TileMergeException {
-        List<AssemblyOperand> operands = new ArrayList<AssemblyOperand>();
-
         // get all fillers from child in operands
         for (Assembly child : childAssemblies) {
             if (child.filler.isPresent()) {
@@ -118,15 +118,6 @@ public class Assembly {
                 // operands.add(child.filler.get());
             }
         }
-        // sort the operands based on reorderIndex
-        // Collections.sort(operands, new OperandComparator());
-
-        // incorpoerate sorted filler onto list
-        // for (AssemblyOperand opt : operands) {
-        // this.incorporateFiller(opt);
-        // }
-        // incorporateFiller(child.filler.get());
-
         ArrayList<AssemblyStatement> childStatements = new ArrayList<>();
         Arrays.stream(childAssemblies).forEachOrdered(child -> childStatements.addAll(child.statements));
 
@@ -160,12 +151,4 @@ public class Assembly {
         }
         return s.toString();
     }
-
-
-
-
-
-
-
-
 }

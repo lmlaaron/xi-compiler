@@ -17,15 +17,9 @@ public class CallTile extends Tile {
     public boolean fits(IRNode root) {
         if (root instanceof IRCall) {
             this.root = root;
-
+            
             IRCall call = (IRCall) root;
-
-            this.subtreeRoots = new LinkedList<>();
-
-            // first add arguments then target MUST follow this order
-            subtreeRoots.addAll(call.args());
-
-            // subtreeRoots.add(call.target());
+            subtreeRoots = CallTileUtil.fillCallSubtree(call);
             if (call.target() instanceof IRName) {
                 IRName target = (IRName) call.target();
                 targetName = target.name();
