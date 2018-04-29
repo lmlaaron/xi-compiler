@@ -4,11 +4,13 @@ import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
-import edu.cornell.cs.cs4120.xic.ir.*;
+import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Tile uses LEA instruction to efficiently match:

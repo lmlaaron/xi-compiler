@@ -1,20 +1,34 @@
 package bsa52_ml2558_yz2369_yh326.optimization.register_allocation;
 
-import bsa52_ml2558_yz2369_yh326.assembly.*;
+import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyFunction;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
+import bsa52_ml2558_yz2369_yh326.assembly.AssemblyUtils;
+import bsa52_ml2558_yz2369_yh326.assembly.StackTable;
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.DataflowAnalysisResult;
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.LiveVariableAnalysis;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
-import bsa52_ml2558_yz2369_yh326.util.graph.*;
-import edu.cornell.cs.cs4120.util.Copy;
+import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
+import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
+import bsa52_ml2558_yz2369_yh326.util.graph.Graph;
+import bsa52_ml2558_yz2369_yh326.util.graph.GraphColoring;
+import bsa52_ml2558_yz2369_yh326.util.graph.UndirectedGraph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RegisterAllocation {
 
-    public static void RegisterAllocation(Assembly assm) {
+    public static void DoREG(Assembly assm) {
         List<AssemblyFunction> functions = AssemblyUtils.partitionFunctions(assm);
 
         assm.statements = new LinkedList<>();

@@ -2,18 +2,13 @@ package bsa52_ml2558_yz2369_yh326.optimization.copy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.AvailableCopyAnalysis;
-import bsa52_ml2558_yz2369_yh326.dataflow_analysis.AvailableExpressionAnalysis;
 import bsa52_ml2558_yz2369_yh326.dataflow_analysis.DataflowAnalysisResult;
-import bsa52_ml2558_yz2369_yh326.optimization.cse.CommonSubexpressionElimination.ModType;
-import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
-import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.graph.ControlFlowGraph;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
@@ -48,10 +43,7 @@ public class CopyPropagation {
                     IRStmt cur = it.next();
                     //System.out.println("node:   "+cur.toString());
                     if (modifications.containsKey(cur)) {
-                    		Set<String> str_set= modifications.get(cur);         
-                    		for (String s: str_set) {
-                    		//	System.out.println("inflow:           "+s);
-                    		}
+                    		Set<String> str_set= modifications.get(cur);
                                     		
                     		if ( cur instanceof IRMove ) {
                         		IRMove replace = (IRMove) cur;
@@ -140,10 +132,8 @@ public class CopyPropagation {
         static private IRExpr ReplaceTempExpr(IRExpr replace, String src, String des) {
         		if ( replace instanceof IRCall ) {
         			IRCall ret = (IRCall) replace;
-        			int i = 0;
-        			for ( IRExpr arg: ret.args()) {
+        			for (int i = 0; i < ret.args().size(); i++) {
         				ret.args().set(i, ReplaceTempExpr(((IRCall) replace).args().get(i), src, des));
-        				i++;
         			}
         			return ret;
         		} else if ( replace instanceof IRBinOp) {

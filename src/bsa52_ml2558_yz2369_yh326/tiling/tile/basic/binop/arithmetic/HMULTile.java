@@ -3,12 +3,11 @@ package bsa52_ml2558_yz2369_yh326.tiling.tile.basic.binop.arithmetic;
 import bsa52_ml2558_yz2369_yh326.assembly.Assembly;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
-import bsa52_ml2558_yz2369_yh326.tiling.tile.Tile;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 
 import java.util.LinkedList;
 
-public class HMULTile extends ArithmeticBinopTile {
+public class HMulTile extends ArithmeticBinopTile {
     protected IRBinOp.OpType validIRBinOpType() {
         return IRBinOp.OpType.HMUL;
     }
@@ -19,8 +18,6 @@ public class HMULTile extends ArithmeticBinopTile {
 
     @Override
     protected Assembly generateLocalAssembly() {
-        String freshTemp = freshTemp();
-
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
 
         // RAX is one of the operands for the one-arg version of imul

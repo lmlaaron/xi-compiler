@@ -4,9 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-import edu.cornell.cs.cs4120.xic.ir.IRSeq;
-import edu.cornell.cs.cs4120.xic.ir.IRStmt;
-
 public class DirectedGraph<T> implements Graph<T> {
     public String name;
     private Set<T> vertices;

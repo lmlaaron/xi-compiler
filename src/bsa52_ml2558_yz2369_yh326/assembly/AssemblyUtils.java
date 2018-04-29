@@ -1,13 +1,17 @@
 package bsa52_ml2558_yz2369_yh326.assembly;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 
-import java.util.*;
-import java.util.function.Function;
-
 /**
- * implements functionalities that do not belong in Assembly.java,
- * but will be utilized by multiple AbstractAssemblyPipelines, etc.
+ * implements functionalities that do not belong in Assembly.java, but will be
+ * utilized by multiple AbstractAssemblyPipelines, etc.
  */
 public class AssemblyUtils {
     // translate _ARG0, _RET0 to register or stack location
@@ -18,127 +22,135 @@ public class AssemblyUtils {
         if (name != null && name.value().length() >= "_ARG".length() && name.value().substring(0, 4).equals("_ARG")) {
             int v = Integer.valueOf(name.value().substring(4));
             switch (v) {
-                case 0:
-                    return new AssemblyOperand("rdi");
-                case 1:
-                    return new AssemblyOperand("rsi");
-                case 2:
-                    return new AssemblyOperand("rdx");
-                case 3:
-                    return new AssemblyOperand("rcx");
-                case 4:
-                    return new AssemblyOperand("r8");
-                case 5:
-                    return new AssemblyOperand("r9");
-                default:
+            case 0:
+                return new AssemblyOperand("rdi");
+            case 1:
+                return new AssemblyOperand("rsi");
+            case 2:
+                return new AssemblyOperand("rdx");
+            case 3:
+                return new AssemblyOperand("rcx");
+            case 4:
+                return new AssemblyOperand("r8");
+            case 5:
+                return new AssemblyOperand("r9");
+            default:
             }
             return AssemblyOperand.MemPlus("rbp", String.valueOf((v - 6 + 2) * 8));
 
-        } else if (name != null && name.value().length() >= "_RET".length() && name.value().substring(0, 4).equals("_RET")) {
+        } else if (name != null && name.value().length() >= "_RET".length()
+                && name.value().substring(0, 4).equals("_RET")) {
             int v = Integer.valueOf(name.value().substring(4));
             switch (v) {
-                case 0:
-                    return new AssemblyOperand("rax");
-                case 1:
-                    return new AssemblyOperand("rdx");
-                default:
+            case 0:
+                return new AssemblyOperand("rax");
+            case 1:
+                return new AssemblyOperand("rdx");
+            default:
             }
             return AssemblyOperand.MemPlus("rsp", String.valueOf(((v - 2)) * 8));
             // rsp from caller pointer of view
-        }
-        else return name;
+        } else
+            return name;
     }
 
     public static Set<String> use(AssemblyStatement stmt) {
         // equivalent to 'use' from lecture materials
 
-        // it is correct to say a temp is used in every context in which it appears, except where it is killed
-//        HashSet<String> set = new HashSet<String>();
-//        Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
-//        if (stmt.operation.equals("mov")) {
-//            AssemblyOperand dest = stmt.operands[0];
-//            // don't want to say a temp is used if it's being assigned to
-//            if (!dest.type.equals(AssemblyOperand.OperandType.TEMP)) {
-//                set.addAll(dest.getTemps());
-//            }
-//            set.addAll(stmt.operands[1].getTemps());
-//        }
-//        // aside from mov, anywhere a temp is used everywhere it appears
-//        else {
-//            Arrays.stream(stmt.operands).forEach(op -> set.addAll(op.getTemps()));
-//        }
-//        return set;
+        // it is correct to say a temp is used in every context in which it appears,
+        // except where it is killed
+        // HashSet<String> set = new HashSet<String>();
+        // Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
+        // if (stmt.operation.equals("mov")) {
+        // AssemblyOperand dest = stmt.operands[0];
+        // // don't want to say a temp is used if it's being assigned to
+        // if (!dest.type.equals(AssemblyOperand.OperandType.TEMP)) {
+        // set.addAll(dest.getTemps());
+        // }
+        // set.addAll(stmt.operands[1].getTemps());
+        // }
+        // // aside from mov, anywhere a temp is used everywhere it appears
+        // else {
+        // Arrays.stream(stmt.operands).forEach(op -> set.addAll(op.getTemps()));
+        // }
+        // return set;
 
         Set<String> ret = new HashSet<String>();
         Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
         switch (stmt.operation) {
-            case "call":
-                // call uses the registers which are used as arguments, and this depends on the particular function
-                int argc = getArgSize(stmt.operands[0].value());
-                if (argc >= 1) ret.add("rdi");
-                if (argc >= 2) ret.add("rsi");
-                if (argc >= 3) ret.add("rdx");
-                if (argc >= 4) ret.add("rcx");
-                if (argc >= 5) ret.add("r8");
-                if (argc >= 6) ret.add("r9");
-                break;
-            case "mov":
-                if (stmt.operands[0].type == AssemblyOperand.OperandType.MEM)
-                    ret.addAll(stmt.operands[0].getEntities());
-                ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "imul":
-                if (stmt.operands.length == 2) {
-                    ret.addAll(stmt.operands[0].getEntities());
-                    ret.addAll(stmt.operands[1].getEntities());
-                }
-                else if (stmt.operands.length == 1) {
-                    ret.addAll(stmt.operands[0].getEntities());
-                    ret.add("rax");
-                }
-                else {
-                    throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
-                }
-                break;
-            case "cqo":
-                ret.add("rax");
-                break;
-            case "idiv":
-                ret.add("rax");
+        case "call":
+            // call uses the registers which are used as arguments, and this depends on the
+            // particular function
+            int argc = getArgSize(stmt.operands[0].value());
+            if (argc >= 1)
+                ret.add("rdi");
+            if (argc >= 2)
+                ret.add("rsi");
+            if (argc >= 3)
                 ret.add("rdx");
+            if (argc >= 4)
+                ret.add("rcx");
+            if (argc >= 5)
+                ret.add("r8");
+            if (argc >= 6)
+                ret.add("r9");
+            break;
+        case "mov":
+            if (stmt.operands[0].type == AssemblyOperand.OperandType.MEM)
                 ret.addAll(stmt.operands[0].getEntities());
-                break;
-            case "lea":
-                ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "add":
-                ret.addAll(stmt.operands[0].getEntities());
-                ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "sub":
-                ret.addAll(stmt.operands[0].getEntities());
-                ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "cmp":
-                ret.addAll(stmt.operands[0].getEntities());
-                ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "xor":
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "imul":
+            if (stmt.operands.length == 2) {
                 ret.addAll(stmt.operands[0].getEntities());
                 ret.addAll(stmt.operands[1].getEntities());
-                break;
-            case "push":
+            } else if (stmt.operands.length == 1) {
                 ret.addAll(stmt.operands[0].getEntities());
-                break;
+                ret.add("rax");
+            } else {
+                throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
+            }
+            break;
+        case "cqo":
+            ret.add("rax");
+            break;
+        case "idiv":
+            ret.add("rax");
+            ret.add("rdx");
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
+        case "lea":
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "add":
+            ret.addAll(stmt.operands[0].getEntities());
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "sub":
+            ret.addAll(stmt.operands[0].getEntities());
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "cmp":
+            ret.addAll(stmt.operands[0].getEntities());
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "xor":
+            ret.addAll(stmt.operands[0].getEntities());
+            ret.addAll(stmt.operands[1].getEntities());
+            break;
+        case "push":
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
         }
 
-//        // print out values in the specific case where the temp is a_artmp$
-//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("__FreshTemp_20"))) {
-//            StringBuilder sb = new StringBuilder();
-//            for (String s : ret)
-//                sb.append(s + " ");
-//            System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
-//        }
+        // // print out values in the specific case where the temp is a_artmp$
+        // if (Arrays.stream(stmt.operands).anyMatch( o ->
+        // o.getEntities().contains("__FreshTemp_20"))) {
+        // StringBuilder sb = new StringBuilder();
+        // for (String s : ret)
+        // sb.append(s + " ");
+        // System.out.printf("USE: %-45s == {%s}%n", stmt, sb.toString());
+        // }
 
         return ret;
     }
@@ -149,84 +161,85 @@ public class AssemblyUtils {
         // statements of the form MOV TEMP, *SOMETHING*
         // define TEMP
 
-//        HashSet<String> set = new HashSet<String>();
-//        if (stmt.operands.length != 2) return set;
-//        else if (stmt.operation.equals("mov")) {
-//            AssemblyOperand possiblyTemp = stmt.operands[0];
-//
-//            possiblyTemp.ResolveType();
-//            if (possiblyTemp.type.equals(AssemblyOperand.OperandType.TEMP)) {
-//                set.add(possiblyTemp.value());
-//            }
-//        }
+        // HashSet<String> set = new HashSet<String>();
+        // if (stmt.operands.length != 2) return set;
+        // else if (stmt.operation.equals("mov")) {
+        // AssemblyOperand possiblyTemp = stmt.operands[0];
+        //
+        // possiblyTemp.ResolveType();
+        // if (possiblyTemp.type.equals(AssemblyOperand.OperandType.TEMP)) {
+        // set.add(possiblyTemp.value());
+        // }
+        // }
         Set<String> ret = new HashSet<>();
         Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
         switch (stmt.operation) {
-            case "call":
-                ret.addAll(Utilities.callerSaveRegisters());
-                break;
-            case "mov":
-                if (stmt.operands[0].type != AssemblyOperand.OperandType.MEM)
-                    ret.addAll(stmt.operands[0].getEntities());
-                break;
-            case "imul":
-                if (stmt.operands.length == 2) {
-                    ret.addAll(stmt.operands[0].getEntities());
-                }
-                else if (stmt.operands.length == 1) {
-                    ret.add("rdx");
-                    ret.add("rax");
-                }
-                else {
-                    throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
-                }
-                break;
-            case "cqo":
+        case "call":
+            ret.addAll(Utilities.callerSaveRegisters());
+            break;
+        case "mov":
+            if (stmt.operands[0].type != AssemblyOperand.OperandType.MEM)
+                ret.addAll(stmt.operands[0].getEntities());
+            break;
+        case "imul":
+            if (stmt.operands.length == 2) {
+                ret.addAll(stmt.operands[0].getEntities());
+            } else if (stmt.operands.length == 1) {
                 ret.add("rdx");
-                break;
-            case "idiv":
                 ret.add("rax");
-                ret.add("rdx");
-                break;
-            case "lea":
-                ret.addAll(stmt.operands[0].getEntities());
-                break;
-            case "add":
-                ret.addAll(stmt.operands[0].getEntities());
-                break;
-            case "sub":
-                ret.addAll(stmt.operands[0].getEntities());
-                break;
-            case "xor":
-                ret.addAll(stmt.operands[0].getEntities());
-                break;
+            } else {
+                throw new RuntimeException("Invalid number of operands for imul! " + stmt.operands.length);
+            }
+            break;
+        case "cqo":
+            ret.add("rdx");
+            break;
+        case "idiv":
+            ret.add("rax");
+            ret.add("rdx");
+            break;
+        case "lea":
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
+        case "add":
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
+        case "sub":
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
+        case "xor":
+            ret.addAll(stmt.operands[0].getEntities());
+            break;
         }
 
-//        StringBuilder sb = new StringBuilder();
-//        for (String s : ret)
-//            sb.append(s + " ");
-//        System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+        // StringBuilder sb = new StringBuilder();
+        // for (String s : ret)
+        // sb.append(s + " ");
+        // System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
         // print out values in the specific case where the temp is a_artmp$
-//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("a_irtmp$"))) {
-//            StringBuilder sb = new StringBuilder();
-//            for (String s : ret)
-//                sb.append(s + " ");
-//            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
-//        }
+        // if (Arrays.stream(stmt.operands).anyMatch( o ->
+        // o.getEntities().contains("a_irtmp$"))) {
+        // StringBuilder sb = new StringBuilder();
+        // for (String s : ret)
+        // sb.append(s + " ");
+        // System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+        // }
 
-//        // print out values in the specific case where the temp is a_artmp$
-//        if (Arrays.stream(stmt.operands).anyMatch( o -> o.getEntities().contains("__FreshTemp_20") )) {
-//            StringBuilder sb = new StringBuilder();
-//            for (String s : ret)
-//                sb.append(s + " ");
-//            System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
-//        }
+        // // print out values in the specific case where the temp is a_artmp$
+        // if (Arrays.stream(stmt.operands).anyMatch( o ->
+        // o.getEntities().contains("__FreshTemp_20") )) {
+        // StringBuilder sb = new StringBuilder();
+        // for (String s : ret)
+        // sb.append(s + " ");
+        // System.out.printf("DEF: %-45s == {%s}%n", stmt, sb.toString());
+        // }
 
         return ret;
     }
 
     public static void systemVEnforce(AssemblyFunction function) {
-        if (!function.actuallyAFunction()) return;
+        if (!function.actuallyAFunction())
+            return;
 
         ArrayList<Integer> lastCallArgC = argCountOfLastCall(function.statements);
 
@@ -240,12 +253,12 @@ public class AssemblyUtils {
 
                 // Per the ReturnTile, replace __RETURN_X temps with the appropriate memory
                 // location
-                if (stmt.operands != null && stmt.operation.equals("mov") &&
-                        stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED)) {
+                if (stmt.operands != null && stmt.operation.equals("mov")
+                        && stmt.operands[0].type.equals(AssemblyOperand.OperandType.RET_UNRESOLVED)) {
 
                     // at this point, thisFuncArgSize NEEDS to be instantiated.
-                    //  if it isn't, we should throw an error
-                    if (thisFuncArgSize == -1){
+                    // if it isn't, we should throw an error
+                    if (thisFuncArgSize == -1) {
                         throw new RuntimeException("Error: function arg size not instantiated before use!");
                     }
 
@@ -261,19 +274,19 @@ public class AssemblyUtils {
                     stmt.operands[0] = retOpt;
                 }
 
-
                 // also replace _ARGXX and _RETXX with registers, memory locations
                 stmt.operands[i] = AssemblyUtils.ARGRET2Reg(stmt.operands[i], lastCallArgC.get(stmt_i));
-//                List<String> temps = op.getTemps();
-//
-//                List<String> newTemps = new LinkedList<String>();
-//                for (String temp : temps) {
-//                    String convertedTemp = AssemblyUtils.ARGRET2Reg(temp, lastCallArgC.get(stmt_i));
-//                    newTemps.add(convertedTemp);
-//                }
-//
-//                if (newTemps.size() > 0)
-//                    op.setTemps(newTemps);
+                // List<String> temps = op.getTemps();
+                //
+                // List<String> newTemps = new LinkedList<String>();
+                // for (String temp : temps) {
+                // String convertedTemp = AssemblyUtils.ARGRET2Reg(temp,
+                // lastCallArgC.get(stmt_i));
+                // newTemps.add(convertedTemp);
+                // }
+                //
+                // if (newTemps.size() > 0)
+                // op.setTemps(newTemps);
             }
 
             stmt_i++;
@@ -289,7 +302,7 @@ public class AssemblyUtils {
                 int retSize = AssemblyUtils.getRetSize(stmt.operands[0].value());
                 int argSize = AssemblyUtils.getArgSize(stmt.operands[0].value());
 
-                ret = Math.max(retSize+argSize, ret);
+                ret = Math.max(retSize + argSize, ret);
             }
         }
 
@@ -325,21 +338,16 @@ public class AssemblyUtils {
             return 1;
         }
         try {
-            if (targetName != null) {
-                int index = targetName.lastIndexOf("_");
-                String sigStr = targetName.substring(index + 1);
-                int num_a = 0;
-                int num_ib = 0;
-                for (char s : sigStr.toCharArray()) {
-                    if (s == 'a') {
-                        num_a++;
-                    } else if (s == 'i' || s == 'b') {
-                        num_ib++;
-                    }
+            int index = targetName.lastIndexOf("_");
+            String sigStr = targetName.substring(index + 1);
+            int num_ib = 0;
+            for (char s : sigStr.toCharArray()) {
+                if (s == 'i' || s == 'b') {
+                    num_ib++;
                 }
-                return num_ib - getRetSize(targetName);
             }
-            return 0;
+            return num_ib - getRetSize(targetName);
+
         } catch (Exception e) {
             return 0;
         }
@@ -353,24 +361,19 @@ public class AssemblyUtils {
             return 1;
         }
         try {
-            if (targetName != null) {
-                int index = targetName.lastIndexOf("t");
-                if (index != -1) { // assume less than 100 arguments
-                    if (targetName.toCharArray()[(index + 1)] == 'p') {
-                        return 0;
-                    } else if (targetName.toCharArray()[(index + 2)] != 'a'
-                            && targetName.toCharArray()[(index + 2)] != 'b'
-                            && targetName.toCharArray()[(index + 2)] != 'i') {
-                        String v = targetName.substring(index + 1, index + 3);
-                        return Integer.parseInt(v);
-                    } else {
-                        return Integer.parseInt(targetName.substring(index + 1, index + 2));
-                    }
+            int index = targetName.lastIndexOf("t");
+            if (index != -1) { // assume less than 100 arguments
+                if (targetName.toCharArray()[(index + 1)] == 'p') {
+                    return 0;
+                } else if (targetName.toCharArray()[(index + 2)] != 'a' && targetName.toCharArray()[(index + 2)] != 'b'
+                        && targetName.toCharArray()[(index + 2)] != 'i') {
+                    String v = targetName.substring(index + 1, index + 3);
+                    return Integer.parseInt(v);
+                } else {
+                    return Integer.parseInt(targetName.substring(index + 1, index + 2));
                 }
-                return 0;
-            } else {
-                return 0;
             }
+            return 0;
         } catch (Exception e) {
             return 0;
         }
@@ -382,7 +385,7 @@ public class AssemblyUtils {
         HashSet<String> labelNames = new HashSet<String>();
 
         // assumption: all labels we jump to will appear with a colon at least once
-        //              in the assembly
+        // in the assembly
         for (AssemblyStatement stmt : assm.statements) {
             if (stmt.operation.endsWith(":")) {
                 if (includeColon)

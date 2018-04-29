@@ -1,6 +1,5 @@
 package bsa52_ml2558_yz2369_yh326.util;
 
-import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRNodeFactory_c;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;

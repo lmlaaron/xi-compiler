@@ -7,7 +7,7 @@ public class OptimizedRegisterAllocationPipeline implements AbstractAssemblyPipe
     @Override
     public Assembly process(Assembly abstractAssembly) {
 
-        RegisterAllocation.RegisterAllocation(abstractAssembly);
+        RegisterAllocation.DoREG(abstractAssembly);
         return abstractAssembly;
     }
 }
