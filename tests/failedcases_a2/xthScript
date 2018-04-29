@@ -1,0 +1,66 @@
+# build compiler first
+#build
+
+xic ("Test --parse") "--parse" {
+    base-assign01.xi;
+    base-assign02.xi;
+    base-assign03.xi;
+    base-assign04.xi;
+    base-block02.xi;
+    base-codedecl02.xi;
+    base-codedecl03.xi;
+    base-codedecl04.xi;
+    base-codedecl05.xi;
+    base-codedecl07.xi;
+    base-expr01.xi;
+    base-expr02.xi;
+    base-expr05.xi;
+    base-expr06.xi;
+    base-expr08.xi;
+    base-if01.xi;
+    base-if02.xi;
+    base-if04.xi;
+    base-prec07.xi;
+    base-return01.xi;
+    base-return02.xi;
+    base-use02.xi;
+    base-use03.xi;
+    base-vardecl03.xi;
+    base-vardecl04.xi;
+    baseerror-assign04.xi;
+    baseerror-codedecl01.xi;
+    baseerror-codedecl02.xi;
+    baseerror-codedecl03.xi;
+    baseerror-empty.xi;
+    baseerror-length03.xi;
+    baseerror-paramdecl01.xi;
+    baseerror-paramdecl02.xi;
+    baseerror-paramdecl03.xi;
+    baseerror-use01.xi;
+    baseerror-use02.xi;
+    baseerror-vardecl01.xi;
+    baseerror-vardecl02.xi;
+    baseerror-vardecl06.xi;
+    baseerror-vardecl07.xi;
+    baseerror-vardecl08.xi;
+    combo-group_of_anonymous01_01.xi;
+    combo-group_of_anonymous01_02.xi;
+    combo-group_of_anonymous01_03.xi;
+    combo-group_of_anonymous03_01.xi;
+    combo-group_of_anonymous04_02.xi;
+    combo-group_of_anonymous06_01.xi;
+    combo-group_of_anonymous06_02.xi;
+    combo-group_of_anonymous07_02.xi;
+    combo-group_of_anonymous08_03.xi;
+    combo-group_of_anonymous09_02.xi;
+    comboerror-group_of_anonymous01_02.xi;
+    comboerror-group_of_anonymous01_08.xi;
+    comboerror-group_of_anonymous01_17.xi;
+    comboerror-group_of_anonymous04_01.xi;
+    comboerror-group_of_anonymous06_01.xi;
+    comboerror-group_of_anonymous07_04.xi;
+    comboerror-group_of_anonymous07_06.xi;
+    comboerror-group_of_anonymous08_01.xi;
+    comboerror-group_of_anonymous09_01.xi;
+}
+    

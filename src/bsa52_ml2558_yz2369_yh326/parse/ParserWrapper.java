@@ -26,9 +26,9 @@ public class ParserWrapper {
         parser p = new parser(x);
 
         Node node = (Node) p.parse().value;
-        if (extension.equals("xi") && node.isInterface) {
+        if (extension.equals(".parsed") && node.isInterface) {
             throw new ParsingException(1, 1, "Expected Xi program, found Xi interface.\n");
-        } else if (extension.equals("ixi") && !node.isInterface) {
+        } else if (extension.equals(".iparsed") && !node.isInterface) {
             throw new ParsingException(1, 1, "Expected Xi interface, found Xi program.\n");
         }
         if (Settings.parse) {

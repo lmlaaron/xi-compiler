@@ -1,5 +1,4 @@
 xic ("Testing at IR LEVEL") "-libpath $(testpath) --irgen" {
-    group_of_anonymous02__dimensions.xi;
     group_of_anonymous03__mult_call.xi;
     group_of_anonymous05__ir_hi_mult.xi;
     group_of_anonymous06__multiassign4.xi;
