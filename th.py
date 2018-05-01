@@ -2,13 +2,14 @@
 
 import subprocess
 import os
+import sys
 
 # Parent directories for each test category
 LEXER_TESTS = "./tests/a1"
 PARSER_TESTS = "./tests/a2"
 TYPECHECKER_TESTS = "./tests/a3"
 IRRUN_TESTS = "./tests/a4"
-ASSEM_TESTS = "./tests/a5"
+ASSM_TESTS = "./tests/a5"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -33,7 +34,7 @@ def print_stdout(stdout):
 def print_stderr(stderr):
     if stderr != None and len(stderr) > 0:
         old_print(bcolors['FAIL'] + stderr + bcolors['ENDC'])
-print = print_log
+#print = print_log
 
 
 
@@ -66,7 +67,7 @@ def run_shell(cmd, print_results = True, end_on_error = False):
     if print_results:
         print_stdout(out)
         print_stderr(err)
-    fail = (err != None and len(err) > 0) or (result.returncode !=0)
+    fail = (err != None and len(err) > 0) or (result.returncode != 0)
     if (fail and end_on_error):
         print("There was an error:")
         print_stderr(err)
@@ -75,7 +76,10 @@ def run_shell(cmd, print_results = True, end_on_error = False):
     return fail, out, err
 
 def rm_extension(path):
-    return path[:path.index(".")] if "." in path else path
+    while (path.rfind('/') < path.rfind('.')):
+        path = path[0:path.rfind('.')]
+    return path
+    # return path[:path.rindex(".")] if "." in path else path
 
 def rm_path(path):
     return os.path.split(path)[1]
@@ -130,13 +134,14 @@ def run_test_set(test_dir, grader_function):
     results = []
     for k in testcases.keys():
         # grader function returns (success, reason) tuple
-        print("Running {}".format(k)) # TODO: REMOVE
+        # print("Running {}".format(k)) # TODO: REMOVE
         results.append( (k,) + grader_function(testcases[k], answers[k]) )
     results = sorted(results)
     correct = 0
     for case, passed, reason in results:
         if passed:
-            print_log("Case {} : {} : {}".format(case, "PASS", reason))
+            # UNCOMMENT TO PRINT OUT PASSED TESTCASES
+            # print_log("Case {} : {} : {}".format(case, "PASS", reason))
             correct += 1
         else:
             print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
@@ -150,8 +155,8 @@ def run_test_set(test_dir, grader_function):
 # parse tests pass only if the output file's contents (besides whitespace)
 # completely match the given solution
 def parse_grader(testcase_f, answer_f):
-    run_shell(['./xic', '--parse', testcase_f], print_results=False)
-    result_file = rm_extension(rm_path(testcase_f)) + ".parsed"
+    run_shell(['./xic', '-O','--parse', testcase_f], print_results=False)
+    result_file = rm_extension(testcase_f) + ".parsed"
     try:
         result_contents = ''.join(open(result_file))
     except FileNotFoundError:
@@ -170,10 +175,11 @@ def parse_grader(testcase_f, answer_f):
 # or if neither did. More specific analysis isn't attempted
 def lex_grader(testcase_f, answer_f):
     run_shell(['./xic', '--lex', testcase_f], print_results=False)
-    result_file = rm_extension(rm_path(testcase_f)) + ".lexed"
+    result_file = rm_extension(testcase_f) + ".lexed"
     try:
         result_contents = ''.join(open(result_file))
     except FileNotFoundError:
+        print("couldnt find resulting file " + result_file + " " + testcase_f)
         return (False, "couldn't find generated .lexed file")
 
     run_shell(['rm', result_file], print_results=False)
@@ -195,11 +201,11 @@ def lex_grader(testcase_f, answer_f):
 # 'valid xi program'
 def typecheck_grader(testcase_f, answer_f):
     run_shell(['./xic', '--typecheck', testcase_f], print_results=False)
-    result_file = rm_extension(rm_path(testcase_f)) + ".typed"
+    result_file = rm_extension(testcase_f) + ".typed"
     try:
         result_contents = ''.join(open(result_file))
     except FileNotFoundError:
-        return (False, "couldn't find generated .typed file")
+        return (False, "couldn't find generated .typed file" + " " + result_file)
 
     run_shell(['rm', result_file], print_results=False)
 
@@ -288,32 +294,64 @@ def compile_and_run(xi_f, custom=False):
 def build():
     print("===CLEANING===")
     run_shell(['./clean'])
-    print("===BUILDING===")
+    print("===BUILDING PROJECT===")
     run_shell(['./xic-build'], print_results=False)
-
-
-if __name__ == "__main__":
-    print("Test Harness Begin")
-
-    build() # <-- TODO: uncomment!
-
-    # print("===RUNNING LEX TESTS===")
-    # run_test_set(LEXER_TESTS, lex_grader)
-    # print("===RUNNING PARSE TESTS===")
-    # run_test_set(PARSER_TESTS, parse_grader)
-    # print("====RUNNING TYPECHECK TESTS===")
-    # run_test_set(TYPECHECKER_TESTS, typecheck_grader)
-    # print("====RUNNING IRRUN TESTS====")
-    # run_test_set(IRRUN_TESTS, irrun_grader)
     print("====BUILDING BINARY RUNTIME====")
     run_shell(['make', '-C', 'runtime'], print_results=False)
 
-    # print("====RUNNING ASSM TESTS====    <-- This will take awhile...")
-    # print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
-    # run_test_set(ASSEM_TESTS, assm_grader) # reuse old tests because they test by output
+def help():
+    print(
+"""===== Options ==================================
+nobuild   -> don't rebuild project
+all       -> run ALL tests
+lex       -> run lex tests
+parse     -> run parse tests
+typecheck -> run typecheck tests
+ir        -> run ir simulation tests
+assm      -> run unoptimized assembly tests
+assmo     -> run optimized assembly tests
+================================================
+"""
+    )
 
-    print("==== RUNNING ASSM TESTS ====")
-    run_test_set(ASSEM_TESTS, optimization_grader)
+if __name__ == "__main__":
+
+    if "all" in sys.argv:
+        sys.argv.extend(['lex', 'parse', 'typecheck', 'ir', 'assm', 'assmo'])
+
+    if "help" in sys.argv or len(sys.argv) == 1:
+        help()
+        sys.exit(0)
+
+    print("Test Harness Begin")
+
+    if "nobuild" not in sys.argv:
+        build() # <-- TODO: uncomment!
+
+    if "lex" in sys.argv:
+        print("===RUNNING LEX TESTS===")
+        run_test_set(LEXER_TESTS, lex_grader)
+
+    if "parse" in sys.argv:
+        print("===RUNNING PARSE TESTS===")
+        run_test_set(PARSER_TESTS, parse_grader)
+
+    if "typecheck" in sys.argv:
+        print("====RUNNING TYPECHECK TESTS===")
+        run_test_set(TYPECHECKER_TESTS, typecheck_grader)
+
+    if "ir" in sys.argv:
+        print("====RUNNING IRRUN TESTS====")
+        run_test_set(IRRUN_TESTS, irrun_grader)
+
+    if "assm" in sys.argv:
+        print("====RUNNING ASSM TESTS====")
+        # print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
+        run_test_set(ASSM_TESTS, assm_grader) # reuse old tests because they test by output
+
+    if "assmo" in sys.argv:
+        print("==== RUNNING ASSM TESTS ====")
+        run_test_set(ASSM_TESTS, optimization_grader)
     
 
     print("Test Harness End!")
