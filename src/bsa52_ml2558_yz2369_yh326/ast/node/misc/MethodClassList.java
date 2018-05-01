@@ -1,4 +1,4 @@
-package bsa52_ml2558_yz2369_yh326.ast.node.method;
+package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -6,7 +6,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
-public class MethodList extends Node {
+public class MethodClassList extends Node {
 
     /**
      * Constructor
@@ -14,7 +14,7 @@ public class MethodList extends Node {
      * @param line
      * @param col
      */
-    public MethodList(int line, int col) {
+    public MethodClassList(int line, int col) {
         super(line, col);
     }
 
@@ -25,7 +25,7 @@ public class MethodList extends Node {
      * @param col
      * @param nodes
      */
-    public MethodList(int line, int col, Node... nodes) {
+    public MethodClassList(int line, int col, Node... nodes) {
         super(line, col, nodes);
     }
 

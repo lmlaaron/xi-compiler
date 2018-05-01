@@ -6,9 +6,9 @@ import java.io.FileReader;
 import java.nio.file.Paths;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Identifier;
-import bsa52_ml2558_yz2369_yh326.ast.node.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.gen.lexer;

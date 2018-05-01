@@ -26,21 +26,21 @@ import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
-public class VarDecl extends Stmt {
-    private Identifier id;
+public class VarDeclMult extends Stmt {
+    private List<Identifier> id;
     private TypeNode typeNode;
     private List<Expr> sizes;
 
-    public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
-        super(line, col, id, typeNode);
-        this.id = id;
-        this.typeNode = typeNode;
+    public VarDeclMult(int line, int col, List<Identifier> ids, TypeNode typeNode) {
+        super(line, col, typeNode);
+        //this.id = id;
+        //this.typeNode = typeNode;
     }
 
-    public Identifier getId() {
+    public List<Identifier> getId() {
         return id;
     }
-
+/*
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         addVarToTable(sTable, id.value);
@@ -122,4 +122,5 @@ public class VarDecl extends Stmt {
             return new IRESeq(new IRSeq(stmts), newArray);
         }
     }
+*/
 }

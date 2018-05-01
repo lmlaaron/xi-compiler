@@ -1,6 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.type;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
@@ -11,6 +12,11 @@ public class PrimitiveTypeNode extends TypeNode {
     public PrimitiveTypeNode(int line, int col, String primitiveType) {
         super(line, col, primitiveType);
         this.primitiveType = primitiveType;
+    }
+    
+    public PrimitiveTypeNode(int line, int col, Identifier type) {
+        super(line, col, type.value);
+        this.primitiveType = type.value;
     }
 
     @Override

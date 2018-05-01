@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.StmtList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;

@@ -1,11 +1,13 @@
 package bsa52_ml2558_yz2369_yh326.gen;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.*;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.interfc.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.literal.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.*;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.operator.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.operator.arithmetic.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.operator.comparison.*;
@@ -44,13 +46,13 @@ terminal String IDENTIFIER;
 terminal String STRING_LITERAL;
 terminal String CHARACTER_LITERAL;
 terminal String INTEGER_LITERAL;
-terminal TRUE, FALSE;
-terminal INT, BOOL;
+terminal String TRUE, FALSE;
+terminal String INT, BOOL;
 
-terminal IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
+terminal String IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE;
+  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT;
 
 // These two are not include in the give xi.cup
 terminal TIMES_SHIFT, ERROR;
@@ -61,7 +63,14 @@ nonterminal Identifier identifier;
 nonterminal UseList use_list;
 nonterminal Use use;
 
-nonterminal MethodList method_list;
+nonterminal MethodClassList method_class_list;
+nonterminal Node method_class;
+
+nonterminal XiClass xi_class;
+nonterminal ClassItemList class_item_list;
+nonterminal Node class_item;
+nonterminal ExprNonAtom dot;
+
 nonterminal Method method;
 nonterminal FunctionTypeDeclList method_args;
 
@@ -69,14 +78,15 @@ nonterminal InterfaceList interface_list;
 nonterminal Interface interface;
 
 nonterminal FunctionTypeDeclList func_type_list, func_type_rec;
-nonterminal VarDecl var_decl_empty, var_decl_array;
+nonterminal VarDecl var_decl, var_decl_empty, var_decl_array;
+nonterminal VarDeclMult var_decl_mult;
+nonterminal List idlist;
 
 nonterminal RetvalList retvals_list, retvals;
 
 nonterminal TypeNode type_empty;
 nonterminal PrimitiveTypeNode primitive_type;
 nonterminal ArrayTypeNode array_type, array_type_empty;
-
 nonterminal ArrayTypeNode box, boxes, box_empty, boxes_empty;
 
 nonterminal Expr subscript;
@@ -106,9 +116,9 @@ nonterminal Node nothing;
 
 start with program;
 
-program          ::= use_list:ul method_list:ml
+program          ::= use_list:ul method_class_list:ml
                        {:RESULT = new Node(ulleft, ulright, ul, ml);:}
-                   | method_list:ml
+                   | method_class_list:ml
                        {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
                    | interface_list:il
                        {:RESULT = new Node(illeft, ilright, il);
@@ -125,12 +135,32 @@ use              ::= USE:u identifier:id
                    | USE:u identifier:id SEMICOLON
                        {:RESULT = new Use(uleft, uright, id);:};
 
+/* ================= METHOD OR CLASS ======================================== */
+method_class_list::= method_class:m method_class_list:ml
+                       {:RESULT = new MethodClassList(mleft, mright, m); RESULT.addChildren(ml);:}
+                   | method_class:m
+                       {:RESULT = new MethodClassList(mleft, mright, m);:};
+method_class     ::= method:m                {:RESULT = m;:}
+                   | xi_class:c              {:RESULT = c;:};
+
+/* ================= CLASS ================================================== */
+xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_list:cl CLOSE_BRACE
+                       {:RESULT = new XiClass(cleft, cright, id); RESULT.addChildren(cl);:}
+                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE class_item_list:cl CLOSE_BRACE
+                       {:RESULT = new XiClass(cleft, cright, id, ex); RESULT.addChildren(cl);:};
+class_item_list  ::= class_item:c
+                       {:RESULT = new ClassItemList(cleft, cright, c);:}
+                   | class_item:c class_item_list:cl
+                       {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
+class_item       ::= var_decl:v              {:RESULT = v;:}
+                   | method:m                {:RESULT = m;:};
+dot              ::= identifier:id DOT:d identifier:id2
+                       {:RESULT = new ExprNonAtom(idleft, idright, new ObjectOperator(dleft, dright), id, id2);:}
+                   | identifier:id DOT:d method_call:m
+                       {:RESULT = new ExprNonAtom(idleft, idright, new ObjectOperator(dleft, dright), id, m);:};
+
 /* ================= METHOD ================================================= */
 
-method_list      ::= method:m method_list:ml
-                       {:RESULT = new MethodList(mleft, mright, m); RESULT.addChildren(ml);:}
-                   | method:m
-                       {:RESULT = new MethodList(mleft, mright, m);:};
 method           ::= identifier:id method_args:args retvals_list:rets block:b
                        {:RESULT = new Method(idleft, idright, id, args, rets, b);:};
 
@@ -149,15 +179,18 @@ interface        ::= identifier:id method_args:args retvals_list:mr
 /* ================= FUNCTION TYPE DECLARATION ============================== */
 // The following are for variable declaration in func args and retvals. Arrays
 // must be "type_empty"-"array_type_empty"-"boxes_empty" (bracket must be empty).
-func_type_list   ::= func_type_rec:vdr        {:RESULT = vdr;:}
+func_type_list   ::= func_type_rec:vdr       {:RESULT = vdr;:}
                    | nothing;
 func_type_rec    ::= var_decl_empty:vd COMMA func_type_rec:vdr
                        {:RESULT = new FunctionTypeDeclList(vdleft, vdright, vd); RESULT.addChildren(vdr);:}
                    | var_decl_empty:vd
                        {:RESULT = new FunctionTypeDeclList(vdleft, vdright, vd);:};
 
-
 /* ================= VARIABLE DECLARATION =================================== */
+var_decl         ::= var_decl_array:v        {:RESULT = v;:} // a:int[3][], a:int[3], ...
+                   | var_decl_empty:v        {:RESULT = v;:}; // a:int[][], a:int, ...
+                   //| var_decl_mult:v         {:RESULT = v;:};
+
 var_decl_empty   ::= identifier:id COLON type_empty:t
                        {:RESULT = new VarDecl(idleft, idright, id, t);:};
 
@@ -165,6 +198,16 @@ var_decl_empty   ::= identifier:id COLON type_empty:t
 var_decl_array   ::= identifier:id COLON array_type:t
                        {:RESULT = new VarDecl(idleft, idright, id, t);:};
 
+/*var_decl_mult    ::= idlist:il COLON array_type:t
+                       {:RESULT = new VarDeclMult(illeft, ilright, il, t);:}
+                   | idlist:il COLON type_empty:t
+                       {:RESULT = new VarDeclMult(illeft, ilright, il, t);:};
+
+idlist           ::= identifier:id
+                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id);:}
+                   | identifier:id idlist:il
+                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id); RESULT.addAll(il):};
+*/
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
 retvals_list     ::= COLON retvals:rv        {:RESULT = rv;:}
@@ -176,15 +219,16 @@ retvals          ::= type_empty:t COMMA retvals:rv
 
 /* ================= TYPE =================================================== */
 primitive_type   ::= INT:a                   {:RESULT = new PrimitiveTypeNode(aleft, aright, "int");:}
-                   | BOOL:a                  {:RESULT = new PrimitiveTypeNode(aleft, aright, "bool");:};
+                   | BOOL:a                  {:RESULT = new PrimitiveTypeNode(aleft, aright, "bool");:}
+                   | identifier:a            {:RESULT = new PrimitiveTypeNode(aleft, aright, a);:};
 
 // Expressions allowed in array brackets, but once empty, cannot be non-empty again
 array_type       ::= primitive_type:pt boxes:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
 // No expressions allowed in array brackets
-type_empty       ::= primitive_type:pt        {:RESULT = pt;:}
-                   | array_type_empty:at      {:RESULT = at;:};
+type_empty       ::= primitive_type:pt       {:RESULT = pt;:}
+                   | array_type_empty:at     {:RESULT = at;:};
 array_type_empty ::= primitive_type:pt boxes_empty:bs
                        {:RESULT = bs; RESULT.addHead(pt);:};
 
@@ -238,17 +282,17 @@ stmt_list        ::= stmt:st stmt_list:sl
 stmt             ::= stmt_nosub:s            {:RESULT = s;:}
                    | if_statement:s          {:RESULT = s;:}
                    | if_else:s               {:RESULT = s;:}
-                   | while_statement:s      {:RESULT = s;:};
+                   | while_statement:s       {:RESULT = s;:};
 stmt_noif        ::= stmt_nosub:s            {:RESULT = s;:}
                    | if_else_noif:s          {:RESULT = s;:}
                    | while_noif:s            {:RESULT = s;:};
 stmt_nosub       ::= stmt_core:s             {:RESULT = s;:}
                    | stmt_core:s SEMICOLON   {:RESULT = s;:};
 stmt_core        ::= block:s                 {:RESULT = s;:}
-                   | var_decl_array:s        {:RESULT = s;:} // a:int[3][] or a:int[3]
-                   | var_decl_empty:s        {:RESULT = s;:} // a:int[][]
+                   | var_decl:s              {:RESULT = s;:}
                    | assignment:s            {:RESULT = s;:}
-                   | method_call:s           {:RESULT = s;:};
+                   | method_call:s           {:RESULT = s;:}
+                   | dot:s                   {:RESULT = s;:};
 
 /* ================= ASSIGNMENT ============================================= */
 // assign_to_single_list: left hand side
@@ -320,7 +364,9 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
                    | method_call:mc        {:RESULT = mc;:}
-                   | length_expr:ls        {:RESULT = ls;:};
+                   | length_expr:ls        {:RESULT = ls;:}
+                   | NEW:n dot:d           {:RESULT = new NewObject(nleft, nright, d);:}
+                   | dot:d                 {:RESULT = d;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};

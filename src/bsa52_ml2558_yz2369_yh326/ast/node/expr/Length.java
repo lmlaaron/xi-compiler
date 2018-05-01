@@ -4,7 +4,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Keyword;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;

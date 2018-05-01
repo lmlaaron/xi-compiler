@@ -1,12 +1,12 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.stmt;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Get;
-import bsa52_ml2558_yz2369_yh326.ast.node.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
-import bsa52_ml2558_yz2369_yh326.ast.node.Underscore;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Subscript;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Get;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Underscore;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;

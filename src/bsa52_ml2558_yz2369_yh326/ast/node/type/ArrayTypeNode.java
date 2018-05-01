@@ -1,6 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.type;
 
-import bsa52_ml2558_yz2369_yh326.ast.node.Bracket;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Bracket;
 
 public class ArrayTypeNode extends TypeNode {
 

@@ -75,6 +75,9 @@ SingleCharacter = [^\r\n\'\\]
   "return"          { return symbol(RETURN,        yytext()); }
   "use"             { return symbol(USE,           yytext()); }
   "length"          { return symbol(LENGTH,        yytext()); }
+  "class"           { return symbol(CLASS,         yytext()); }
+  "extends"         { return symbol(EXTENDS,       yytext()); }
+  "new"             { return symbol(NEW,           yytext()); }
   "+"               { return symbol(PLUS,          yytext()); }
   "-"               { return symbol(MINUS,         yytext()); }
   "*"               { return symbol(TIMES,         yytext()); }
@@ -101,6 +104,7 @@ SingleCharacter = [^\r\n\'\\]
   ","               { return symbol(COMMA,         yytext()); }
   ";"               { return symbol(SEMICOLON,     yytext()); }
   "_"               { return symbol(UNDERSCORE,    yytext()); }
+  "."               { return symbol(DOT,           yytext()); }
 
   "\""              { yybegin(YYSTRING); column = yycolumn; string.setLength(0);}
   \'                { yybegin(CHARLITERAL); column = yycolumn; }

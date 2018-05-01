@@ -23,12 +23,12 @@ if [ ! -f $dir/src/$pkg/gen/parser.java ]; then
 fi
 
 # Build runtime library
-echo "========== BUILDING RUNTIME LIBRARY =========="
-cur=`pwd`
-cd $dir/runtime/
-make clean
-make
-cd $cur
+#echo "========== BUILDING RUNTIME LIBRARY =========="
+#cur=`pwd`
+#cd $dir/runtime/
+#make clean
+#make
+#cd $cur
 
 # Build main function
 echo "========== BUILDING MAIN =========="

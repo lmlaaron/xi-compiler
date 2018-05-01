@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;

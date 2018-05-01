@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.method.MethodList;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.MethodClassList;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -88,7 +88,7 @@ public class Node {
         }
     }
 
-    public void loadMethods(SymbolTable sTable) throws Exception {
+    public void loadMethods(SymbolTable sTable) throws Exception {System.out.println(this.getClass());
         for (Node child : children) {
             if (child != null) {
                 child.loadMethods(sTable);
@@ -135,7 +135,7 @@ public class Node {
      */
     public IRNode translateProgram() {
         for (Node child : children) {
-            if (child != null && child instanceof MethodList) {
+            if (child != null && child instanceof MethodClassList) {
                 child.fileName = fileName;
                 return child.translate();
             }

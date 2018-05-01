@@ -1,9 +1,9 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.interfc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
