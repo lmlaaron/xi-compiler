@@ -30,13 +30,17 @@ public class ExprNonAtom extends Expr {
 
     @Override
     public IRNode translate() {
-        IRExpr[] translatedOperands = new IRExpr[operands.size()];
-        for (int i = 0; i < operands.size(); i++)
-            translatedOperands[i] = (IRExpr) operands.get(i).translate();
-
-        return operator.translateWithOperands(translatedOperands);
+    		if (this.operator.value.equals(".")) {
+    			// TODO need to implement dynamic dispatch here
+    			return null;
+    		} else {
+    			IRExpr[] translatedOperands = new IRExpr[operands.size()];
+    			for (int i = 0; i < operands.size(); i++)
+    				translatedOperands[i] = (IRExpr) operands.get(i).translate();
+    			return operator.translateWithOperands(translatedOperands);
+    		}
     }
-
+    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // to work with the operator, first we need to know the types of the operands
