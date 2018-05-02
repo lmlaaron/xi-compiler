@@ -1,0 +1,12 @@
+(
+    ()
+    (
+        (
+            class C(
+                (
+                    (returns(a int) (int) ( return a ) )
+                )
+            )
+        )
+    )
+)

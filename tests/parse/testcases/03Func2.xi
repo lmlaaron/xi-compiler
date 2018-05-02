@@ -1,3 +1,3 @@
-foo (a : int, b: int) bool {
+foo (a : int, b: int) : bool {
     return a > b
 }
