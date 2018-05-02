@@ -1,0 +1,30 @@
+=========================
+So far we have tested for
+=========================
+
+lexing each individual keyword
+
+setting default values to classes, primitives, arrays
+
+correct/incorrect use of 'this' keyword
+
+correct/incorrect use of break/continue keywords
+
+accessing class attributes from within that class's file only
+
+using parent class's method
+
+
+=======
+TODOS:
+=======
+
+testing global variables
+
+ensure global variables can't be defined in interface files
+
+ensure multiple interface files can't define the same class
+
+check subtyping rules for local variables and function arguments
+
+others?
