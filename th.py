@@ -5,11 +5,11 @@ import os
 import sys
 
 # Parent directories for each test category
-LEXER_TESTS = "./tests/a1"
-PARSER_TESTS = "./tests/a2"
-TYPECHECKER_TESTS = "./tests/a3"
-IRRUN_TESTS = "./tests/a4"
-ASSM_TESTS = "./tests/a5"
+LEXER_TESTS = "./tests/lex"
+PARSER_TESTS = "./tests/parse"
+TYPECHECKER_TESTS = "./tests/typecheck"
+IRRUN_TESTS = "./tests/irrun"
+ASSM_TESTS = "./tests/assm"
 
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
@@ -220,7 +220,7 @@ def typecheck_grader(testcase_f, answer_f):
         if answer_valid:
             message = "Result should have been valid, but wasn't"
         else:
-            message = "Result shouldn't hae been valid, but was"
+            message = "Result shouldn't have been valid, but was"
         return (False, message)
 
 def irrun_grader(testcase_f, answer_f):
