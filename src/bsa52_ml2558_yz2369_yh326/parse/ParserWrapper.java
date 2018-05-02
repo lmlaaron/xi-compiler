@@ -79,7 +79,7 @@ public class ParserWrapper {
         if (node == null) {
             printer.startList();
             printer.endList();
-        } else if (node.children == null) {
+        } else if (node.children == null) {System.out.println(node.value);
             printer.printAtom(node.value);
         } else {
             printer.startList();

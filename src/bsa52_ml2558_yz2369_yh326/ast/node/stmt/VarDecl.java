@@ -27,39 +27,46 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class VarDecl extends Stmt {
-    private Identifier id;
+    private List<Identifier> ids;
     private TypeNode typeNode;
     private List<Expr> sizes;
 
     public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
-        this.id = id;
+        this.ids = new ArrayList<>();
+        this.ids.add(id);
+        this.typeNode = typeNode;
+    }
+    
+    public VarDecl(int line, int col, List<Identifier> ids, TypeNode typeNode) {
+        super(line, col);
+        this.children.addAll(ids);
+        this.children.add(typeNode);
+        this.ids = new ArrayList<>(ids);
         this.typeNode = typeNode;
     }
 
-    public Identifier getId() {
-        return id;
+    public List<Identifier> getId() {
+        return ids;
     }
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        addVarToTable(sTable, id.value);
+        // Get NodeType from typeNode
+        // For example, from Node ([] int) get NodeType int[]
+        VariableType t = (VariableType) typeNode.typeCheck(sTable);
+        for (Identifier id : ids)
+            if (sTable.addVar(id.value, t) == false)
+                throw new AlreadyDefinedException(line, col, id.value);
+        sizes = t.getSizes();
         return new UnitType();
     }
 
     public NodeType typeCheckAndReturn(SymbolTable sTable) throws Exception {
-        return addVarToTable(sTable, id.value);
-    }
-
-    public VariableType addVarToTable(SymbolTable sTable, String id) throws Exception {
-        // Get NodeType from typeNode
-        // For example, from Node ([] int) get NodeType int[]
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
-        // Add the combination to the context.
-        // If it's already in the context, an exception is thrown.
-        if (sTable.addVar(id, t) == false) {
-            throw new AlreadyDefinedException(line, col, id);
-        }
+        for (Identifier id : ids)
+            if (sTable.addVar(id.value, t) == false)
+                throw new AlreadyDefinedException(line, col, id.value);
         sizes = t.getSizes();
         return t;
     }
@@ -85,13 +92,29 @@ public class VarDecl extends Stmt {
         }
 
         IRExpr t = generateIRNode(sizesExpr, 0);
-        IRTemp var = new IRTemp(id.getId());
-        if (t == null) {
-            return var;
+        
+        if (ids.size() == 1) {
+            // Only 1 variable. "a: int"
+            IRTemp var = new IRTemp(ids.get(0).getId());
+            if (t == null) {
+                return var;
+            } else {
+                stmts.add(new IRMove(var, t));
+                return new IRESeq(new IRSeq(stmts), var);
+            }
         } else {
-            stmts.add(new IRMove(var, t));
-            return new IRESeq(new IRSeq(stmts), var);
+            // More than one variable. "a, b: int".
+            if (t == null) {
+                return new IRSeq();
+            } else {
+                for (Identifier id : ids) {
+                    IRTemp var = new IRTemp(id.getId());
+                    stmts.add(new IRMove(var, t));
+                }
+                return new IRSeq(stmts);
+            }
         }
+        
     }
 
     private IRExpr generateIRNode(List<IRExpr> sizesExpr, int i) {

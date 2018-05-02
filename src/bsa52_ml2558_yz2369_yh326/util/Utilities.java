@@ -8,13 +8,10 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
-import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
-import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
-import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
@@ -35,7 +32,7 @@ public class Utilities {
         for (Node child : xiClass.children) {
             if (child instanceof VarDecl) {
                 VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
-                xiClass.vars.put(((VarDecl) child).getId().value, vType);
+                ((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
             } else if (child instanceof Method) {
                 child.loadMethods(sTable);
                 String id = ((Method) child).id.value;

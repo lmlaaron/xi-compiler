@@ -2,13 +2,21 @@
 
 rm -rf temp
 mkdir temp
-if [ $1 == "a3" ] || [ $1 == "a4" ] || [ $1 == "a5" ]; then
-    pkg=$1
+if [ $(echo $1 | cut -c1-1) == "a" ]; then
+    if [ $1 == "a3" ]; then
+        pkg=typecheck
+    elif [ $1 == "a4" ]; then
+        pkg=irrun
+    elif [ $1 == "a5" ]; then
+        pkg=assm
+    elif [ $1 == "a6" ]; then
+        pkg=assm_opt
+    fi
     mkdir temp/xi
     cp tests/$pkg/testcases/* temp/xi
     cp tests/$pkg/answers/* temp/xi
     xth -compilerpath . -testpath temp/xi -workpath temp tests/$pkg/xthScript
-elif [ $1 == "f2" ] || [ $1 == "f3" ] || [ $1 == "f4" ] || [ $1 == "f5" ]; then
+elif [ $(echo $1 | cut -c1-1) == "f" ]; then
     an=$(echo $1 | cut -c2-2)
     pkg=failedcases_a$an
     xth -compilerpath . -testpath tests/$pkg -workpath temp tests/$pkg/xthScript

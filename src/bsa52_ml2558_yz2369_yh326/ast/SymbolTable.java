@@ -23,8 +23,10 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
  *
  */
 public class SymbolTable {
+    
+    private enum LogType {VAR, FUNC};
 
-    private Stack<String> logs;
+    private Stack<Tuple<LogType, String>> logs;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
     private Map<String, XiClass> classTable;
@@ -49,8 +51,13 @@ public class SymbolTable {
     public NodeType getCurFuncReturnType() {
         if (curFunc == null) {
             throw new RuntimeException("Unexpected error.");
+        } else if (funcTable.containsKey(curFunc)) {
+            return funcTable.get(curFunc).t2;
+        } else if (curClass != null && curClass.funcs.containsKey(curFunc)) {
+            return curClass.funcs.get(curFunc).t2;
+        } else {
+            throw new RuntimeException("Unexpected error.");
         }
-        return funcTable.get(curFunc).t2;
     }
 
     public void setCurFunction(String curFunc) {
@@ -66,11 +73,16 @@ public class SymbolTable {
     }
 
     public boolean setImplemented(String name) {
-        if (funcImplemented.contains(name)) {
-            return false;
-        } else {
-            funcImplemented.add(name);
+        if (curClass != null) {
+            System.out.println("SET CLASS METHOD WHETHER IMPLEMENTED");
             return true;
+        } else {
+            if (funcImplemented.contains(name)) {
+                return false;
+            } else {
+                funcImplemented.add(name);
+                return true;
+            }
         }
     }
 
@@ -87,11 +99,15 @@ public class SymbolTable {
      */
     public void exitBlock() {
         while (!logs.isEmpty()) {
-            String last = logs.pop();
+            Tuple<LogType, String> last = logs.pop();
             if (last == null) {
                 break;
             } else {
-                varTable.remove(last);
+                if (last.t1 == LogType.FUNC) {
+                    funcTable.remove(last.t2);
+                } else {
+                    varTable.remove(last.t2);
+                }
             }
         }
         level--;
@@ -107,7 +123,7 @@ public class SymbolTable {
         } else {
             Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
             varTable.put(name, value);
-            logs.push(name);
+            logs.push(new Tuple<>(LogType.VAR, name));
             return true;
         }
     }
@@ -133,7 +149,7 @@ public class SymbolTable {
             ret = new ListVariableType(rets);
         }
 
-        if (funcTable.containsKey(name)) {
+        if (funcTable.containsKey(name)) {System.out.println(logs);
             // Functions with same name can appear, but must have same signature
             Tuple<NodeType, NodeType> type = funcTable.get(name);
             if (type.t1.equals(arg) && type.t2.equals(ret)) {
@@ -142,7 +158,8 @@ public class SymbolTable {
                 return false;
             }
         } else {
-            funcTable.put(name, new Tuple<NodeType, NodeType>(arg, ret));
+            funcTable.put(name, new Tuple<>(arg, ret));
+            logs.push(new Tuple<>(LogType.FUNC, name));
             return true;
         }
     }
@@ -182,7 +199,9 @@ public class SymbolTable {
      * @throws FunctionNotDefinedException
      */
     public Tuple<NodeType, NodeType> getFunctionType(String funcName) {
-        if (funcTable.containsKey(funcName)) {
+        if (curClass != null && curClass.funcs.containsKey(funcName)) {
+            return curClass.funcs.get(funcName);
+        } else if (funcTable.containsKey(funcName)) {
             return funcTable.get(funcName);
         } else {
             return null;
