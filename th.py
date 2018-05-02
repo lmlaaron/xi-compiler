@@ -220,7 +220,7 @@ def typecheck_grader(testcase_f, answer_f):
         if answer_valid:
             message = "Result should have been valid, but wasn't"
         else:
-            message = "Result shouldn't hae been valid, but was"
+            message = "Result shouldn't have been valid, but was"
         return (False, message)
 
 def irrun_grader(testcase_f, answer_f):
