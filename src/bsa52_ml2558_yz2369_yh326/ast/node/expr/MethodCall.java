@@ -9,6 +9,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import bsa52_ml2558_yz2369_yh326.exception.MismatchNumberException;
 import bsa52_ml2558_yz2369_yh326.exception.NotDefinedException;
@@ -35,8 +36,8 @@ public class MethodCall extends Expr {
     public MethodCall(int line, int col, Identifier id) {
         super(line, col, id);
         this.id = id;
-        this.argTypes = new ArrayList<VariableType>();
-        this.retTypes = new ArrayList<VariableType>();
+        this.argTypes = new ArrayList<>();
+        this.retTypes = new ArrayList<>();
     }
 
     @Override

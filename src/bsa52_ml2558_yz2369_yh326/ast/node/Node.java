@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.MethodClassList;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
@@ -16,8 +17,8 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
  *
  */
 public class Node {
-    protected int line;
-    protected int col;
+    public int line;
+    public int col;
 
     public String value;
     public List<Node> children;
@@ -80,6 +81,32 @@ public class Node {
      *            the complete symbol table for the scope of this node
      * @throws Exception
      */
+    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+        for (Node child : children) {
+            if (child != null) {
+                child.loadClasses(sTable, libPath);
+            }
+        }
+    }
+
+    public void loadClasses(SymbolTable sTable) throws Exception {
+        for (Node child : children) {
+            if (child != null && child instanceof XiClass) {
+                child.loadClasses(sTable);
+            }
+        }
+    }
+    
+    
+    /**
+     * Load methods in use statements and methods defined in the file into the
+     * symbol table. This must be called before typeCheck is called. "Use",
+     * "Interface", and "Method" class should override this method.
+     * 
+     * @param sTable
+     *            the complete symbol table for the scope of this node
+     * @throws Exception
+     */
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         for (Node child : children) {
             if (child != null) {
@@ -88,7 +115,7 @@ public class Node {
         }
     }
 
-    public void loadMethods(SymbolTable sTable) throws Exception {System.out.println(this.getClass());
+    public void loadMethods(SymbolTable sTable) throws Exception {
         for (Node child : children) {
             if (child != null) {
                 child.loadMethods(sTable);

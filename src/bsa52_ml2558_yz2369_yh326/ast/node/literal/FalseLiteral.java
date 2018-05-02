@@ -4,7 +4,7 @@ import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.ExprAtom;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -27,6 +27,6 @@ public class FalseLiteral extends ExprAtom {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        return new VariableType(Primitives.BOOL);
+        return new PrimitiveType(Primitives.BOOL);
     }
 }

@@ -17,9 +17,9 @@ public class ListVariableType extends NodeType {
         this.variableTypes = variableTypes;
     }
 
-    public ListVariableType(VariableType... variableTypes) {
-        this.variableTypes = new ArrayList<VariableType>();
-        for (VariableType variableType : variableTypes) {
+    public ListVariableType(PrimitiveType... variableTypes) {
+        this.variableTypes = new ArrayList<>();
+        for (PrimitiveType variableType : variableTypes) {
             this.variableTypes.add(variableType);
         }
     }

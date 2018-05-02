@@ -22,15 +22,6 @@ public class UseList extends Node {
     }
 
     @Override
-    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
-        for (Node child : children) {
-            if (child != null) {
-                child.loadMethods(sTable, libPath);
-            }
-        }
-    }
-
-    @Override
     public IRNode translate() {
         return null;
     }

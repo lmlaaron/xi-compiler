@@ -5,11 +5,16 @@ import java.util.stream.Collectors;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
+import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
@@ -24,6 +29,22 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class Utilities {
+    public static void loadClassContent(XiClass xiClass, SymbolTable sTable)
+            throws Exception {
+        sTable.enterBlock();
+        for (Node child : xiClass.children) {
+            if (child instanceof VarDecl) {
+                VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
+                xiClass.vars.put(((VarDecl) child).getId().value, vType);
+            } else if (child instanceof Method) {
+                child.loadMethods(sTable);
+                String id = ((Method) child).id.value;
+                xiClass.funcs.put(id, sTable.getFunctionType(id));
+            }
+        }
+        sTable.exitBlock();
+    }
+    
     /**
      * Load the given method into the symbol table. This is different from the
      * loadMethods method in Node class, which only does the first step - by reading
@@ -38,19 +59,14 @@ public class Utilities {
     public static boolean loadMethod(SymbolTable sTable, String id, FunctionTypeDeclList args, RetvalList rets)
             throws Exception {
         sTable.enterBlock();
-        List<VariableType> argList = new ArrayList<VariableType>();
-        List<VariableType> retList = new ArrayList<VariableType>();
-        if (args != null) {
-            for (Node varDecl : args.children) {
+        List<VariableType> argList = new ArrayList<>();
+        List<VariableType> retList = new ArrayList<>();
+        if (args != null)
+            for (Node varDecl : args.children)
                 argList.add((VariableType) ((VarDecl) varDecl).typeCheckAndReturn(sTable));
-            }
-        }
-        if (rets != null) {
-            for (Node varDecl : rets.children) {
+        if (rets != null)
+            for (Node varDecl : rets.children)
                 retList.add((VariableType) ((TypeNode) varDecl).typeCheck(sTable));
-
-            }
-        }
         sTable.exitBlock();
         return sTable.addFunc(id, argList, retList);
     }

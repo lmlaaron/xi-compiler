@@ -5,7 +5,7 @@ import java.util.List;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.TypeInconsistentException;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
@@ -34,18 +34,18 @@ public class ArrayLiteral extends ExprAtom {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // The following is not specified in the Xi type system
-        VariableType t;
+        PrimitiveType t;
         if (children.size() == 0) {
-            t = new VariableType(Primitives.EMPTY);
+            t = new PrimitiveType(Primitives.EMPTY);
         } else {
-            t = (VariableType) children.get(0).typeCheck(sTable);
+            t = (PrimitiveType) children.get(0).typeCheck(sTable);
         }
         for (int i = 1; i < children.size(); i++) {
             if (!t.equals(children.get(i).typeCheck(sTable))) {
                 throw new TypeInconsistentException(line, col, "Array literal");
             }
         }
-        return new VariableType(t.getType(), t.getLevel() + 1);
+        return new PrimitiveType(t.getType(), t.getLevel() + 1);
     }
 
     @Override

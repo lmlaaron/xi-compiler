@@ -33,10 +33,10 @@ public class Return extends Stmt {
             if (actual instanceof VariableType) {
                 actual = (VariableType) actual;
             } else {
-                throw new MatchTypeException(line, col, "int, bool, or array", actual);
+                throw new MatchTypeException(line, col, "int, bool, Object, or their array", actual);
             }
         } else {
-            List<VariableType> listType = new ArrayList<VariableType>();
+            List<VariableType> listType = new ArrayList<>();
             for (int i = 1; i < children.size(); i++) {
                 listType.add((VariableType) children.get(i).typeCheck(sTable));
             }

@@ -30,6 +30,11 @@ public class MethodClassList extends Node {
     }
 
     @Override
+    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+        loadClasses(sTable);
+    }
+    
+    @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         loadMethods(sTable);
     }
@@ -38,7 +43,13 @@ public class MethodClassList extends Node {
     public IRNode translate() {
         IRCompUnit irNode = new IRCompUnit("_" + fileName);
         for (Node child : children) {
-            irNode.appendFunc((IRFuncDecl) child.translate());
+            IRNode childIR = child.translate();
+            if (childIR instanceof IRFuncDecl) {
+                irNode.appendFunc((IRFuncDecl) child.translate());
+            } else {
+                // I have no item what to do here - yz2369
+            }
+            
         }
         return irNode;
     }

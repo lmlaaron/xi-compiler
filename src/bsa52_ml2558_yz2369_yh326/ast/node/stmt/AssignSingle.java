@@ -11,6 +11,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.AssignTypeException;
 import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
@@ -53,7 +54,7 @@ public class AssignSingle extends Stmt {
         // TODO: this is actually not following the type system, where are are asked
         // to return UnitType for underscore.
         if (lhs instanceof Underscore) {
-            return new VariableType(Primitives.ANY);
+            return new PrimitiveType(Primitives.ANY);
         }
 
         VariableType leftType = null;

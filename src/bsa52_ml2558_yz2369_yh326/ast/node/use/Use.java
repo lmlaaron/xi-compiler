@@ -21,6 +21,12 @@ public class Use extends Node {
         super(line, col, new Keyword(line, col, "use"), id);
         this.id = id;
     }
+    
+    @Override
+    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+        System.out.println("TO BE IMPLEMENTED.");
+        
+    }
 
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {

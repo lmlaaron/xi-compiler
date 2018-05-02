@@ -10,6 +10,7 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 public class TypecheckerWrapper {
     public static Node Typechecking(Node ast, String outputFile) throws Exception {
         SymbolTable sTable = new SymbolTable();
+        ast.loadClasses(sTable, Settings.libPath);
         ast.loadMethods(sTable, Settings.libPath);
         ast.typeCheck(sTable);
         if (Settings.typeCheck)

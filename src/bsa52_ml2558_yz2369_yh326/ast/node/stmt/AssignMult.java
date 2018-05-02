@@ -13,6 +13,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.AssignTypeException;
 import edu.cornell.cs.cs4120.xic.ir.*;
 
@@ -48,10 +49,10 @@ public class AssignMult extends Stmt {
         NodeType rightType = expr.typeCheck(sTable);
 
         // Multi-assign: LHS can only be comma separated varDecl or underscores.
-        List<VariableType> types = new ArrayList<VariableType>();
+        List<VariableType> types = new ArrayList<>();
         for (Node child : lhs.children) {
             if (child instanceof Underscore) {
-                types.add(new VariableType(Primitives.ANY));
+                types.add(new PrimitiveType(Primitives.ANY));
             } else if (child instanceof VarDecl) {
                 types.add((VariableType) ((VarDecl) child).typeCheckAndReturn(sTable));
             }

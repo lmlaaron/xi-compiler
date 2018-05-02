@@ -14,6 +14,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
@@ -24,7 +25,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 
 public class Method extends Node {
-    private Identifier id;
+    public Identifier id;
     private FunctionTypeDeclList args;
     private RetvalList rets;
     private StmtList block;
@@ -47,8 +48,8 @@ public class Method extends Node {
         this.args = args;
         this.rets = rets;
         this.block = b;
-        this.argTypes = new ArrayList<VariableType>();
-        this.retTypes = new ArrayList<VariableType>();
+        this.argTypes = new ArrayList<>();
+        this.retTypes = new ArrayList<>();
     }
 
     @Override
@@ -71,22 +72,12 @@ public class Method extends Node {
         }
 
         // Loading arguments into the symbol table
-        if (args != null) {
-            for (Node varDecl : args.children) {
-                VarDecl funcVarDecl = (VarDecl) varDecl;
-                VariableType t = (VariableType) funcVarDecl.typeCheckAndReturn(sTable);
-                argTypes.add(t);
-                sTable.addVar(funcVarDecl.getId().value, t);
-            }
-        }
-
-        if (rets != null) {
-            for (Node varDecl : rets.children) {
-                TypeNode funcVarDecl = (TypeNode) varDecl;
-                VariableType t = (VariableType) funcVarDecl.typeCheck(sTable);
-                retTypes.add(t);
-            }
-        }
+        if (args != null)
+            for (Node varDecl : args.children)
+                argTypes.add((VariableType) ((VarDecl) varDecl).typeCheckAndReturn(sTable));
+        if (rets != null)
+            for (Node varDecl : rets.children)
+                retTypes.add((VariableType) ((TypeNode) varDecl).typeCheck(sTable));
 
         // Type check the statement list
         NodeType actual = new UnitType();

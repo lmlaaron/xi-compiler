@@ -9,7 +9,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import edu.cornell.cs.cs4120.xic.ir.IRCJump;
@@ -35,7 +35,7 @@ public class If extends Stmt {
     @Override
     public NodeType typeCheck(SymbolTable st) throws Exception {
         NodeType tg = condition.typeCheck(st);
-        NodeType boolType = new VariableType(Primitives.BOOL);
+        NodeType boolType = new PrimitiveType(Primitives.BOOL);
 
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);

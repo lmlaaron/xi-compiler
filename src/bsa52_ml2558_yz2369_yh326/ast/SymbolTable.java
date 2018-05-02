@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
@@ -26,7 +27,9 @@ public class SymbolTable {
     private Stack<String> logs;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
+    private Map<String, XiClass> classTable;
     private Set<String> funcImplemented;
+    private XiClass curClass;
     private String curFunc;
     private int level;
 
@@ -34,9 +37,10 @@ public class SymbolTable {
      * 
      */
     public SymbolTable() {
-        logs = new Stack<String>();
-        varTable = new HashMap<String, Tuple<VariableType, Integer>>();
-        funcTable = new HashMap<String, Tuple<NodeType, NodeType>>();
+        logs = new Stack<>();
+        varTable = new HashMap<>();
+        funcTable = new HashMap<>();
+        classTable = new HashMap<>();
         funcImplemented = new HashSet<String>();
         curFunc = null;
         level = 0;
@@ -51,6 +55,14 @@ public class SymbolTable {
 
     public void setCurFunction(String curFunc) {
         this.curFunc = curFunc;
+    }
+
+    public XiClass getCurClass() {
+        return curClass;
+    }
+
+    public void setCurClass(XiClass curClass) {
+        this.curClass = curClass;
     }
 
     public boolean setImplemented(String name) {
@@ -89,11 +101,11 @@ public class SymbolTable {
      * @param name
      * @param VariableType
      */
-    public boolean addVar(String name, VariableType VariableType) {
+    public boolean addVar(String name, VariableType variableType) {
         if (funcTable.containsKey(name) || varTable.containsKey(name)) {
             return false;
         } else {
-            Tuple<VariableType, Integer> value = new Tuple<VariableType, Integer>(VariableType, level);
+            Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
             varTable.put(name, value);
             logs.push(name);
             return true;
@@ -134,6 +146,15 @@ public class SymbolTable {
             return true;
         }
     }
+    
+    public boolean addClass(XiClass xiClass) {
+        if (classTable.containsKey(xiClass.id.value))
+            return false;
+        else {
+            classTable.put(xiClass.id.value, xiClass);
+            return true;
+        }
+    }
 
     /**
      * Given the name of a variable, return the type of that variable. Return null
@@ -167,7 +188,15 @@ public class SymbolTable {
             return null;
         }
     }
+    
+    public boolean containsClass(String name) {
+        return classTable.containsKey(name);
+    }
 
+    public XiClass getClass(String name) {
+        return classTable.get(name);
+    }
+    
     public void dumpTable() {
         System.out.println("Function table:");
         if (funcTable.keySet().size() == 0) {

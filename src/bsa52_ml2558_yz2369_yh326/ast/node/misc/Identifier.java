@@ -1,8 +1,10 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
+import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.exception.NotDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -22,13 +24,22 @@ public class Identifier extends Expr {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        NodeType type = sTable.getVariableType(id);
-        if (type != null) {
-            return type;
-        } else if (sTable.getFunctionType(id) != null) {
-            throw new OtherException(line, col, id + " is not a variable");
+        if (id.equals("this")) {
+            XiClass curClass = sTable.getCurClass();
+            if (curClass != null) {
+                return new ObjectType(curClass);
+            } else {
+                throw new OtherException(line, col, "\"this\" can only be used in class");
+            }
         } else {
-            throw new NotDefinedException(line, col, id);
+            NodeType type = sTable.getVariableType(id);
+            if (type != null) {
+                return type;
+            } else if (sTable.getFunctionType(id) != null) {
+                throw new OtherException(line, col, id + " is not a variable");
+            } else {
+                throw new NotDefinedException(line, col, id);
+            }
         }
     }
 

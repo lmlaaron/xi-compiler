@@ -5,7 +5,7 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.While;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.OperandTypeException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
@@ -36,7 +36,7 @@ public class Plus extends ArithmeticOperator {
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
         // first, check if operand type is an array. plus concatenates arrays
-        if (operandType instanceof VariableType && ((VariableType) operandType).getLevel() > 0) {
+        if (operandType instanceof PrimitiveType && ((PrimitiveType) operandType).getLevel() > 0) {
             addingArray = true;
             return operandType;
         } else {

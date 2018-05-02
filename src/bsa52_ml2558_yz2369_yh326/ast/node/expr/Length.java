@@ -7,7 +7,7 @@ import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
@@ -30,9 +30,9 @@ public class Length extends Expr {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        VariableType type = (VariableType) expr.typeCheck(sTable);
+        PrimitiveType type = (PrimitiveType) expr.typeCheck(sTable);
         if (type.getLevel() >= 1) {
-            return new VariableType(Primitives.INT);
+            return new PrimitiveType(Primitives.INT);
         } else {
             throw new MatchTypeException(line, col, "int or bool array of any dimension", type);
         }

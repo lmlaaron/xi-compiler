@@ -53,9 +53,7 @@ public abstract class Operator extends Node {
      *            all operands for the given operator
      * @return the IR subtree corresponding the this operation
      */
-    public IRNode translateWithOperands(IRExpr... operands) {
-        throw new RuntimeException("translateWithOperands not implemented for given subclass");
-    }
+    public abstract IRNode translateWithOperands(IRExpr... operands);
 
     /**
      * function for specifying unary/binary-ness in subclasses
@@ -66,9 +64,7 @@ public abstract class Operator extends Node {
      * @throws RuntimeException
      *             if not implemented by subclasses
      */
-    public boolean validNumOperands(int num) {
-        throw new RuntimeException("validNumOperands not implemented for class!");
-    }
+    public abstract boolean validNumOperands(int num);
 
     /**
      * function for mapping acceptable operand types to corresponding return types
@@ -79,7 +75,5 @@ public abstract class Operator extends Node {
      * @throws OperandTypeException
      *             if the operand type is not accepted by this operator
      */
-    public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
-        throw new RuntimeException("returnTypeForOperandType not implemented for class!");
-    }
+    public abstract NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException;
 }

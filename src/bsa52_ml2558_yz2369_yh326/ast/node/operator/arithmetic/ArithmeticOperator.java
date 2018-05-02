@@ -3,7 +3,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.operator.arithmetic;
 import bsa52_ml2558_yz2369_yh326.ast.node.operator.Operator;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.OperandTypeException;
 
 public abstract class ArithmeticOperator extends Operator {
@@ -13,7 +13,7 @@ public abstract class ArithmeticOperator extends Operator {
 
     @Override
     public NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException {
-        NodeType intType = new VariableType(Primitives.INT);
+        NodeType intType = new PrimitiveType(Primitives.INT);
         if (operandType.equals(intType)) {
             return intType;
         } else {

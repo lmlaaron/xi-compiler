@@ -69,7 +69,8 @@ nonterminal Node method_class;
 nonterminal XiClass xi_class;
 nonterminal ClassItemList class_item_list;
 nonterminal Node class_item;
-nonterminal ExprNonAtom dot;
+nonterminal Dot dot;
+nonterminal Expr dot_left, dot_right;
 
 nonterminal Method method;
 nonterminal FunctionTypeDeclList method_args;
@@ -154,11 +155,13 @@ class_item_list  ::= class_item:c
                        {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
 class_item       ::= var_decl:v              {:RESULT = v;:}
                    | method:m                {:RESULT = m;:};
-dot              ::= identifier:id DOT:d identifier:id2
-                       {:RESULT = new ExprNonAtom(idleft, idright, new ObjectOperator(dleft, dright), id, id2);:}
-                   | identifier:id DOT:d method_call:m
-                       {:RESULT = new ExprNonAtom(idleft, idright, new ObjectOperator(dleft, dright), id, m);:};
-
+dot              ::= dot_left:d1 DOT:d dot_right:d2
+                       {:RESULT = new Dot(d1left, d2right, new Keyword(dleft, dright, "."), d1, d2);:};
+dot_left         ::= expr_no_paren:e               {:RESULT = e;:}
+                   | NEW:n identifier:id           {:RESULT = new New(nleft, nright, id);:};
+dot_right        ::= identifier:id                 {:RESULT = id;:}
+                   | method_call:m                 {:RESULT = m;:};
+                   
 /* ================= METHOD ================================================= */
 
 method           ::= identifier:id method_args:args retvals_list:rets block:b
@@ -365,7 +368,6 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
                    | method_call:mc        {:RESULT = mc;:}
                    | length_expr:ls        {:RESULT = ls;:}
-                   | NEW:n dot:d           {:RESULT = new NewObject(nleft, nright, d);:}
                    | dot:d                 {:RESULT = d;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN

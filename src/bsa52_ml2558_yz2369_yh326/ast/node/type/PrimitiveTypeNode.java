@@ -2,9 +2,10 @@ package bsa52_ml2558_yz2369_yh326.ast.node.type;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 
 public class PrimitiveTypeNode extends TypeNode {
     private String primitiveType;
@@ -22,9 +23,11 @@ public class PrimitiveTypeNode extends TypeNode {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         if (primitiveType == "int") {
-            return new VariableType(Primitives.INT);
+            return new PrimitiveType(Primitives.INT);
         } else if (primitiveType == "bool") {
-            return new VariableType(Primitives.BOOL);
+            return new PrimitiveType(Primitives.BOOL);
+        } else if (sTable.containsClass(primitiveType)) {
+            return new ObjectType(sTable.getClass(primitiveType));
         } else {
             throw new RuntimeException("Unexpected error: primitive type has to be either int or bool");
         }
