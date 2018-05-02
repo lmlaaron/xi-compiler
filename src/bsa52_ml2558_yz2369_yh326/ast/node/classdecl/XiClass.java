@@ -34,6 +34,22 @@ public class XiClass extends Node {
 	
     public Map<String, VariableType> vars; // list of member variables
     public Map<String, Tuple<NodeType, NodeType>> funcs; // list of member functions
+    public int NumVariables() {
+    		if ( super_class == null ) {
+    			return vars.size();
+    		} else {
+    			return vars.size() + super_class.NumVariables();
+    		}
+    }
+    public int NumMethods() {
+    			if (implemented_itfc != null ) {
+				return implemented_itfc.NumMethods();
+			} else if ( super_class == null) {
+				return funcs.size();
+			} else {
+				return funcs.size() + super_class.NumMethods();
+			}
+    }
     
     /**
      * Constructor TODO: need to reimplement this for parsing

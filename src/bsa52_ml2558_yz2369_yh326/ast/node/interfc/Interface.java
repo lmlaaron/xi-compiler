@@ -37,4 +37,8 @@ public class Interface extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         }
     }
+    
+    public int NumMethods() {
+    		return args.children.size();
+    }
 }
