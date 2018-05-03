@@ -106,4 +106,10 @@ public class PrimitiveType extends VariableType {
         }
     }
 
+    @Override
+    public boolean isSubclassOf(NodeType other) {
+        // TODO Auto-generated method stub
+        return this.equals(other);
+    }
+
 }

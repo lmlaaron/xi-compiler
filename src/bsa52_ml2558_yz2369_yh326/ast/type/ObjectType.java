@@ -56,6 +56,23 @@ public class ObjectType extends VariableType {
     }
     
     @Override
+    public boolean isSubclassOf(NodeType other) {
+        if (other instanceof ObjectType) {
+            ObjectType otherType = (ObjectType) other;
+            XiClass cur = type;
+            while (cur != null) {
+                if (cur.id.value.equals(otherType.type.id.value)) {
+                    return true;
+                }
+                cur = cur.super_class;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
     public boolean equals(Object other) {
         // Note that sizes are not checked!
         if (other instanceof PrimitiveType) {

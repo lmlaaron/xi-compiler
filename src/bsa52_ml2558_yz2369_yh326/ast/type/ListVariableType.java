@@ -42,6 +42,23 @@ public class ListVariableType extends NodeType {
         }
         return rs + ")";
     }
+    
+    public boolean isSubclassOf(NodeType other) {
+        if (other instanceof ListVariableType) {
+            List<VariableType> otherTypes = ((ListVariableType) other).getVariableTypes();
+            if (variableTypes.size() != otherTypes.size()) {
+                return false;
+            }
+            for (int i = 0; i < variableTypes.size(); i++) {
+                if (!variableTypes.get(i).isSubclassOf(otherTypes.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public boolean equals(Object other) {

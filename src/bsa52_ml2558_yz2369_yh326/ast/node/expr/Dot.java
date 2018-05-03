@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.expr;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
@@ -17,7 +18,16 @@ public class Dot extends Expr {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         NodeType left = children.get(1).typeCheck(sTable);
         if (left instanceof ObjectType) {
-            return children.get(2).typeCheck(sTable);
+            Node right = children.get(2);
+            if (right instanceof MethodCall) {
+                ((MethodCall) right).setClassOfMethod(((ObjectType) left).getType());
+                return right.typeCheck(sTable);
+            } else if (right instanceof Identifier) {
+                ((Identifier) right).setClassOfInstance(((ObjectType) left).getType());
+                return right.typeCheck(sTable);
+            } else {
+                throw new MatchTypeException(line, col, "MethodCall or Identifier", left);
+            }
         } else {
             throw new MatchTypeException(line, col, "Object", left);
         }

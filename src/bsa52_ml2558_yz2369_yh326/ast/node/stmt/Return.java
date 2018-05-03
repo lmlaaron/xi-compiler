@@ -50,7 +50,7 @@ public class Return extends Stmt {
             if (actual instanceof UnitType) {
                 return new VoidType();
             } else if (actual instanceof VariableType) {
-                if (((VariableType) actual).equals((VariableType) expected)) {
+                if (((VariableType) actual).isSubclassOf((VariableType) expected)) {
                     return new VoidType();
                 } else {
                     throw new MatchTypeException(line, col, expected, actual);
@@ -61,7 +61,7 @@ public class Return extends Stmt {
                 if (act.getVariableTypes().size() != exp.getVariableTypes().size()) {
                     throw new MismatchNumberException(line, col, exp.getVariableTypes().size(),
                             act.getVariableTypes().size());
-                } else if (act.equals(exp)) {
+                } else if (act.isSubclassOf(exp)) {
                     return new VoidType();
                 } else {
                     throw new MatchTypeException(line, col, expected, actual);

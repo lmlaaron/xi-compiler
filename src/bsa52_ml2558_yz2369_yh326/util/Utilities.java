@@ -29,8 +29,10 @@ public class Utilities {
     public static void loadClassContent(XiClass xiClass, SymbolTable sTable)
             throws Exception {
         sTable.enterBlock();
+        sTable.setCurClass(xiClass);
         for (Node child : xiClass.children) {
             if (child instanceof VarDecl) {
+                ((VarDecl) child).setIsInstanceVariable();
                 VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
                 ((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
             } else if (child instanceof Method) {
@@ -39,6 +41,7 @@ public class Utilities {
                 xiClass.funcs.put(id, sTable.getFunctionType(id));
             }
         }
+        sTable.setCurClass(null);
         sTable.exitBlock();
     }
     

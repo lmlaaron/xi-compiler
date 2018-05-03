@@ -30,12 +30,14 @@ public class VarDecl extends Stmt {
     private List<Identifier> ids;
     private TypeNode typeNode;
     private List<Expr> sizes;
+    private boolean isInstanceVariable;
 
     public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
         this.ids = new ArrayList<>();
         this.ids.add(id);
         this.typeNode = typeNode;
+        this.isInstanceVariable = false;
     }
     
     public VarDecl(int line, int col, List<Identifier> ids, TypeNode typeNode) {
@@ -44,28 +46,29 @@ public class VarDecl extends Stmt {
         this.children.add(typeNode);
         this.ids = new ArrayList<>(ids);
         this.typeNode = typeNode;
+        this.isInstanceVariable = false;
     }
 
     public List<Identifier> getId() {
         return ids;
     }
+    
+    public void setIsInstanceVariable() {
+        this.isInstanceVariable = true;
+    }
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        // Get NodeType from typeNode
-        // For example, from Node ([] int) get NodeType int[]
-        VariableType t = (VariableType) typeNode.typeCheck(sTable);
-        for (Identifier id : ids)
-            if (sTable.addVar(id.value, t) == false)
-                throw new AlreadyDefinedException(line, col, id.value);
-        sizes = t.getSizes();
+        typeCheckAndReturn(sTable);
         return new UnitType();
     }
 
     public NodeType typeCheckAndReturn(SymbolTable sTable) throws Exception {
+        // Get NodeType from typeNode
+        // For example, from Node ([] int) get NodeType int[]
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
         for (Identifier id : ids)
-            if (sTable.addVar(id.value, t) == false)
+            if (sTable.addVar(id.value, t, isInstanceVariable) == false)
                 throw new AlreadyDefinedException(line, col, id.value);
         sizes = t.getSizes();
         return t;

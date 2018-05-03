@@ -27,13 +27,15 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class XiClass extends Node {
 
-	private XiClass super_class; // super_class of the current class, might be NULL
-    public Identifier id;
-	private Interface implemented_itfc; // may not need, since class does not necessarily implement a interface
+    public Identifier id; // super_class of the current class, might be NULL
+    public Identifier superClassId;
+    public XiClass super_class; // super_class of the current class, might be NULL
+    private Interface implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
     public Map<String, VariableType> vars; // list of member variables
     public Map<String, Tuple<NodeType, NodeType>> funcs; // list of member functions
+    
     public int NumVariables() {
     		if ( super_class == null ) {
     			return vars.size();
@@ -62,6 +64,7 @@ public class XiClass extends Node {
         super(line, col, id);
         this.id = id;
         this.super_class = null;
+        this.superClassId = null;
         this.vars = new HashMap<>();
         this.funcs = new HashMap<>();
     }
@@ -70,15 +73,17 @@ public class XiClass extends Node {
         super(line, col, id, extend);
         this.id = id;
         this.super_class = null;
+        this.superClassId = extend;
         this.vars = new HashMap<>();
         this.funcs = new HashMap<>();
     }
     
     @Override
     public void loadClasses(SymbolTable sTable) throws Exception {
-        if (sTable.addClass(this) == false) {
+        if (sTable.addClass(this) == false)
             throw new AlreadyDefinedException(line, col, id.value);
-        }
+        if (superClassId != null)
+            this.super_class = sTable.getClass(superClassId.value);
     }
     
     @Override
