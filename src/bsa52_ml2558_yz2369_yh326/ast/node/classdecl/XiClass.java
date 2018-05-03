@@ -6,8 +6,11 @@
 
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -26,12 +29,15 @@ import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class XiClass extends Node {
-
+	public static int RUNTIME_RESOLVE = -1;
 	private XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
 	private Interface implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
+	// below is redundant need to figureout a way to have a Map with indexof method
+    public List<String> vars_ordered; // list of member variables
+    public List<String> funcs_ordered; // list of member functions
     public Map<String, VariableType> vars; // list of member variables
     public Map<String, Tuple<NodeType, NodeType>> funcs; // list of member functions
     public int NumVariables() {
@@ -92,14 +98,18 @@ public class XiClass extends Node {
         sTable.enterBlock();
         // First pass only process VarDecl
         for (Node child : children)
-            if (child instanceof VarDecl)
+            if (child instanceof VarDecl) {
                 ((VarDecl) child).typeCheckAndReturn(sTable);
+                vars_ordered.add(child.value);
+            }
         // Second pass process Method
         for (Node child : children) {
             if (child instanceof Method) {
                 child.typeCheck(sTable);
+                	funcs_ordered.add(child.value);
             }
         }
+
         sTable.setCurClass(null);
         sTable.exitBlock();
         return new UnitType();
@@ -114,5 +124,32 @@ public class XiClass extends Node {
             }
         }
         return irNode;
+    }
+    
+    public int IndexOfVar(String varname) {
+    		// if there is no superclass or superclass is fully resolved 
+    		// just return the index
+    		if ( super_class != null ) {
+    			if ( super_class.IndexOfVar(varname)!= RUNTIME_RESOLVE) {
+    				return super_class.IndexOfVar(varname);
+    			}
+    			return super_class.NumVariables()+ vars_ordered.indexOf(varname); 
+    		} else {
+    			int i=0;
+    			return vars_ordered.indexOf(varname);
+    		}
+    }
+    
+    public int IndexOfFunc(String funcname) {
+		if ( implemented_itfc != null ) {
+			return implemented_itfc.IndexOfFunc(funcname);
+		} else if ( super_class != null) {
+			if ( super_class.IndexOfFunc(funcname)!= RUNTIME_RESOLVE) {
+				return super_class.IndexOfFunc(funcname);
+			}
+			return super_class.NumMethods() + funcs_ordered.indexOf(funcname);
+		} else {
+			return funcs_ordered.indexOf(funcname);
+		}
     }
 }

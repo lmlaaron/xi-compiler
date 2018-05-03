@@ -20,13 +20,17 @@ import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
+import edu.cornell.cs.cs4120.xic.ir.IRCJump;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
+import edu.cornell.cs.cs4120.xic.ir.IRExp;
+import edu.cornell.cs.cs4120.xic.ir.IRLabel;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
@@ -52,26 +56,42 @@ public class New extends Expr {
 	@Override
 	public IRNode translate() {
 		// implement using _xi_alloc
-		// 1. initialize variable table 
-		// 2. initialize dispatch vector
-		return new IRTemp("NEW: TO BE IMPLEMENTED");
-		/*List<IRStmt> stmts = new ArrayList<IRStmt>();
+
+		//return new IRTemp("NEW: TO BE IMPLEMENTED");
+		List<IRStmt> stmts = new ArrayList<IRStmt>();
 		String labelNumber = NumberGetter.uniqueNumberStr();
+		String objName = "_I_obj_"+objClass.value+"_"+ labelNumber;
+		
+		// 1. check the size of _I_size_someClass
+		// if _I_size_Point neq zero, initialize the variable
+		stmts.add(new IRCJump(
+				new IRTemp("_I_size_"+objClass.value),
+				objName+"_noinit",
+				null));
+		
+		//and call _I_init_someClass to construct _I_dv_someClass
+		stmts.add(new IRExp(
+				new IRCall(
+						new IRName("_I_init_"+objClass.value))));
+		
+		// label for no init, directly jump here if _I_size_someClass is not zero
+		stmts.add(new IRLabel(objName+"_noinit"));
+				
+		// 2. initialize variable table 
 		stmts.add(
 				new IRMove(
-						new IRTemp("_I_obj_"+objClass.value+"_"+ labelNumber), 
+						new IRTemp(objName), 
 						new IRCall(new IRName("_xi_alloc"), 
 								new IRBinOp( IRBinOp.OpType.ADD,
 														new IRTemp("_I_size_"+objClass.value), 
 														new IRConst(8)))));
 		
+		// 3. point the DV pointer to _I_dv_someClass
 		stmts.add(
 				new IRMove(
-						new IRMem(new IRTemp("_I_obj_"+objClass.value+"_"+ labelNumber)),
-														new IRTemp("_I_vt_"+objClass.value)));
-
-		*/
+						new IRMem( new IRTemp(objName)),
+						new IRTemp("_I_dv_"+objClass.value)));
 		
-		
+		return new IRESeq( new IRSeq(stmts), new IRTemp(objName));
 	}
 }
