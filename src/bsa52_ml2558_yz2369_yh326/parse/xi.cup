@@ -1,5 +1,8 @@
 package bsa52_ml2558_yz2369_yh326.gen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import bsa52_ml2558_yz2369_yh326.ast.node.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.*;
@@ -69,8 +72,6 @@ nonterminal Node method_class;
 nonterminal XiClass xi_class;
 nonterminal ClassItemList class_item_list;
 nonterminal Node class_item;
-nonterminal Dot dot;
-nonterminal Expr dot_left, dot_right;
 
 nonterminal Method method;
 nonterminal FunctionTypeDeclList method_args;
@@ -79,8 +80,7 @@ nonterminal InterfaceList interface_list;
 nonterminal Interface interface;
 
 nonterminal FunctionTypeDeclList func_type_list, func_type_rec;
-nonterminal VarDecl var_decl, var_decl_empty, var_decl_array;
-nonterminal VarDeclMult var_decl_mult;
+nonterminal VarDecl var_decl, var_decl_empty, var_decl_array, var_decl_mult;
 nonterminal List idlist;
 
 nonterminal RetvalList retvals_list, retvals;
@@ -105,11 +105,14 @@ nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_no_paren;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
 nonterminal ArrayLiteral array_literal;
+nonterminal Expr call;
+nonterminal MethodCall method_call;
+nonterminal Dot dot_call, dot_get;
+nonterminal Expr dot_left;
 
 nonterminal If if_statement;
 nonterminal IfElse if_else, if_else_noif;
 nonterminal While while_statement, while_noif;
-nonterminal MethodCall method_call;
 nonterminal Return return_statement, return_core;
 nonterminal Length length_expr;
 
@@ -155,12 +158,6 @@ class_item_list  ::= class_item:c
                        {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
 class_item       ::= var_decl:v              {:RESULT = v;:}
                    | method:m                {:RESULT = m;:};
-dot              ::= dot_left:d1 DOT:d dot_right:d2
-                       {:RESULT = new Dot(d1left, d2right, new Keyword(dleft, dright, "."), d1, d2);:};
-dot_left         ::= expr_no_paren:e               {:RESULT = e;:}
-                   | NEW:n identifier:id           {:RESULT = new New(nleft, nright, id);:};
-dot_right        ::= identifier:id                 {:RESULT = id;:}
-                   | method_call:m                 {:RESULT = m;:};
                    
 /* ================= METHOD ================================================= */
 
@@ -191,8 +188,8 @@ func_type_rec    ::= var_decl_empty:vd COMMA func_type_rec:vdr
 
 /* ================= VARIABLE DECLARATION =================================== */
 var_decl         ::= var_decl_array:v        {:RESULT = v;:} // a:int[3][], a:int[3], ...
-                   | var_decl_empty:v        {:RESULT = v;:}; // a:int[][], a:int, ...
-                   //| var_decl_mult:v         {:RESULT = v;:};
+                   | var_decl_empty:v        {:RESULT = v;:} // a:int[][], a:int, ...
+                   | var_decl_mult:v         {:RESULT = v;:};
 
 var_decl_empty   ::= identifier:id COLON type_empty:t
                        {:RESULT = new VarDecl(idleft, idright, id, t);:};
@@ -201,16 +198,16 @@ var_decl_empty   ::= identifier:id COLON type_empty:t
 var_decl_array   ::= identifier:id COLON array_type:t
                        {:RESULT = new VarDecl(idleft, idright, id, t);:};
 
-/*var_decl_mult    ::= idlist:il COLON array_type:t
-                       {:RESULT = new VarDeclMult(illeft, ilright, il, t);:}
+var_decl_mult    ::= idlist:il COLON array_type:t
+                       {:RESULT = new VarDecl(illeft, ilright, il, t);:}
                    | idlist:il COLON type_empty:t
-                       {:RESULT = new VarDeclMult(illeft, ilright, il, t);:};
+                       {:RESULT = new VarDecl(illeft, ilright, il, t);:};
 
-idlist           ::= identifier:id
-                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id);:}
-                   | identifier:id idlist:il
-                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id); RESULT.addAll(il):};
-*/
+idlist           ::= identifier:id COMMA identifier:id2
+                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id); RESULT.add(id2);:}
+                   | identifier:id COMMA idlist:il
+                       {:RESULT = new ArrayList<Identifier>(); RESULT.add(id); RESULT.addAll(il);:};
+
 /* ================= RETVAL ================================================= */
 // retval: stands for return value
 retvals_list     ::= COLON retvals:rv        {:RESULT = rv;:}
@@ -294,15 +291,14 @@ stmt_nosub       ::= stmt_core:s             {:RESULT = s;:}
 stmt_core        ::= block:s                 {:RESULT = s;:}
                    | var_decl:s              {:RESULT = s;:}
                    | assignment:s            {:RESULT = s;:}
-                   | method_call:s           {:RESULT = s;:}
-                   | dot:s                   {:RESULT = s;:};
+                   | call:s                  {:RESULT = s;:};
 
 /* ================= ASSIGNMENT ============================================= */
 // assign_to_single_list: left hand side
 // assign_to_single: cannot be a value or containing "[", "]", "{", "}"
-assignment       ::= assign_to_list:al GETS method_call:mc
+assignment       ::= assign_to_list:al GETS call:mc
                        {:RESULT = new AssignMult(alleft, alright, al, mc);:}
-                   | UNDERSCORE:u GETS method_call:mc
+                   | UNDERSCORE:u GETS call:mc
                        {:RESULT = new AssignSingle(uleft, uright, new Underscore(uleft, uright), mc);:}
                    | assign_to_single:at GETS expr:expr
                        {:RESULT = new AssignSingle(atleft, atright, at, expr);:};
@@ -366,9 +362,9 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
-                   | method_call:mc        {:RESULT = mc;:}
+                   | call:c                {:RESULT = c;:}
                    | length_expr:ls        {:RESULT = ls;:}
-                   | dot:d                 {:RESULT = d;:};
+                   | dot_get:dg            {:RESULT = dg;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};
@@ -376,6 +372,17 @@ array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:}
                    | OPEN_BRACE:a COMMA CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright);:};
+call             ::= method_call:mc        {:RESULT = mc;:}
+                   | dot_call:dc           {:RESULT = dc;:};
+method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {:RESULT = new MethodCall(idleft, idright, id);
+                         RESULT.addChildren(el);:};
+dot_call         ::= dot_left:dl DOT:d method_call:m
+                       {:RESULT = new Dot(dlleft, dlright, new Keyword(dleft, dright, "."), dl, m);:};
+dot_get          ::= dot_left:dl DOT:d identifier:id
+                       {:RESULT = new Dot(dlleft, dlright, new Keyword(dleft, dright, "."), dl, id);:};
+dot_left         ::= expr_no_paren:e               {:RESULT = e;:}
+                   | NEW:n identifier:id           {:RESULT = new New(nleft, nright, id);:};
 
 /* ================= OPERATION ============================================== */
 t1op             ::= OR:a           {:RESULT = new LogicOr(aleft, aright);:};
@@ -413,9 +420,6 @@ while_noif       ::= WHILE:a expr:e stmt_noif:s
                        {:RESULT = new While(aleft, aright, (Expr) e, s);:};
 
 /* ================= OTHER STATEMENTS ======================================= */
-method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
-                       {:RESULT = new MethodCall(idleft, idright, id);
-                         RESULT.addChildren(el);:};
 return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
                    | return_core:rc                {:RESULT = rc;:};
 return_core      ::= RETURN:a expr_list:el
