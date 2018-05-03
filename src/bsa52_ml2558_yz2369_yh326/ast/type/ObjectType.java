@@ -95,4 +95,19 @@ public class ObjectType extends VariableType {
             return false;
         }
     }
+    /**
+     * translate string of the variable name to index 
+     */
+    public int IndexOfVar(String varname) {
+    		// to be implemented
+    		return type.IndexOfVar(varname);
+    }
+    
+    /**
+     * translate string of function name to index 
+     */
+    public int IndexOfFunc(String funcname) {
+    		// to be implemented
+    		return type.IndexOfFunc(funcname);
+    }
 }

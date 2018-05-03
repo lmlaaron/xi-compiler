@@ -41,4 +41,9 @@ public class Interface extends Node {
     public int NumMethods() {
     		return args.children.size();
     }
+    
+    public int IndexOfFunc(String funcname) {
+    		// TO be implemented 
+    		return 0/0;
+    }
 }
