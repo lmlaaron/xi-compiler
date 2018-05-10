@@ -6,6 +6,7 @@
 
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,8 @@ public class XiClass extends Node {
         this.superClassId = null;
         this.vars = new HashMap<>();
         this.funcs = new HashMap<>();
+        this.vars_ordered = new ArrayList<>();
+        this.funcs_ordered = new ArrayList<>();
     }
     
     public XiClass(int line, int col, Identifier id, Identifier extend) {

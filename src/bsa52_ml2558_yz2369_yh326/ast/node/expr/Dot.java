@@ -11,6 +11,7 @@ import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
@@ -66,7 +67,7 @@ public class Dot extends Expr {
     							// address of DV
     							new IRMem(
     									new IRMem(
-    											new IRTemp(children.get(1).value)
+    											((IRTemp) ((IRESeq) (children.get(1).translate())).expr())
     													)
     							),
     							// offset
