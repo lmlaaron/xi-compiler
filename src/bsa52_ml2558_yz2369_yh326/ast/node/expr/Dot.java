@@ -48,60 +48,83 @@ public class Dot extends Expr {
     public IRNode translate() {
     		// if it is a member function call
     		if ( children.get(2) instanceof MethodCall ) {
-    			// new offset
-    			// look up the offset of the called function in java
-    			int funcoffset = ((ObjectType) leftNodeType).IndexOfFunc(children.get(2).value);
-    			
-    			// new argument list
-    			List<IRExpr> args = new ArrayList<>();
-    			args.add((IRExpr) children.get(1).translate());
-    			
-    			args.addAll(
-    					((IRCall) ((MethodCall) children.get(2)).translate()).args());
-    			
-    			// get the name of children.get(1)
-    			String children1Name = null;
-    			IRNode children1IR = children.get(1).translate();
-    			IRTemp children1IRTemp = null;
-    			if ( children1IR instanceof IRTemp) {
-    				children1IRTemp = (IRTemp) children1IR; 
-    			} else if (children1IR instanceof IRESeq) {
-    				children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
-    			}
-    			// children1IRTemp must be resolved and not be null
-    			
-    			// invoke the member function call
-    			return new IRCall(
-    					// calculate the address of the called function
-    					new IRBinOp(
-    							IRBinOp.OpType.ADD,
-    							// address of DV
-    							new IRMem(
-    									new IRMem(
-    											children1IRTemp
-    													)
-    							),
-    							// offset
-    							new IRConst(funcoffset)
-    					),
-    					// arguments list of the called function
-    					args
-    				);
+    				return translateCall();
     		}	
     		// it is just a member variable
     		else {
-    			// new offset
-    			// look up the offset of the variable in java
-    			int varoffset = ((ObjectType) leftNodeType).IndexOfVar(children.get(2).value);
-    			
-    			// return the memory location of the variable
-    			return new IRMem(
-    					new IRBinOp(
-    							IRBinOp.OpType.ADD,
-    							(IRExpr) children.get(1).translate(),
-    							new IRConst(varoffset)
-    					));
+    			return translateVariable();
     		}
+    }
+    
+    private IRNode translateCall() {
+		// new offset
+		// look up the offset of the called function in java
+		int funcoffset = ((ObjectType) leftNodeType).IndexOfFunc(children.get(2).value);
+		
+		// new argument list
+		List<IRExpr> args = new ArrayList<>();
+		args.add((IRExpr) children.get(1).translate());
+		
+		args.addAll(
+				((IRCall) ((MethodCall) children.get(2)).translate()).args());
+		
+		// get the name of children.get(1)
+		String children1Name = null;
+		IRNode children1IR = children.get(1).translate();
+		IRTemp children1IRTemp = null;
+		if ( children1IR instanceof IRTemp) {
+			children1IRTemp = (IRTemp) children1IR; 
+		} else if (children1IR instanceof IRESeq) {
+			children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
+		}
+		// children1IRTemp must be resolved and not be null
+		// for method calls, interface must be included and the offset can be resolved at compile time
+		IRExpr absoluteFuncOffset = new IRConst(funcoffset);	
+		
+		// invoke the member function call
+		return new IRCall(
+				// calculate the address of the called function
+				new IRBinOp(
+						IRBinOp.OpType.ADD,
+						// address of DV
+						new IRMem(
+								new IRMem(
+										children1IRTemp
+												)
+						),
+						// abosulte offset
+						absoluteFuncOffset
+				),
+				// arguments list of the called function
+				args
+			);
+    }
+    
+    private IRNode translateVariable() {
+		// new offset
+		// look up the offset of the variable in java
+		int varoffset = ((ObjectType) leftNodeType).IndexOfVar(children.get(2).value);
+		
+		// resolve the absolute offset
+		ObjectType leftObjType = (ObjectType) leftNodeType;
+		IRExpr absoluteVarOffset = null;
+		if ( leftObjType.getType().super_class != null ) {
+			absoluteVarOffset = new IRBinOp(
+					IRBinOp.OpType.ADD,
+					new IRConst(varoffset),
+				    new IRTemp("_I_size_"+leftObjType.getType().super_class.id)
+					);
+		} else {
+			absoluteVarOffset = new IRConst(varoffset);
+		}
+		
+		// return the memory location of the variable
+		return new IRMem(
+				new IRBinOp(
+						IRBinOp.OpType.ADD,
+						(IRExpr) children.get(1).translate(),
+						absoluteVarOffset
+				));
     }
 
 }

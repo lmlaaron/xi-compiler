@@ -84,6 +84,8 @@ public class XiClass extends Node {
         this.superClassId = extend;
         this.vars = new HashMap<>();
         this.funcs = new HashMap<>();
+        this.vars_ordered = new ArrayList<>();
+        this.funcs_ordered = new ArrayList<>();
     }
     
     @Override
