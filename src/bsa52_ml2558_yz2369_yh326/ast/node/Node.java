@@ -5,6 +5,7 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.MethodClassList;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
@@ -91,7 +92,7 @@ public class Node {
 
     public void loadClasses(SymbolTable sTable) throws Exception {
         for (Node child : children) {
-            if (child != null && child instanceof XiClass) {
+            if (child != null && (child instanceof XiClass || child instanceof InterfaceClass)) {
                 child.loadClasses(sTable);
             }
         }

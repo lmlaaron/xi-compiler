@@ -2,10 +2,10 @@ package bsa52_ml2558_yz2369_yh326.ast.node.interfc;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 
-public class Interface extends Node {
+public class InterfaceMethodList extends Node {
 
-    public Interface(int line, int col, Node... nodes) {
-        super(line, col, nodes);
+    public InterfaceMethodList(int line, int col, Node node) {
+        super(line, col, node);
         // TODO Auto-generated constructor stub
     }
 
