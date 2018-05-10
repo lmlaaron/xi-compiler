@@ -68,7 +68,7 @@ public class Method extends Node {
         sTable.setCurFunction(id.value);
 
         // Check if this function has been implemented
-        if (sTable.setImplemented(id.value) == false) {
+        if (sTable.setFunctionImplemented(id.value) == false) {
             throw new OtherException(line, col, "This function has been implemented");
         }
 

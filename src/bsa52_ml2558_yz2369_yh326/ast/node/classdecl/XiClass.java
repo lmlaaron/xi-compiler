@@ -7,13 +7,14 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
-import bsa52_ml2558_yz2369_yh326.ast.node.interfc.Interface;
+import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceMethod;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
@@ -29,13 +30,16 @@ import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class XiClass extends Node {
+
+    // 'global' registry for classes
+    public static List<XiClass> all = new LinkedList<XiClass>();
 	
 	public SymbolTable sVarTable;
 	public static int RUNTIME_RESOLVE = -1;
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
     public Identifier superClassId;
-    private Interface implemented_itfc; // may not need, since class does not necessarily implement a interface
+    private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
 	// below is redundant need to figureout a way to have a Map with indexof method
@@ -60,6 +64,8 @@ public class XiClass extends Node {
 				return funcs.size() + super_class.NumMethods();
 			}
     }
+
+
     
     /**
      * Constructor TODO: need to reimplement this for parsing
@@ -70,28 +76,31 @@ public class XiClass extends Node {
      */
     public XiClass(int line, int col, Identifier id) {
         super(line, col, id);
-        this.id = id;
-        this.super_class = null;
-        this.superClassId = null;
-        this.vars = new HashMap<>();
-        this.funcs = new HashMap<>();
-        this.vars_ordered = new ArrayList<>();
-        this.funcs_ordered = new ArrayList<>();
-        this.sVarTable = new SymbolTable();
-        sVarTable.setCurClass(this);
+        init(this,line, col, id, null);
     }
     
     public XiClass(int line, int col, Identifier id, Identifier extend) {
         super(line, col, id, extend);
-        this.id = id;
-        this.super_class = null;
-        this.superClassId = extend;
-        this.vars = new HashMap<>();
-        this.funcs = new HashMap<>();
-        this.vars_ordered = new ArrayList<>();
-        this.funcs_ordered = new ArrayList<>();
-        this.sVarTable = new SymbolTable();
-        sVarTable.setCurClass(this);
+        init(this, line, col, id, extend);
+
+    }
+
+    /**
+     * Operations common to all constructors
+     */
+    private static void init(XiClass instance, int line, int col, Identifier id, Identifier extend) {
+        instance.id = id;
+        instance.super_class = null;
+        instance.superClassId = null;
+        instance.vars = new HashMap<>();
+        instance.funcs = new HashMap<>();
+        instance.vars_ordered = new ArrayList<>();
+        instance.funcs_ordered = new ArrayList<>();
+        instance.sVarTable = new SymbolTable();
+        instance.superClassId = extend;
+
+        instance.sVarTable.setCurClass(instance);
+        all.add(instance);
     }
     
     @Override

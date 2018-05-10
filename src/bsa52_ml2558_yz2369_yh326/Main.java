@@ -11,6 +11,8 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClasses;
 import bsa52_ml2558_yz2369_yh326.exception.LexingException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.exception.TypecheckingException;
@@ -185,6 +187,7 @@ public class Main {
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
+                XiClasses.consolidate(XiClass.all);
                 IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
                 Tile rootTile = MaxMunch.munch(irNode);
                 AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);
