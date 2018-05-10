@@ -271,17 +271,20 @@ def optimization_grader(testcase_f, answer_f):
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
 
-def compile_and_run(xi_f, custom=False):
+def compile_and_run(xi_f, extra_options = None):
     if os.path.isfile('./xi_executable'):
         os.remove('./xi_executable')
 
     assembly_f = xi_f.rsplit('.', maxsplit=1)[0] + '.s'
     print_log("Generating Assembly")
 
-    if custom:
-        cmd = ['./xic', '-Oreg', '-libpath', 'runtime/include/', '--abstract', xi_f]
-    else:
-        cmd = ['./xic', '-Oreg', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
+
+    cmd = ['./xic', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
+    if extra_options != None:
+        for option in extra_options:
+            cmd.append(option)
+
+    print(' '.join(cmd))
 
     run_shell(cmd)
     print_log("Linking Assembly")
@@ -350,7 +353,7 @@ if __name__ == "__main__":
         run_test_set(ASSM_TESTS, assm_grader) # reuse old tests because they test by output
 
     if "assmo" in sys.argv:
-        print("==== RUNNING ASSM TESTS ====")
+        print("==== RUNNING OPTIMIZED ASSM TESTS ====")
         run_test_set(ASSM_TESTS, optimization_grader)
     
 
