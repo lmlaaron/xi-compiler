@@ -24,6 +24,7 @@ import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -134,13 +135,18 @@ public class XiClass extends Node {
 
     @Override
     public IRNode translate() {
-        IRCompUnit irNode = new IRCompUnit("_" + id);
-        for (Node child : children) {	// only need to translate the function
-            if (child instanceof Method) {
-                irNode.appendFunc((IRFuncDecl) child.translate());
-            }
-        }
-        return irNode;
+    	    return null;
+    	    // deprecated code, should not be called anyway
+    }
+    
+    public List<IRFuncDecl> listOfIRMethods() {
+    		List<IRFuncDecl> list = new ArrayList<>();
+    		for (Node child: children) {
+    			if ( child instanceof Method) {
+    				list.add((IRFuncDecl) child.translate());
+    			}
+    		}
+    		return list;
     }
     
     public int IndexOfVar(String varname) {
