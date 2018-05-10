@@ -71,7 +71,7 @@ public class SymbolTable {
         this.curClass = curClass;
     }
 
-    public boolean setImplemented(String name) {
+    public boolean setFunctionImplemented(String name) {
         if (curClass != null)
             name = "_" + curClass.id.value + "$" + name;
         if (funcImplemented.contains(name)) {

@@ -60,7 +60,7 @@ terminal String IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TI
 // These two are not include in the give xi.cup
 terminal TIMES_SHIFT, ERROR;
 
-nonterminal Node program;
+nonterminal Node program, xi_file, interface_file;
 nonterminal Identifier identifier;
 
 nonterminal UseList use_list;
@@ -78,6 +78,9 @@ nonterminal FunctionTypeDeclList method_args;
 
 nonterminal InterfaceList interface_list;
 nonterminal Interface interface;
+nonterminal InterfaceMethodList interface_mlist;
+nonterminal InterfaceMethod interface_method;
+nonterminal InterfaceClass interface_class;
 
 nonterminal FunctionTypeDeclList func_type_list, func_type_rec;
 nonterminal VarDecl var_decl, var_decl_empty, var_decl_array, var_decl_mult;
@@ -120,13 +123,14 @@ nonterminal Node nothing;
 
 start with program;
 
-program          ::= use_list:ul method_class_list:ml
+program          ::= xi_file:f               {:RESULT = f;:}
+                   | interface_file:f        {:RESULT = f; RESULT.isInterface = true;:};
+xi_file          ::= use_list:ul method_class_list:ml
                        {:RESULT = new Node(ulleft, ulright, ul, ml);:}
                    | method_class_list:ml
-                       {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:}
-                   | interface_list:il
-                       {:RESULT = new Node(illeft, ilright, il);
-                         RESULT.isInterface = true;:};
+                       {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:};
+interface_file   ::= interface_list:il
+                       {:RESULT = new Node(illeft, ilright, il);:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
 /* ================= USE ==================================================== */
@@ -173,8 +177,18 @@ interface_list   ::= interface:i
                    | interface:i interface_list:il
                        {:RESULT = new InterfaceList(ileft, iright, i); RESULT.addChildren(il);:};
 
-interface        ::= identifier:id method_args:args retvals_list:mr
-                       {:RESULT = new Interface(idleft, idright, id, args, mr);:};
+interface        ::= interface_method:i       {:RESULT = i;:}
+                   | interface_class:i        {:RESULT = i;:};
+interface_method ::= identifier:id method_args:args retvals_list:mr
+                       {:RESULT = new InterfaceMethod(idleft, idright, id, args, mr);:};
+interface_mlist  ::= interface_method:i
+                       {:RESULT = new InterfaceMethodList(ileft, iright, i);:}
+                   | interface_method:i interface_mlist:il
+                       {:RESULT = new InterfaceMethodList(ileft, iright, i); RESULT.addChildren(il);:};
+interface_class  ::= CLASS:c identifier:id OPEN_BRACE interface_mlist:m CLOSE_BRACE
+                       {:RESULT = new InterfaceClass(cleft, cright, id); RESULT.addChildren(m);:}
+                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE interface_method:m CLOSE_BRACE
+                       {:RESULT = new InterfaceClass(cleft, cright, id, ex); RESULT.addChildren(m);:};
 
 /* ================= FUNCTION TYPE DECLARATION ============================== */
 // The following are for variable declaration in func args and retvals. Arrays

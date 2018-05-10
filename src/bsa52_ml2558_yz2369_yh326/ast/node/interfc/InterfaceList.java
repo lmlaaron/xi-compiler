@@ -14,6 +14,11 @@ public class InterfaceList extends Node {
     public InterfaceList(int line, int col, Interface interfc) {
         super(line, col, interfc);
     }
+    
+    @Override
+    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+        loadClasses(sTable);
+    }
 
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {

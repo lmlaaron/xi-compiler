@@ -29,7 +29,7 @@ public class Dot extends Expr {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         leftNodeType = children.get(1).typeCheck(sTable);
         System.out.println(this.toString());
-        sTable.dumpTable();
+        //sTable.dumpTable();
         if (leftNodeType instanceof ObjectType) {
             Node right = children.get(2);
             if (right instanceof MethodCall) {

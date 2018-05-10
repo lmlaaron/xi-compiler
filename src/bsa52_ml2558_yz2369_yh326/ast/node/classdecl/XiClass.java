@@ -14,7 +14,7 @@ import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
-import bsa52_ml2558_yz2369_yh326.ast.node.interfc.Interface;
+import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceMethod;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
@@ -39,7 +39,7 @@ public class XiClass extends Node {
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
     public Identifier superClassId;
-    private Interface implemented_itfc; // may not need, since class does not necessarily implement a interface
+    private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
 	// below is redundant need to figureout a way to have a Map with indexof method
