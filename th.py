@@ -290,7 +290,7 @@ def compile_and_run(xi_f, extra_options = None):
     print_log("Linking Assembly")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], end_on_error=True)
     print_log("Running Executable")
-    run_shell(['./xi_executable'], end_on_error=True)
+    run_shell(['./xi_executable'], end_on_error=False)
 
 
 
