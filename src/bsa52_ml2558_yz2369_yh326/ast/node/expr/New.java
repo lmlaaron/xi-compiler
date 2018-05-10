@@ -44,7 +44,8 @@ public class New extends Expr {
 	
 	@Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-	    if (sTable.containsClass(id.value)) {
+		this.objClass = sTable.getClass(id.value);
+		if (sTable.containsClass(id.value)) {
 	        return new ObjectType(sTable.getClass(id.value));
 	    } else {
 	        throw new OtherException(line, col, id.value + " is not a class.");
