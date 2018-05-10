@@ -5,6 +5,7 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
@@ -12,6 +13,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.stmt.StmtList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
+import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
@@ -59,7 +61,7 @@ public class Method extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         }
     }
-
+   
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.enterBlock();
@@ -91,6 +93,22 @@ public class Method extends Node {
         sTable.setCurFunction(null);
         sTable.exitBlock();
         return new UnitType();
+    }
+    
+    // for object method, add this pointer to the method argument list
+    public void addObjArgs(XiClass xc) {
+    		List<VariableType>  retArgTypes = new ArrayList<>();
+    		ObjectType thisType = new ObjectType(xc);
+    		retArgTypes.add(thisType);
+    		retArgTypes.addAll(this.argTypes);
+    		this.argTypes = retArgTypes;
+    		if (this.args == null ) {
+    			
+    			this.args = new FunctionTypeDeclList(line, col,
+    					new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.id.value)));
+    		} else {
+    			this.args.addHead(  new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.id.value))   );
+    		}
     }
 
     @Override

@@ -5,6 +5,8 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
+import bsa52_ml2558_yz2369_yh326.ast.node.expr.ExprAtom;
+import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
@@ -39,7 +41,7 @@ public class VarDecl extends Stmt {
         this.typeNode = typeNode;
         this.isInstanceVariable = false;
     }
-    
+       
     public VarDecl(int line, int col, List<Identifier> ids, TypeNode typeNode) {
         super(line, col);
         this.children.addAll(ids);
@@ -78,7 +80,12 @@ public class VarDecl extends Stmt {
     public IRNode translate() {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         List<IRExpr> sizesExpr = new ArrayList<IRExpr>();
-
+        
+        if (sizes == null ) {
+        		sizes = new ArrayList<>();
+        		//sizes.add(new IntegerLiteral(line, col, "0"));
+        }
+        
         for (int i = 0; i < sizes.size(); i++) {
             if (sizes.get(i) == null)
                 break;

@@ -33,6 +33,8 @@ public class ObjectType extends VariableType {
         for (int i = 0; i < level; i++) {
             result += "a";
         }
+        result +="o";
+        result+= String.valueOf(type.id.value.length());
         result += type.id.value;
         return result;
     }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
+import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
@@ -43,8 +44,13 @@ public class FunctionTypeDeclList extends Node {
     public IRNode translate() {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         for (int i = 0; i < children.size(); i++) {
-            IRTemp id = (IRTemp) children.get(i).translate();
-            stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
+        		if ( children.get(i).translate() instanceof IRESeq) {
+        			IRESeq id = (IRESeq) children.get(i).translate();
+            		stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
+        		} else {
+        			IRTemp id = (IRTemp) children.get(i).translate();
+            		stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
+        		}
         }
         return new IRSeq(stmts);
     }

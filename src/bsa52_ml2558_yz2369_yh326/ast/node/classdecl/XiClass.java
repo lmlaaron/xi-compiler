@@ -143,7 +143,15 @@ public class XiClass extends Node {
     		List<IRFuncDecl> list = new ArrayList<>();
     		for (Node child: children) {
     			if ( child instanceof Method) {
-    				list.add((IRFuncDecl) child.translate());
+    				  // though in symboltable for typechecking the THIS pointer is added to the argument list
+    				 // in ast the argument list still does not contain THIS pointer
+    				// thus we add THIS pointer to argument list just before translating into IR
+    			     ((Method) child).addObjArgs(this);
+    				
+    				IRFuncDecl funcdecl = (IRFuncDecl) child.translate();
+    				//System.out.println("label " +funcdecl.label() + " name :" + funcdecl.name());
+    				IRFuncDecl f = new IRFuncDecl(((Method) child).id.value, funcdecl.body());
+    				list.add(funcdecl);
     			}
     		}
     		return list;
