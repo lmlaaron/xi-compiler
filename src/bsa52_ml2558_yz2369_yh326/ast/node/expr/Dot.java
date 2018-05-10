@@ -59,6 +59,17 @@ public class Dot extends Expr {
     			args.addAll(
     					((IRCall) ((MethodCall) children.get(2)).translate()).args());
     			
+    			// get the name of children.get(1)
+    			String children1Name = null;
+    			IRNode children1IR = children.get(1).translate();
+    			IRTemp children1IRTemp = null;
+    			if ( children1IR instanceof IRTemp) {
+    				children1IRTemp = (IRTemp) children1IR; 
+    			} else if (children1IR instanceof IRESeq) {
+    				children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
+    			}
+    			// children1IRTemp must be resolved and not be null
+    			
     			// invoke the member function call
     			return new IRCall(
     					// calculate the address of the called function
@@ -67,7 +78,7 @@ public class Dot extends Expr {
     							// address of DV
     							new IRMem(
     									new IRMem(
-    											((IRTemp) ((IRESeq) (children.get(1).translate())).expr())
+    											children1IRTemp
     													)
     							),
     							// offset
