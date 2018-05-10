@@ -28,7 +28,8 @@ import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class XiClass extends Node {
-
+	
+	public SymbolTable sVarTable;
 	public static int RUNTIME_RESOLVE = -1;
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
@@ -75,6 +76,8 @@ public class XiClass extends Node {
         this.funcs = new HashMap<>();
         this.vars_ordered = new ArrayList<>();
         this.funcs_ordered = new ArrayList<>();
+        this.sVarTable = new SymbolTable();
+        sVarTable.setCurClass(this);
     }
     
     public XiClass(int line, int col, Identifier id, Identifier extend) {
@@ -86,6 +89,8 @@ public class XiClass extends Node {
         this.funcs = new HashMap<>();
         this.vars_ordered = new ArrayList<>();
         this.funcs_ordered = new ArrayList<>();
+        this.sVarTable = new SymbolTable();
+        sVarTable.setCurClass(this);
     }
     
     @Override
@@ -94,6 +99,8 @@ public class XiClass extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         if (superClassId != null)
             this.super_class = sTable.getClass(superClassId.value);
+        if ( this.super_class!= null && this.super_class.sVarTable != null)
+        this.sVarTable.addTable(this.super_class.sVarTable);        
     }
     
     @Override
@@ -109,6 +116,7 @@ public class XiClass extends Node {
         for (Node child : children)
             if (child instanceof VarDecl) {
                 ((VarDecl) child).typeCheckAndReturn(sTable);
+                ((VarDecl) child).typeCheckAndReturn(sVarTable);
                 vars_ordered.add(child.value);
             }
         // Second pass process Method

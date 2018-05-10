@@ -28,6 +28,8 @@ public class Dot extends Expr {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         leftNodeType = children.get(1).typeCheck(sTable);
+        System.out.println(this.toString());
+        sTable.dumpTable();
         if (leftNodeType instanceof ObjectType) {
             Node right = children.get(2);
             if (right instanceof MethodCall) {
@@ -35,7 +37,8 @@ public class Dot extends Expr {
                 return right.typeCheck(sTable);
             } else if (right instanceof Identifier) {
                 ((Identifier) right).setClassOfInstance(((ObjectType) leftNodeType).getType());
-                return right.typeCheck(sTable);
+                return right.typeCheck((((ObjectType) leftNodeType).getType()).sVarTable);
+                //return right.typeCheck(sTable);
             } else {
                 throw new MatchTypeException(line, col, "MethodCall or Identifier", leftNodeType);
             }

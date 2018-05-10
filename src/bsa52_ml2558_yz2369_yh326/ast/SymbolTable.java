@@ -104,6 +104,16 @@ public class SymbolTable {
         }
         level--;
     }
+    
+    public boolean addTable(SymbolTable t) {
+    		for (String name: t.varTable.keySet()) {
+    			this.varTable.put(name, t.varTable.get(name));
+    		}
+    		for (String name: t.funcTable.keySet()) {
+    			this.funcTable.put(name, t.funcTable.get(name));
+    		}
+    		return true;
+    }
 
     /**
      * @param name
@@ -114,14 +124,21 @@ public class SymbolTable {
     }
     
     public boolean addVar(String name, VariableType variableType, boolean isInstanceVariable) {
-        if (isInstanceVariable)
-            name = "_" + curClass.id.value + "$" + name;
+        if (isInstanceVariable) {
+        	//System.out.println(curClass.id.value);
+        	name = "_" + curClass.id.value + "$" + name;
+        }
         if (funcTable.containsKey(name) || varTable.containsKey(name)) {
             return false;
         } else {
-            Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
-            varTable.put(name, value);
-            logs.push(name);
+        	    if  (!isInstanceVariable ) {
+        	    		Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
+        	    		varTable.put(name, value);
+        	    } else {
+    	    			Tuple<VariableType, Integer> value = new Tuple<>(variableType, 0);
+    	    			varTable.put(name, value);       	    		
+        	    }
+        	    logs.push(name);
             return true;
         }
     }
