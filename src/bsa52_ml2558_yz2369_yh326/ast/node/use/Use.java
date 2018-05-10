@@ -13,6 +13,7 @@ import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.gen.lexer;
 import bsa52_ml2558_yz2369_yh326.gen.parser;
+import bsa52_ml2558_yz2369_yh326.util.Settings;
 
 public class Use extends Node {
     private Identifier id;
@@ -24,8 +25,7 @@ public class Use extends Node {
     
     @Override
     public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
-        System.out.println("TO BE IMPLEMENTED.");
-        
+        //System.out.println("TO BE IMPLEMENTED.");
     }
 
     @Override
