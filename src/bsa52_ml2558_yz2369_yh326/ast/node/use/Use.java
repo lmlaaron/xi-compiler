@@ -13,12 +13,9 @@ import bsa52_ml2558_yz2369_yh326.exception.LexingException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.gen.lexer;
-<<<<<<< HEAD
 import bsa52_ml2558_yz2369_yh326.gen.parser;
-=======
 import bsa52_ml2558_yz2369_yh326.lex.LexerWrapper;
 import bsa52_ml2558_yz2369_yh326.parse.ParserWrapper;
->>>>>>> efedb60c5f7617fa387f26535d995d1531225bd7
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 
 public class Use extends Node {
