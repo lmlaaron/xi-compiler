@@ -52,13 +52,13 @@ terminal String INTEGER_LITERAL;
 terminal String TRUE, FALSE;
 terminal String INT, BOOL;
 
-terminal String IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
+terminal String IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
   COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT;
 
-// These two are not include in the give xi.cup
-terminal TIMES_SHIFT, ERROR;
+// These two are not include in the given xi.cup
+terminal TIMES_SHIFT, ERROR, CONTINUE;
 
 nonterminal Node program, xi_file, interface_file;
 nonterminal Identifier identifier;

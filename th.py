@@ -11,6 +11,8 @@ TYPECHECKER_TESTS = "./tests/typecheck"
 IRRUN_TESTS = "./tests/irrun"
 ASSM_TESTS = "./tests/assm"
 
+LIB_PATH = "./runtime/include"
+
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
     'HEADER': '\033[95m',
@@ -225,7 +227,7 @@ def typecheck_grader(testcase_f, answer_f):
 
 def irrun_grader(testcase_f, answer_f):
     # TODO: libpath flag must be used so that io works, but that may not be true in the future
-    _, stdout, _ = run_shell(['./xic', '-libpath', 'lib/xi', '--irrun', testcase_f], print_results=False)
+    _, stdout, _ = run_shell(['./xic', '-libpath', LIB_PATH, '--irrun', testcase_f], print_results=False)
 
     answer_contents = ''.join(open(answer_f))
 
@@ -240,7 +242,7 @@ def grade_by_matching_output(output, correct_output):
 def assm_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '-O', '-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-O', '-libpath', LIB_PATH, testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -257,7 +259,7 @@ def assm_grader(testcase_f, answer_f):
 def optimization_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
-    run_shell(['./xic', '-libpath', 'runtime/include/', testcase_f], print_results=False)
+    run_shell(['./xic', '-libpath', LIB_PATH, testcase_f], print_results=False)
     if not os.path.isfile(assembly_f):
         return (False, "Couldnt find generated assembly file")
     run_shell(['runtime/linkxi.sh', assembly_f, '-o', 'xi_executable'], print_results=False)
@@ -279,7 +281,7 @@ def compile_and_run(xi_f, extra_options = None):
     print_log("Generating Assembly")
 
 
-    cmd = ['./xic', '--abstract','--comment','-libpath', 'runtime/include/', xi_f]
+    cmd = ['./xic', '--abstract','--comment','-libpath', LIB_PATH, xi_f]
     if extra_options != None:
         for option in extra_options:
             cmd.append(option)
@@ -325,6 +327,10 @@ if __name__ == "__main__":
     if "help" in sys.argv or len(sys.argv) == 1:
         help()
         sys.exit(0)
+
+    if "-libpath" in sys.argv:
+        LIB_PATH = sys.argv[sys.argv.index("-libpath") + 1]
+        print(LIB_PATH)
 
     print("Test Harness Begin")
 
