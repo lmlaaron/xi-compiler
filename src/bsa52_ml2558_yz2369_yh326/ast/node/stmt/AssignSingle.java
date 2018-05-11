@@ -27,6 +27,11 @@ public class AssignSingle extends Stmt {
         this.lhs = lhs;
         this.expr = expr;
     }
+    
+    @Override
+    public void loadMethods(SymbolTable sTable) throws Exception {
+        return;
+    }
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {

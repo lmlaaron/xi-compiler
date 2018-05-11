@@ -56,7 +56,12 @@ public class VarDecl extends Stmt {
     public void setIsInstanceVariable() {
         this.isInstanceVariable = true;
     }
-
+    
+    @Override
+    public void loadMethods(SymbolTable sTable) throws Exception {
+        return;
+    }
+    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         typeCheckAndReturn(sTable);

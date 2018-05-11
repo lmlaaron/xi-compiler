@@ -151,7 +151,10 @@ method_class_list::= method_class:m method_class_list:ml
                    | method_class:m
                        {:RESULT = new MethodClassList(mleft, mright, m);:};
 method_class     ::= method:m                {:RESULT = m;:}
-                   | xi_class:c              {:RESULT = c;:};
+                   | xi_class:c              {:RESULT = c;:}
+                   | var_decl:v              {:RESULT = v;:}
+                   | var_decl_empty:vd GETS INTEGER_LITERAL:il
+                       {:RESULT = new AssignSingle(vdleft, vdright, vd, new IntegerLiteral(illeft, ilright, il));:};
 
 /* ================= CLASS ================================================== */
 xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_list:cl CLOSE_BRACE
@@ -162,7 +165,7 @@ class_item_list  ::= class_item:c
                        {:RESULT = new ClassItemList(cleft, cright, c);:}
                    | class_item:c class_item_list:cl
                        {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
-class_item       ::= var_decl:v              {:RESULT = v;:}
+class_item       ::= var_decl:v              {:RESULT = v; ((VarDecl) RESULT).setIsInstanceVariable();:}
                    | method:m                {:RESULT = m;:};
                    
 /* ================= METHOD ================================================= */

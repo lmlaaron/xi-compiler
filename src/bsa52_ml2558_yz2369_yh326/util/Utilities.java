@@ -32,7 +32,6 @@ public class Utilities {
         sTable.setCurClass(xiClass.id.value);
         for (Node child : xiClass.children) {
             if (child instanceof VarDecl) {
-                ((VarDecl) child).setIsInstanceVariable();
                 VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
                 //((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
             } else if (child instanceof Method) {

@@ -36,7 +36,7 @@ public class Use extends Node {
             return;
         }
         String inputFile = Paths.get(libPath, id.value).toString() + ".ixi";
-        String outputFile = Paths.get(Settings.outputPath, id.value).toString();
+        String outputFile = Main.realPath(Settings.outputPath, id.value);
         if (!(new File(inputFile).exists()))
             throw new OtherException(line, col, "Interface file " + id.value + ".ixi not found.");
         
@@ -64,7 +64,7 @@ public class Use extends Node {
             } catch (TypecheckingException e) {
                 e.print(id.value + ".xi");
                 if (Settings.typeCheck) {
-                    String outputFile = Paths.get(Settings.outputPath, id.value).toString();
+                    String outputFile = Main.realPath(Settings.outputPath, id.value);
                     Main.WriteException(outputFile + ".typed", e);
                 }
                 throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
