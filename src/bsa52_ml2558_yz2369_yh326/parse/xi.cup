@@ -70,7 +70,7 @@ nonterminal MethodClassList method_class_list;
 nonterminal Node method_class;
 
 nonterminal XiClass xi_class;
-nonterminal ClassItemList class_item_list;
+nonterminal ClassItemList class_item_empty, class_item_list;
 nonterminal Node class_item;
 
 nonterminal Method method;
@@ -157,10 +157,12 @@ method_class     ::= method:m                {:RESULT = m;:}
                        {:RESULT = new AssignSingle(vdleft, vdright, vd, new IntegerLiteral(illeft, ilright, il));:};
 
 /* ================= CLASS ================================================== */
-xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_list:cl CLOSE_BRACE
+xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_empty:cl CLOSE_BRACE
                        {:RESULT = new XiClass(cleft, cright, id); RESULT.addChildren(cl);:}
-                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE class_item_list:cl CLOSE_BRACE
+                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE class_item_empty:cl CLOSE_BRACE
                        {:RESULT = new XiClass(cleft, cright, id, ex); RESULT.addChildren(cl);:};
+class_item_empty ::= nothing
+                   | class_item_list:c       {:RESULT = c;:};
 class_item_list  ::= class_item:c
                        {:RESULT = new ClassItemList(cleft, cright, c);:}
                    | class_item:c class_item_list:cl
@@ -329,7 +331,8 @@ assign_to_mult   ::= var_decl_empty:vd       {:RESULT = vd;:}
                    | UNDERSCORE:u            {:RESULT = new Underscore(uleft, uright);:};
 assign_to_single ::= identifier:id           {:RESULT = id;:}
                    | var_decl_empty:vd       {:RESULT = vd;:}
-                   | subscripts_lhs:ss       {:RESULT = ss;:};
+                   | subscripts_lhs:ss       {:RESULT = ss;:}
+                   | dot_get:g               {:RESULT = g;:};
 
 /* ================= EXPRESSION ============================================= */
 // Grouped operator and corresponding expressions into sever tiers.

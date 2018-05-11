@@ -15,6 +15,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceMethod;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
@@ -66,12 +67,12 @@ public class XiClass extends Node {
      * @param id
      */
     public XiClass(int line, int col, Identifier id) {
-        super(line, col, id);
+        super(line, col, new Keyword(line, col, "class"), id);
         init(this,line, col, id, null);
     }
     
     public XiClass(int line, int col, Identifier id, Identifier extend) {
-        super(line, col, id, extend);
+        super(line, col, new Keyword(line, col, "class"), id, extend);
         init(this, line, col, id, extend);
 
     }

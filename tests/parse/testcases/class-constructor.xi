@@ -9,4 +9,4 @@ class C {
     }
 }
 
-def makeC(a: int) { return new C.init(a) }
+makeC(a: int): C { return new C.init(a) }
