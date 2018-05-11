@@ -59,19 +59,19 @@ public class New extends Expr {
 		//return new IRTemp("NEW: TO BE IMPLEMENTED");
 		List<IRStmt> stmts = new ArrayList<IRStmt>();
 		String labelNumber = NumberGetter.uniqueNumberStr();
-		String objName = "_I_obj_"+objClass.value+"_"+ labelNumber;
+		String objName = "_I__obj__"+objClass.id+"_"+ labelNumber;
 		
 		// 1. check the size of _I_size_someClass
 		// if _I_size_Point neq zero, initialize the variable
 		stmts.add(new IRCJump(
-				new IRTemp("_I_size_"+objClass.value),
+				new IRTemp("_I_size_"+objClass.id),
 				objName+"_noinit",
 				null));
 		
 		//and call _I_init_someClass to construct _I_dv_someClass
 		stmts.add(new IRExp(
 				new IRCall(
-						new IRName("_I_init_"+objClass.value))));
+						new IRName("_I_init_"+objClass.id+"()"))));
 		
 		// label for no init, directly jump here if _I_size_someClass is not zero
 		stmts.add(new IRLabel(objName+"_noinit"));
@@ -82,14 +82,14 @@ public class New extends Expr {
 						new IRTemp(objName), 
 						new IRCall(new IRName("_xi_alloc"), 
 								new IRBinOp( IRBinOp.OpType.ADD,
-														new IRTemp("_I_size_"+objClass.value), 
+														new IRTemp("_I_size_"+objClass.id), 
 														new IRConst(8)))));
 		
 		// 3. point the DV pointer to _I_dv_someClass
 		stmts.add(
 				new IRMove(
 						new IRMem( new IRTemp(objName)),
-						new IRTemp("_I_dv_"+objClass.value)));
+						new IRTemp("_I_dv_"+objClass.id)));
 		
 		return new IRESeq( new IRSeq(stmts), new IRTemp(objName));
 	}
