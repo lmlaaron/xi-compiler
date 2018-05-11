@@ -12,8 +12,8 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.exception.LexingException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
+import bsa52_ml2558_yz2369_yh326.exception.TypecheckingException;
 import bsa52_ml2558_yz2369_yh326.gen.lexer;
-import bsa52_ml2558_yz2369_yh326.gen.parser;
 import bsa52_ml2558_yz2369_yh326.lex.LexerWrapper;
 import bsa52_ml2558_yz2369_yh326.parse.ParserWrapper;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
@@ -21,14 +21,20 @@ import bsa52_ml2558_yz2369_yh326.util.Settings;
 public class Use extends Node {
     private Identifier id;
     private Node ast;
+    private boolean alreadyImported;
 
     public Use(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "use"), id);
         this.id = id;
+        this.alreadyImported = false;
     }
     
     @Override
     public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+        if (sTable.setInterfaceImported(id.value) == false) {
+            alreadyImported = true;
+            return;
+        }
         String inputFile = Paths.get(libPath, id.value).toString() + ".ixi";
         String outputFile = Paths.get(Settings.outputPath, id.value).toString();
         if (!(new File(inputFile).exists()))
@@ -47,11 +53,18 @@ public class Use extends Node {
                 Main.WriteException(outputFile + ".parsed", e);
             }
             throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
+        } catch (TypecheckingException e) {
+            e.print(id.value + ".xi");
+            if (Settings.typeCheck) {
+                Main.WriteException(outputFile + ".typed", e);
+            }
+            throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
         }
     }
 
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
-        ast.loadMethods(sTable);
+        if (!alreadyImported)
+            ast.loadMethods(sTable, libPath);
     }
 }

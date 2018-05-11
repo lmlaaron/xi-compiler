@@ -129,7 +129,9 @@ xi_file          ::= use_list:ul method_class_list:ml
                        {:RESULT = new Node(ulleft, ulright, ul, ml);:}
                    | method_class_list:ml
                        {:RESULT = new Node(mlleft, mlright, new UseList(mlleft, mlright), ml);:};
-interface_file   ::= interface_list:il
+interface_file   ::= use_list:ul interface_list:il
+                       {:RESULT = new Node(illeft, ilright, ul, il);:}
+                   | interface_list:il
                        {:RESULT = new Node(illeft, ilright, il);:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};

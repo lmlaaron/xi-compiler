@@ -26,10 +26,11 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
+    private Map<String, XiClass> classTable;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
-    private Map<String, XiClass> classTable;
     private Set<String> funcImplemented;
+    private Set<String> interfaceImported;
     private String curClass;
     private String curFunc;
     private int level;
@@ -39,14 +40,37 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<>();
+        classTable = new HashMap<>();
         varTable = new HashMap<>();
         funcTable = new HashMap<>();
-        classTable = new HashMap<>();
         funcImplemented = new HashSet<String>();
+        interfaceImported = new HashSet<String>();
         curFunc = null;
         level = 0;
     }
+    
+    public boolean isGlobalMethod(String name) {
+        return funcTable.containsKey(name);
+    }
+    
+    public boolean containsClass(String name) {
+        return classTable.containsKey(name);
+    }
 
+    public XiClass getClass(String name) {
+        return classTable.get(name);
+    }
+    
+    // =============== CURRENT CLASS ===============
+    public XiClass getCurClass() {
+        return classTable.get(curClass);
+    }
+    
+    public void setCurClass(String curClass) {
+        this.curClass = curClass;
+    }
+
+    // =============== CURRENT FUNCTION ===============
     public NodeType getCurFuncReturnType() {
         if (curFunc == null) {
             throw new RuntimeException("Unexpected error.");
@@ -63,14 +87,7 @@ public class SymbolTable {
         this.curFunc = curFunc;
     }
 
-    public XiClass getCurClass() {
-        return classTable.get(curClass);
-    }
-    
-    public void setCurClass(String curClass) {
-        this.curClass = curClass;
-    }
-
+    // =============== FUNCTION IMPLEMENTED ===============
     public boolean setFunctionImplemented(String name) {
         if (curClass != null)
             name = "_" + curClass + "$" + name;
@@ -81,18 +98,23 @@ public class SymbolTable {
             return true;
         }
     }
+    
+    // =============== INTERFACE IMPORTED ===============
+    public boolean setInterfaceImported(String name) {
+        if (interfaceImported.contains(name)) {
+            return false;
+        } else {
+            interfaceImported.add(name);
+            return true;
+        }
+    }
 
-    /**
-     * 
-     */
+    // =============== ENTER / EXIT BLOCK ===============
     public void enterBlock() {
         logs.push(null);
         level++;
     }
 
-    /**
-     * 
-     */
     public void exitBlock() {
         while (!logs.isEmpty()) {
             String last = logs.pop();
@@ -104,11 +126,18 @@ public class SymbolTable {
         }
         level--;
     }
+    
+    // =============== ADD CLASS ===============
+    public boolean addClass(XiClass xiClass) {
+        if (classTable.containsKey(xiClass.id.value))
+            return false;
+        else {
+            classTable.put(xiClass.id.value, xiClass);
+            return true;
+        }
+    }
 
-    /**
-     * @param name
-     * @param VariableType
-     */
+    // =============== ADD VARIABLE ===============
     public boolean addVar(String name, VariableType variableType) {
         return addVar(name, variableType, false);
     }
@@ -126,10 +155,7 @@ public class SymbolTable {
         }
     }
 
-    /**
-     * @param name
-     * @param funcType
-     */
+    // =============== ADD FUNCTION ===============
     public boolean addFunc(String name, List<VariableType> args, List<VariableType> rets) {
         NodeType arg, ret;
         
@@ -168,14 +194,7 @@ public class SymbolTable {
         }
     }
     
-    public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value))
-            return false;
-        else {
-            classTable.put(xiClass.id.value, xiClass);
-            return true;
-        }
-    }
+    
 
     /**
      * Given the name of a variable, return the type of that variable. Return null
@@ -236,18 +255,6 @@ public class SymbolTable {
             cur = cur.super_class;
         }
         return null;
-    }
-    
-    public boolean isGlobalMethod(String name) {
-        return funcTable.containsKey(name);
-    }
-    
-    public boolean containsClass(String name) {
-        return classTable.containsKey(name);
-    }
-
-    public XiClass getClass(String name) {
-        return classTable.get(name);
     }
     
     public void dumpTable() {
