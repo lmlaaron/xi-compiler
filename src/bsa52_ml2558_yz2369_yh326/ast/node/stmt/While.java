@@ -33,16 +33,18 @@ public class While extends Stmt {
     }
 
     @Override
-    public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = condition.typeCheck(st);
+    public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        NodeType tg = condition.typeCheck(sTable);
         NodeType boolType = new PrimitiveType(Primitives.BOOL);
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
 
-        st.enterBlock();
-        then.typeCheck(st);
-        st.exitBlock();
+        sTable.enterBlock();
+        sTable.enterLoop(this);
+        then.typeCheck(sTable);
+        sTable.exitLoop();
+        sTable.exitBlock();
 
         return new UnitType();
     }
