@@ -129,9 +129,9 @@ public class SymbolTable {
     
     // =============== ADD CLASS ===============
     public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value))
+        if (classTable.containsKey(xiClass.id.value) && !xiClass.equals(classTable.get(xiClass.id.value))) {
             return false;
-        else {
+        } else {
             classTable.put(xiClass.id.value, xiClass);
             return true;
         }

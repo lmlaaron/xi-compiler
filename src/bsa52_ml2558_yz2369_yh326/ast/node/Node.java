@@ -92,7 +92,7 @@ public class Node {
 
     public void loadClasses(SymbolTable sTable) throws Exception {
         for (Node child : children) {
-            if (child != null && child instanceof XiClass) {
+            if (child != null && (child instanceof XiClass || child instanceof InterfaceClass)) {
                 child.loadClasses(sTable);
             }
         }

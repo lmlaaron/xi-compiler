@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
+
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceMethod;
@@ -32,7 +34,7 @@ public class XiClass extends Node {
 	public static int RUNTIME_RESOLVE = -1;
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
-    public Identifier superClassId;
+    public String superClassId;
     private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
@@ -83,10 +85,9 @@ public class XiClass extends Node {
     private static void init(XiClass instance, int line, int col, Identifier id, Identifier extend) {
         instance.id = id;
         instance.super_class = null;
-        instance.superClassId = null;
+        instance.superClassId = extend == null ? null : extend.value;
         instance.vars_ordered = new ArrayList<>();
         instance.funcs_ordered = new ArrayList<>();
-        instance.superClassId = extend;
         all.add(instance);
     }
     
@@ -95,9 +96,7 @@ public class XiClass extends Node {
         if (sTable.addClass(this) == false)
             throw new AlreadyDefinedException(line, col, id.value);
         if (superClassId != null)
-            this.super_class = sTable.getClass(superClassId.value);
-        //if ( this.super_class!= null && this.super_class.sVarTable != null)
-        //this.sVarTable.addTable(this.super_class.sVarTable);        
+            this.super_class = sTable.getClass(superClassId);    
     }
     
     @Override
@@ -177,5 +176,21 @@ public class XiClass extends Node {
 		} else {
 			return funcs_ordered.indexOf(funcname);
 		}
+    }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof XiClass) {
+            XiClass otherClass = (XiClass) other;
+            if (!id.value.equals(otherClass.id.value))
+                return false;
+            if (superClassId == null && otherClass.superClassId == null)
+                return true;
+            else if (superClassId != null && otherClass.superClassId != null)
+                return superClassId.equals(otherClass.superClassId);
+            else
+                return false;
+        } else
+            return false;
     }
 }
