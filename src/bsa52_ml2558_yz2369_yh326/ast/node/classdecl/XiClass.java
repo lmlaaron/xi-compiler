@@ -7,6 +7,7 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,9 +37,13 @@ public class XiClass extends Node {
     private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
-	// below is redundant need to figureout a way to have a Map with indexof method
+	// below is redundant need to figure out a way to have a Map with indexof method
     public List<String> vars_ordered; // list of member variables
     public List<String> funcs_ordered; // list of member functions
+    
+    // below are two maps that store the name of func/var to its indexes.
+    public HashMap<String, Integer> var_map = new HashMap<String, Integer> ();
+    public HashMap<String, Integer> func_map = new HashMap<String, Integer> ();
     
     public int NumVariables() {
     		if ( super_class == null ) {
@@ -47,6 +52,7 @@ public class XiClass extends Node {
     			return vars_ordered.size() + super_class.NumVariables();
     		}
     }
+    
     public int NumMethods() {
     			if (implemented_itfc != null ) {
 				return implemented_itfc.NumMethods();
@@ -94,8 +100,12 @@ public class XiClass extends Node {
     public void loadClasses(SymbolTable sTable) throws Exception {
         if (sTable.addClass(this) == false)
             throw new AlreadyDefinedException(line, col, id.value);
-        if (superClassId != null)
-            this.super_class = sTable.getClass(superClassId.value);
+        if (superClassId != null) {
+        	this.super_class = sTable.getClass(superClassId.value);
+        	this.func_map = this.super_class.func_map;
+        	this.var_map = this.super_class.var_map;
+        }
+        
         //if ( this.super_class!= null && this.super_class.sVarTable != null)
         //this.sVarTable.addTable(this.super_class.sVarTable);        
     }
@@ -152,6 +162,7 @@ public class XiClass extends Node {
     		return list;
     }
     
+    // old implementation of IndexOfVar
     public int IndexOfVar(String varname) {
     		// if there is no superclass or superclass is fully resolved 
     		// just return the index
@@ -166,6 +177,13 @@ public class XiClass extends Node {
     		}
     }
     
+    // new implementation of IndexOfVar
+    public int IndexOfVar_new(String varname) {
+    	var_map.putIfAbsent(varname, var_map.size() + 1);
+    	return var_map.get(varname);
+    }
+    
+    // old implementation of IndexOfFunc
     public int IndexOfFunc(String funcname) {
 		if ( implemented_itfc != null ) {
 			return implemented_itfc.IndexOfFunc(funcname);
@@ -177,5 +195,11 @@ public class XiClass extends Node {
 		} else {
 			return funcs_ordered.indexOf(funcname);
 		}
+    }
+    
+    // new implementation of IndexOfFunc
+    public int IndexOfFunc_new(String funcname) {
+    	func_map.putIfAbsent(funcname, func_map.size() + 1);
+    	return func_map.get(funcname);
     }
 }

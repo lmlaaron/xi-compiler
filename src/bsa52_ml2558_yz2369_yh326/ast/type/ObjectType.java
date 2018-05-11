@@ -97,9 +97,11 @@ public class ObjectType extends VariableType {
             return false;
         }
     }
+    
     /**
      * translate string of the variable name to index 
      */
+    // Should fieldname be a more proper name?
     public int IndexOfVar(String varname) {
     		// to be implemented
     		return type.IndexOfVar(varname);
