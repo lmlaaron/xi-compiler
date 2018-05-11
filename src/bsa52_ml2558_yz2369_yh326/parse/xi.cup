@@ -189,7 +189,7 @@ interface_mlist  ::= interface_method:i
                        {:RESULT = new InterfaceMethodList(ileft, iright, i); RESULT.addChildren(il);:};
 interface_class  ::= CLASS:c identifier:id OPEN_BRACE interface_mlist:m CLOSE_BRACE
                        {:RESULT = new InterfaceClass(cleft, cright, id); RESULT.addChildren(m);:}
-                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE interface_method:m CLOSE_BRACE
+                   | CLASS:c identifier:id EXTENDS identifier:ex OPEN_BRACE interface_mlist:m CLOSE_BRACE
                        {:RESULT = new InterfaceClass(cleft, cright, id, ex); RESULT.addChildren(m);:};
 
 /* ================= FUNCTION TYPE DECLARATION ============================== */
