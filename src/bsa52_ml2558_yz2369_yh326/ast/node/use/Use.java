@@ -1,7 +1,6 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.use;
 
 import java.io.File;
-import java.io.FileReader;
 import java.nio.file.Paths;
 
 import bsa52_ml2558_yz2369_yh326.Main;
@@ -41,8 +40,7 @@ public class Use extends Node {
             throw new OtherException(line, col, "Interface file " + id.value + ".ixi not found.");
         
         try {
-            FileReader fileReader = new FileReader(inputFile);
-            lexer xiLexer = LexerWrapper.Lexing(fileReader, outputFile);
+            lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
             ast = ParserWrapper.Parsing(xiLexer, outputFile, ".iparsed");
             ast.loadClasses(sTable, libPath);
         } catch (LexingException | ParsingException e) {
