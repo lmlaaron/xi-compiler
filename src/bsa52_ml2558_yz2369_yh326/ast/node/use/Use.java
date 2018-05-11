@@ -53,18 +53,22 @@ public class Use extends Node {
                 Main.WriteException(outputFile + ".parsed", e);
             }
             throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
-        } catch (TypecheckingException e) {
-            e.print(id.value + ".xi");
-            if (Settings.typeCheck) {
-                Main.WriteException(outputFile + ".typed", e);
-            }
-            throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
         }
     }
 
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
-        if (!alreadyImported)
-            ast.loadMethods(sTable, libPath);
+        if (!alreadyImported) {
+            try {
+                ast.loadMethods(sTable, libPath);
+            } catch (TypecheckingException e) {
+                e.print(id.value + ".xi");
+                if (Settings.typeCheck) {
+                    String outputFile = Paths.get(Settings.outputPath, id.value).toString();
+                    Main.WriteException(outputFile + ".typed", e);
+                }
+                throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
+            }
+        }
     }
 }
