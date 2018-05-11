@@ -29,16 +29,16 @@ public class Utilities {
     public static void loadClassContent(XiClass xiClass, SymbolTable sTable)
             throws Exception {
         sTable.enterBlock();
-        sTable.setCurClass(xiClass);
+        sTable.setCurClass(xiClass.id.value);
         for (Node child : xiClass.children) {
             if (child instanceof VarDecl) {
                 ((VarDecl) child).setIsInstanceVariable();
                 VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
-                ((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
+                //((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
             } else if (child instanceof Method) {
                 child.loadMethods(sTable);
                 String id = ((Method) child).id.value;
-                xiClass.funcs.put(id, sTable.getFunctionType(id));
+                //xiClass.funcs.put(id, sTable.getFunctionType(id));
             }
         }
         sTable.setCurClass(null);

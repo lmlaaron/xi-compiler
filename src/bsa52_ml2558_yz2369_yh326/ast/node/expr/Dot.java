@@ -28,8 +28,6 @@ public class Dot extends Expr {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         leftNodeType = children.get(1).typeCheck(sTable);
-        System.out.println(this.toString());
-        //sTable.dumpTable();
         if (leftNodeType instanceof ObjectType) {
             Node right = children.get(2);
             if (right instanceof MethodCall) {
@@ -37,8 +35,7 @@ public class Dot extends Expr {
                 return right.typeCheck(sTable);
             } else if (right instanceof Identifier) {
                 ((Identifier) right).setClassOfInstance(((ObjectType) leftNodeType).getType());
-                return right.typeCheck((((ObjectType) leftNodeType).getType()).sVarTable);
-                //return right.typeCheck(sTable);
+                return right.typeCheck(sTable);
             } else {
                 throw new MatchTypeException(line, col, "MethodCall or Identifier", leftNodeType);
             }
@@ -72,7 +69,7 @@ public class Dot extends Expr {
 				((IRCall) ((MethodCall) children.get(2)).translate()).args());
 		
 		// get the name of children.get(1)
-		String children1Name = null;
+		//String children1Name = null;
 		IRNode children1IR = children.get(1).translate();
 		IRTemp children1IRTemp = null;
 		if ( children1IR instanceof IRTemp) {

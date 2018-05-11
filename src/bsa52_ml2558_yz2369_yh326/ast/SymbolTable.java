@@ -30,7 +30,7 @@ public class SymbolTable {
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
     private Map<String, XiClass> classTable;
     private Set<String> funcImplemented;
-    private XiClass curClass;
+    private String curClass;
     private String curFunc;
     private int level;
 
@@ -59,21 +59,21 @@ public class SymbolTable {
 
     public void setCurFunction(String curFunc) {
         if (curClass != null)
-            curFunc = "_" + curClass.id.value + "$" + curFunc;
+            curFunc = "_" + curClass + "$" + curFunc;
         this.curFunc = curFunc;
     }
 
     public XiClass getCurClass() {
-        return curClass;
+        return classTable.get(curClass);
     }
-
-    public void setCurClass(XiClass curClass) {
+    
+    public void setCurClass(String curClass) {
         this.curClass = curClass;
     }
 
     public boolean setFunctionImplemented(String name) {
         if (curClass != null)
-            name = "_" + curClass.id.value + "$" + name;
+            name = "_" + curClass + "$" + name;
         if (funcImplemented.contains(name)) {
             return false;
         } else {
@@ -104,16 +104,6 @@ public class SymbolTable {
         }
         level--;
     }
-    
-    public boolean addTable(SymbolTable t) {
-    		for (String name: t.varTable.keySet()) {
-    			this.varTable.put(name, t.varTable.get(name));
-    		}
-    		for (String name: t.funcTable.keySet()) {
-    			this.funcTable.put(name, t.funcTable.get(name));
-    		}
-    		return true;
-    }
 
     /**
      * @param name
@@ -124,21 +114,14 @@ public class SymbolTable {
     }
     
     public boolean addVar(String name, VariableType variableType, boolean isInstanceVariable) {
-        if (isInstanceVariable) {
-        	//System.out.println(curClass.id.value);
-        	name = "_" + curClass.id.value + "$" + name;
-        }
+        if (isInstanceVariable)
+        	    name = "_" + curClass + "$" + name;
+
         if (funcTable.containsKey(name) || varTable.containsKey(name)) {
             return false;
         } else {
-        	    if  (!isInstanceVariable ) {
-        	    		Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
-        	    		varTable.put(name, value);
-        	    } else {
-    	    			Tuple<VariableType, Integer> value = new Tuple<>(variableType, 0);
-    	    			varTable.put(name, value);       	    		
-        	    }
-        	    logs.push(name);
+        	    varTable.put(name, new Tuple<>(variableType, level));
+        	    if (!isInstanceVariable) logs.push(name);
             return true;
         }
     }
@@ -151,7 +134,7 @@ public class SymbolTable {
         NodeType arg, ret;
         
         if (curClass != null) {
-            args.add(0, new ObjectType(curClass));
+            args.add(0, new ObjectType(classTable.get(curClass)));
         }
         
         if (args.size() == 0) {
@@ -168,7 +151,9 @@ public class SymbolTable {
         } else {
             ret = new ListVariableType(rets);
         }
-
+        
+        if (curClass != null)
+            name = "_" + curClass + "$" + name;
         if (funcTable.containsKey(name)) {
             // Functions with same name can appear, but must have same signature
             Tuple<NodeType, NodeType> type = funcTable.get(name);
@@ -178,8 +163,6 @@ public class SymbolTable {
                 return false;
             }
         } else {
-            if (curClass != null)
-                name = "_" + curClass.id.value + "$" + name;
             funcTable.put(name, new Tuple<>(arg, ret));
             return true;
         }
@@ -203,7 +186,7 @@ public class SymbolTable {
      * @return The type of the variable with the given name or null.
      */
     public VariableType getVariableType(String varName) {
-        VariableType t = getVariableType(curClass, varName);
+        VariableType t = getVariableType(classTable.get(curClass), varName);
         if (t != null) return t;
         
         if (varTable.containsKey(varName)) {
@@ -214,7 +197,7 @@ public class SymbolTable {
     }
     
     public VariableType getVariableType(XiClass xiClass, String varName) {
-        XiClass cur = curClass;
+        XiClass cur = xiClass;
         while (cur != null) {
             String classVar = "_" + cur.id.value + "$" + varName;
             if (varTable.containsKey(classVar))
@@ -234,7 +217,7 @@ public class SymbolTable {
      * @throws FunctionNotDefinedException
      */
     public Tuple<NodeType, NodeType> getFunctionType(String funcName) {
-        Tuple<NodeType, NodeType> t = getFunctionType(curClass, funcName);
+        Tuple<NodeType, NodeType> t = getFunctionType(classTable.get(curClass), funcName);
         if (t != null) return t;
 
         if (funcTable.containsKey(funcName)) {
@@ -268,20 +251,26 @@ public class SymbolTable {
     }
     
     public void dumpTable() {
+        System.out.println("Current level: " + level);
+        System.out.println("Class table:");
+        if (classTable.keySet().size() == 0)
+            System.out.println("  Class table empty.");
+
+        for (String key : classTable.keySet())
+            System.out.println("  " + key + ": " + classTable.get(key).id.value);
+        
         System.out.println("Function table:");
-        if (funcTable.keySet().size() == 0) {
+        if (funcTable.keySet().size() == 0)
             System.out.println("  Function table empty.");
-        }
-        for (String key : funcTable.keySet()) {
+        for (String key : funcTable.keySet())
             System.out.println("  " + key + ": " + funcTable.get(key));
-        }
+
         System.out.println("Variable table:");
-        if (varTable.keySet().size() == 0) {
+        if (varTable.keySet().size() == 0)
             System.out.println("  Variable table empty.");
-        }
-        for (String key : varTable.keySet()) {
+        for (String key : varTable.keySet())
             System.out.println("  " + key + ": " + varTable.get(key));
-        }
+        
         System.out.println("Log:");
         System.out.println("  " + Arrays.toString(logs.toArray()));
     }

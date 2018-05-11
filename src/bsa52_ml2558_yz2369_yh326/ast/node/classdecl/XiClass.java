@@ -8,9 +8,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -20,12 +18,8 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
-import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
-import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
-import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
-import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
@@ -34,7 +28,6 @@ public class XiClass extends Node {
     // 'global' registry for classes
     public static List<XiClass> all = new LinkedList<XiClass>();
 	
-	public SymbolTable sVarTable;
 	public static int RUNTIME_RESOLVE = -1;
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
@@ -45,23 +38,21 @@ public class XiClass extends Node {
 	// below is redundant need to figureout a way to have a Map with indexof method
     public List<String> vars_ordered; // list of member variables
     public List<String> funcs_ordered; // list of member functions
-    public Map<String, VariableType> vars; // list of member variables
-    public Map<String, Tuple<NodeType, NodeType>> funcs; // list of member functions
     
     public int NumVariables() {
     		if ( super_class == null ) {
-    			return vars.size();
+    			return vars_ordered.size();
     		} else {
-    			return vars.size() + super_class.NumVariables();
+    			return vars_ordered.size() + super_class.NumVariables();
     		}
     }
     public int NumMethods() {
     			if (implemented_itfc != null ) {
 				return implemented_itfc.NumMethods();
 			} else if ( super_class == null) {
-				return funcs.size();
+				return funcs_ordered.size();
 			} else {
-				return funcs.size() + super_class.NumMethods();
+				return funcs_ordered.size() + super_class.NumMethods();
 			}
     }
 
@@ -92,14 +83,9 @@ public class XiClass extends Node {
         instance.id = id;
         instance.super_class = null;
         instance.superClassId = null;
-        instance.vars = new HashMap<>();
-        instance.funcs = new HashMap<>();
         instance.vars_ordered = new ArrayList<>();
         instance.funcs_ordered = new ArrayList<>();
-        instance.sVarTable = new SymbolTable();
         instance.superClassId = extend;
-
-        instance.sVarTable.setCurClass(instance);
         all.add(instance);
     }
     
@@ -109,8 +95,8 @@ public class XiClass extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         if (superClassId != null)
             this.super_class = sTable.getClass(superClassId.value);
-        if ( this.super_class!= null && this.super_class.sVarTable != null)
-        this.sVarTable.addTable(this.super_class.sVarTable);        
+        //if ( this.super_class!= null && this.super_class.sVarTable != null)
+        //this.sVarTable.addTable(this.super_class.sVarTable);        
     }
     
     @Override
@@ -120,13 +106,12 @@ public class XiClass extends Node {
     
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        sTable.setCurClass(this);
+        sTable.setCurClass(id.value);
         sTable.enterBlock();
         // First pass only process VarDecl
         for (Node child : children)
             if (child instanceof VarDecl) {
-                ((VarDecl) child).typeCheckAndReturn(sTable);
-                ((VarDecl) child).typeCheckAndReturn(sVarTable);
+                //((VarDecl) child).typeCheckAndReturn(sTable);
                 vars_ordered.add(child.value);
             }
         // Second pass process Method

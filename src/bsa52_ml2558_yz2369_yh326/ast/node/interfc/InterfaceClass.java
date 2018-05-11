@@ -18,15 +18,13 @@ public class InterfaceClass extends Interface {
         this.id = id;
         this.superClassId = extend;
     }
-
-    @Override
-    public void loadClasses(SymbolTable sTable) throws Exception {
-        System.out.println("INTERFACE CLASS: LOAD CLASS TO BE IMPLEMENTED");
-    }
     
     @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        System.out.println("INTERFACE CLASS: LOAD METHOD TO BE IMPLEMENTED");
+        sTable.setCurClass(id.value);
+        for (int i = 1; i < children.size(); i++)
+            children.get(i).loadMethods(sTable);
+        sTable.setCurClass(null);
     }
     
 }

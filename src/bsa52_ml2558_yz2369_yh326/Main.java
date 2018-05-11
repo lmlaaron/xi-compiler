@@ -174,7 +174,7 @@ public class Main {
             }
         }
 
-        // Foe each xi file, diagnose.
+        // For each xi file, diagnose.
         for (String file : Settings.xiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".xi";
             String outputFile = realPath(Settings.outputPath, file);
