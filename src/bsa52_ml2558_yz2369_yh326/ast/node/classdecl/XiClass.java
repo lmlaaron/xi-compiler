@@ -102,8 +102,8 @@ public class XiClass extends Node {
             throw new AlreadyDefinedException(line, col, id.value);
         if (superClassId != null) {
         	this.super_class = sTable.getClass(superClassId.value);
-        	this.func_map = this.super_class.func_map;
-        	this.var_map = this.super_class.var_map;
+        	this.func_map = new HashMap<String, Integer> (this.super_class.func_map);
+        	this.var_map = new HashMap<String, Integer> (this.super_class.var_map);
         }
         
         //if ( this.super_class!= null && this.super_class.sVarTable != null)
