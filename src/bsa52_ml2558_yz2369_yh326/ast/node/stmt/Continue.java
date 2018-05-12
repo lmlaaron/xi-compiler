@@ -5,6 +5,9 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
+import edu.cornell.cs.cs4120.xic.ir.IRJump;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
+import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class Continue extends Stmt {
     private Stmt loop;
@@ -23,4 +26,9 @@ public class Continue extends Stmt {
             return new UnitType();
     }
 
+    @Override
+    public IRNode translate() {
+        String labelNumber = ((While) loop).labelNumber;
+        return new IRJump(new IRName("_head_" + labelNumber));
+    }
 }

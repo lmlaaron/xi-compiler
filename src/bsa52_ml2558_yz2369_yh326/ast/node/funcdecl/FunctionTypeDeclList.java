@@ -44,7 +44,7 @@ public class FunctionTypeDeclList extends Node {
     public IRNode translate() {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         for (int i = 0; i < children.size(); i++) {
-        		System.out.println("children    "+ children.get(i).toString());
+        		//System.out.println("children    "+ children.get(i).toString());
         		if ( children.get(i).translate() instanceof IRESeq) {
         			IRESeq id = (IRESeq) children.get(i).translate();
             		stmts.add(new IRMove(id, new IRTemp("_ARG" + i)));
