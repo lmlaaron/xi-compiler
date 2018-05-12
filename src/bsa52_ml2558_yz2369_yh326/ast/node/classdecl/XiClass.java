@@ -21,9 +21,9 @@ import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
+import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
-import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
-import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.*;
 
 public class XiClass extends Node {
 
@@ -143,9 +143,102 @@ public class XiClass extends Node {
     	    return null;
     	    // deprecated code, should not be called anyway
     }
+
+    public IRFuncDecl getInitFunction() {
+        // TODO: if we're only given the interface for a class, we shouldn't be
+        //       generating this function. That's only our responsibility if we
+        //       have the actual implementation!!!
+
+
+        List<IRStmt> body = new LinkedList<IRStmt>();
+
+        // step 1: recursively initialize superclasses
+        if (super_class != null)
+            body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassId.value), new LinkedList<IRExpr>())));
+
+        // step 2: compute total size of this class
+        int localSize = vars_ordered.size();
+        String totalsizevar = Utilities.freshTemp();
+        body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
+        if (super_class != null) {
+            // TODO: how to represent the size variable at IR level?
+            IRExpr superSize = new IRTemp("_I_size_" + superClassId.value);
+            body.add(new IRMove(new IRTemp(totalsizevar),
+                    new IRBinOp(IRBinOp.OpType.ADD, new IRTemp(totalsizevar), superSize)
+            );
+        }
+        //TODO: ^^^ same as above
+        IRExpr thisSize = new IRTemp("_I_size_" + id.value);
+        body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
+
+        // step 3: allocate dispatch vector
+        // TODO: right now I'm assuming we're not overriding anything,
+        //       so we need to allocate a spot for each method in each class
+        int treeDVSize = listOfIRMethods().size();
+        XiClass xc = this;
+        while (xc.super_class != null) {
+            xc = xc.super_class;
+            treeDVSize += xc.listOfIRMethods().size();
+        }
+        // TODO: don't know how to represent this variable at IR level
+        IRExpr dv = new IRTemp("_I_vt_" + id.value);
+        LinkedList<IRExpr> alloc_size = new LinkedList<>();
+        alloc_size.add(new IRConst(treeDVSize*8));
+        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
+        int parentDVsize = 0;
+        // if there is a parent, copy over its method pointers
+        if (super_class != null) {
+            //TODO: same representation issue:
+            IRTemp superdv = new IRTemp("_I_vt_" + superClassId.value);
+
+            IRTemp index = new IRTemp(Utilities.freshTemp());
+            IRTemp addrFrom = new IRTemp(Utilities.freshTemp());
+            IRTemp addrTo = new IRTemp(Utilities.freshTemp());
+
+            IRLabel top = new IRLabel("top_" + NumberGetter.uniqueNumberStr());
+            IRLabel end = new IRLabel("end_" + NumberGetter.uniqueNumberStr());
+
+            body.add(new IRMove(index, new IRConst(0)));
+            body.add(new IRMove(addrFrom, new IRMem(superdv)));
+            body.add(new IRMove(addrTo, new IRMem(dv)));
+
+            body.add(top);
+            parentDVsize = treeDVSize - vars_ordered.size();
+
+            // loop: copy over super's pointers
+            body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.GEQ, index, new IRConst(parentDVsize)), end.name()));
+            body.add(new IRMove(new IRMem(addrTo), new IRMem(addrFrom)));
+            body.add(new IRMove(addrFrom, new IRBinOp(IRBinOp.OpType.ADD, addrFrom, new IRConst(8))));
+            body.add(new IRMove(addrTo, new IRBinOp(IRBinOp.OpType.ADD, addrTo, new IRConst(8))));
+            body.add(new IRMove(index, new IRBinOp(IRBinOp.OpType.ADD, index, new IRConst(1))));
+            body.add(new IRJump(new IRName(top.name())));
+        }
+        // copy over this class's method pointers:
+        for (String func : this.func_map.keySet()) {
+            body.add(new IRMove(
+                    // TODO: if we're postprocessing func_map to get global indices, don't need to add parentDVsize
+                    new IRMem(new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8*(parentDVsize+func_map.get(func))))),
+                    new IRName(func)
+                )
+            );
+        }
+
+        body.add(new IRReturn());
+
+
+        IRFuncDecl f = new IRFuncDecl(
+                "_I_init_" + id.value, // TODO: escape underscore characters in 'id'
+                new IRSeq(body)
+        );
+
+        return f;
+    }
     
     public List<IRFuncDecl> listOfIRMethods() {
-    		List<IRFuncDecl> list = new ArrayList<>();
+        List<IRFuncDecl> list = new ArrayList<>();
+
+            list.add(getInitFunction());
+
     		for (Node child: children) {
     			if ( child instanceof Method) {
     				  // though in symboltable for typechecking the THIS pointer is added to the argument list
