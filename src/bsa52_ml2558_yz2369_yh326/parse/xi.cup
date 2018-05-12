@@ -52,13 +52,13 @@ terminal String INTEGER_LITERAL;
 terminal String TRUE, FALSE;
 terminal String INT, BOOL;
 
-terminal String IF, ELSE, WHILE, /*BREAK,*/ RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
+terminal String IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
   COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT;
 
-// These two are not include in the give xi.cup
-terminal TIMES_SHIFT, ERROR;
+// These two are not include in the given xi.cup
+terminal TIMES_SHIFT, ERROR, CONTINUE;
 
 nonterminal Node program, xi_file, interface_file;
 nonterminal Identifier identifier;
@@ -103,6 +103,14 @@ nonterminal Stmt assignment;
 nonterminal AssignToList assign_to_list;
 nonterminal Node assign_to_mult, assign_to_single;
 
+nonterminal If if_statement;
+nonterminal IfElse if_else, if_else_noif;
+nonterminal While while_statement, while_noif;
+nonterminal Return return_statement, return_core;
+nonterminal Length length_expr;
+nonterminal Break break;
+nonterminal Continue continue;
+
 nonterminal ExprList expr_list, expr_rec;
 nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_no_paren;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
@@ -112,12 +120,6 @@ nonterminal Expr call;
 nonterminal MethodCall method_call;
 nonterminal Dot dot_call, dot_get;
 nonterminal Expr dot_left;
-
-nonterminal If if_statement;
-nonterminal IfElse if_else, if_else_noif;
-nonterminal While while_statement, while_noif;
-nonterminal Return return_statement, return_core;
-nonterminal Length length_expr;
 
 nonterminal Node nothing;
 
@@ -287,7 +289,6 @@ subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
                    | expr_atom_nosub:sbrhs subscript:s
                        {:RESULT = new Subscript(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
 
-
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
                        {:RESULT = sl;:}
@@ -312,7 +313,9 @@ stmt_nosub       ::= stmt_core:s             {:RESULT = s;:}
 stmt_core        ::= block:s                 {:RESULT = s;:}
                    | var_decl:s              {:RESULT = s;:}
                    | assignment:s            {:RESULT = s;:}
-                   | call:s                  {:RESULT = s;:};
+                   | call:s                  {:RESULT = s;:}
+                   | break:s                 {:RESULT = s;:}
+                   | continue:s              {:RESULT = s;:};
 
 /* ================= ASSIGNMENT ============================================= */
 // assign_to_single_list: left hand side
@@ -333,6 +336,31 @@ assign_to_single ::= identifier:id           {:RESULT = id;:}
                    | var_decl_empty:vd       {:RESULT = vd;:}
                    | subscripts_lhs:ss       {:RESULT = ss;:}
                    | dot_get:g               {:RESULT = g;:};
+
+/* ================= IF/ELSE/WHILE ========================================== */
+// if_statement: if x stmt            - Anything can be in "stmt"
+// if_else     : if x stmt else stmt  - "if_statement" and "while_if" cannot be in both "stmt"
+// while_if    : (while x)+ if x stmt - Anything can be in "stmt" (There can be more than one "while x")
+// while_noif  : while x stmt_noif    - "if_statement" and "while_if" cannot be in both "stmt"
+
+if_statement     ::= IF:a expr:e stmt:s
+                       {:RESULT = new If(aleft, aright, (Expr) e, s);:};
+if_else          ::= IF:a expr:e stmt_noif:s1 ELSE stmt:s2
+                       {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
+if_else_noif     ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
+                       {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
+while_statement  ::= WHILE:a expr:e stmt:s
+                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
+while_noif       ::= WHILE:a expr:e stmt_noif:s
+                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
+
+/* ================= OTHER STATEMENTS ======================================= */
+return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
+                   | return_core:rc                {:RESULT = rc;:};
+return_core      ::= RETURN:a expr_list:el
+                       {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
+break            ::= BREAK:b                       {:RESULT = new Break(bleft, bright);:};
+continue         ::= CONTINUE:c                    {:RESULT = new Continue(cleft, cright);:};
 
 /* ================= EXPRESSION ============================================= */
 // Grouped operator and corresponding expressions into sever tiers.
@@ -423,28 +451,5 @@ t6op             ::= TIMES:a        {:RESULT = new Times(aleft, aright);:}
                    | TIMES_SHIFT:a  {:RESULT = new ShiftTimes(aleft, aright);:};
 t7op             ::= MINUS:a        {:RESULT = new ArithmeticNegation(aleft, aright);:}
                    | NOT:a          {:RESULT = new LogicNegation(aleft, aright);:};
-
-/* ================= IF/ELSE/WHILE ========================================== */
-// if_statement: if x stmt            - Anything can be in "stmt"
-// if_else     : if x stmt else stmt  - "if_statement" and "while_if" cannot be in both "stmt"
-// while_if    : (while x)+ if x stmt - Anything can be in "stmt" (There can be more than one "while x")
-// while_noif  : while x stmt_noif    - "if_statement" and "while_if" cannot be in both "stmt"
-
-if_statement     ::= IF:a expr:e stmt:s
-                       {:RESULT = new If(aleft, aright, (Expr) e, s);:};
-if_else          ::= IF:a expr:e stmt_noif:s1 ELSE stmt:s2
-                       {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
-if_else_noif     ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
-                       {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
-while_statement  ::= WHILE:a expr:e stmt:s
-                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
-while_noif       ::= WHILE:a expr:e stmt_noif:s
-                       {:RESULT = new While(aleft, aright, (Expr) e, s);:};
-
-/* ================= OTHER STATEMENTS ======================================= */
-return_statement ::= return_statement:rs SEMICOLON {:RESULT = rs;:}
-                   | return_core:rc                {:RESULT = rc;:};
-return_core      ::= RETURN:a expr_list:el
-                       {:RESULT = new Return(aleft, aright); RESULT.addChildren(el);:};
 
 nothing          ::= /* placeholder for epsilon */;

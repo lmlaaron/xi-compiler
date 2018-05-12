@@ -78,6 +78,8 @@ SingleCharacter = [^\r\n\'\\]
   "class"           { return symbol(CLASS,         yytext()); }
   "extends"         { return symbol(EXTENDS,       yytext()); }
   "new"             { return symbol(NEW,           yytext()); }
+  "break"           { return symbol(BREAK,         yytext()); }
+  "continue"        { return symbol(CONTINUE,      yytext()); }
   "+"               { return symbol(PLUS,          yytext()); }
   "-"               { return symbol(MINUS,         yytext()); }
   "*"               { return symbol(TIMES,         yytext()); }

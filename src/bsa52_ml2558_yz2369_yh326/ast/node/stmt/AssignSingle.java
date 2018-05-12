@@ -65,10 +65,8 @@ public class AssignSingle extends Stmt {
         VariableType leftType = null;
         if (lhs instanceof VarDecl) { // VarInit in the Xi type system
             leftType = (VariableType) ((VarDecl) lhs).typeCheckAndReturn(sTable);
-        } else if (lhs instanceof Identifier) { // Assign in the Xi type system
-            leftType = (VariableType) ((Identifier) lhs).typeCheck(sTable);
-        } else if (lhs instanceof Subscript) { // ArrAssign in the Xi type system
-            leftType = (VariableType) ((Subscript) lhs).typeCheck(sTable);
+        } else {
+            leftType = (VariableType) lhs.typeCheck(sTable);
         }
         return leftType;
     }

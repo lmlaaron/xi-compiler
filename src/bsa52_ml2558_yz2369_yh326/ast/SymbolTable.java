@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.stmt.Stmt;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -26,6 +27,7 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
+    private Stack<Stmt> loops;
     private Map<String, XiClass> classTable;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
@@ -40,11 +42,13 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<>();
+        loops = new Stack<>();
         classTable = new HashMap<>();
         varTable = new HashMap<>();
         funcTable = new HashMap<>();
         funcImplemented = new HashSet<String>();
         interfaceImported = new HashSet<String>();
+        curClass = null;
         curFunc = null;
         level = 0;
     }
@@ -86,7 +90,7 @@ public class SymbolTable {
             curFunc = "_" + curClass + "$" + curFunc;
         this.curFunc = curFunc;
     }
-
+    
     // =============== FUNCTION IMPLEMENTED ===============
     public boolean setFunctionImplemented(String name) {
         if (curClass != null)
@@ -127,11 +131,27 @@ public class SymbolTable {
         level--;
     }
     
+    // =============== ENTER / EXIT LOOP ===============
+    public void enterLoop(Stmt loopNode) {
+        loops.push(loopNode);
+    }
+    
+    public void exitLoop() {
+        loops.pop();
+    }
+
+    public Stmt getLastLoop() {
+        if (loops.isEmpty())
+            return null;
+        else
+            return loops.peek();
+    }
+    
     // =============== ADD CLASS ===============
     public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value))
+        if (classTable.containsKey(xiClass.id.value) && !xiClass.equals(classTable.get(xiClass.id.value))) {
             return false;
-        else {
+        } else {
             classTable.put(xiClass.id.value, xiClass);
             return true;
         }

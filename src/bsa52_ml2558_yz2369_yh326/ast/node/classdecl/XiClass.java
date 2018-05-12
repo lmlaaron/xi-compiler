@@ -33,7 +33,7 @@ public class XiClass extends Node {
 	public static int RUNTIME_RESOLVE = -1;
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
-    public Identifier superClassId;
+    public String superClassId;
     private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
 	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
 	
@@ -89,10 +89,9 @@ public class XiClass extends Node {
     private static void init(XiClass instance, int line, int col, Identifier id, Identifier extend) {
         instance.id = id;
         instance.super_class = null;
-        instance.superClassId = null;
+        instance.superClassId = extend == null ? null : extend.value;
         instance.vars_ordered = new ArrayList<>();
         instance.funcs_ordered = new ArrayList<>();
-        instance.superClassId = extend;
         all.add(instance);
     }
     
@@ -100,14 +99,13 @@ public class XiClass extends Node {
     public void loadClasses(SymbolTable sTable) throws Exception {
         if (sTable.addClass(this) == false)
             throw new AlreadyDefinedException(line, col, id.value);
+
         if (superClassId != null) {
-        	this.super_class = sTable.getClass(superClassId.value);
-        	this.func_map = new HashMap<String, Integer> (this.super_class.func_map);
-        	this.var_map = new HashMap<String, Integer> (this.super_class.var_map);
+            this.super_class = sTable.getClass(superClassId);
+            this.func_map = new HashMap<String, Integer> (this.super_class.func_map);
+            this.var_map = new HashMap<String, Integer> (this.super_class.var_map);
         }
-        
-        //if ( this.super_class!= null && this.super_class.sVarTable != null)
-        //this.sVarTable.addTable(this.super_class.sVarTable);        
+
     }
     
     @Override
@@ -154,7 +152,7 @@ public class XiClass extends Node {
 
         // step 1: recursively initialize superclasses
         if (super_class != null)
-            body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassId.value), new LinkedList<IRExpr>())));
+            body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassId), new LinkedList<IRExpr>())));
 
         // step 2: compute total size of this class
         int localSize = vars_ordered.size();
@@ -162,10 +160,10 @@ public class XiClass extends Node {
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
         if (super_class != null) {
             // TODO: how to represent the size variable at IR level?
-            IRExpr superSize = new IRTemp("_I_size_" + superClassId.value);
+            IRExpr superSize = new IRTemp("_I_size_" + superClassId);
             body.add(new IRMove(new IRTemp(totalsizevar),
                     new IRBinOp(IRBinOp.OpType.ADD, new IRTemp(totalsizevar), superSize)
-            );
+            ));
         }
         //TODO: ^^^ same as above
         IRExpr thisSize = new IRTemp("_I_size_" + id.value);
@@ -189,7 +187,7 @@ public class XiClass extends Node {
         // if there is a parent, copy over its method pointers
         if (super_class != null) {
             //TODO: same representation issue:
-            IRTemp superdv = new IRTemp("_I_vt_" + superClassId.value);
+            IRTemp superdv = new IRTemp("_I_vt_" + superClassId);
 
             IRTemp index = new IRTemp(Utilities.freshTemp());
             IRTemp addrFrom = new IRTemp(Utilities.freshTemp());
@@ -290,9 +288,25 @@ public class XiClass extends Node {
 		}
     }
     
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof XiClass) {
+            XiClass otherClass = (XiClass) other;
+            if (!id.value.equals(otherClass.id.value))
+                return false;
+            if (superClassId == null && otherClass.superClassId == null)
+                return true;
+            else if (superClassId != null && otherClass.superClassId != null)
+                return superClassId.equals(otherClass.superClassId);
+            else
+                return false;
+        } else
+            return false;
+    }
+
     // new implementation of IndexOfFunc
     public int IndexOfFunc_new(String funcname) {
-    	func_map.putIfAbsent(funcname, func_map.size() + 1);
-    	return func_map.get(funcname);
+        	func_map.putIfAbsent(funcname, func_map.size() + 1);
+        	return func_map.get(funcname);
     }
 }
