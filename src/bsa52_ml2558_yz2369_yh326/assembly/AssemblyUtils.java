@@ -395,10 +395,23 @@ public class AssemblyUtils {
             }
             // external functions won't be covered by previous branch
             else if (stmt.operation.equals("call")) {
-                String label = stmt.operands[0].value();
-                if (includeColon)
-                    label = label + ":";
-                labelNames.add(label);
+
+                String dest = stmt.operands[0].value();
+
+                // we need this extra check because temps are also valid arguments to call.
+                // xi functions will always begin with '_', and we're making the assumption
+                // that temp names will not
+                if (dest.length() >= 1 && dest.substring(0,1).equals("_")) {
+                    String label = stmt.operands[0].value();
+                    if (includeColon)
+                        label = label + ":";
+                    labelNames.add(label);
+                }
+
+//                String label = stmt.operands[0].value();
+//                if (includeColon)
+//                    label = label + ":";
+//                labelNames.add(label);
             }
         }
 
