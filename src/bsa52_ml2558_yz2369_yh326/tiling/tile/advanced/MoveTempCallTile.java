@@ -30,7 +30,12 @@ public class MoveTempCallTile extends Tile {
                     IRName target = (IRName) call.target();
                     targetName = target.name();
                     return true;
-                }
+                }	else if ( call.target() instanceof IRTemp ) {
+            			subtreeRoots.addAll(CallTileUtil.fillCallSubtree(call));
+            			subtreeRoots.add(call.target());
+            			targetName = null;
+            			return true;
+                }                
                 return false;
             }
         }

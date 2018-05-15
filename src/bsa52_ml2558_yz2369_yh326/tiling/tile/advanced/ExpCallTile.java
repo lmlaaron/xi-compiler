@@ -4,6 +4,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRExp;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 import java.util.LinkedList;
 
@@ -26,7 +27,11 @@ public class ExpCallTile extends Tile {
                 IRName target = (IRName) call.target();
                 targetName = target.name();
                 return true;
-            }
+            }	else if ( call.target() instanceof IRTemp ) {
+    				subtreeRoots.addAll(CallTileUtil.fillCallSubtree(call));
+    				subtreeRoots.add(call.target());
+    				return true;
+            }         
             return false;
         } else
             return false;
