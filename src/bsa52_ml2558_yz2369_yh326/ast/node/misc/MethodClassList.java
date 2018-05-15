@@ -48,7 +48,7 @@ public class MethodClassList extends Node {
             if (childIR instanceof IRFuncDecl) {
                 irNode.appendFunc((IRFuncDecl) child.translate());
             } else if (child instanceof XiClass) {
-                for (IRFuncDecl func: ((XiClass) child).listOfIRMethods()) {
+                for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods()) {
             			irNode.appendFunc(func);
                 }
             }

@@ -5,8 +5,6 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
-import bsa52_ml2558_yz2369_yh326.ast.node.expr.ExprAtom;
-import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
@@ -58,7 +56,12 @@ public class VarDecl extends Stmt {
     public void setIsInstanceVariable() {
         this.isInstanceVariable = true;
     }
-
+    
+    @Override
+    public void loadMethods(SymbolTable sTable) throws Exception {
+        return;
+    }
+    
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         typeCheckAndReturn(sTable);

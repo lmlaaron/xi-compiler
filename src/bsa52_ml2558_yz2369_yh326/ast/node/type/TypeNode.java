@@ -5,6 +5,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 
@@ -20,7 +21,7 @@ public class TypeNode extends Node {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        PrimitiveType t = (PrimitiveType) children.get(1).typeCheck(sTable);
+        VariableType t = (VariableType) children.get(1).typeCheck(sTable);
 
         if (children.size() <= 2) {
             // Size of array not given

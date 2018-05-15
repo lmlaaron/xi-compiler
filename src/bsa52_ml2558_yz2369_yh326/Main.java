@@ -160,8 +160,7 @@ public class Main {
             String outputFile = realPath(Settings.outputPath, file);
 
             try {
-                FileReader fileReader = new FileReader(inputFile);
-                lexer xiLexer = LexerWrapper.Lexing(fileReader, outputFile);
+                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 ParserWrapper.Parsing(xiLexer, outputFile, ".iparsed");
             } catch (LexingException | ParsingException e) {
                 e.print(file + ".ixi");
@@ -174,7 +173,7 @@ public class Main {
             }
         }
 
-        // Foe each xi file, diagnose.
+        // For each xi file, diagnose.
         for (String file : Settings.xiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".xi";
             String outputFile = realPath(Settings.outputPath, file);
@@ -182,8 +181,7 @@ public class Main {
 
             // Lexing, parsing, type checking, IR generation
             try {
-                FileReader fileReader = new FileReader(inputFile);
-                lexer xiLexer = LexerWrapper.Lexing(fileReader, outputFile);
+                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.stmt.Stmt;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -26,11 +27,13 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs;
+    private Stack<Stmt> loops;
+    private Map<String, XiClass> classTable;
     private Map<String, Tuple<VariableType, Integer>> varTable;
     private Map<String, Tuple<NodeType, NodeType>> funcTable;
-    private Map<String, XiClass> classTable;
     private Set<String> funcImplemented;
-    private XiClass curClass;
+    private Set<String> interfaceImported;
+    private String curClass;
     private String curFunc;
     private int level;
 
@@ -39,14 +42,39 @@ public class SymbolTable {
      */
     public SymbolTable() {
         logs = new Stack<>();
+        loops = new Stack<>();
+        classTable = new HashMap<>();
         varTable = new HashMap<>();
         funcTable = new HashMap<>();
-        classTable = new HashMap<>();
         funcImplemented = new HashSet<String>();
+        interfaceImported = new HashSet<String>();
+        curClass = null;
         curFunc = null;
         level = 0;
     }
+    
+    public boolean isGlobalMethod(String name) {
+        return funcTable.containsKey(name);
+    }
+    
+    public boolean containsClass(String name) {
+        return classTable.containsKey(name);
+    }
 
+    public XiClass getClass(String name) {
+        return classTable.get(name);
+    }
+    
+    // =============== CURRENT CLASS ===============
+    public XiClass getCurClass() {
+        return classTable.get(curClass);
+    }
+    
+    public void setCurClass(String curClass) {
+        this.curClass = curClass;
+    }
+
+    // =============== CURRENT FUNCTION ===============
     public NodeType getCurFuncReturnType() {
         if (curFunc == null) {
             throw new RuntimeException("Unexpected error.");
@@ -59,21 +87,14 @@ public class SymbolTable {
 
     public void setCurFunction(String curFunc) {
         if (curClass != null)
-            curFunc = "_" + curClass.id.value + "$" + curFunc;
+            curFunc = "_" + curClass + "$" + curFunc;
         this.curFunc = curFunc;
     }
-
-    public XiClass getCurClass() {
-        return curClass;
-    }
-
-    public void setCurClass(XiClass curClass) {
-        this.curClass = curClass;
-    }
-
+    
+    // =============== FUNCTION IMPLEMENTED ===============
     public boolean setFunctionImplemented(String name) {
         if (curClass != null)
-            name = "_" + curClass.id.value + "$" + name;
+            name = "_" + curClass + "$" + name;
         if (funcImplemented.contains(name)) {
             return false;
         } else {
@@ -81,18 +102,23 @@ public class SymbolTable {
             return true;
         }
     }
+    
+    // =============== INTERFACE IMPORTED ===============
+    public boolean setInterfaceImported(String name) {
+        if (interfaceImported.contains(name)) {
+            return false;
+        } else {
+            interfaceImported.add(name);
+            return true;
+        }
+    }
 
-    /**
-     * 
-     */
+    // =============== ENTER / EXIT BLOCK ===============
     public void enterBlock() {
         logs.push(null);
         level++;
     }
 
-    /**
-     * 
-     */
     public void exitBlock() {
         while (!logs.isEmpty()) {
             String last = logs.pop();
@@ -105,53 +131,56 @@ public class SymbolTable {
         level--;
     }
     
-    public boolean addTable(SymbolTable t) {
-    		for (String name: t.varTable.keySet()) {
-    			this.varTable.put(name, t.varTable.get(name));
-    		}
-    		for (String name: t.funcTable.keySet()) {
-    			this.funcTable.put(name, t.funcTable.get(name));
-    		}
-    		return true;
+    // =============== ENTER / EXIT LOOP ===============
+    public void enterLoop(Stmt loopNode) {
+        loops.push(loopNode);
+    }
+    
+    public void exitLoop() {
+        loops.pop();
     }
 
-    /**
-     * @param name
-     * @param VariableType
-     */
+    public Stmt getLastLoop() {
+        if (loops.isEmpty())
+            return null;
+        else
+            return loops.peek();
+    }
+    
+    // =============== ADD CLASS ===============
+    public boolean addClass(XiClass xiClass) {
+        if (classTable.containsKey(xiClass.id.value) && !xiClass.equals(classTable.get(xiClass.id.value))) {
+            return false;
+        } else {
+            classTable.put(xiClass.id.value, xiClass);
+            return true;
+        }
+    }
+
+    // =============== ADD VARIABLE ===============
     public boolean addVar(String name, VariableType variableType) {
         return addVar(name, variableType, false);
     }
     
     public boolean addVar(String name, VariableType variableType, boolean isInstanceVariable) {
-        if (isInstanceVariable) {
-        	//System.out.println(curClass.id.value);
-        	name = "_" + curClass.id.value + "$" + name;
-        }
+        if (isInstanceVariable)
+        	    name = "_" + curClass + "$" + name;
+
         if (funcTable.containsKey(name) || varTable.containsKey(name)) {
             return false;
         } else {
-        	    if  (!isInstanceVariable ) {
-        	    		Tuple<VariableType, Integer> value = new Tuple<>(variableType, level);
-        	    		varTable.put(name, value);
-        	    } else {
-    	    			Tuple<VariableType, Integer> value = new Tuple<>(variableType, 0);
-    	    			varTable.put(name, value);       	    		
-        	    }
-        	    logs.push(name);
+        	    varTable.put(name, new Tuple<>(variableType, level));
+        	    if (!isInstanceVariable) logs.push(name);
             return true;
         }
     }
 
-    /**
-     * @param name
-     * @param funcType
-     */
+    // =============== ADD FUNCTION ===============
     public boolean addFunc(String name, List<VariableType> args, List<VariableType> rets) {
         NodeType arg, ret;
         
         if (curClass != null) {
-            args.add(0, new ObjectType(curClass));
+            args.add(0, new ObjectType(classTable.get(curClass)));
         }
         
         if (args.size() == 0) {
@@ -168,7 +197,9 @@ public class SymbolTable {
         } else {
             ret = new ListVariableType(rets);
         }
-
+        
+        if (curClass != null)
+            name = "_" + curClass + "$" + name;
         if (funcTable.containsKey(name)) {
             // Functions with same name can appear, but must have same signature
             Tuple<NodeType, NodeType> type = funcTable.get(name);
@@ -178,21 +209,12 @@ public class SymbolTable {
                 return false;
             }
         } else {
-            if (curClass != null)
-                name = "_" + curClass.id.value + "$" + name;
             funcTable.put(name, new Tuple<>(arg, ret));
             return true;
         }
     }
     
-    public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value))
-            return false;
-        else {
-            classTable.put(xiClass.id.value, xiClass);
-            return true;
-        }
-    }
+    
 
     /**
      * Given the name of a variable, return the type of that variable. Return null
@@ -203,7 +225,7 @@ public class SymbolTable {
      * @return The type of the variable with the given name or null.
      */
     public VariableType getVariableType(String varName) {
-        VariableType t = getVariableType(curClass, varName);
+        VariableType t = getVariableType(classTable.get(curClass), varName);
         if (t != null) return t;
         
         if (varTable.containsKey(varName)) {
@@ -214,7 +236,7 @@ public class SymbolTable {
     }
     
     public VariableType getVariableType(XiClass xiClass, String varName) {
-        XiClass cur = curClass;
+        XiClass cur = xiClass;
         while (cur != null) {
             String classVar = "_" + cur.id.value + "$" + varName;
             if (varTable.containsKey(classVar))
@@ -234,7 +256,7 @@ public class SymbolTable {
      * @throws FunctionNotDefinedException
      */
     public Tuple<NodeType, NodeType> getFunctionType(String funcName) {
-        Tuple<NodeType, NodeType> t = getFunctionType(curClass, funcName);
+        Tuple<NodeType, NodeType> t = getFunctionType(classTable.get(curClass), funcName);
         if (t != null) return t;
 
         if (funcTable.containsKey(funcName)) {
@@ -255,33 +277,27 @@ public class SymbolTable {
         return null;
     }
     
-    public boolean isGlobalMethod(String name) {
-        return funcTable.containsKey(name);
-    }
-    
-    public boolean containsClass(String name) {
-        return classTable.containsKey(name);
-    }
-
-    public XiClass getClass(String name) {
-        return classTable.get(name);
-    }
-    
     public void dumpTable() {
+        System.out.println("Current level: " + level);
+        System.out.println("Class table:");
+        if (classTable.keySet().size() == 0)
+            System.out.println("  Class table empty.");
+
+        for (String key : classTable.keySet())
+            System.out.println("  " + key + ": " + classTable.get(key).id.value);
+        
         System.out.println("Function table:");
-        if (funcTable.keySet().size() == 0) {
+        if (funcTable.keySet().size() == 0)
             System.out.println("  Function table empty.");
-        }
-        for (String key : funcTable.keySet()) {
+        for (String key : funcTable.keySet())
             System.out.println("  " + key + ": " + funcTable.get(key));
-        }
+
         System.out.println("Variable table:");
-        if (varTable.keySet().size() == 0) {
+        if (varTable.keySet().size() == 0)
             System.out.println("  Variable table empty.");
-        }
-        for (String key : varTable.keySet()) {
+        for (String key : varTable.keySet())
             System.out.println("  " + key + ": " + varTable.get(key));
-        }
+        
         System.out.println("Log:");
         System.out.println("  " + Arrays.toString(logs.toArray()));
     }

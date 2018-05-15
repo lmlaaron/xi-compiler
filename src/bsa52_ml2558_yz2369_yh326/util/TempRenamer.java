@@ -33,7 +33,7 @@ public class TempRenamer extends IRVisitor {
     protected IRVisitor enter(IRNode parent, IRNode n) {
         if (n instanceof IRTemp) {
             IRTemp tmp = (IRTemp) n;
-            if (!specialName(tmp.name()) && !tmp.name().endsWith(suffix)) {
+            if (!specialName(tmp.name()) && !tmp.name().endsWith(suffix) && tmp.name().charAt(0)!='_') {
                 tmp.setName(tmp.name() + suffix);
             }
         }

@@ -25,6 +25,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 public class While extends Stmt {
     protected Expr condition;
     protected Stmt then;
+    public String labelNumber;
 
     public While(int line, int col, Expr condition, Stmt then) {
         super(line, col, new Keyword(line, col, "while"), condition, then);
@@ -33,28 +34,29 @@ public class While extends Stmt {
     }
 
     @Override
-    public NodeType typeCheck(SymbolTable st) throws Exception {
-        NodeType tg = condition.typeCheck(st);
+    public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        NodeType tg = condition.typeCheck(sTable);
         NodeType boolType = new PrimitiveType(Primitives.BOOL);
         if (!tg.equals(boolType)) {
             throw new MatchTypeException(line, col, boolType, tg);
         }
 
-        st.enterBlock();
-        then.typeCheck(st);
-        st.exitBlock();
+        sTable.enterBlock();
+        sTable.enterLoop(this);
+        then.typeCheck(sTable);
+        sTable.exitLoop();
+        sTable.exitBlock();
 
         return new UnitType();
     }
 
     @Override
     public IRNode translate() {
-        return getIRWhile((IRExpr) condition.translate(), then.translate());
+        labelNumber = NumberGetter.uniqueNumberStr();
+        return getIRWhile((IRExpr) condition.translate(), then.translate(), labelNumber);
     }
-
-    public static IRSeq getIRWhile(IRExpr cond, IRNode then) {
-        String labelNumber = NumberGetter.uniqueNumberStr();
-
+    
+    public static IRSeq getIRWhile(IRExpr cond, IRNode then, String labelNumber) {
         List<IRStmt> stmts = new ArrayList<IRStmt>();
         stmts.add(new IRLabel("_head_" + labelNumber));
         stmts.add(new IRCJump(cond, "_then_" + labelNumber));
@@ -68,5 +70,9 @@ public class While extends Stmt {
         stmts.add(new IRJump(new IRName("_head_" + labelNumber)));
         stmts.add(new IRLabel("_end_" + labelNumber));
         return new IRSeq(stmts);
+    }
+
+    public static IRSeq getIRWhile(IRExpr cond, IRNode then) {
+        return getIRWhile(cond, then, NumberGetter.uniqueNumberStr());
     }
 }

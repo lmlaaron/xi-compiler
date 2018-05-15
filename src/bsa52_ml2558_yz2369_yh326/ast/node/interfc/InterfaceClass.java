@@ -1,7 +1,9 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.interfc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 
 public class InterfaceClass extends Interface {
     private Identifier id;
@@ -18,15 +20,20 @@ public class InterfaceClass extends Interface {
         this.id = id;
         this.superClassId = extend;
     }
-
+    
     @Override
     public void loadClasses(SymbolTable sTable) throws Exception {
-        System.out.println("INTERFACE CLASS: LOAD CLASS TO BE IMPLEMENTED");
+        XiClass newClass = new XiClass(line, col, id, superClassId);
+        newClass.superClassId = superClassId == null ? null : superClassId.value;
+        if (sTable.addClass(newClass) == false)
+            throw new AlreadyDefinedException(line, col, id.value);
     }
     
     @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        System.out.println("INTERFACE CLASS: LOAD METHOD TO BE IMPLEMENTED");
+        sTable.setCurClass(id.value);
+        for (int i = 1; i < children.size(); i++)
+            children.get(i).loadMethods(sTable);
+        sTable.setCurClass(null);
     }
-    
 }
