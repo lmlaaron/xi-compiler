@@ -1,12 +1,12 @@
 class C {
     a : int
-    init(x : int) : C {
+    init(x : int)  {
         // both of these should pass:
         a = x
-        this.a = x
+        x=this.a
 
-        return this
+        //return this
     }
 }
 
-def makeC(a: int) { return new C.init(a) }
+makeC(a: int){  new C.init(1) }

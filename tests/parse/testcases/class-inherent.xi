@@ -11,13 +11,14 @@ class SubClass extends SuperClass {
 }
 
 makeTest(super:SuperClass, sub:SubClass) {
+	a:int = 2 
 	s:int = 0
 	s= super.a
 	s=super.b
 	super.c()
 
-	s=sub.a
-	s=sub.b 
+	//s=sub.a
+	//s=sub.b 
 	sub.c()
 	s=sub.d 
 	sub.e()
