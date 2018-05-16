@@ -55,6 +55,8 @@ public class Main {
         usage += "  --abstract       Generate abstract assembly .aasm file.\n";
         usage += "  --disasmgen      Generate acutal assembly by transforming abtract assembly.\n";
         usage += "  --comment        Add comments to generated assembly.\n";
+        usage += "  --debugast       Print a tree consisting of the type of each node in the parse tree\n";
+        usage += "  --defaultvalues  Alters AST to set unassigned variables to their default values\n";
         //usage += "  --brentHack      Does whatever Brent wants it to do, for testing.\n";
 
         System.out.println(usage);
@@ -110,7 +112,12 @@ public class Main {
                     Settings.disAsmGen = true;
                 } else if (argv[i].equals("--comment")) {
                     Settings.asmComments = true;
-                } else {
+                } else if (argv[i].equals("--debugast")) {
+                    Settings.debugAst = true;
+                } else if (argv[i].equals("--defaultvalues")) {
+                    Settings.defaultValues = true;
+                }
+                else {
                     System.out.println("WARNING: unrecognized option \"" + argv[i] + "\". Ignoring.");
                 }
             } else if (argv[i].startsWith("-")) {
@@ -185,6 +192,7 @@ public class Main {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
                 ast = InitializeToZero.do_it(ast);
+                if (Settings.debugAst) ParserWrapper.DebugPrintASTNodeTypes(ast);
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
                 XiClasses.consolidate(XiClass.all);
