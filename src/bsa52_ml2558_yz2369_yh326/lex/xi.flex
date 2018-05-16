@@ -63,6 +63,8 @@ SingleCharacter = [^\r\n\'\\]
 %%
 
 <YYINITIAL> {
+  "for"             { return symbol(FOR,           yytext()); }
+  "in"              { return symbol(IN,            yytext()); }
   "true"            { return symbol(TRUE,          yytext()); }
   "false"           { return symbol(FALSE,         yytext()); }
   "int"             { return symbol(INT,           yytext()); }
