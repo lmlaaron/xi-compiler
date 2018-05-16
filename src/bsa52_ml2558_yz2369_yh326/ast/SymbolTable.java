@@ -3,6 +3,7 @@
  */
 package bsa52_ml2558_yz2369_yh326.ast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,8 +150,15 @@ public class SymbolTable {
     
     // =============== ADD CLASS ===============
     public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value) && !xiClass.equals(classTable.get(xiClass.id.value))) {
-            return false;
+        if (classTable.containsKey(xiClass.id.value)) {
+            if (!xiClass.equals(classTable.get(xiClass.id.value))) {
+                return false;
+            } else {
+                xiClass.funcs_ordered = new ArrayList<>(classTable.get(xiClass.id.value).funcs_ordered);
+                xiClass.hasInterface = true;
+                classTable.put(xiClass.id.value, xiClass);
+                return true;
+            }
         } else {
             classTable.put(xiClass.id.value, xiClass);
             return true;

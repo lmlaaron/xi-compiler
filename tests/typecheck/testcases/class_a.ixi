@@ -1,5 +1,11 @@
 class A {
     a() : int
+    init() : A
+}
+
+class B extends A {
+    b():int
+    init():B
 }
 
 makeA(a_ : int):A

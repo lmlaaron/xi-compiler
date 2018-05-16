@@ -13,14 +13,15 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
-import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceMethod;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
+import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.*;
@@ -34,10 +35,8 @@ public class XiClass extends Node {
 	public XiClass super_class; // super_class of the current class, might be NULL
     public Identifier id;
     public String superClassId;
-    private InterfaceMethod implemented_itfc; // may not need, since class does not necessarily implement a interface
-	// but if it does, the order of the functions in DV must follow that in the interface file, not the class file
-	
-	// below is redundant need to figure out a way to have a Map with indexof method
+    
+    public boolean hasInterface;
     public List<String> vars_ordered; // list of member variables
     public List<String> funcs_ordered; // list of member functions
     
@@ -54,9 +53,7 @@ public class XiClass extends Node {
     }
     
     public int NumMethods() {
-    			if (implemented_itfc != null ) {
-				return implemented_itfc.NumMethods();
-			} else if ( super_class == null) {
+    			if ( super_class == null) {
 				return funcs_ordered.size();
 			} else {
 				return funcs_ordered.size() + super_class.NumMethods();
@@ -90,6 +87,7 @@ public class XiClass extends Node {
         instance.id = id;
         instance.super_class = null;
         instance.superClassId = extend == null ? null : extend.value;
+        instance.hasInterface = false;
         instance.vars_ordered = new ArrayList<>();
         instance.funcs_ordered = new ArrayList<>();
         all.add(instance);
@@ -110,7 +108,38 @@ public class XiClass extends Node {
     
     @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        Utilities.loadClassContent(this, sTable);
+        List<String> funcs_ordered = new ArrayList<>();
+        if (hasInterface) {
+            for (Node child : children) {
+                if (child instanceof Method) {
+                    funcs_ordered.add(((Method) child).id.value);
+                }
+            }
+            if (!funcs_ordered.containsAll(this.funcs_ordered)) {
+                throw new OtherException(line, col, "Some functions declaired in the interface are not implemented.");
+            }
+        }
+        
+        sTable.enterBlock();
+        sTable.setCurClass(id.value);
+        for (Node child : children) {
+            if (child instanceof VarDecl) {
+                VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
+                ((VarDecl) child).getId().forEach(id -> vars_ordered.add(id.value));
+            } else if (child instanceof Method) {
+                String funcName = ((Method) child).id.value;
+                if (hasInterface) {
+                    if (sTable.getFunctionType(this, funcName) == null) {
+                        throw new OtherException(line, col, "Function \"" + funcName + "\" is not declaired in the interface.");
+                    }
+                } else {
+                    this.funcs_ordered.add(funcName);
+                }
+                child.loadMethods(sTable);
+            }
+        }
+        sTable.setCurClass(null);
+        sTable.exitBlock();
     }
     
     @Override
@@ -133,6 +162,7 @@ public class XiClass extends Node {
 
         sTable.setCurClass(null);
         sTable.exitBlock();
+        System.out.println(funcs_ordered);
         return new UnitType();
     }
 
@@ -287,9 +317,7 @@ public class XiClass extends Node {
     
     // old implementation of IndexOfFunc
     public int IndexOfFunc(String funcname) {
-		if ( implemented_itfc != null ) {
-			return implemented_itfc.IndexOfFunc(funcname);
-		} else if ( super_class != null) {
+		if ( super_class != null) {
 			if ( super_class.IndexOfFunc(funcname)!= RUNTIME_RESOLVE) {
 				return super_class.IndexOfFunc(funcname);
 			}
