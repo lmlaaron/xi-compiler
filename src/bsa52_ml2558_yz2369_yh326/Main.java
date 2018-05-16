@@ -13,6 +13,7 @@ import bsa52_ml2558_yz2369_yh326.assembly.AssemblyWrapper;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClasses;
+import bsa52_ml2558_yz2369_yh326.ast.procedures.InitializeToZero;
 import bsa52_ml2558_yz2369_yh326.exception.LexingException;
 import bsa52_ml2558_yz2369_yh326.exception.ParsingException;
 import bsa52_ml2558_yz2369_yh326.exception.TypecheckingException;
@@ -183,6 +184,7 @@ public class Main {
             try {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
+                ast = InitializeToZero.do_it(ast);
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
                 XiClasses.consolidate(XiClass.all);
