@@ -153,7 +153,7 @@ public class Node {
      * @return IRNode
      */
     public IRNode translate() {
-        throw new RuntimeException("translate() not implemented for given subclass");
+        throw new RuntimeException("translate() not implemented for given subclass: " + this.getClass());
     }
 
     /**

@@ -27,6 +27,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class VarDecl extends Stmt {
+	public VariableType VarType;
     private List<Identifier> ids;
     private TypeNode typeNode;
     private List<Expr> sizes;
@@ -72,11 +73,32 @@ public class VarDecl extends Stmt {
         // Get NodeType from typeNode
         // For example, from Node ([] int) get NodeType int[]
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
+        VarType = t;
         for (Identifier id : ids)
             if (sTable.addVar(id.value, t, isInstanceVariable) == false)
                 throw new AlreadyDefinedException(line, col, id.value);
         sizes = t.getSizes();
         return t;
+    }
+
+    // TODO Mulong need to resolve the size if it is not constant
+    public int getUnitSize() {
+    		int ret = 1;
+    		if ( sizes == null ) {
+    			return 1;
+    		}
+        for (int i = 0; i < sizes.size(); i++) {
+            if (sizes.get(i) == null)
+                    return 1;
+
+             IRExpr size = (IRExpr) sizes.get(i).translate();
+             if (size instanceof IRConst ) {
+                  ret = (int) (ret * ((IRConst) size).value());
+             } else {
+               return 1;
+             }
+       }
+        return ret;
     }
 
     @Override

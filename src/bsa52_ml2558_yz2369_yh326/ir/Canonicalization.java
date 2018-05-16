@@ -47,7 +47,7 @@ public class Canonicalization {
                 for (Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet()) {
                     functions.put(function.getKey(), (IRFuncDecl) Canonicalize(function.getValue()));
                 }
-                return new IRCompUnit(((IRCompUnit) input).name(), functions);
+                return new IRCompUnit(((IRCompUnit) input).name(), functions, (IRCompUnit) input);
             } else {
                 throw new IRNodeNotMatchException(input);
             }
@@ -71,7 +71,7 @@ public class Canonicalization {
             for (Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet()) {
                 functions.put(function.getKey(), (IRFuncDecl) BlockReordering(function.getValue()));
             }
-            return new IRCompUnit(((IRCompUnit) input).name(), functions);
+            return new IRCompUnit(((IRCompUnit) input).name(), functions,  (IRCompUnit) input);
         } else if (input instanceof IRFuncDecl) {
             return new IRFuncDecl(((IRFuncDecl) input).name(), (IRStmt) BlockReordering(((IRFuncDecl) input).body()));
         } else {
@@ -108,7 +108,7 @@ public class Canonicalization {
             for (Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet()) {
                 functions.put(function.getKey(), (IRFuncDecl) TameCjump(function.getValue()));
             }
-            return new IRCompUnit(((IRCompUnit) input).name(), functions);
+            return new IRCompUnit(((IRCompUnit) input).name(), functions,  (IRCompUnit) input);
         }
         return input;
     }
@@ -133,7 +133,7 @@ public class Canonicalization {
             for (Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet()) {
                 functions.put(function.getKey(), (IRFuncDecl) Lift(function.getValue()));
             }
-            return new IRCompUnit(((IRCompUnit) input).name(), functions);
+            return new IRCompUnit(((IRCompUnit) input).name(), functions,  (IRCompUnit) input);
         }
         return input;
     }
@@ -157,7 +157,7 @@ public class Canonicalization {
                 for (Map.Entry<String, IRFuncDecl> function : ((IRCompUnit) input).functions().entrySet()) {
                     functions.put(function.getKey(), (IRFuncDecl) Folding(function.getValue()));
                 }
-                return new IRCompUnit(((IRCompUnit) input).name(), functions);
+                return new IRCompUnit(((IRCompUnit) input).name(), functions,  (IRCompUnit) input);
             }
             throw new IRNodeNotMatchException(input);
         } catch (IRNodeNotMatchException e) {

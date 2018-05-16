@@ -103,22 +103,6 @@ public class Dot extends Expr {
 						callAddr, 
 						args)
 				);
-		/*return new IRCall(
-				// calculate the address of the called function
-				new IRBinOp(
-						IRBinOp.OpType.ADD,
-						// address of DV
-						new IRMem(
-								new IRMem(
-										children1IRTemp
-												)
-						),
-						// abosulte offset
-						absoluteFuncOffset
-				),
-				// arguments list of the called function
-				args
-			);*/
     }
     
     private IRNode translateVariable() {

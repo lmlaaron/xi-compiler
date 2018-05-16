@@ -160,13 +160,13 @@ public class XiClass extends Node {
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
         if (super_class != null) {
             // TODO: how to represent the size variable at IR level?
-            IRExpr superSize = new IRTemp("_I_size_" + superClassId);
+            IRExpr superSize = new IRName("_I_size_" + superClassId);
             body.add(new IRMove(new IRTemp(totalsizevar),
                     new IRBinOp(IRBinOp.OpType.ADD, new IRTemp(totalsizevar), superSize)
             ));
         }
         //TODO: ^^^ same as above
-        IRExpr thisSize = new IRTemp("_I_size_" + id.value);
+        IRExpr thisSize = new IRName("_I_size_" + id.value);
         body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
 
         // step 3: allocate dispatch vector
@@ -179,15 +179,15 @@ public class XiClass extends Node {
             treeDVSize += xc.sizeOfListOfIRMethods(); //.size();
         }
         // TODO: don't know how to represent this variable at IR level
-        IRExpr dv = new IRTemp("_I_vt_" + id.value);
-        LinkedList<IRExpr> alloc_size = new LinkedList<>();
-        alloc_size.add(new IRConst(treeDVSize*8));
-        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
+        IRExpr dv = new IRName("_I_vt_" + id.value);
+        //LinkedList<IRExpr> alloc_size = new LinkedList<>();
+        //alloc_size.add(new IRConst(treeDVSize*8));
+        //body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
         if (super_class != null) {
             //TODO: same representation issue:
-            IRTemp superdv = new IRTemp("_I_vt_" + superClassId);
+            IRName superdv = new IRName("_I_vt_" + superClassId);
 
             IRTemp index = new IRTemp(Utilities.freshTemp());
             IRTemp addrFrom = new IRTemp(Utilities.freshTemp());
@@ -246,7 +246,7 @@ public class XiClass extends Node {
     public List<IRFuncDecl> GenerateListOfIRMethods() {
         List<IRFuncDecl> list = new ArrayList<>();
 
-        list.add(getInitFunction());
+       list.add(getInitFunction());
 
     		for (Node child: children) {
     			if ( child instanceof Method) {
