@@ -150,17 +150,17 @@ public class SymbolTable {
     
     // =============== ADD CLASS ===============
     public boolean addClass(XiClass xiClass) {
-        if (classTable.containsKey(xiClass.id.value)) {
-            if (!xiClass.equals(classTable.get(xiClass.id.value))) {
+        if (classTable.containsKey(xiClass.classId.value)) {
+            if (!xiClass.equals(classTable.get(xiClass.classId.value))) {
                 return false;
             } else {
-                xiClass.funcs_ordered = new ArrayList<>(classTable.get(xiClass.id.value).funcs_ordered);
+                xiClass.funcs_ordered = new ArrayList<>(classTable.get(xiClass.classId.value).funcs_ordered);
                 xiClass.hasInterface = true;
-                classTable.put(xiClass.id.value, xiClass);
+                classTable.put(xiClass.classId.value, xiClass);
                 return true;
             }
         } else {
-            classTable.put(xiClass.id.value, xiClass);
+            classTable.put(xiClass.classId.value, xiClass);
             return true;
         }
     }
@@ -246,7 +246,7 @@ public class SymbolTable {
     public VariableType getVariableType(XiClass xiClass, String varName) {
         XiClass cur = xiClass;
         while (cur != null) {
-            String classVar = "_" + cur.id.value + "$" + varName;
+            String classVar = "_" + cur.classId.value + "$" + varName;
             if (varTable.containsKey(classVar))
                 return varTable.get(classVar).t1;
             cur = cur.super_class;
@@ -277,7 +277,7 @@ public class SymbolTable {
     public Tuple<NodeType, NodeType> getFunctionType(XiClass xiClass, String funcName) {
         XiClass cur = xiClass;
         while (cur != null) {
-            String classFunc = "_" + cur.id.value + "$" + funcName;
+            String classFunc = "_" + cur.classId.value + "$" + funcName;
             if (funcTable.containsKey(classFunc))
                 return funcTable.get(classFunc);
             cur = cur.super_class;
@@ -292,7 +292,7 @@ public class SymbolTable {
             System.out.println("  Class table empty.");
 
         for (String key : classTable.keySet())
-            System.out.println("  " + key + ": " + classTable.get(key).id.value);
+            System.out.println("  " + key + ": " + classTable.get(key).classId.value);
         
         System.out.println("Function table:");
         if (funcTable.keySet().size() == 0)

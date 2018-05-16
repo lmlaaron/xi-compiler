@@ -24,7 +24,7 @@ public class InterfaceClass extends Interface {
     @Override
     public void loadClasses(SymbolTable sTable) throws Exception {
         XiClass newClass = new XiClass(line, col, id, superClassId);
-        newClass.superClassId = superClassId == null ? null : superClassId.value;
+        newClass.superClassName = superClassId == null ? null : superClassId.value;
         if (sTable.addClass(newClass) == false)
             throw new AlreadyDefinedException(line, col, id.value);
     }

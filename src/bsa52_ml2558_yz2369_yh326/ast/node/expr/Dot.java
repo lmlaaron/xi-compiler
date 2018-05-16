@@ -112,7 +112,7 @@ public class Dot extends Expr {
 			absoluteVarOffset = new IRBinOp(
 					IRBinOp.OpType.ADD,
 					new IRConst(varoffset),
-				    new IRTemp("_I_size_"+leftObjType.getType().super_class.id)
+				    new IRTemp("_I_size_"+leftObjType.getType().super_class.classId)
 					);
 		} else {
 			absoluteVarOffset = new IRConst(varoffset);

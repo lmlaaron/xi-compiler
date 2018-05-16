@@ -105,11 +105,11 @@ public class Method extends Node {
     		if (this.args == null ) {
     			
     			this.args = new FunctionTypeDeclList(line, col,
-    					new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.id.value)));
+    					new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
     		} else if (this.args.children.size() == 1) {
-    			this.args.children.add( new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.id.value)));
+    			this.args.children.add( new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
     		} else {
-    			this.args.addHead(  new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.id.value)));
+    			this.args.addHead(  new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
     		}
     }
 

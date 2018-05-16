@@ -34,14 +34,14 @@ public class ObjectType extends VariableType {
             result += "a";
         }
         result +="o";
-        result+= String.valueOf(type.id.value.length());
-        result += type.id.value;
+        result+= String.valueOf(type.classId.value.length());
+        result += type.classId.value;
         return result;
     }
 
     @Override
     public String toString() {
-        String typeString = type.id.value;
+        String typeString = type.classId.value;
         for (int i = 0; i < level; i++) {
             typeString += "[";
             Expr sizeNode = sizes.get(i);
@@ -63,7 +63,7 @@ public class ObjectType extends VariableType {
             ObjectType otherType = (ObjectType) other;
             XiClass cur = type;
             while (cur != null) {
-                if (cur.id.value.equals(otherType.type.id.value)) {
+                if (cur.classId.value.equals(otherType.type.classId.value)) {
                     return true;
                 }
                 cur = cur.super_class;
