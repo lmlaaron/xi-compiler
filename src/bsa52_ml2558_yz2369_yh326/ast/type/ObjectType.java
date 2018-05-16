@@ -103,7 +103,7 @@ public class ObjectType extends VariableType {
      */
     // Should fieldname be a more proper name?
     public int IndexOfVar(String varname) {
-    		// to be implemented
+    		// TODO: to be implemented
     		return type.indexOfVar(varname);
     }
     
@@ -111,7 +111,8 @@ public class ObjectType extends VariableType {
      * translate string of function name to index 
      */
     public int IndexOfFunc(String funcname) {
-    		// to be implemented
-    		return type.IndexOfFunc(funcname);
+    		// TODO: to be implemented
+            return 0;
+    		//return type.IndexOfFunc(funcname);
     }
 }
