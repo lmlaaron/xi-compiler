@@ -68,6 +68,7 @@ nonterminal Use use;
 
 nonterminal MethodClassList method_class_list;
 nonterminal Node method_class;
+nonterminal Expr global_init;
 
 nonterminal XiClass xi_class;
 nonterminal ClassItemList class_item_empty, class_item_list;
@@ -155,8 +156,14 @@ method_class_list::= method_class:m method_class_list:ml
 method_class     ::= method:m                {:RESULT = m;:}
                    | xi_class:c              {:RESULT = c;:}
                    | var_decl:v              {:RESULT = v;:}
-                   | var_decl_empty:vd GETS INTEGER_LITERAL:il
-                       {:RESULT = new AssignSingle(vdleft, vdright, vd, new IntegerLiteral(illeft, ilright, il));:};
+                   | var_decl:v SEMICOLON    {:RESULT = v;:}
+                   | var_decl_empty:vd GETS global_init:g
+                       {:RESULT = new AssignSingle(vdleft, vdright, vd, g);:}
+                   | var_decl_empty:vd GETS global_init:g SEMICOLON
+                       {:RESULT = new AssignSingle(vdleft, vdright, vd, g);:};
+global_init      ::= INTEGER_LITERAL:il      {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
+                   | TRUE:a                  {:RESULT = new TrueLiteral(aleft, aright);:}
+                   | FALSE:a                 {:RESULT = new FalseLiteral(aleft, aright);:};
 
 /* ================= CLASS ================================================== */
 xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_empty:cl CLOSE_BRACE
@@ -170,6 +177,7 @@ class_item_list  ::= class_item:c
                    | class_item:c class_item_list:cl
                        {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
 class_item       ::= var_decl:v              {:RESULT = v; ((VarDecl) RESULT).setIsInstanceVariable();:}
+                   | var_decl:v SEMICOLON    {:RESULT = v; ((VarDecl) RESULT).setIsInstanceVariable();:}
                    | method:m                {:RESULT = m;:};
                    
 /* ================= METHOD ================================================= */
