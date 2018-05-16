@@ -294,17 +294,7 @@ public class XiClass extends Node {
     }
 
     public int indexOfVar(String varname) {
-        // if there is no superclass or superclass is fully resolved
-        // just return the index
-        if (super_class != null) {
-            if (super_class.indexOfVar(varname) != RUNTIME_RESOLVE) {
-                return super_class.indexOfVar(varname);
-            }
-            return super_class.numVariables() + vars_ordered.indexOf(varname);
-        } else {
-            int i = 0;
-            return vars_ordered.indexOf(varname);
-        }
+        return vars_ordered.indexOf(varname);
     }
 
     public int indexOfFunc(String funcname) {
