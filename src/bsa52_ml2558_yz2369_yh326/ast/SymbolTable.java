@@ -285,6 +285,17 @@ public class SymbolTable {
         return null;
     }
     
+    public boolean isOverride(XiClass xiClass, String funcName) {
+        XiClass cur = xiClass.super_class;
+        while (cur != null) {
+            String classFunc = "_" + cur.classId.value + "$" + funcName;
+            if (funcTable.containsKey(classFunc))
+                return true;
+            cur = cur.super_class;
+        }
+        return false;
+    }
+    
     public void dumpTable() {
         System.out.println("Current level: " + level);
         System.out.println("Class table:");

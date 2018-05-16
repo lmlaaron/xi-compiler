@@ -104,7 +104,7 @@ public class ObjectType extends VariableType {
     // Should fieldname be a more proper name?
     public int IndexOfVar(String varname) {
     		// to be implemented
-    		return type.IndexOfVar(varname);
+    		return type.indexOfVar(varname);
     }
     
     /**
