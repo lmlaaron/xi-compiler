@@ -55,7 +55,7 @@ terminal String INT, BOOL;
 terminal String IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT;
+  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT, NULL;
 
 // These two are not include in the given xi.cup
 terminal TIMES_SHIFT, ERROR, CONTINUE;
@@ -420,6 +420,7 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
+                   | NULL:n                {:RESULT = new NullLiteral(nleft, nright);:}
                    | call:c                {:RESULT = c;:}
                    | length_expr:ls        {:RESULT = ls;:}
                    | dot_get:dg            {:RESULT = dg;:};

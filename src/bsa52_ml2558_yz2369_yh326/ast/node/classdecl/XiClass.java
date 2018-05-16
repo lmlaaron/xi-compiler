@@ -146,23 +146,15 @@ public class XiClass extends Node {
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         sTable.setCurClass(id.value);
         sTable.enterBlock();
-        // First pass only process VarDecl
-        for (Node child : children)
-            if (child instanceof VarDecl) {
-                //((VarDecl) child).typeCheckAndReturn(sTable);
-                vars_ordered.add(child.value);
-            }
-        // Second pass process Method
+        // Instance variables have already been typechecked
         for (Node child : children) {
             if (child instanceof Method) {
                 child.typeCheck(sTable);
-                	funcs_ordered.add(child.value);
             }
         }
 
         sTable.setCurClass(null);
         sTable.exitBlock();
-        System.out.println(funcs_ordered);
         return new UnitType();
     }
 
