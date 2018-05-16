@@ -40,4 +40,6 @@ public class Settings {
     public static boolean asmComments = false;
     public static boolean genAbstract = false;
     public static boolean disAsmGen = false;
+    public static boolean debugAst = false;
+    public static boolean defaultValues = true;
 }
