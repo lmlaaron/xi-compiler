@@ -73,15 +73,15 @@ SingleCharacter = [^\r\n\'\\]
   "if"              { return symbol(IF,            yytext()); }
   "else"            { return symbol(ELSE,          yytext()); }
   "while"           { return symbol(WHILE,         yytext()); }
-  // BREAK ???
+  "break"           { return symbol(BREAK,         yytext()); }
+  "continue"        { return symbol(CONTINUE,      yytext()); }
   "return"          { return symbol(RETURN,        yytext()); }
   "use"             { return symbol(USE,           yytext()); }
   "length"          { return symbol(LENGTH,        yytext()); }
   "class"           { return symbol(CLASS,         yytext()); }
   "extends"         { return symbol(EXTENDS,       yytext()); }
   "new"             { return symbol(NEW,           yytext()); }
-  "break"           { return symbol(BREAK,         yytext()); }
-  "continue"        { return symbol(CONTINUE,      yytext()); }
+  "null"            { return symbol(NULL,          yytext()); }
   "+"               { return symbol(PLUS,          yytext()); }
   "-"               { return symbol(MINUS,         yytext()); }
   "*"               { return symbol(TIMES,         yytext()); }

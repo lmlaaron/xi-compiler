@@ -55,7 +55,7 @@ terminal String INT, BOOL;
 terminal String IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT, FOR, IN;
+  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT, NULL, FOR, IN;
 
 // These two are not include in the given xi.cup
 terminal TIMES_SHIFT, ERROR, CONTINUE;
@@ -68,6 +68,7 @@ nonterminal Use use;
 
 nonterminal MethodClassList method_class_list;
 nonterminal Node method_class;
+nonterminal Expr global_init;
 
 nonterminal XiClass xi_class;
 nonterminal ClassItemList class_item_empty, class_item_list;
@@ -156,8 +157,14 @@ method_class_list::= method_class:m method_class_list:ml
 method_class     ::= method:m                {:RESULT = m;:}
                    | xi_class:c              {:RESULT = c;:}
                    | var_decl:v              {:RESULT = v;:}
-                   | var_decl_empty:vd GETS INTEGER_LITERAL:il
-                       {:RESULT = new AssignSingle(vdleft, vdright, vd, new IntegerLiteral(illeft, ilright, il));:};
+                   | var_decl:v SEMICOLON    {:RESULT = v;:}
+                   | var_decl_empty:vd GETS global_init:g
+                       {:RESULT = new AssignSingle(vdleft, vdright, vd, g);:}
+                   | var_decl_empty:vd GETS global_init:g SEMICOLON
+                       {:RESULT = new AssignSingle(vdleft, vdright, vd, g);:};
+global_init      ::= INTEGER_LITERAL:il      {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
+                   | TRUE:a                  {:RESULT = new TrueLiteral(aleft, aright);:}
+                   | FALSE:a                 {:RESULT = new FalseLiteral(aleft, aright);:};
 
 /* ================= CLASS ================================================== */
 xi_class         ::= CLASS:c identifier:id OPEN_BRACE class_item_empty:cl CLOSE_BRACE
@@ -171,6 +178,7 @@ class_item_list  ::= class_item:c
                    | class_item:c class_item_list:cl
                        {:RESULT = new ClassItemList(cleft, cright, c); RESULT.addChildren(cl);:};
 class_item       ::= var_decl:v              {:RESULT = v; ((VarDecl) RESULT).setIsInstanceVariable();:}
+                   | var_decl:v SEMICOLON    {:RESULT = v; ((VarDecl) RESULT).setIsInstanceVariable();:}
                    | method:m                {:RESULT = m;:};
                    
 /* ================= METHOD ================================================= */
@@ -416,6 +424,7 @@ expr_no_paren    ::= identifier:id         {:RESULT = id;:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
+                   | NULL:n                {:RESULT = new NullLiteral(nleft, nright);:}
                    | call:c                {:RESULT = c;:}
                    | length_expr:ls        {:RESULT = ls;:}
                    | dot_get:dg            {:RESULT = dg;:};

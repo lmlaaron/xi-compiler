@@ -9,7 +9,6 @@ import bsa52_ml2558_yz2369_yh326.ast.node.type.ArrayTypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.PrimitiveTypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
-import com.sun.jdi.PrimitiveValue;
 
 import java.util.LinkedList;
 import java.util.List;

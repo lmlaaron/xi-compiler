@@ -12,6 +12,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
+import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
@@ -26,23 +27,6 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class Utilities {
-    public static void loadClassContent(XiClass xiClass, SymbolTable sTable)
-            throws Exception {
-        sTable.enterBlock();
-        sTable.setCurClass(xiClass.id.value);
-        for (Node child : xiClass.children) {
-            if (child instanceof VarDecl) {
-                VariableType vType = (VariableType) ((VarDecl) child).typeCheckAndReturn(sTable);
-                //((VarDecl) child).getId().forEach(id -> xiClass.vars.put(id.value, vType));
-            } else if (child instanceof Method) {
-                child.loadMethods(sTable);
-                String id = ((Method) child).id.value;
-                //xiClass.funcs.put(id, sTable.getFunctionType(id));
-            }
-        }
-        sTable.setCurClass(null);
-        sTable.exitBlock();
-    }
     
     /**
      * Load the given method into the symbol table. This is different from the

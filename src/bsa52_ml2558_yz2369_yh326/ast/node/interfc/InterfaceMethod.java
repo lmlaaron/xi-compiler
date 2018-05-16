@@ -1,6 +1,7 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.interfc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
@@ -35,14 +36,8 @@ public class InterfaceMethod extends Interface {
         if (Utilities.loadMethod(sTable, id.value, args, rets) == false) {
             throw new AlreadyDefinedException(line, col, id.value);
         }
-    }
-    
-    public int NumMethods() {
-    		return args.children.size();
-    }
-    
-    public int IndexOfFunc(String funcname) {
-    		// TO be implemented 
-    		return 0/0;
+        XiClass curClass = sTable.getCurClass();
+        if (curClass != null)
+            curClass.funcs_ordered.add(id.value);
     }
 }
