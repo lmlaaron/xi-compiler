@@ -71,7 +71,7 @@ public class New extends Expr {
 		//and call _I_init_someClass to construct _I_dv_someClass
 		stmts.add(new IRExp(
 				new IRCall(
-						new IRName("_I_init_"+objClass.classId+"()"))));
+						new IRName("_I_init_"+objClass.classId))));
 		
 		// label for no init, directly jump here if _I_size_someClass is not zero
 		stmts.add(new IRLabel(objName+"_noinit"));

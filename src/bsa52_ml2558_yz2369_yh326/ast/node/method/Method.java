@@ -48,7 +48,7 @@ public class Method extends Node {
         this.id = id;
         this.args = args;
         this.rets = rets;
-        this.block = b;
+        this.setBlock(b);
         this.argTypes = new ArrayList<>();
         this.retTypes = new ArrayList<>();
     }
@@ -83,8 +83,8 @@ public class Method extends Node {
         // Type check the statement list
         NodeType actual = new UnitType();
         NodeType expected = sTable.getFunctionType(id.value).t2;
-        if (block != null) {
-            actual = block.typeCheck(sTable);
+        if (getBlock() != null) {
+            actual = getBlock().typeCheck(sTable);
         }
         if (actual instanceof UnitType && !(expected instanceof UnitType)) {
             throw new OtherException(line, col, "Missing return statement");
@@ -120,7 +120,7 @@ public class Method extends Node {
         if (args != null) {
             stmts.addAll(((IRSeq) args.translate()).stmts());
         }
-        stmts.addAll(((IRSeq) block.translate()).stmts());
+        stmts.addAll(((IRSeq) getBlock().translate()).stmts());
 
         // If no return is given for a procedure, need to add one.
         if (stmts.size() == 0 || !(stmts.get(stmts.size() - 1) instanceof IRReturn)) {
@@ -128,4 +128,12 @@ public class Method extends Node {
         }
         return new IRFuncDecl(name, new IRSeq(stmts));
     }
+
+	public StmtList getBlock() {
+		return block;
+	}
+
+	public void setBlock(StmtList block) {
+		this.block = block;
+	}
 }

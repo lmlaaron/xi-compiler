@@ -37,6 +37,23 @@ public class ParserWrapper {
         return node;
     }
 
+    public static void DebugPrintASTNodeTypes(Node ast) {
+        _printASTTypes(ast, 0);
+    }
+    private static void _printASTTypes(Node n, int depth) {
+        for (int i = 0; i < depth; i++)
+            System.out.print('\t');
+        System.out.print(n.getClass().getSimpleName());
+        System.out.print("    ");
+        System.out.println(n.value);
+        if (n.children != null) {
+            for (Node child : n.children) {
+                if (child != null)
+                    _printASTTypes(child, depth + 1);
+            }
+        }
+    }
+
     /**
      * 
      * @param realInputFile,

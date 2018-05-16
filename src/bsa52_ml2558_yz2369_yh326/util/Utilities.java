@@ -72,6 +72,12 @@ public class Utilities {
         return result;
     }
     
+    public static String toIRGlobalName(String name, VariableType type) {
+        String result = "_I_g_" + name.replace("_", "__") + "_";
+        result+= type.toShortString();
+        return result;
+    }
+    
     public static IRESeq xiAlloc(IRExpr size) {
         String labelNumber = NumberGetter.uniqueNumberStr();
         List<IRStmt> stmts = new ArrayList<IRStmt>();

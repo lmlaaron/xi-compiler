@@ -8,11 +8,13 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
+import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
@@ -82,22 +84,25 @@ public class Dot extends Expr {
 		IRExpr absoluteFuncOffset = new IRConst(funcoffset);	
 		
 		// invoke the member function call
-		return new IRCall(
-				// calculate the address of the called function
-				new IRBinOp(
-						IRBinOp.OpType.ADD,
-						// address of DV
-						new IRMem(
-								new IRMem(
-										children1IRTemp
+		IRTemp callAddr = new IRTemp(Utilities.freshTemp());
+		return new IRESeq(
+						new IRMove(
+								callAddr,
+								new IRBinOp(
+										IRBinOp.OpType.ADD,
+										// address of DV
+										new IRMem(
+												new IRMem(
+														children1IRTemp
 												)
-						),
-						// abosulte offset
-						absoluteFuncOffset
-				),
-				// arguments list of the called function
-				args
-			);
+										),
+										absoluteFuncOffset
+										)
+								)
+				, new IRCall(
+						callAddr, 
+						args)
+				);
     }
     
     private IRNode translateVariable() {

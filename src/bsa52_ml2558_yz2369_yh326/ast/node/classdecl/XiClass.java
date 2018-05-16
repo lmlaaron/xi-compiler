@@ -203,9 +203,9 @@ public class XiClass extends Node {
         }
         // TODO: don't know how to represent this variable at IR level
         IRExpr dv = new IRTemp("_I_vt_" + classId.value);
-        LinkedList<IRExpr> alloc_size = new LinkedList<>();
-        alloc_size.add(new IRConst(treeDVSize * 8));
-        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
+        //LinkedList<IRExpr> alloc_size = new LinkedList<>();
+        //alloc_size.add(new IRConst(treeDVSize * 8));
+        //body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
         if (super_class != null) {
@@ -266,7 +266,7 @@ public class XiClass extends Node {
     public List<IRFuncDecl> GenerateListOfIRMethods() {
         List<IRFuncDecl> list = new ArrayList<>();
 
-        list.add(getInitFunction());
+       list.add(getInitFunction());
 
         for (Node child : children) {
             if (child instanceof Method) {

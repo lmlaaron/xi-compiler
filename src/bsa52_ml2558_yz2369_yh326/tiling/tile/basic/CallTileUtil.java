@@ -11,6 +11,9 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class CallTileUtil {
     public static void generateCallAssembly(List<AssemblyStatement> statements, int operandNum, String targetName) {
+    		if ( targetName == null ) { // call by temp, temp was considered as a subtreeNode and included in operandNum, should be deducted
+    			operandNum--;
+    		}
         // System V calling convention
         // move first 6 arguments in rdi, rsi, rdx, rcx, r8 and r9.
         if (operandNum > 0)
@@ -30,8 +33,12 @@ public class CallTileUtil {
         for (int i = operandNum; i > 6; i--) {
             statements.add(new AssemblyStatement("push", new AssemblyOperand()));
         }
-        statements.add(new AssemblyStatement("call", new AssemblyOperand(targetName)));
-
+        if ( targetName != null ) {
+        		statements.add(new AssemblyStatement("call", new AssemblyOperand(targetName))); // call by label
+        } else {
+       		statements.add(new AssemblyStatement("call", new AssemblyOperand())); // call by temp
+        }
+        		
         // reduce the size of the stack
         if (operandNum > 6) {
             statements.add(new AssemblyStatement("add", new AssemblyOperand("rsp"),
