@@ -144,17 +144,6 @@ public class AssemblyOperand {
         // this.type=OperandType.TEMP;
         // TODO implement other types
 
-        /*
-         * if (this.operand.contains("__FreshTemp_") || this.operand.contains("_temp_")
-         * || this.operand.contains("_array_") || this.operand.contains("_index_") ||
-         * 
-         * ) { this.type = OperandType.TEMP; } else if (
-         * this.operand.contains("FreshLabel") || ) { } else if () {
-         * 
-         * } else if () {
-         * 
-         * } else { this.type = OperandType.UNRESOLVED; }
-         */
 
     }
 
@@ -195,6 +184,12 @@ public class AssemblyOperand {
     }
 
     protected boolean entityMatches(String s, boolean includeTemps, boolean includeRegisters) {
+        // special case where we don't want global variables (name always prefixed by '_')
+        // to be interpreted as temps or registers:
+        if (Utilities.beginsWith(s, "_I_"))
+            return false;
+
+
         if (!Utilities.isNumber(s)) {
             if (!includeRegisters && Utilities.isRealRegister(s)) {
                 //System.out.printf("Entity %s IS a real register!%n", s);
