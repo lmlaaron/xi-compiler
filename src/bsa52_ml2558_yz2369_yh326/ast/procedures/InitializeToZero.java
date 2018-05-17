@@ -4,6 +4,8 @@ import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.node.literal.FalseLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
+import bsa52_ml2558_yz2369_yh326.ast.node.literal.NullLiteral;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Bracket;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.ArrayTypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.PrimitiveTypeNode;
@@ -43,7 +45,6 @@ public class InitializeToZero {
         return ast;
     }
 
-    // return whether to keep digging
     protected static void visit(Node parent, Node n, int n_i) {
 
         if (n instanceof AssignMult || n instanceof AssignSingle) {
@@ -62,7 +63,7 @@ public class InitializeToZero {
             // get the rhs for each assignment! This value depends on the type of the variables
             Expr rhs = null; // default value depends on the type of the variable
             TypeNode type = (TypeNode)n.children.get(n.children.size()-1);
-            if (type instanceof PrimitiveTypeNode) {
+            if (type instanceof PrimitiveTypeNode) { // primitives
                 if (type.value.equals("int")) {
                     rhs = new IntegerLiteral(n.line, n.col, "0");
                 } else {
@@ -70,15 +71,28 @@ public class InitializeToZero {
                     rhs = new FalseLiteral(n.line, n.col);
                 }
             }
-            else  {
-                // type can be a class or an array!
-                // TODO: rhs = new NullLiteral()
+            else if (type instanceof ArrayTypeNode) { // arrays
+                ArrayTypeNode arrayType = (ArrayTypeNode)type;
+
+                rhs = new NullLiteral(n.line, n.col);
+
+                for (Node child : type.children){
+                    if (!(child instanceof Bracket || child instanceof TypeNode)) {
+                        rhs = null; // declaration such as `x : int[5]` match this structure (they are initialized!)
+                    }
+                }
+
+
+            }
+            else { // classes
+                rhs = new NullLiteral(n.line, n.col);
             }
 
             // add an assignment for each variable
-            if (rhs != null) { //TODO: it should never be null! waiting on Null literal at AST level
+            if (rhs != null) {
                 for (int i = 0; i < n.children.size() - 1; i++) {
                     stmts.add(new AssignSingle(n.line, n.col, n.children.get(i), rhs));
+                    System.out.println("adding default value " + rhs + " to identifier " + n.children.get(i).value);
                 }
             }
 

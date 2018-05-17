@@ -11,6 +11,6 @@ f(z : int) : int {
 }
 
 main(argv:int[][]) {
-    a : int
-    b : int = 0
+    a : int[] = null
+    b : int[]
 }
