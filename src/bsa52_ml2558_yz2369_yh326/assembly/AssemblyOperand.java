@@ -188,8 +188,7 @@ public class AssemblyOperand {
         // to be interpreted as temps or registers:
         if (Utilities.beginsWith(s, "_I_"))
             return false;
-
-
+        
         if (!Utilities.isNumber(s)) {
             if (!includeRegisters && Utilities.isRealRegister(s)) {
                 //System.out.printf("Entity %s IS a real register!%n", s);

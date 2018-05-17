@@ -76,6 +76,12 @@ public class MethodClassList extends Node {
             if (childIR instanceof IRFuncDecl) {
                 irNode.appendFunc((IRFuncDecl) child.translate());
             } else if (child instanceof XiClass) {
+            	irNode.appendVarUninit("_I_size_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
+            	irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
+            	if ( ((XiClass) child).superClass != null ) {
+            		irNode.appendVarUninit("_I_size_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
+            		irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
+            	}
                 for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods()) {
             			irNode.appendFunc(func);
                 }
