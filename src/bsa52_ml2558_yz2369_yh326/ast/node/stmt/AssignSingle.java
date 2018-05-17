@@ -24,8 +24,8 @@ public class AssignSingle extends Stmt {
 
     public AssignSingle(int line, int col, Node lhs, Expr expr) {
         super(line, col, new Get(line, col), lhs, expr);
-        this.lhs = lhs;
-        this.expr = expr;
+        this.setLhs(lhs);
+        this.setExpr(expr);
     }
     
     @Override
@@ -35,10 +35,10 @@ public class AssignSingle extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        NodeType rightType = expr.typeCheck(sTable);
+        NodeType rightType = getExpr().typeCheck(sTable);
 
         // Single assign on LHS, including assigning to subscript.
-        VariableType leftType = getLhsType(sTable, lhs);
+        VariableType leftType = getLhsType(sTable, getLhs());
         if (rightType instanceof VariableType && leftType.equals((VariableType) rightType)) {
             return new UnitType();
         } else {
@@ -73,10 +73,26 @@ public class AssignSingle extends Stmt {
 
     @Override
     public IRNode translate() {
-        if (lhs instanceof Underscore) {
-            return new IRExp((IRExpr) expr.translate());
+        if (getLhs() instanceof Underscore) {
+            return new IRExp((IRExpr) getExpr().translate());
         } else {
-            return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
+            return new IRMove((IRExpr) getLhs().translate(), (IRExpr) getExpr().translate());
         }
     }
+
+	public Node getLhs() {
+		return lhs;
+	}
+
+	public void setLhs(Node lhs) {
+		this.lhs = lhs;
+	}
+
+	public Expr getExpr() {
+		return expr;
+	}
+
+	public void setExpr(Expr expr) {
+		this.expr = expr;
+	}
 }

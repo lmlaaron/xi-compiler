@@ -49,9 +49,13 @@ public class CompUnitTile extends Tile {
         for (String name: global_variables.keySet()) {
         		statements.add(new AssemblyStatement(".globl " + name));
         		statements.add(new AssemblyStatement(".align 4"));
+    			if ( global_variables.get(name) > 1) {
+    				statements.add(new AssemblyStatement(".quad " + String.valueOf(global_variables.get(name))));
+    			}
         		statements.add(new AssemblyStatement(name+":", true));
         		if (global_variables.containsKey(name)) {
         			int i = 0;
+
         			for (i = 0; i <global_variables.get(name); i++) {
         				if (global_variables_init != null && global_variables_init.get(name) != null) {
         					statements.add(new AssemblyStatement(".quad "+ String.valueOf(global_variables_init.get(name))));
