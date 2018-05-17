@@ -145,6 +145,8 @@ public class XiClass extends Node {
         System.out.println("Finished typechecking class \"" + classId.value + "\"");
         System.out.print("Instance variables: ");
         System.out.println(vars_ordered);
+        for (String v : vars_ordered)
+            System.out.println("The index of \"" + v + "\" is " + indexOfVar(v));
         System.out.print("Functions: ");
         System.out.println(funcs_ordered);
         for (String f : funcs_ordered)

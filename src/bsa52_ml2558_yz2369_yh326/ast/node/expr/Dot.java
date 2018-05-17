@@ -61,7 +61,7 @@ public class Dot extends Expr {
     private IRNode translateCall() {
 		// new offset
 		// look up the offset of the called function in java
-		int funcoffset = ((ObjectType) leftNodeType).IndexOfFunc(children.get(2).value);
+		int funcoffset = ((ObjectType) leftNodeType).indexOfFunc(children.get(2).value);
 		
 		// new argument list
 		List<IRExpr> args = new ArrayList<>();
@@ -108,7 +108,7 @@ public class Dot extends Expr {
     private IRNode translateVariable() {
 		// new offset
 		// look up the offset of the variable in java
-		int varoffset = ((ObjectType) leftNodeType).IndexOfVar(children.get(2).value);
+		int varoffset = ((ObjectType) leftNodeType).indexOfVar(children.get(2).value);
 		
 		// resolve the absolute offset
 		ObjectType leftObjType = (ObjectType) leftNodeType;

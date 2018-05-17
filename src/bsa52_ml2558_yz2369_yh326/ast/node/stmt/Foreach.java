@@ -38,24 +38,26 @@ public class Foreach extends Stmt {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        NodeType boolType = new PrimitiveType(Primitives.BOOL);
-        if (!tg.equals(boolType)) {
-            throw new MatchTypeException(line, col, boolType, tg);
-        }
-
-        sTable.enterBlock();
-        sTable.enterLoop(this);
-        then.typeCheck(sTable);
-        sTable.exitLoop();
-        sTable.exitBlock();
+//        NodeType boolType = new PrimitiveType(Primitives.BOOL);
+//        if (!tg.equals(boolType)) {
+//            throw new MatchTypeException(line, col, boolType, tg);
+//        }
+//
+//        sTable.enterBlock();
+//        sTable.enterLoop(this);
+//        then.typeCheck(sTable);
+//        sTable.exitLoop();
+//        sTable.exitBlock();
 
         return new UnitType();
     }
 
     @Override
     public IRNode translate() {
-        labelNumber = NumberGetter.uniqueNumberStr();
-        return getIRWhile((IRExpr) condition.translate(), then.translate(), labelNumber);
+//        labelNumber = NumberGetter.uniqueNumberStr();
+//        return getIRWhile((IRExpr) condition.translate(), then.translate(), labelNumber);
+
+        return null;
     }
 
     public static IRSeq getIRWhile(IRExpr cond, IRNode then, String labelNumber) {

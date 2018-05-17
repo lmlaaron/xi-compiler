@@ -99,9 +99,8 @@ public class ObjectType extends VariableType {
     /**
      * translate string of the variable name to index 
      */
-    // Should fieldname be a more proper name?
-    public int IndexOfVar(String varname) {
-    		// to be implemented
+    // Should field name be a more proper name?
+    public int indexOfVar(String varname) {
     		return type.indexOfVar(varname);
     }
     
@@ -109,7 +108,6 @@ public class ObjectType extends VariableType {
      * translate string of function name to index 
      */
     public int indexOfFunc(String funcname) {
-    		// to be implemented
     		return type.indexOfFunc(funcname);
     }
 }
