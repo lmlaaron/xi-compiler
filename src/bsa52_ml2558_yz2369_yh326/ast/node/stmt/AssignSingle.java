@@ -22,8 +22,8 @@ public class AssignSingle extends Stmt {
 
     public AssignSingle(int line, int col, Node lhs, Expr expr) {
         super(line, col, new Get(line, col), lhs, expr);
-        this.setLhs(lhs);
-        this.setExpr(expr);
+        this.lhs = lhs;
+        this.expr = expr;
     }
     
     @Override
@@ -71,10 +71,10 @@ public class AssignSingle extends Stmt {
 
     @Override
     public IRNode translate() {
-        if (getLhs() instanceof Underscore) {
-            return new IRExp((IRExpr) getExpr().translate());
+        if (lhs instanceof Underscore) {
+            return new IRExp((IRExpr) expr.translate());
         } else {
-            return new IRMove((IRExpr) getLhs().translate(), (IRExpr) getExpr().translate());
+            return new IRMove((IRExpr) lhs.translate(), (IRExpr) expr.translate());
         }
     }
 
@@ -82,15 +82,7 @@ public class AssignSingle extends Stmt {
 		return lhs;
 	}
 
-	public void setLhs(Node lhs) {
-		this.lhs = lhs;
-	}
-
 	public Expr getExpr() {
 		return expr;
-	}
-
-	public void setExpr(Expr expr) {
-		this.expr = expr;
 	}
 }

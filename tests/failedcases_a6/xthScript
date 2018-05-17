@@ -1,0 +1,26 @@
+xic ("ALL TESTS WITHOUT OPT") "-libpath $(testpath) -target linux" {
+    group_of_anonymous06__attackRa.xi;
+	group_of_anonymous22__cse_4.xi;
+    group_of_anonymous20__benchmark_cse_01.xi;
+	group_of_anonymous20__benchmark_copy_01.xi;
+    group_of_anonymous20__benchmark_copy_02.xi;
+    group_of_anonymous18__dce3.xi;
+}
+
+xic ("xic-opt-reg (-target linux [-Oreg])") "-libpath $(testpath) -target linux -Oreg" {
+    group_of_anonymous06__attackRa.xi;
+}
+
+xic ("xic-opt-cse (-target linux [-Ocse])") "-libpath $(testpath) -target linux -Ocse" {
+    group_of_anonymous22__cse_4.xi;
+    group_of_anonymous20__benchmark_cse_01.xi;
+}
+
+xic ("xic-opt-copy (-target linux [-Ocopy])") "-libpath $(testpath) -target linux -Ocopy" {
+    group_of_anonymous20__benchmark_copy_01.xi;
+    group_of_anonymous20__benchmark_copy_02.xi;
+}
+
+xic ("xic-opt-dce (-target linux [-Odce])") "-libpath $(testpath) -target linux -Odce" {
+    group_of_anonymous18__dce3.xi;
+}
