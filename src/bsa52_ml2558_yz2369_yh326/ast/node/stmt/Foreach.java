@@ -52,11 +52,12 @@ public class Foreach extends Stmt {
 
     @Override
     public IRNode translate() {
-        return getIRForeach(this);
+        labelNumber = NumberGetter.uniqueNumberStr();
+        return getIRForeach(this, labelNumber);
     }
 
-    public static IRSeq getIRForeach(Foreach f) {
-        String labelNumber = NumberGetter.uniqueNumberStr();
+    public static IRSeq getIRForeach(Foreach f, String labelNumber) {
+
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
 
