@@ -53,7 +53,8 @@ public class XiClass extends Node {
     public XiClass(int line, int col, Identifier id, Identifier extend) {
         super(line, col, new Keyword(line, col, "class"), id, extend);
         this.classId = id;
-        this.superClassName = extend.value;
+        if (extend != null)
+            this.superClassName = extend.value;
         all.add(this);
     }
 

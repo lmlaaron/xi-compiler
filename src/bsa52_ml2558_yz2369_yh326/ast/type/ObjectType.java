@@ -113,9 +113,6 @@ public class ObjectType extends VariableType {
     }
 
     public VariableType copy() {
-        ObjectType ot = new ObjectType(type, level);
-        ot.sizes = sizes;
-
-        return ot;
+        return new ObjectType(type, level);
     }
 }
