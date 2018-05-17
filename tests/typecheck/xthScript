@@ -29,7 +29,7 @@
 # xth runs the commands in order of appearance.
 
 # build compiler first
-build
+#build
 
 xic ("Test --typecheck") "-libpath $(testpath) --typecheck" {
 00Decl.xi;

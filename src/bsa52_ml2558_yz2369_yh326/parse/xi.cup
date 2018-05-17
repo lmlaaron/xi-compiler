@@ -35,7 +35,7 @@ parser code  {:
       XiSymbol s = (XiSymbol) info;
       if (s.sym == sym.ERROR) { // Lexing error
         throw new LexingException(s.getLine(), s.getColumn(), s.value.toString());
-      } else if (s.sym != sym.EOF) {
+      } else {
         throw new ParsingException(s.getLine(), s.getColumn(), 
             "Unexpected token " + s.value);
       }
