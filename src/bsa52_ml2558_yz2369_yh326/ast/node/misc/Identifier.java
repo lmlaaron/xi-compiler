@@ -8,6 +8,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.NotDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
+import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
@@ -16,6 +17,7 @@ public class Identifier extends Expr {
     private String id;
     private XiClass classOfInstance = null;
     private boolean isGlobalVariable = false;
+    private VariableType idType;
 
     public Identifier(int line, int col, String id) {
         super(line, col, id);
@@ -51,6 +53,7 @@ public class Identifier extends Expr {
         if (sTable.isGlobalVariable(id))
             this.isGlobalVariable = true;
         if (type != null) {
+        		idType = type;
             return type;
         } else if (sTable.getFunctionType(id) != null) {
             throw new OtherException(line, col, id + " is not a variable");
@@ -61,9 +64,9 @@ public class Identifier extends Expr {
 
     @Override
     public IRNode translate() {
-        if (isGlobalVariable)
-            return new IRName(id);
-        else
+        if (isGlobalVariable) {
+            return new IRName( Utilities.toIRGlobalName(id, idType ));
+        } else
             return new IRTemp(id);
     }
 }

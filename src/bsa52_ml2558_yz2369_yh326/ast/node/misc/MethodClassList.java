@@ -65,7 +65,7 @@ public class MethodClassList extends Node {
     					((PrimitiveType) ((VarDecl) (as.getLhs())).VarType).getType() == Primitives.INT &&
     					as.getExpr() instanceof IntegerLiteral)  {
         				for ( Identifier id: ((VarDecl) as.getLhs()).ids) {
-        					this.globalIntSizeMap.put(id.getId(),  Long.parseUnsignedLong(as.getExpr().value));
+        					this.globalIntSizeMap.put(Utilities.toIRGlobalName(id.getId(), ((VarDecl) (as.getLhs())).VarType ), Long.parseUnsignedLong(as.getExpr().value));
         					break;
         				}
         			}
@@ -90,7 +90,7 @@ public class MethodClassList extends Node {
             			irNode.appendVarInit(
             					Utilities.toIRGlobalName(id.getId(), ((VarDecl) as.getLhs()).VarType),
             					1, 
-            					this.globalIntSizeMap.get(id.getId()).intValue());
+            					this.globalIntSizeMap.get(Utilities.toIRGlobalName(id.getId(), ((VarDecl) as.getLhs()).VarType)).intValue());
 				}
             } else if ( child instanceof AssignToList ) {
             		// not alllowed for multi assignment definition for global variables
