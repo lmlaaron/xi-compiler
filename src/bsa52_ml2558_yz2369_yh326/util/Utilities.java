@@ -74,6 +74,10 @@ public class Utilities {
         result+= type.toShortString();
         return result;
     }
+
+    public static boolean beginsWith(String s, String prefix) {
+        return s.length() >= prefix.length() && s.substring(prefix.length()).equals(prefix);
+    }
     
     public static IRESeq xiAlloc(IRExpr size) {
         String labelNumber = NumberGetter.uniqueNumberStr();
