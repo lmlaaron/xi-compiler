@@ -110,4 +110,11 @@ public class ObjectType extends VariableType {
     public int indexOfFunc(String funcname) {
     		return type.indexOfFunc(funcname);
     }
+
+    public VariableType copy() {
+        ObjectType ot = new ObjectType(type, level);
+        ot.sizes = sizes;
+
+        return ot;
+    }
 }
