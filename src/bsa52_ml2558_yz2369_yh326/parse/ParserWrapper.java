@@ -40,12 +40,13 @@ public class ParserWrapper {
     public static void DebugPrintASTNodeTypes(Node ast) {
         _printASTTypes(ast, 0);
     }
+    
     private static void _printASTTypes(Node n, int depth) {
         for (int i = 0; i < depth; i++)
-            System.out.print('\t');
+            System.out.print("  ");
         System.out.print(n.getClass().getSimpleName());
-        System.out.print("    ");
-        System.out.println(n.value);
+        System.out.print(" ");
+        System.out.println(n.value == null ? "" : n.value);
         if (n.children != null) {
             for (Node child : n.children) {
                 if (child != null)
