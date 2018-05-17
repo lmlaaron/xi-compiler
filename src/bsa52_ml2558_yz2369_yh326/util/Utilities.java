@@ -5,14 +5,11 @@ import java.util.stream.Collectors;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
-import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
-import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
-import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
 import edu.cornell.cs.cs4120.xic.ir.IRConst;
@@ -76,6 +73,10 @@ public class Utilities {
         String result = "_I_g_" + name.replace("_", "__") + "_";
         result+= type.toShortString();
         return result;
+    }
+
+    public static boolean beginsWith(String s, String prefix) {
+        return s.length() >= prefix.length() && s.substring(prefix.length()).equals(prefix);
     }
     
     public static IRESeq xiAlloc(IRExpr size) {

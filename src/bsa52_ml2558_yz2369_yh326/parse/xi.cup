@@ -55,7 +55,7 @@ terminal String INT, BOOL;
 terminal String IF, ELSE, WHILE, BREAK, RETURN, USE, LENGTH, PLUS, MINUS, TIMES,
   DIVIDE, MODULO, NOT, LT, LEQ, GT, GEQ, AND, OR, EQUAL, NOT_EQUAL, GETS,
   OPEN_BRACKET, CLOSE_BRACKET, OPEN_PAREN, CLOSE_PAREN, OPEN_BRACE, CLOSE_BRACE,
-  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT, NULL;
+  COLON, COMMA, SEMICOLON, UNDERSCORE, CLASS, EXTENDS, NEW, DOT, NULL, FOR, IN;
 
 // These two are not include in the given xi.cup
 terminal TIMES_SHIFT, ERROR, CONTINUE;
@@ -107,6 +107,7 @@ nonterminal Node assign_to_mult, assign_to_single;
 nonterminal If if_statement;
 nonterminal IfElse if_else, if_else_noif;
 nonterminal While while_statement, while_noif;
+nonterminal Foreach  foreach_statement;
 nonterminal Return return_statement, return_core;
 nonterminal Length length_expr;
 nonterminal Break break;
@@ -312,7 +313,8 @@ stmt_list        ::= stmt:st stmt_list:sl
 stmt             ::= stmt_nosub:s            {:RESULT = s;:}
                    | if_statement:s          {:RESULT = s;:}
                    | if_else:s               {:RESULT = s;:}
-                   | while_statement:s       {:RESULT = s;:};
+                   | while_statement:s       {:RESULT = s;:}
+                   | foreach_statement:s     {:RESULT = s;:};
 stmt_noif        ::= stmt_nosub:s            {:RESULT = s;:}
                    | if_else_noif:s          {:RESULT = s;:}
                    | while_noif:s            {:RESULT = s;:};
@@ -359,6 +361,8 @@ if_else_noif     ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
                        {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
 while_statement  ::= WHILE:a expr:e stmt:s
                        {:RESULT = new While(aleft, aright, (Expr) e, s);:};
+foreach_statement::= FOR:f identifier:id1 IN identifier:id2 stmt:s
+                       {:RESULT = new Foreach(fleft, fright, id1, id2, s);:};
 while_noif       ::= WHILE:a expr:e stmt_noif:s
                        {:RESULT = new While(aleft, aright, (Expr) e, s);:};
 

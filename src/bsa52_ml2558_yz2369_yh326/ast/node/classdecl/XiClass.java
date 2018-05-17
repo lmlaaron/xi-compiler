@@ -109,13 +109,17 @@ public class XiClass extends Node {
                 ((VarDecl) child).getId().forEach(id -> vars_ordered.add(id.value));
             } else if (child instanceof Method) {
                 String funcName = ((Method) child).id.value;
+                boolean isOverride = sTable.isOverride(this, funcName);
                 if (hasInterface) {
                     if (sTable.getFunctionType(this, funcName) == null) {
                         throw new OtherException(line, col,
                                 "Function \"" + funcName + "\" is not declaired in the interface.");
                     }
+                    if (isOverride)
+                        this.funcs_ordered.remove(funcName);
                 } else {
-                    this.funcs_ordered.add(funcName);
+                    if (!isOverride)
+                        this.funcs_ordered.add(funcName);
                 }
                 child.loadMethods(sTable);
             }
@@ -137,11 +141,17 @@ public class XiClass extends Node {
 
         sTable.setCurClass(null);
         sTable.exitBlock();
-        System.out.println("\nFinished typechecking class \"" + classId.value + "\"");
-        System.out.println("Instance variables:");
+        System.out.println("=== PRINTED AT XiClass.java:144 ===");
+        System.out.println("Finished typechecking class \"" + classId.value + "\"");
+        System.out.print("Instance variables: ");
         System.out.println(vars_ordered);
-        System.out.println("Functions:");
+        for (String v : vars_ordered)
+            System.out.println("The index of \"" + v + "\" is " + indexOfVar(v));
+        System.out.print("Functions: ");
         System.out.println(funcs_ordered);
+        for (String f : funcs_ordered)
+            System.out.println("The index of \"" + f + "\" is " + indexOfFunc(f));
+        System.out.println();
         return new UnitType();
     }
 
@@ -285,32 +295,14 @@ public class XiClass extends Node {
         return list;
     }
 
-    // old implementation of IndexOfVar
-    public int IndexOfVar(String varname) {
-        // if there is no superclass or superclass is fully resolved
-        // just return the index
-        if (super_class != null) {
-            if (super_class.IndexOfVar(varname) != RUNTIME_RESOLVE) {
-                return super_class.IndexOfVar(varname);
-            }
-            return super_class.numVariables() + vars_ordered.indexOf(varname);
-        } else {
-            int i = 0;
-            return vars_ordered.indexOf(varname);
-        }
+    public int indexOfVar(String varname) {
+        return vars_ordered.indexOf(varname);
     }
 
-    // new implementation of IndexOfVar
-    public int IndexOfVar_new(String varname) {
-        var_map.putIfAbsent(varname, var_map.size() + 1);
-        return var_map.get(varname);
-    }
-
-    // old implementation of IndexOfFunc
-    public int IndexOfFunc(String funcname) {
+    public int indexOfFunc(String funcname) {
         if (super_class != null) {
-            if (super_class.IndexOfFunc(funcname) != RUNTIME_RESOLVE) {
-                return super_class.IndexOfFunc(funcname);
+            if (super_class.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
+                return super_class.indexOfFunc(funcname);
             }
             return super_class.numMethods() + funcs_ordered.indexOf(funcname);
         } else {
@@ -332,11 +324,5 @@ public class XiClass extends Node {
                 return false;
         } else
             return false;
-    }
-
-    // new implementation of IndexOfFunc
-    public int IndexOfFunc_new(String funcname) {
-        func_map.putIfAbsent(funcname, func_map.size() + 1);
-        return func_map.get(funcname);
     }
 }
