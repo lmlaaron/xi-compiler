@@ -32,7 +32,7 @@ public class XiClass extends Node {
     public static int RUNTIME_RESOLVE = -1;
     public XiClass superClass = null;
     public Identifier classId;
-    public String superClassName;
+    public String superClassName = null;
     public boolean hasInterface = false;
     public List<String> vars_ordered = new ArrayList<>();
     public List<String> funcs_ordered = new ArrayList<>();
@@ -47,7 +47,6 @@ public class XiClass extends Node {
     public XiClass(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "class"), id);
         this.classId = id;
-        this.superClassName = null;
         all.add(this);
     }
 

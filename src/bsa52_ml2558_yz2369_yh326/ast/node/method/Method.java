@@ -30,8 +30,8 @@ public class Method extends Node {
     private FunctionTypeDeclList args;
     private RetvalList rets;
     private StmtList block;
-    private List<VariableType> argTypes;
-    private List<VariableType> retTypes;
+    private List<VariableType> argTypes = new ArrayList<>();
+    private List<VariableType> retTypes = new ArrayList<>();
 
     /**
      * Constructor
@@ -49,8 +49,6 @@ public class Method extends Node {
         this.args = args;
         this.rets = rets;
         this.setBlock(b);
-        this.argTypes = new ArrayList<>();
-        this.retTypes = new ArrayList<>();
     }
 
     @Override

@@ -24,9 +24,9 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class MethodCall extends Expr {
     private Identifier id;
-    private List<VariableType> argTypes;
-    private List<VariableType> retTypes;
-    private XiClass classOfMethod;
+    private List<VariableType> argTypes = new ArrayList<>();
+    private List<VariableType> retTypes = new ArrayList<>();
+    private XiClass classOfMethod = null;
 
     /**
      * Constructor
@@ -38,9 +38,6 @@ public class MethodCall extends Expr {
     public MethodCall(int line, int col, Identifier id) {
         super(line, col, id);
         this.id = id;
-        this.argTypes = new ArrayList<>();
-        this.retTypes = new ArrayList<>();
-        this.classOfMethod = null;
     }
     
     public void setClassOfMethod(XiClass xiClass) {

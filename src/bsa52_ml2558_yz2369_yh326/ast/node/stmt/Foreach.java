@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
-import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.*;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
-import edu.cornell.cs.cs4120.util.SExpPrinter;
 import edu.cornell.cs.cs4120.xic.ir.*;
-import edu.cornell.cs.cs4120.xic.ir.visit.*;
 
 public class Foreach extends Stmt {
     protected Identifier gets;

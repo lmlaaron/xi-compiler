@@ -20,11 +20,10 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 public class Dot extends Expr {
-	NodeType leftNodeType;
+	NodeType leftNodeType = null;
 	
     public Dot(int line, int col, Node... nodes) {
         super(line, col, nodes);
-        leftNodeType= null;
     }
     
     @Override

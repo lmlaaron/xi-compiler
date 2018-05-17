@@ -29,7 +29,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class VarDecl extends Stmt {
 	public VariableType VarType;
-    public List<Identifier> ids;
+    public List<Identifier> ids = new ArrayList<>();
     private TypeNode typeNode;
     private List<Expr> sizes;
     public boolean isInstanceVariable = false;
@@ -37,7 +37,6 @@ public class VarDecl extends Stmt {
 
     public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
-        this.ids = new ArrayList<>();
         this.ids.add(id);
         this.typeNode = typeNode;
     }
@@ -46,7 +45,7 @@ public class VarDecl extends Stmt {
         super(line, col);
         this.children.addAll(ids);
         this.children.add(typeNode);
-        this.ids = new ArrayList<>(ids);
+        this.ids.addAll(ids);
         this.typeNode = typeNode;
     }
     

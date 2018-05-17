@@ -6,17 +6,12 @@ import java.util.List;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 
 public abstract class VariableType extends NodeType {
-    protected int level;
-    protected List<Expr> sizes;
+    protected int level = 0;
+    protected List<Expr> sizes = new ArrayList<Expr>();
     
-    public VariableType() {
-        this.level = 0;
-        this.sizes = new ArrayList<Expr>();
-    }
+    public VariableType() {}
     
     public VariableType(int level) {
-        this.level = 0;
-        this.sizes = new ArrayList<Expr>();
         for (int i = 0; i < level; i++) {
             increaseLevel();
         }

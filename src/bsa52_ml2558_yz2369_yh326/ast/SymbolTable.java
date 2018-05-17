@@ -155,6 +155,10 @@ public class SymbolTable {
     }
 
     // =============== ADD VARIABLE ===============
+    public boolean addVar(String name, VariableType variableType) {
+        return addVar(name, variableType, false, false);
+    }
+    
     public boolean addVar(String name, VariableType variableType, 
             boolean isInstanceVariable, boolean isGlobalVariable) {
         if (isInstanceVariable)

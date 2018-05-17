@@ -7,12 +7,11 @@ import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 
 public class InterfaceClass extends Interface {
     private Identifier id;
-    public Identifier superClassId;
+    public Identifier superClassId = null;
 
     public InterfaceClass(int line, int col, Identifier id) {
         super(line, col, id);
         this.id = id;
-        this.superClassId = null;
     }
     
     public InterfaceClass(int line, int col, Identifier id, Identifier extend) {

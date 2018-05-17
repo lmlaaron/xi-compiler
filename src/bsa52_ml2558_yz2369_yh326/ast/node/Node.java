@@ -21,10 +21,9 @@ public class Node {
     public int line;
     public int col;
 
-    public String value;
-    public List<Node> children;
-    public NodeDecoration decoration;
-    public boolean isInterface;
+    public String value = null;
+    public List<Node> children = null;
+    public boolean isInterface = false;
     public String fileName;
 
     /**
@@ -37,10 +36,7 @@ public class Node {
     public Node(int line, int col, String value) {
         this.line = line;
         this.col = col;
-        this.decoration = new NodeDecoration();
         this.value = value;
-        this.children = null;
-        this.isInterface = false;
     }
 
     /**
@@ -52,10 +48,7 @@ public class Node {
     public Node(int line, int col, Node... nodes) {
         this.line = line;
         this.col = col;
-        this.decoration = new NodeDecoration();
-        this.value = null;
         this.children = new ArrayList<Node>();
-        this.isInterface = false;
         for (Node node : nodes) {
             this.children.add(node);
         }
@@ -67,9 +60,6 @@ public class Node {
     public Node(int line, int col) {
         this.line = line;
         this.col = col;
-        this.decoration = new NodeDecoration();
-        this.value = null;
-        this.isInterface = false;
         this.children = new ArrayList<Node>();
     }
 
