@@ -9,9 +9,9 @@ main(argv:int[][]) {
     a[3] = 3
     a[4] = 4
     for x in a {
-      if (x == 2) {
-        break
-      }
-      println(unparseInt(x))
-    }
+          if (x == 2) {
+                  break
+                }
+          println(unparseInt(x))
+        }
 }

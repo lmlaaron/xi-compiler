@@ -28,7 +28,11 @@ public class Break extends Stmt {
     
     @Override
     public IRNode translate() {
-        String labelNumber = ((While) loop).labelNumber;
+        String labelNumber;
+        if (loop instanceof While)
+            labelNumber = ((While)loop).labelNumber;
+        else
+            labelNumber = ((Foreach)loop).labelNumber;
         return new IRJump(new IRName("_end_" + labelNumber));
     }
 }
