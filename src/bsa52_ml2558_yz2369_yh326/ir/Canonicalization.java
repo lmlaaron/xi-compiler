@@ -34,7 +34,7 @@ public class Canonicalization {
      * 
      * @return: IRNode tree with all non-leaf node as SEQ or ESEQ
      */
-    static IRNode Canonicalize(IRNode input) throws IRNodeNotMatchException {
+    public static IRNode Canonicalize(IRNode input) throws IRNodeNotMatchException {
         try {
             if (input instanceof IRExpr) {
                 return CanonicalizeExpr((IRExpr) input);

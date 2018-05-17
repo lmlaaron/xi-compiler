@@ -283,9 +283,9 @@ public class XiClass extends Node {
 
     public int indexOfFunc(String funcname) {
         if (superClass != null) {
-            if (superClass.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
-                return superClass.indexOfFunc(funcname);
-            }
+            //if (superClass.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
+            //    return superClass.indexOfFunc(funcname);
+            //}
             return superClass.numMethods() + funcs_ordered.indexOf(funcname);
         } else {
             return funcs_ordered.indexOf(funcname);
