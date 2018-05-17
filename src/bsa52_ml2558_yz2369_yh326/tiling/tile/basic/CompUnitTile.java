@@ -70,6 +70,15 @@ public class CompUnitTile extends Tile {
         			}
         		}
         }
+        
+        // add all _I_init_someClass function 
+        statements.add(new AssemblyStatement(".section .ctors"));
+        statements.add(new AssemblyStatement(".align 4"));
+        for (String name: global_variables.keySet() ) {
+        		if ( name.startsWith("_I_vt_")) {
+        			statements.add(new AssemblyStatement(".quad "+ "_I_init_"+ name.substring(6) ));
+        		}
+        }
         return new Assembly(statements);
     }
 }
