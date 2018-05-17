@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.stmt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
@@ -82,7 +83,7 @@ public class VarDecl extends Stmt {
     }
 
     // TODO Mulong need to resolve the size if it is not constant
-    public int getUnitSize() {
+    public int getArraySize( Map<String, Long> globalIntSizeMap) {
     		int ret = 1;
     		if ( sizes == null ) {
     			return 1;
@@ -94,7 +95,11 @@ public class VarDecl extends Stmt {
              IRExpr size = (IRExpr) sizes.get(i).translate();
              if (size instanceof IRConst ) {
                   ret = (int) (ret * ((IRConst) size).value());
-             } else {
+             } else if (size instanceof IRName ) {
+            	 	ret = (int) (ret * globalIntSizeMap.get( ((IRName) size).name()));
+             } else if ( size instanceof IRTemp) {
+         	 	ret = (int) (ret * globalIntSizeMap.get( ((IRTemp) size).name())); 	
+             }else {
                return 1;
              }
        }

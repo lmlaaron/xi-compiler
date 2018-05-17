@@ -1,21 +1,28 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.funcdecl.FunctionTypeDeclList;
+import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.AssignSingle;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.AssignToList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.StmtList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
+import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class MethodClassList extends Node {
+	private Map<String, Long> globalIntSizeMap;
 
     /**
      * Constructor
@@ -50,7 +57,24 @@ public class MethodClassList extends Node {
 
     @Override
     public IRNode translate() {
+    		this.globalIntSizeMap = new LinkedHashMap<>();
         IRCompUnit irNode = new IRCompUnit("_" + fileName);
+        
+        // just findout initialized INT const in case it is used for other global vars
+        for (Node child: children) {
+        		if ( child instanceof AssignSingle) {
+        			AssignSingle as = (AssignSingle) child;
+        			if (as.getLhs() instanceof VarDecl && 
+    					((VarDecl) (as.getLhs())).VarType instanceof PrimitiveType && 
+    					((PrimitiveType) ((VarDecl) (as.getLhs())).VarType).getType() == Primitives.INT &&
+    					as.getExpr() instanceof IntegerLiteral)  {
+        				for ( Identifier id: ((VarDecl) as.getLhs()).getId()) {
+        					this.globalIntSizeMap.put(id.getId(),  Long.parseUnsignedLong(as.getExpr().value));
+        					break;
+        				}
+        			}
+        		}
+        }
         for (Node child : children) {
             IRNode childIR = child.translate();
             if (childIR instanceof IRFuncDecl) {
@@ -61,15 +85,19 @@ public class MethodClassList extends Node {
                 }
             } else if ( child instanceof VarDecl ) {
             		int unit_size = 1;
-            		System.out.println(child.toString());
             		for (Identifier id: ((VarDecl) child).getId()) {
-            			System.out.println(id.getId()+ " size "+ String.valueOf(((VarDecl) child).getUnitSize()));
-            			irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType), ((VarDecl) child).getUnitSize() );
+            			irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),   ((VarDecl) child).getArraySize(this.globalIntSizeMap) );
             		}
             } else if ( child instanceof AssignSingle) {
-            		//irNode.appendVarInit(fileName, col, col);
+            		AssignSingle as = (AssignSingle) child;
+				for ( Identifier id: ((VarDecl) as.getLhs()).getId()) {
+            			irNode.appendVarInit(
+            					Utilities.toIRGlobalName(id.getId(), ((VarDecl) as.getLhs()).VarType),
+            					1, 
+            					this.globalIntSizeMap.get(id.getId()).intValue());
+				}
             } else if ( child instanceof AssignToList ) {
-            	
+            		// not alllowed for multi assignment definition for global variables
             }
         }
         return irNode;
