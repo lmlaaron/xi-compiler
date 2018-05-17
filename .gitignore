@@ -21,6 +21,7 @@ xi_executable
 *.typed
 *.ir
 *.s
+*.dot
 *.results
 lexer.java
 parser.java
