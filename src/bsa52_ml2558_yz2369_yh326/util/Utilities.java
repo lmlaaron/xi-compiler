@@ -76,7 +76,7 @@ public class Utilities {
     }
 
     public static boolean beginsWith(String s, String prefix) {
-        return s.length() >= prefix.length() && s.substring(prefix.length()).equals(prefix);
+        return s.length() >= prefix.length() && s.substring(0, prefix.length()).equals(prefix);
     }
     
     public static IRESeq xiAlloc(IRExpr size) {

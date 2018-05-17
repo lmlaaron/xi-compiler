@@ -224,6 +224,7 @@ public class XiClass extends Node {
             body.add(new IRMove(addrTo, new IRBinOp(IRBinOp.OpType.ADD, addrTo, new IRConst(8))));
             body.add(new IRMove(index, new IRBinOp(IRBinOp.OpType.ADD, index, new IRConst(1))));
             body.add(new IRJump(new IRName(top.name())));
+            body.add(end);
         }
         // copy over this class's method pointers:
         for (int i = 0; i < funcs_ordered.size(); i++) {

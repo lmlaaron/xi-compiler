@@ -105,9 +105,6 @@ public class AssemblyFunction extends Assembly {
     }
 
     public void calleeSave(Map<String, String> registerAllocations) {
-
-        // TODO: do we need a special case for Main?
-
         if (!actuallyAFunction()) return;
 
         // this function, as a callee, must save all callee-save variables it uses,
@@ -127,8 +124,7 @@ public class AssemblyFunction extends Assembly {
         ListIterator<AssemblyStatement> it = statements.listIterator();
         while (true) {
             AssemblyStatement stmt = it.next();
-            if (stmt.operation.length() >= 2 && stmt.operation.substring(0, 2).equals("_I"))
-            {
+            if (Utilities.beginsWith(stmt.operation, "_I")) {
                 while (!stmt.operation.equals("push")) {
                     stmt = it.next();
                 }
@@ -179,7 +175,11 @@ public class AssemblyFunction extends Assembly {
     }
 
     public boolean actuallyAFunction() {
-        return functionName != null;
+        return functionName != null &&
+                // pattern match against global variable names, which resemble functions
+                !Utilities.beginsWith(functionName,"_I_g_") &&
+                !Utilities.beginsWith(functionName, "_I_vt_") &&
+                !Utilities.beginsWith(functionName, "_I_size_");
     }
 
     @Override
