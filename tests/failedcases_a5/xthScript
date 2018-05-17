@@ -2,7 +2,6 @@ xic ("Testing at IR LEVEL") "-libpath $(testpath) --irgen" {
     group_of_anonymous03__mult_call.xi;
     group_of_anonymous05__ir_hi_mult.xi;
     group_of_anonymous06__multiassign4.xi;
-    group_of_anonymous07__attack_loops.xi;
     group_of_anonymous08__easytest.xi;
     group_of_anonymous08__trivialtest.xi;
 }
