@@ -33,9 +33,7 @@ public class ObjectType extends VariableType {
         for (int i = 0; i < level; i++) {
             result += "a";
         }
-        result +="o";
-        result+= String.valueOf(type.classId.value.length());
-        result += type.classId.value;
+        result += "o" + String.valueOf(type.classId.value.length()) + type.classId.value;
         return result;
     }
 
@@ -101,18 +99,15 @@ public class ObjectType extends VariableType {
     /**
      * translate string of the variable name to index 
      */
-    // Should fieldname be a more proper name?
-    public int IndexOfVar(String varname) {
-    		// TODO: to be implemented
+    // Should field name be a more proper name?
+    public int indexOfVar(String varname) {
     		return type.indexOfVar(varname);
     }
     
     /**
      * translate string of function name to index 
      */
-    public int IndexOfFunc(String funcname) {
-    		// TODO: to be implemented
-            return 0;
-    		//return type.IndexOfFunc(funcname);
+    public int indexOfFunc(String funcname) {
+    		return type.indexOfFunc(funcname);
     }
 }
