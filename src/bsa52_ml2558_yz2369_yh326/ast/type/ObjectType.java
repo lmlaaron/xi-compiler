@@ -64,7 +64,7 @@ public class ObjectType extends VariableType {
                 if (cur.classId.value.equals(otherType.type.classId.value)) {
                     return true;
                 }
-                cur = cur.super_class;
+                cur = cur.superClass;
             }
             return false;
         } else {

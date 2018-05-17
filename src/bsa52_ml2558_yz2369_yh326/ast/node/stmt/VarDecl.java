@@ -29,17 +29,17 @@ import edu.cornell.cs.cs4120.xic.ir.IRBinOp.OpType;
 
 public class VarDecl extends Stmt {
 	public VariableType VarType;
-    private List<Identifier> ids;
+    public List<Identifier> ids;
     private TypeNode typeNode;
     private List<Expr> sizes;
-    private boolean isInstanceVariable;
+    public boolean isInstanceVariable = false;
+    public boolean isGlobalVariable = false;
 
     public VarDecl(int line, int col, Identifier id, TypeNode typeNode) {
         super(line, col, id, typeNode);
         this.ids = new ArrayList<>();
         this.ids.add(id);
         this.typeNode = typeNode;
-        this.isInstanceVariable = false;
     }
        
     public VarDecl(int line, int col, List<Identifier> ids, TypeNode typeNode) {
@@ -48,15 +48,6 @@ public class VarDecl extends Stmt {
         this.children.add(typeNode);
         this.ids = new ArrayList<>(ids);
         this.typeNode = typeNode;
-        this.isInstanceVariable = false;
-    }
-
-    public List<Identifier> getId() {
-        return ids;
-    }
-    
-    public void setIsInstanceVariable() {
-        this.isInstanceVariable = true;
     }
     
     @Override
@@ -76,7 +67,7 @@ public class VarDecl extends Stmt {
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
         VarType = t;
         for (Identifier id : ids)
-            if (sTable.addVar(id.value, t, isInstanceVariable) == false)
+            if (sTable.addVar(id.value, t, isInstanceVariable, isGlobalVariable) == false)
                 throw new AlreadyDefinedException(line, col, id.value);
         sizes = t.getSizes();
         return t;

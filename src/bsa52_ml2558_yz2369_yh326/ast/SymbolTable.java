@@ -27,35 +27,24 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
  */
 public class SymbolTable {
     
-    private Stack<String> logs;
-    private Stack<Stmt> loops;
-    private Map<String, XiClass> classTable;
-    private Map<String, Tuple<VariableType, Integer>> varTable;
-    private Map<String, Tuple<NodeType, NodeType>> funcTable;
-    private Set<String> funcImplemented;
-    private Set<String> interfaceImported;
-    private String curClass;
-    private String curFunc;
-    private int level;
-
-    /**
-     * 
-     */
-    public SymbolTable() {
-        logs = new Stack<>();
-        loops = new Stack<>();
-        classTable = new HashMap<>();
-        varTable = new HashMap<>();
-        funcTable = new HashMap<>();
-        funcImplemented = new HashSet<String>();
-        interfaceImported = new HashSet<String>();
-        curClass = null;
-        curFunc = null;
-        level = 0;
-    }
+    private Stack<String> logs = new Stack<>();
+    private Stack<Stmt> loops = new Stack<>();
+    private Map<String, XiClass> classTable = new HashMap<>();
+    private Map<String, Tuple<VariableType, Integer>> varTable = new HashMap<>();
+    private Map<String, Tuple<NodeType, NodeType>> funcTable = new HashMap<>();
+    private Set<String> funcImplemented = new HashSet<>();
+    private Set<String> interfaceImported = new HashSet<>();
+    private Set<String> globalVars = new HashSet<>();
+    private String curClass = null;
+    private String curFunc = null;
+    private int level = 0;
     
     public boolean isGlobalMethod(String name) {
         return funcTable.containsKey(name);
+    }
+    
+    public boolean isGlobalVariable(String name) {
+        return globalVars.contains(name);
     }
     
     public boolean containsClass(String name) {
@@ -166,11 +155,8 @@ public class SymbolTable {
     }
 
     // =============== ADD VARIABLE ===============
-    public boolean addVar(String name, VariableType variableType) {
-        return addVar(name, variableType, false);
-    }
-    
-    public boolean addVar(String name, VariableType variableType, boolean isInstanceVariable) {
+    public boolean addVar(String name, VariableType variableType, 
+            boolean isInstanceVariable, boolean isGlobalVariable) {
         if (isInstanceVariable)
         	    name = "_" + curClass + "$" + name;
 
@@ -179,6 +165,7 @@ public class SymbolTable {
         } else {
         	    varTable.put(name, new Tuple<>(variableType, level));
         	    if (!isInstanceVariable) logs.push(name);
+        	    if (isGlobalVariable) globalVars.add(name);
             return true;
         }
     }
@@ -249,7 +236,7 @@ public class SymbolTable {
             String classVar = "_" + cur.classId.value + "$" + varName;
             if (varTable.containsKey(classVar))
                 return varTable.get(classVar).t1;
-            cur = cur.super_class;
+            cur = cur.superClass;
         }
         return null;
     }
@@ -280,18 +267,18 @@ public class SymbolTable {
             String classFunc = "_" + cur.classId.value + "$" + funcName;
             if (funcTable.containsKey(classFunc))
                 return funcTable.get(classFunc);
-            cur = cur.super_class;
+            cur = cur.superClass;
         }
         return null;
     }
     
     public boolean isOverride(XiClass xiClass, String funcName) {
-        XiClass cur = xiClass.super_class;
+        XiClass cur = xiClass.superClass;
         while (cur != null) {
             String classFunc = "_" + cur.classId.value + "$" + funcName;
             if (funcTable.containsKey(classFunc))
                 return true;
-            cur = cur.super_class;
+            cur = cur.superClass;
         }
         return false;
     }

@@ -7,7 +7,6 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,17 +30,12 @@ public class XiClass extends Node {
     public static List<XiClass> all = new LinkedList<XiClass>();
 
     public static int RUNTIME_RESOLVE = -1;
-    public XiClass super_class; // super_class of the current class, might be NULL
+    public XiClass superClass = null;
     public Identifier classId;
     public String superClassName;
-
-    public boolean hasInterface;
-    public List<String> vars_ordered; // list of member variables
-    public List<String> funcs_ordered; // list of member functions
-
-    // below are two maps that store the name of func/var to its indexes.
-    public HashMap<String, Integer> var_map = new HashMap<String, Integer>();
-    public HashMap<String, Integer> func_map = new HashMap<String, Integer>();
+    public boolean hasInterface = false;
+    public List<String> vars_ordered = new ArrayList<>();
+    public List<String> funcs_ordered = new ArrayList<>();
 
     /**
      * Constructor TODO: need to reimplement this for parsing
@@ -52,26 +46,16 @@ public class XiClass extends Node {
      */
     public XiClass(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "class"), id);
-        init(this, line, col, id, null);
+        this.classId = id;
+        this.superClassName = null;
+        all.add(this);
     }
 
     public XiClass(int line, int col, Identifier id, Identifier extend) {
         super(line, col, new Keyword(line, col, "class"), id, extend);
-        init(this, line, col, id, extend);
-
-    }
-
-    /**
-     * Operations common to all constructors
-     */
-    private static void init(XiClass instance, int line, int col, Identifier id, Identifier extend) {
-        instance.classId = id;
-        instance.super_class = null;
-        instance.superClassName = extend == null ? null : extend.value;
-        instance.hasInterface = false;
-        instance.vars_ordered = new ArrayList<>();
-        instance.funcs_ordered = new ArrayList<>();
-        all.add(instance);
+        this.classId = id;
+        this.superClassName = extend.value;
+        all.add(this);
     }
 
     @Override
@@ -80,9 +64,7 @@ public class XiClass extends Node {
             throw new AlreadyDefinedException(line, col, classId.value);
 
         if (superClassName != null) {
-            this.super_class = sTable.getClass(superClassName);
-            this.func_map = new HashMap<String, Integer>(this.super_class.func_map);
-            this.var_map = new HashMap<String, Integer>(this.super_class.var_map);
+            this.superClass = sTable.getClass(superClassName);
         }
 
     }
@@ -106,7 +88,7 @@ public class XiClass extends Node {
         for (Node child : children) {
             if (child instanceof VarDecl) {
                 ((VarDecl) child).typeCheckAndReturn(sTable);
-                ((VarDecl) child).getId().forEach(id -> vars_ordered.add(id.value));
+                ((VarDecl) child).ids.forEach(id -> vars_ordered.add(id.value));
             } else if (child instanceof Method) {
                 String funcName = ((Method) child).id.value;
                 boolean isOverride = sTable.isOverride(this, funcName);
@@ -162,18 +144,18 @@ public class XiClass extends Node {
     }
 
     public int numVariables() {
-        if (super_class == null) {
+        if (superClass == null) {
             return vars_ordered.size();
         } else {
-            return vars_ordered.size() + super_class.numVariables();
+            return vars_ordered.size() + superClass.numVariables();
         }
     }
 
     public int numMethods() {
-        if (super_class == null) {
+        if (superClass == null) {
             return funcs_ordered.size();
         } else {
-            return funcs_ordered.size() + super_class.numMethods();
+            return funcs_ordered.size() + superClass.numMethods();
         }
     }
 
@@ -185,14 +167,14 @@ public class XiClass extends Node {
         List<IRStmt> body = new LinkedList<IRStmt>();
 
         // step 1: recursively initialize superclasses
-        if (super_class != null)
+        if (superClass != null)
             body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName), new LinkedList<IRExpr>())));
 
         // step 2: compute total size of this class
         int localSize = vars_ordered.size();
         String totalsizevar = Utilities.freshTemp();
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
-        if (super_class != null) {
+        if (superClass != null) {
             // TODO: how to represent the size variable at IR level?
             IRExpr superSize = new IRTemp("_I_size_" + superClassName);
             body.add(new IRMove(new IRTemp(totalsizevar),
@@ -207,8 +189,8 @@ public class XiClass extends Node {
         // so we need to allocate a spot for each method in each class
         int treeDVSize = sizeOfListOfIRMethods();// listOfIRMethods().size();
         XiClass xc = this;
-        while (xc.super_class != null) {
-            xc = xc.super_class;
+        while (xc.superClass != null) {
+            xc = xc.superClass;
             treeDVSize += xc.sizeOfListOfIRMethods(); // .size();
         }
         // TODO: don't know how to represent this variable at IR level
@@ -218,7 +200,7 @@ public class XiClass extends Node {
         //body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
-        if (super_class != null) {
+        if (superClass != null) {
             // TODO: same representation issue:
             IRTemp superdv = new IRTemp("_I_vt_" + superClassName);
 
@@ -245,13 +227,13 @@ public class XiClass extends Node {
             body.add(new IRJump(new IRName(top.name())));
         }
         // copy over this class's method pointers:
-        for (String func : this.func_map.keySet()) {
+        for (int i = 0; i < funcs_ordered.size(); i++) {
             body.add(new IRMove(
                     // TODO: if we're postprocessing func_map to get global indices, don't need to
                     // add parentDVsize
                     new IRMem(
-                            new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + func_map.get(func))))),
-                    new IRName(func)));
+                            new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + i)))),
+                    new IRName(funcs_ordered.get(i))));
         }
 
         body.add(new IRReturn());
@@ -300,11 +282,11 @@ public class XiClass extends Node {
     }
 
     public int indexOfFunc(String funcname) {
-        if (super_class != null) {
-            if (super_class.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
-                return super_class.indexOfFunc(funcname);
+        if (superClass != null) {
+            if (superClass.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
+                return superClass.indexOfFunc(funcname);
             }
-            return super_class.numMethods() + funcs_ordered.indexOf(funcname);
+            return superClass.numMethods() + funcs_ordered.indexOf(funcname);
         } else {
             return funcs_ordered.indexOf(funcname);
         }

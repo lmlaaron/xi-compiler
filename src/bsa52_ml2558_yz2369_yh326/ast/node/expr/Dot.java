@@ -113,11 +113,11 @@ public class Dot extends Expr {
 		// resolve the absolute offset
 		ObjectType leftObjType = (ObjectType) leftNodeType;
 		IRExpr absoluteVarOffset = null;
-		if ( leftObjType.getType().super_class != null ) {
+		if ( leftObjType.getType().superClass != null ) {
 			absoluteVarOffset = new IRBinOp(
 					IRBinOp.OpType.ADD,
 					new IRConst(varoffset),
-				    new IRTemp("_I_size_"+leftObjType.getType().super_class.classId)
+				    new IRTemp("_I_size_"+leftObjType.getType().superClass.classId)
 					);
 		} else {
 			absoluteVarOffset = new IRConst(varoffset);
