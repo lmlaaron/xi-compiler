@@ -23,7 +23,7 @@ public class MoveTempCallTile extends Tile {
             this.root = root;
 
             IRMove move = (IRMove) root;
-            if (move.target() instanceof IRTemp && move.source() instanceof IRCall) {
+            if ((move.target() instanceof IRTemp || move.target() instanceof IRName) && move.source() instanceof IRCall) {
                 IRCall call = (IRCall) move.source();
                 subtreeRoots = CallTileUtil.fillCallSubtree(call);
                 if (call.target() instanceof IRName) {
@@ -51,8 +51,13 @@ public class MoveTempCallTile extends Tile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
         CallTileUtil.generateCallAssembly(statements, this.getSubtreeRoots().size(), targetName);
-        statements.add(new AssemblyStatement("mov", new AssemblyOperand(((IRTemp) ((IRMove) root).target()).name()),
+        if ( ((IRMove)root).target() instanceof IRTemp ) {
+        		statements.add(new AssemblyStatement("mov", new AssemblyOperand(((IRTemp) ((IRMove) root).target()).name()),
                 new AssemblyOperand("rax")));
+        } else if (((IRMove)root).target() instanceof IRName) {
+    		statements.add(new AssemblyStatement("mov", new AssemblyOperand(((IRName) ((IRMove) root).target()).name()),
+                    new AssemblyOperand("rax")));
+        }
         return new Assembly(statements);
     }
 }
