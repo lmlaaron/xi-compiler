@@ -112,4 +112,11 @@ public class PrimitiveType extends VariableType {
         return this.equals(other);
     }
 
+    public VariableType copy() {
+        PrimitiveType pt = new PrimitiveType(type, level);
+        pt.sizes = sizes;
+
+        return pt;
+    }
+
 }

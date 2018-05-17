@@ -1,16 +1,8 @@
-class Y {
-
-}
-
-class X {
-    y : Y
-}
-
-f(z : int) : int {
-    return z
-}
-
 main(argv:int[][]) {
-    a : int[] = null
-    b : int[]
+    a : int[5]
+    b : int = 0
+    for x in a {
+        b = b + x
+    }
 }
+

@@ -56,6 +56,7 @@ public abstract class VariableType extends NodeType {
     public abstract String toShortString();
 
     public abstract boolean isSubclassOf(NodeType other);
-    
 
+
+    public abstract VariableType copy();
 }
