@@ -21,13 +21,18 @@ public class ModTile extends ArithmeticBinopTile {
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
         AssemblyOperand srcOpt = new AssemblyOperand();
 
+        String freshTemp = freshTemp();
+
         // move dividend into RAX
         statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), srcOpt));
+
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+
         // IMUL divides dividend RDX:RAX by the given argument, so we need to
         // sign-extend RAX into RDX:
         statements.add(new AssemblyStatement("cqo")); // "convert quad-word to oct-word"
         // now run the div operation
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand()));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp)));
 
         // Quotient is in RAX, remainder is in RDX
         Assembly assm = new Assembly(statements, new AssemblyOperand("rdx"));

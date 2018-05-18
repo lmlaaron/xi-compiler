@@ -20,10 +20,15 @@ public class HMulTile extends ArithmeticBinopTile {
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
 
+        String freshTemp = freshTemp();
+
         // RAX is one of the operands for the one-arg version of imul
         statements.add(new AssemblyStatement("mov", new AssemblyOperand("rax"), new AssemblyOperand()));
+
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+
         // perform the operation
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand()));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp)));
 
         // the result is RDX:RAX. we want the high 64 bits, so that's just RDX
         Assembly assm = new Assembly(statements, new AssemblyOperand("rdx"));

@@ -108,6 +108,7 @@ public class ObjectType extends VariableType {
      * translate string of function name to index 
      */
     public int indexOfFunc(String funcname) {
+    		System.out.println(funcname +" "+ type.indexOfFunc(funcname));
     		return type.indexOfFunc(funcname);
     }
 

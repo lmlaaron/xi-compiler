@@ -16,11 +16,17 @@ import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
+import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
+import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
+import bsa52_ml2558_yz2369_yh326.exception.MismatchNumberException;
+import bsa52_ml2558_yz2369_yh326.exception.NotDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
+import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.*;
 
@@ -159,7 +165,7 @@ public class XiClass extends Node {
         }
     }
 
-    public IRFuncDecl getInitFunction() {
+    public IRFuncDecl getInitFunction(SymbolTable sTable) {
         // TODO: if we're only given the interface for a class, we shouldn't be
         // generating this function. That's only our responsibility if we
         // have the actual implementation!!!
@@ -228,13 +234,35 @@ public class XiClass extends Node {
             body.add(end);
         }
         // copy over this class's method pointers:
-        for (int i = 0; i < funcs_ordered.size(); i++) {
-            body.add(new IRMove(
-                    // TODO: if we're postprocessing func_map to get global indices, don't need to
-                    // add parentDVsize
-                    new IRMem(
-                            new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + i)))),
-                    new IRName(funcs_ordered.get(i))));
+        for (int i = 0; i < funcs_ordered.size(); i++) {            
+                   // figure out the ABI name
+                   List<VariableType> argTypes = new ArrayList<>();
+                   List<VariableType> retTypes = new ArrayList<>();
+                   Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(this, funcs_ordered.get(i) );
+                    if (funcType.t1 instanceof VariableType) {
+                       // Function returns one value
+                       argTypes.add((VariableType) funcType.t1);
+                   } else {
+                       // Function returns multiple values
+                       argTypes = ((ListVariableType) funcType.t1).getVariableTypes();
+                   }
+
+                   // Store return type
+                   if (funcType.t2 instanceof UnitType) {
+                       // Function is a procedure, do nothing
+                   } else if (funcType.t2 instanceof VariableType) {
+                       // Function returns one value
+                       retTypes.add((VariableType) funcType.t2);
+                   } else {
+                       retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
+                   }
+                   body.add(new IRMove(
+                           // TODO: if we're postprocessing func_map to get global indices, don't need to
+                           // add parentDVsize
+                           new IRMem(
+                                   new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + i)))),
+                           //new IRName(funcs_ordered.get(i))));
+                           new IRName(Utilities.toIRFunctionName(funcs_ordered.get(i),argTypes,retTypes))));
         }
 
         body.add(new IRReturn());
@@ -256,10 +284,10 @@ public class XiClass extends Node {
         return ret;
     }
 
-    public List<IRFuncDecl> GenerateListOfIRMethods() {
+    public List<IRFuncDecl> GenerateListOfIRMethods(SymbolTable sTable) {
         List<IRFuncDecl> list = new ArrayList<>();
 
-       list.add(getInitFunction());
+       list.add(getInitFunction(sTable));
 
         for (Node child : children) {
             if (child instanceof Method) {

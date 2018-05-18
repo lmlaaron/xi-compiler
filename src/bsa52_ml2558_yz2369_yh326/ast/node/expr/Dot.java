@@ -63,8 +63,13 @@ public class Dot extends Expr {
     private IRNode translateCall() {
 		// new offset
 		// look up the offset of the called function in java
-		int funcoffset = ((ObjectType) leftNodeType).indexOfFunc(children.get(2).value);
-		
+    	    //System.out.println(children.get(2).c);
+    	    int funcoffset = -1;
+    		if (children.get(2).value == null ) {
+    			funcoffset =((ObjectType) leftNodeType).indexOfFunc(children.get(2).children.get(0).value);
+    		} else {
+		  funcoffset = ((ObjectType) leftNodeType).indexOfFunc(children.get(2).value);
+    		}
 		// new argument list
 		List<IRExpr> args = new ArrayList<>();
 		
@@ -104,9 +109,9 @@ public class Dot extends Expr {
 												IRBinOp.OpType.ADD,
 												// address of DV
 												new IRMem(
-														new IRMem(
+														//new IRMem(
 																children1IRTemp
-																)
+																//)
 														),
 														absoluteFuncOffset
 												)
@@ -133,7 +138,7 @@ public class Dot extends Expr {
 				    new IRTemp("_I_size_"+leftObjType.getType().superClass.classId.getId().replace("_", "__"))
 					);
 		} else {
-			absoluteVarOffset = new IRConst(varoffset);
+			absoluteVarOffset = new IRConst(varoffset+8);
 		}
 		
 		// return the memory location of the variable
