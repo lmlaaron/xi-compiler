@@ -363,8 +363,8 @@ if_else_noif     ::= IF:a expr:e stmt_noif:s1 ELSE stmt_noif:s2
                        {:RESULT = new IfElse(aleft, aright, (Expr) e, s1, s2);:};
 while_statement  ::= WHILE:a expr:e stmt:s
                        {:RESULT = new While(aleft, aright, (Expr) e, s);:};
-foreach_statement::= FOR:f identifier:id1 IN identifier:id2 stmt:s
-                       {:RESULT = new Foreach(fleft, fright, id1, id2, s);:};
+foreach_statement::= FOR:f identifier:id1 IN expr:e stmt:s
+                       {:RESULT = new Foreach(fleft, fright, id1, e, s);:};
 while_noif       ::= WHILE:a expr:e stmt_noif:s
                        {:RESULT = new While(aleft, aright, (Expr) e, s);:};
 

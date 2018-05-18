@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
+import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.*;
@@ -14,10 +15,10 @@ import edu.cornell.cs.cs4120.xic.ir.*;
 
 public class Foreach extends Loop {
     protected Identifier gets;
-    protected Identifier from;
+    protected Expr from;
     protected Stmt then;
 
-    public Foreach(int line, int col, Identifier gets, Identifier from, Stmt then) {
+    public Foreach(int line, int col, Identifier gets, Expr from, Stmt then) {
         super(line, col, new Keyword(line, col, "for"), gets, new Keyword(line, col, "in"), from, then);
         this.gets = gets;
         this.from = from;
