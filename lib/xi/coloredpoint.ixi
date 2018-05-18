@@ -1,0 +1,12 @@
+use io
+use conv
+use point
+use color
+
+class ColoredPoint extends Point {
+    color(): Color
+    initColoredPoint(x0: int, y0: int, c: Color): ColoredPoint
+    clone(): Point
+    cloneColoredPoint(): ColoredPoint
+    toString(): int[] 
+}
