@@ -21,4 +21,10 @@ main(args: int[][]) {
     if (a2 != null) {
       println("a2 is not null")
     }
+    if (a2[0] == null) {
+      println("a2[0] is null")
+    }
+    if (a2[0] != null) {
+      println("a2[0] is not null")
+    }
 } 

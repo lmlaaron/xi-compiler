@@ -1,4 +1,4 @@
-// attributes of same name within parent & child classes
+// == and != on classes
 class Point {
     x,y: int
 

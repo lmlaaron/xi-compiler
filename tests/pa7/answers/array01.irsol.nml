@@ -1,3 +1,4 @@
 a1 is not null
 b1 is not null
-a2 is null
+a2 is not null
+a2[0] is not null
