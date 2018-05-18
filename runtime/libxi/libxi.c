@@ -32,7 +32,13 @@ void *XI_BUILTIN(alloc)(xiint size) {
         GC_ready = 1;
     }
 
-	return (int64_t *) GC_malloc(size);
+    int64_t * arr = GC_malloc(size);
+
+    // set all values to 0
+    for (int i = 0; i < size; i++)
+        arr[i] = 0;
+
+	return arr;
 }
 
 void registerFinalizer(void* object, Finalizer* fin) {
