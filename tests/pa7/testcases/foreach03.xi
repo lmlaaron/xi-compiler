@@ -1,6 +1,6 @@
 // foeach on results of functions
-foo(): int[5] {
-    a: int[5] = {0, 1, 2, 3, 4}
+foo(): int[] {
+    a: int[] = {0, 1, 2, 3, 4}
     return a
 }
 
