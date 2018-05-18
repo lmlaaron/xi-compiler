@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.use;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Set;
 
 import bsa52_ml2558_yz2369_yh326.Main;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
@@ -29,12 +30,17 @@ public class Use extends Node {
     }
     
     @Override
-    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+    public void loadClasses(SymbolTable sTable, Set<String> libPaths) throws Exception {
         if (sTable.setInterfaceImported(id.value) == false) {
             alreadyImported = true;
             return;
         }
-        String inputFile = Paths.get(libPath, id.value).toString() + ".ixi";
+        String inputFile = null;
+        for (String libPath : libPaths) {
+            inputFile = Paths.get(libPath, id.value).toString() + ".ixi";
+            if (new File(inputFile).exists()) 
+                break;
+        }
         String outputFile = Main.realPath(Settings.outputPath, id.value);
         if (!(new File(inputFile).exists()))
             throw new OtherException(line, col, "Interface file " + id.value + ".ixi not found.");
@@ -42,7 +48,7 @@ public class Use extends Node {
         try {
             lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
             ast = ParserWrapper.Parsing(xiLexer, outputFile, ".iparsed");
-            ast.loadClasses(sTable, libPath);
+            ast.loadClasses(sTable, libPaths);
         } catch (LexingException | ParsingException e) {
             e.print(id.value + ".ixi");
             if (Settings.typeCheck) {
@@ -55,7 +61,7 @@ public class Use extends Node {
     }
 
     @Override
-    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
+    public void loadMethods(SymbolTable sTable, Set<String> libPath) throws Exception {
         if (!alreadyImported) {
             try {
                 ast.loadMethods(sTable, libPath);

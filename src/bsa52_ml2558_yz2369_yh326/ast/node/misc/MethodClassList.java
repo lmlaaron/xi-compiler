@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -43,7 +44,7 @@ public class MethodClassList extends Node {
     }
 
     @Override
-    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+    public void loadClasses(SymbolTable sTable, Set<String> libPath) throws Exception {
         for (Node child : children) {
             if (child != null && !(child instanceof Method)) {
                 child.loadClasses(sTable);
@@ -52,7 +53,7 @@ public class MethodClassList extends Node {
     }
     
     @Override
-    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
+    public void loadMethods(SymbolTable sTable, Set<String> libPath) throws Exception {
         loadMethods(sTable);
         localSTable = sTable;
     }
