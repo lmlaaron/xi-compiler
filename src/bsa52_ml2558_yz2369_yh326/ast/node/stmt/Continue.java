@@ -28,7 +28,13 @@ public class Continue extends Stmt {
 
     @Override
     public IRNode translate() {
-        String labelNumber = ((While) loop).labelNumber;
+        String labelNumber;
+        if (loop instanceof While) {
+            labelNumber = ((While)loop).labelNumber;
+        }
+        else {
+            labelNumber = ((Foreach)loop).labelNumber;
+        }
         return new IRJump(new IRName("_head_" + labelNumber));
     }
 }
