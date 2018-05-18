@@ -42,7 +42,7 @@ public class AssignSingle extends Stmt {
 
         // Single assign on LHS, including assigning to subscript.
         VariableType leftType = getLhsType(sTable, getLhs());
-        if (rightType instanceof VariableType && leftType.equals((VariableType) rightType)) {
+        if (rightType instanceof VariableType && ((VariableType) rightType).isSubclassOf((VariableType) leftType)) {
             return new UnitType();
         } else {
             throw new AssignTypeException(line, col, rightType, leftType);

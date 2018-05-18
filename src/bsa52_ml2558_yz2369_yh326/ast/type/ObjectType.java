@@ -57,7 +57,9 @@ public class ObjectType extends VariableType {
     
     @Override
     public boolean isSubclassOf(NodeType other) {
-        if (other instanceof ObjectType) {
+        if (this.equals(other)) {
+            return true;
+        } else if (other instanceof ObjectType) {
             ObjectType otherType = (ObjectType) other;
             XiClass cur = type;
             while (cur != null) {
