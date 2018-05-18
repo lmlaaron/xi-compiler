@@ -10,6 +10,7 @@ PARSER_TESTS = "./tests/parse"
 TYPECHECKER_TESTS = "./tests/typecheck"
 IRRUN_TESTS = "./tests/irrun"
 ASSM_TESTS = "./tests/assm"
+PA7_TESTS = "./tests/pa7"
 
 LIB_PATH = "./runtime/include"
 
@@ -315,6 +316,8 @@ typecheck -> run typecheck tests
 ir        -> run ir simulation tests
 assm      -> run unoptimized assembly tests
 assmo     -> run optimized assembly tests
+pa7       -> run pa7 tests
+pa7o      -> run pa7 tests with all optimizations on
 ================================================
 """
     )
@@ -361,6 +364,13 @@ if __name__ == "__main__":
     if "assmo" in sys.argv:
         print("==== RUNNING OPTIMIZED ASSM TESTS ====")
         run_test_set(ASSM_TESTS, optimization_grader)
+
+    if "pa7o" in sys.argv:
+        print("==== RUNNING OPTIMIZED PA7 TESTS ====")
+        run_test_set(PA7_TESTS, optimization_grader)
+    if "pa7" in sys.argv:
+        print("==== RUNNING PA7 TESTS ====")
+        run_test_set(PA7_TESTS, assm_grader)
     
 
     print("Test Harness End!")

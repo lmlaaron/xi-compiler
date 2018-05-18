@@ -156,6 +156,9 @@ public class Main {
         } else if (!noOpts.isEmpty()) {
             Settings.opts.removeAll(noOpts);
         }
+
+        // hardcode register allocation to be on, because pa7 breaks backwards compatibility
+        Settings.opts.add("reg");
     }
 
     public static void main(String[] argv) {
