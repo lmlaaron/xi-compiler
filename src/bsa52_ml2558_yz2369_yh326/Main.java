@@ -190,7 +190,15 @@ public class Main {
             try {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
-                ast = InitializeToZero.do_it(ast);
+                try {
+                    ast = InitializeToZero.do_it(ast);
+                }
+                catch (Exception e) {
+                    // if we requested to see the ast, it should still be displayed:
+                    if (Settings.debugAst)
+                        ParserWrapper.DebugPrintASTNodeTypes(ast);
+                    throw e;
+                }
                 if (Settings.debugAst) ParserWrapper.DebugPrintASTNodeTypes(ast);
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
