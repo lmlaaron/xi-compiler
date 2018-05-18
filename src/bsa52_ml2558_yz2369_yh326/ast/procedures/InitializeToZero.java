@@ -8,7 +8,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.literal.NullLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Bracket;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.*;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.ArrayTypeNode;
-import bsa52_ml2558_yz2369_yh326.ast.node.type.PrimitiveTypeNode;
+import bsa52_ml2558_yz2369_yh326.ast.node.type.NonArrayTypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.util.Settings;
 
@@ -63,7 +63,7 @@ public class InitializeToZero {
             // get the rhs for each assignment! This value depends on the type of the variables
             Expr rhs = null; // default value depends on the type of the variable
             TypeNode type = (TypeNode)n.children.get(n.children.size()-1);
-            if (type instanceof PrimitiveTypeNode) { // primitives
+            if (type instanceof NonArrayTypeNode) { // primitives
                 if (type.value.equals("int")) {
                     rhs = new IntegerLiteral(n.line, n.col, "0");
                 } else {

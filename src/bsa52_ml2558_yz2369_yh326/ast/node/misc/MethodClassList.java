@@ -6,7 +6,9 @@ import java.util.Map;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
+import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.AssignSingle;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.AssignToList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
@@ -43,7 +45,11 @@ public class MethodClassList extends Node {
 
     @Override
     public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
-        loadClasses(sTable);
+        for (Node child : children) {
+            if (child != null && !(child instanceof Method)) {
+                child.loadClasses(sTable);
+            }
+        }
     }
     
     @Override

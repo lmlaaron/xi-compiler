@@ -173,6 +173,10 @@ public class SymbolTable {
             return true;
         }
     }
+    
+    public void updateGlobalVar(String name, VariableType variableType) {
+        varTable.get(name).t1 = variableType;
+    }
 
     // =============== ADD FUNCTION ===============
     public boolean addFunc(String name, List<VariableType> args, List<VariableType> rets) {

@@ -9,7 +9,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 
-public class TypeNode extends Node {
+public abstract class TypeNode extends Node {
 
     public TypeNode(int line, int col, String string) {
         super(line, col, string);
@@ -19,24 +19,5 @@ public class TypeNode extends Node {
         super(line, col, nodes);
     }
 
-    @Override
-    public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        VariableType t = (VariableType) children.get(1).typeCheck(sTable);
-
-        if (children.size() <= 2) {
-            // Size of array not given
-            t.increaseLevel();
-        } else {
-            // Size of array given. Check if size (expr) is integer.
-            PrimitiveType expr = (PrimitiveType) children.get(2).typeCheck(sTable);
-            PrimitiveType integer = new PrimitiveType(Primitives.INT);
-            if (expr.equals(integer)) {
-                t.increaseLevel((Expr) children.get(2));
-            } else {
-                throw new MatchTypeException(line, col, integer, expr);
-            }
-        }
-
-        return t;
-    }
+    public abstract NodeType typeCheckSkipSize(SymbolTable sTable) throws Exception;
 }

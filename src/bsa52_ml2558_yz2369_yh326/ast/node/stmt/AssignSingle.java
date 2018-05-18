@@ -27,8 +27,13 @@ public class AssignSingle extends Stmt {
     }
     
     @Override
+    public void loadClasses(SymbolTable sTable) throws Exception {
+        lhs.loadClasses(sTable);
+    }
+    
+    @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        return;
+        lhs.loadMethods(sTable);
     }
 
     @Override

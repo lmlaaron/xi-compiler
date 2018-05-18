@@ -11,6 +11,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.node.retval.RetvalList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.StmtList;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.VarDecl;
+import bsa52_ml2558_yz2369_yh326.ast.node.type.NonArrayTypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.node.type.TypeNode;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -103,11 +104,11 @@ public class Method extends Node {
     		if (this.args == null ) {
     			
     			this.args = new FunctionTypeDeclList(line, col,
-    					new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
+    					new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
     		} else if (this.args.children.size() == 1) {
-    			this.args.children.add( new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
+    			this.args.children.add( new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
     		} else {
-    			this.args.addHead(  new VarDecl(line, col, new Identifier(line, col, "this"), new TypeNode(line, col, xc.classId.value)));
+    			this.args.addHead(  new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
     		}
     }
 

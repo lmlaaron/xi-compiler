@@ -205,7 +205,7 @@ public class Main {
                 } else if (Settings.parse) {
                     WriteException(outputFile + ".parsed", e);
                 }
-            } catch (TypecheckingException e) {
+            } catch (TypecheckingException e) {e.printStackTrace();
                 e.print(file + ".xi");
                 if (Settings.typeCheck) {
                     WriteException(outputFile + ".typed", e);

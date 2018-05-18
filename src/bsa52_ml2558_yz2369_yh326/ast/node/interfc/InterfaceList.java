@@ -17,7 +17,11 @@ public class InterfaceList extends Node {
     
     @Override
     public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
-        loadClasses(sTable);
+        for (Node child : children) {
+            if (child != null && child instanceof InterfaceClass) {
+                child.loadClasses(sTable);
+            }
+        }
     }
 
     @Override

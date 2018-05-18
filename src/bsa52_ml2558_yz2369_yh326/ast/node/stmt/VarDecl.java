@@ -50,8 +50,19 @@ public class VarDecl extends Stmt {
     }
     
     @Override
+    public void loadClasses(SymbolTable sTable) throws Exception {
+        // This function will only be called for global variables
+        VariableType t = (VariableType) typeNode.typeCheckSkipSize(sTable);
+        for (Identifier id : ids)
+            if (sTable.addVar(id.value, t, isInstanceVariable, isGlobalVariable) == false)
+                throw new AlreadyDefinedException(line, col, id.value);
+    }
+    
+    @Override
     public void loadMethods(SymbolTable sTable) throws Exception {
-        return;
+        // This function will only be called for global variables
+        for (Identifier id : ids)
+            sTable.updateGlobalVar(id.value, (VariableType) typeNode.typeCheck(sTable));
     }
     
     @Override
@@ -65,9 +76,10 @@ public class VarDecl extends Stmt {
         // For example, from Node ([] int) get NodeType int[]
         VariableType t = (VariableType) typeNode.typeCheck(sTable);
         VarType = t;
-        for (Identifier id : ids)
-            if (sTable.addVar(id.value, t, isInstanceVariable, isGlobalVariable) == false)
-                throw new AlreadyDefinedException(line, col, id.value);
+        if (!isGlobalVariable) // global variables have been typecheck in previous steps
+            for (Identifier id : ids)
+                if (sTable.addVar(id.value, t, isInstanceVariable, isGlobalVariable) == false)
+                    throw new AlreadyDefinedException(line, col, id.value);
         sizes = t.getSizes();
         return t;
     }
