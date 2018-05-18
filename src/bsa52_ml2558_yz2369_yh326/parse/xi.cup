@@ -90,7 +90,7 @@ nonterminal List idlist;
 nonterminal RetvalList retvals_list, retvals;
 
 nonterminal TypeNode type_empty;
-nonterminal PrimitiveTypeNode primitive_type;
+nonterminal NonArrayTypeNode primitive_type;
 nonterminal ArrayTypeNode array_type, array_type_empty;
 nonterminal ArrayTypeNode box, boxes, box_empty, boxes_empty;
 
@@ -252,9 +252,9 @@ retvals          ::= type_empty:t COMMA retvals:rv
                        {:RESULT = new RetvalList(tleft, tright, t);:};
 
 /* ================= TYPE =================================================== */
-primitive_type   ::= INT:a                   {:RESULT = new PrimitiveTypeNode(aleft, aright, "int");:}
-                   | BOOL:a                  {:RESULT = new PrimitiveTypeNode(aleft, aright, "bool");:}
-                   | identifier:a            {:RESULT = new PrimitiveTypeNode(aleft, aright, a);:};
+primitive_type   ::= INT:a                   {:RESULT = new NonArrayTypeNode(aleft, aright, "int");:}
+                   | BOOL:a                  {:RESULT = new NonArrayTypeNode(aleft, aright, "bool");:}
+                   | identifier:a            {:RESULT = new NonArrayTypeNode(aleft, aright, a);:};
 
 // Expressions allowed in array brackets, but once empty, cannot be non-empty again
 array_type       ::= primitive_type:pt boxes:bs
