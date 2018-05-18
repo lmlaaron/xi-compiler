@@ -23,7 +23,8 @@ public class InterfaceClass extends Interface {
     @Override
     public void loadClasses(SymbolTable sTable) throws Exception {
         XiClass newClass = new XiClass(line, col, id, superClassId);
-        newClass.superClassName = superClassId == null ? null : superClassId.value;
+        if (superClassId != null)
+            newClass.superClass = sTable.getClass(superClassId.value);
         if (sTable.addClass(newClass) == false)
             throw new AlreadyDefinedException(line, col, id.value);
     }
