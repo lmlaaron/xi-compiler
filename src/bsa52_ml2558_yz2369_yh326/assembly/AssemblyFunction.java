@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.assembly;
 
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
+import edu.cornell.cs.cs4120.util.Copy;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,6 +107,12 @@ public class AssemblyFunction extends Assembly {
 
     public void calleeSave(Map<String, String> registerAllocations) {
         if (!actuallyAFunction()) return;
+
+        // special case: we don't want _I_init_ functions to calleeSave
+        //               due to the layout of our stack
+        if (Utilities.beginsWith(functionName, "_I_init_")) {
+            return;
+        }
 
         // this function, as a callee, must save all callee-save variables it uses,
         // then restore them before each 'ret' statement
