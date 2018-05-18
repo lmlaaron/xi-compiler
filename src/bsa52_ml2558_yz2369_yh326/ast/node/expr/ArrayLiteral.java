@@ -5,6 +5,7 @@ import java.util.List;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.TypeInconsistentException;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
@@ -34,18 +35,25 @@ public class ArrayLiteral extends ExprAtom {
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         // The following is not specified in the Xi type system
-        PrimitiveType t;
+        VariableType type, arrayType;
         if (children.size() == 0) {
-            t = new PrimitiveType(Primitives.EMPTY);
+            type = new PrimitiveType(Primitives.EMPTY);
         } else {
-            t = (PrimitiveType) children.get(0).typeCheck(sTable);
+            type = (VariableType) children.get(0).typeCheck(sTable);
         }
         for (int i = 1; i < children.size(); i++) {
-            if (!t.equals(children.get(i).typeCheck(sTable))) {
+            VariableType next = (VariableType) children.get(i).typeCheck(sTable);
+            if (type.isSubclassOf(next)) {
+                type = next;
+            } else if (next.isSubclassOf(type)) {
+            } else if (!type.equals(next)) {
                 throw new TypeInconsistentException(line, col, "Array literal");
             }
         }
-        return new PrimitiveType(t.getType(), t.getLevel() + 1);
+        
+        arrayType = type.copy();
+        arrayType.increaseLevel();
+        return arrayType;
     }
 
     @Override

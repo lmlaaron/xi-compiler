@@ -15,8 +15,7 @@ import java.util.LinkedList;
 /**
  * Tile uses LEA instruction to efficiently match:
  *
- * MEM ( [ADD/SUB] (TEMP, [CONST/TEMP])) and MEM ( [ADD/SUB] (TEMP, MUL (TEMP,
- * CONST)))
+ * MEM ( [ADD/SUB] (TEMP, [CONST/TEMP])) and MEM ( [ADD/SUB] (TEMP, MUL (TEMP, CONST)))
  */
 public class LEATile extends Tile {
     /**

@@ -114,7 +114,7 @@ nonterminal Break break;
 nonterminal Continue continue;
 
 nonterminal ExprList expr_list, expr_rec;
-nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_atom_nodot, expr_no_paren;
+nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_no_paren;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
 nonterminal ArrayLiteral array_literal;
@@ -421,8 +421,6 @@ expr_atom        ::= subscripts_rhs:ss     {:RESULT = ss;:}
 expr_atom_nosub  ::= expr_no_paren:e       {:RESULT = e;:}
                    | array_literal:al      {:RESULT = al;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:};
-expr_atom_nodot  ::= /*subscripts_lhs:ss     {:RESULT = ss;:} // Intention: a[1].b()
-                   | */expr_no_paren:e       {:RESULT = e;:};
 expr_no_paren    ::= INTEGER_LITERAL:il    {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
                    | STRING_LITERAL:sl     {:RESULT = new StringLiteral(slleft, slright, sl);:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
@@ -449,11 +447,11 @@ dot              ::= dot_call:d            {:RESULT = d;:}
                    | dot_get:d             {:RESULT = d;:};
 dot_call         ::= dot:e DOT:d method_call:m
                        {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:}
-                   | expr_atom_nodot:e DOT:d method_call:m
+                   | expr_no_paren:e DOT:d method_call:m
                        {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:};
 dot_get          ::= dot:e DOT:d identifier:id
                        {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:}
-                   | expr_atom_nodot:e DOT:d identifier:id
+                   | expr_no_paren:e DOT:d identifier:id
                        {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:};
 new_object       ::= NEW:n identifier:id   {:RESULT = new New(nleft, nright, id);:};
 
