@@ -1,4 +1,4 @@
-// this vs no this
+// this
 class Point {
     x,y: int
 
