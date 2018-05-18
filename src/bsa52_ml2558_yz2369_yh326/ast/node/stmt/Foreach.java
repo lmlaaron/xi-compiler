@@ -86,7 +86,7 @@ public class Foreach extends Loop {
                                                    new IRBinOp(IRBinOp.OpType.MUL,
                                                                index,
                                                                new IRConst(8))))));
-        // the second thing is to incremeånt the index:
+        // the second thing is to increment the index:
         stmts.add(new IRMove(index, new IRBinOp(IRBinOp.OpType.ADD, new IRConst(1), index)));
         // the third thing is whatever the loop is meant to do
         IRNode then = this.then.translate();
