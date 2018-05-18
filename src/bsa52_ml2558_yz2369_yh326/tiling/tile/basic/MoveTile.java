@@ -30,10 +30,15 @@ public class MoveTile extends Tile {
             if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
                 subtreeRoots.add(move.source());
                 subtreeRoots.add(move.target());
-            } else if ( ((IRMove) root).source() instanceof  IRName && (!((IRName)((IRMove) root).source()).label().startsWith("_I_g_")) ) {
+            } else if ( ((IRMove) root).source() instanceof  IRName 
+            		&& (((IRName) ((IRMove) root).source()).name().startsWith("_I_g_")) ) {
                 subtreeRoots.add(move.source());
                 subtreeRoots.add(move.target());
-            } else {
+            } else if ( ((IRMove) root).source() instanceof  IRName 
+            		&& !(((IRName) ((IRMove) root).source()).name().startsWith("_I_g_"))) {
+                subtreeRoots.add(move.source());
+                subtreeRoots.add(move.target());          	
+            }else {
                 subtreeRoots.add(move.target());
                 subtreeRoots.add(move.source());
             }
@@ -55,10 +60,17 @@ public class MoveTile extends Tile {
             String freshTemp = freshTemp();
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
-        }  else if ( ((IRMove) root).source() instanceof  IRName && (!((IRName)((IRMove) root).source()).label().startsWith("_I_g_")) ) {
+        }  else if ( (((IRMove) root).source() instanceof  IRName) 
+        	 && (((IRName) ((IRMove) root).source()).name().startsWith("_I_g_"))  ) {
             String freshTemp = freshTemp();
-        	statements.add(new AssemblyStatement("lea", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+        	    statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
+        } else if ((((IRMove) root).source() instanceof  IRName) 
+           	 && !(((IRName) ((IRMove) root).source()).name().startsWith("_I_g_"))) {
+        	     //System.out.println("LABEL  NAME " +((IRName) ((IRMove) root).source()).name());
+            String freshTemp = freshTemp();
+        		statements.add(new AssemblyStatement("lea", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+    	    		statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
         } else {
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand()));
         }
