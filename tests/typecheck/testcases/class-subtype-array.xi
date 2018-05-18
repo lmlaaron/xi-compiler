@@ -7,5 +7,6 @@ class B extends A {
 }
 
 main(argv: int[][]) {
-	barray:A[] = {new A, new B, new A.init()}
+	barray1:A[] = {new A, new B, new A.init()}
+	barray2:A[] = {new B, new B, new B.init()}
 }
