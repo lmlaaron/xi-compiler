@@ -19,7 +19,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class MethodClassList extends Node {
 	private Map<String, Long> globalIntSizeMap;
-
+    private SymbolTable localSTable;
     /**
      * Constructor
      * 
@@ -49,6 +49,7 @@ public class MethodClassList extends Node {
     @Override
     public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
         loadMethods(sTable);
+        localSTable = sTable;
     }
 
     @Override
@@ -82,7 +83,7 @@ public class MethodClassList extends Node {
             		irNode.appendVarUninit("_I_size_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
             		irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
             	}
-                for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods()) {
+                for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods(localSTable)) {
             			irNode.appendFunc(func);
                 }
             } else if ( child instanceof VarDecl ) {
