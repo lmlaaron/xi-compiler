@@ -186,7 +186,9 @@ public class AssemblyOperand {
     protected boolean entityMatches(String s, boolean includeTemps, boolean includeRegisters) {
         // special case where we don't want global variables (name always prefixed by '_')
         // to be interpreted as temps or registers:
-        if (Utilities.beginsWith(s, "_I_"))
+        if (Utilities.beginsWith(s, "_I") ||
+                Utilities.beginsWith(s, "_xi_alloc") ||
+                Utilities.beginsWith(s, "_xi_out_of"))
             return false;
         
         if (!Utilities.isNumber(s)) {

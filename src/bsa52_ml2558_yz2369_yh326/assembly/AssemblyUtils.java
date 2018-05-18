@@ -79,17 +79,16 @@ public class AssemblyUtils {
         Arrays.stream(stmt.operands).forEach(op -> op.ResolveType());
         switch (stmt.operation) {
         case "call":
-
 //            //TODO: remove
-//            System.out.println(stmt);
+            System.out.println(stmt);
 
             // new to PA7: the argument to a call can be a register!
-            if (!Utilities.beginsWith(stmt.operands[0].value(), "_I_") &&
-                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_alloc" &&
-                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_out_of_bounds"))) {
+            if (!Utilities.beginsWith(stmt.operands[0].value(), "_I") &&
+                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_allo") && // alloc function
+                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_out_")) { // out of bounds function
 
                 ret.add(stmt.operands[0].value());
-                //System.out.println("USED REGISTER AS CALL ARG: " + stmt.operands[0].value()); // TODO: remove
+                System.out.println("USED REGISTER AS CALL ARG: " + stmt.operands[0].value()); // TODO: remove
             }
 
             // call uses the registers which are used as arguments, and this depends on the
