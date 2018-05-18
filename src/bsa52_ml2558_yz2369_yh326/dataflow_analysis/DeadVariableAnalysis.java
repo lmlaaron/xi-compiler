@@ -1,26 +1,12 @@
 package bsa52_ml2558_yz2369_yh326.dataflow_analysis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
-import bsa52_ml2558_yz2369_yh326.assembly.AssemblyOperand;
-import bsa52_ml2558_yz2369_yh326.assembly.AssemblyStatement;
 import bsa52_ml2558_yz2369_yh326.util.graph.DirectedGraph;
-import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
-import edu.cornell.cs.cs4120.xic.ir.IRCall;
-import edu.cornell.cs.cs4120.xic.ir.IRExpr;
-import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
-import edu.cornell.cs.cs4120.xic.ir.IRReturn;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
@@ -129,18 +115,6 @@ public class DeadVariableAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<IR
     @Override
     protected Set<IRStmt> meet(Collection<Set<IRStmt>> information) {
         return set_union(information);
-    }
-
-    private Set<IRStmt> set_intersect(Collection<Set<IRStmt>> information) {
-        if (information.size() == 0)
-            return new HashSet<IRStmt>();
-
-        List<Set<IRStmt>> infoList = new ArrayList<>(information);
-        Set<IRStmt> set = infoList.get(0);
-        for (int i = 1; i < infoList.size(); i++) {
-            set.retainAll(infoList.get(i));
-        }
-        return set;
     }
 
     @Override

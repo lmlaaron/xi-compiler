@@ -63,7 +63,7 @@ public class AvailableCopyAnalysis extends DataflowAnalysisGenKill<IRStmt, Set<S
             		set.add(node.toString());
             }
         } else if (node instanceof IRReturn) {
-        		IRReturn irret = (IRReturn)node;
+        		//IRReturn irret = (IRReturn)node;
         		// TODO need to think about what RV is here
         		assert false;
         }

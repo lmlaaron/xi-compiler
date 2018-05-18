@@ -10,7 +10,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class Continue extends Stmt {
-    private Stmt loop;
+    private Loop loop;
     
     public Continue(int line, int col) {
         super(line, col, new Keyword(line, col, "continue"));
@@ -28,13 +28,7 @@ public class Continue extends Stmt {
 
     @Override
     public IRNode translate() {
-        String labelNumber;
-        if (loop instanceof While) {
-            labelNumber = ((While)loop).labelNumber;
-        }
-        else {
-            labelNumber = ((Foreach)loop).labelNumber;
-        }
+        String labelNumber = loop.labelNumber;
         return new IRJump(new IRName("_head_" + labelNumber));
     }
 }

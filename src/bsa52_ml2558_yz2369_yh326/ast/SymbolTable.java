@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
-import bsa52_ml2558_yz2369_yh326.ast.node.stmt.Stmt;
+import bsa52_ml2558_yz2369_yh326.ast.node.stmt.Loop;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -28,7 +28,7 @@ import bsa52_ml2558_yz2369_yh326.util.Tuple;
 public class SymbolTable {
     
     private Stack<String> logs = new Stack<>();
-    private Stack<Stmt> loops = new Stack<>();
+    private Stack<Loop> loops = new Stack<>();
     private Map<String, XiClass> classTable = new HashMap<>();
     private Map<String, Tuple<VariableType, Integer>> varTable = new HashMap<>();
     private Map<String, Tuple<NodeType, NodeType>> funcTable = new HashMap<>();
@@ -122,7 +122,7 @@ public class SymbolTable {
     }
     
     // =============== ENTER / EXIT LOOP ===============
-    public void enterLoop(Stmt loopNode) {
+    public void enterLoop(Loop loopNode) {
         loops.push(loopNode);
     }
     
@@ -130,7 +130,7 @@ public class SymbolTable {
         loops.pop();
     }
 
-    public Stmt getLastLoop() {
+    public Loop getLastLoop() {
         if (loops.isEmpty())
             return null;
         else
