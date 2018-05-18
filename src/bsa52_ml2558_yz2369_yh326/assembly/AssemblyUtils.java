@@ -84,7 +84,9 @@ public class AssemblyUtils {
 //            System.out.println(stmt);
 
             // new to PA7: the argument to a call can be a register!
-            if (!Utilities.beginsWith(stmt.operands[0].value(), "_I_") && !Utilities.beginsWith(stmt.operands[0].value(), "_xi_alloc")) {
+            if (!Utilities.beginsWith(stmt.operands[0].value(), "_I_") &&
+                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_alloc" &&
+                    !Utilities.beginsWith(stmt.operands[0].value(), "_xi_out_of_bounds"))) {
 
                 ret.add(stmt.operands[0].value());
                 //System.out.println("USED REGISTER AS CALL ARG: " + stmt.operands[0].value()); // TODO: remove
