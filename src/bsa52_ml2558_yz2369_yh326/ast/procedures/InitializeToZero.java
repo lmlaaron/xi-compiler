@@ -66,9 +66,12 @@ public class InitializeToZero {
             if (type instanceof NonArrayTypeNode) { // primitives
                 if (type.value.equals("int")) {
                     rhs = new IntegerLiteral(n.line, n.col, "0");
-                } else {
-                    if (!type.value.equals("bool")) throw new RuntimeException("Bad Assumption!");
+                } else if (type.value.equals("bool")) {
                     rhs = new FalseLiteral(n.line, n.col);
+                }
+                else {
+                    // objects
+                    rhs = new NullLiteral(n.line, n.col);
                 }
             }
             else if (type instanceof ArrayTypeNode) { // arrays
@@ -79,11 +82,9 @@ public class InitializeToZero {
                         rhs = null; // declaration such as `x : int[5]` match this structure (they are initialized!)
                     }
                 }
-
-
             }
             else { // classes
-                rhs = new NullLiteral(n.line, n.col);
+                throw new RuntimeException("Bad Assumption!");
             }
 
             // add an assignment for each variable

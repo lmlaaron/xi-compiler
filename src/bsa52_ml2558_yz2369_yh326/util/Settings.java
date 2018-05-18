@@ -21,20 +21,20 @@ public class Settings {
     public static boolean typeCheck = false;
     public static boolean irgen = false;
     public static boolean irrun = false;
-    public static Set<String> optIRSet = new HashSet<String>();
-    public static Set<String> optCFGSet = new HashSet<String>();
+    public static Set<String> optIRSet = new HashSet<>();
+    public static Set<String> optCFGSet = new HashSet<>();
 
     // Setting options
     public static String inputSourcePath = Paths.get(".").toAbsolutePath().toString();
     public static String outputPath = Paths.get(".").toAbsolutePath().toString();
-    public static String libPath = Paths.get(".").toAbsolutePath().toString();
+    public static Set<String> libPath = new HashSet<>(Arrays.asList(Paths.get(".").toAbsolutePath().toString()));
     public static String assemblyOutputPath = Paths.get(".").toAbsolutePath().toString();
     public static String targetOS = "linux";
-    public static Set<String> opts = new HashSet<String>(supportedOpt);
+    public static Set<String> opts = new HashSet<>(supportedOpt);
     
     // File lists
-    public static List<String> xiList = new ArrayList<String>();
-    public static List<String> ixiList = new ArrayList<String>();
+    public static List<String> xiList = new ArrayList<>();
+    public static List<String> ixiList = new ArrayList<>();
 
     // Internal usage options
     public static boolean asmComments = false;

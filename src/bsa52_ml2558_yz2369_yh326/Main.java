@@ -123,7 +123,7 @@ public class Main {
                 if (argv[i].equals("-sourcepath")) {
                     Settings.inputSourcePath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
                 } else if (argv[i].equals("-libpath")) {
-                    Settings.libPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
+                    Settings.libPath.add(Paths.get(argv[i + 1]).toAbsolutePath().toString());
                 } else if (argv[i].equals("-D")) {
                     Settings.outputPath = Paths.get(argv[i + 1]).toAbsolutePath().toString();
                 } else if (argv[i].equals("-d")) {
@@ -156,6 +156,9 @@ public class Main {
         } else if (!noOpts.isEmpty()) {
             Settings.opts.removeAll(noOpts);
         }
+
+        // hardcode register allocation to be on, because pa7 breaks backwards compatibility
+        Settings.opts.add("reg");
     }
 
     public static void main(String[] argv) {
@@ -164,6 +167,7 @@ public class Main {
         // For each interface file, diagnose.
         for (String file : Settings.ixiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".ixi";
+            Settings.libPath.add(inputFile.substring(0, inputFile.lastIndexOf("/")));
             String outputFile = realPath(Settings.outputPath, file);
 
             try {
@@ -183,6 +187,7 @@ public class Main {
         // For each xi file, diagnose.
         for (String file : Settings.xiList) {
             String inputFile = realPath(Settings.inputSourcePath, file) + ".xi";
+            Settings.libPath.add(inputFile.substring(0, inputFile.lastIndexOf("/")));
             String outputFile = realPath(Settings.outputPath, file);
             String assmOutputFile = realPath(Settings.assemblyOutputPath, file);
 
@@ -190,7 +195,15 @@ public class Main {
             try {
                 lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
                 Node ast = ParserWrapper.Parsing(xiLexer, outputFile, ".parsed");
-                ast = InitializeToZero.do_it(ast);
+                try {
+                    ast = InitializeToZero.do_it(ast);
+                }
+                catch (Exception e) {
+                    // if we requested to see the ast, it should still be displayed:
+                    if (Settings.debugAst)
+                        ParserWrapper.DebugPrintASTNodeTypes(ast);
+                    throw e;
+                }
                 if (Settings.debugAst) ParserWrapper.DebugPrintASTNodeTypes(ast);
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
@@ -205,7 +218,7 @@ public class Main {
                 } else if (Settings.parse) {
                     WriteException(outputFile + ".parsed", e);
                 }
-            } catch (TypecheckingException e) {e.printStackTrace();
+            } catch (TypecheckingException e) {
                 e.print(file + ".xi");
                 if (Settings.typeCheck) {
                     WriteException(outputFile + ".typed", e);

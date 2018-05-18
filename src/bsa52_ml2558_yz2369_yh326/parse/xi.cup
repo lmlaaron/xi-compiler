@@ -120,8 +120,8 @@ nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
 nonterminal ArrayLiteral array_literal;
 nonterminal Expr call;
 nonterminal MethodCall method_call;
-nonterminal Dot dot_call, dot_get;
-nonterminal Expr dot_left;
+nonterminal Dot dot, dot_call, dot_get;
+nonterminal New new_object;
 
 nonterminal Node nothing;
 
@@ -347,7 +347,7 @@ assign_to_mult   ::= var_decl_empty:vd       {:RESULT = vd;:}
 assign_to_single ::= identifier:id           {:RESULT = id;:}
                    | var_decl_empty:vd       {:RESULT = vd;:}
                    | subscripts_lhs:ss       {:RESULT = ss;:}
-                   | dot_get:g               {:RESULT = g;:};
+                   | dot_get:d               {:RESULT = d;:};
 
 /* ================= IF/ELSE/WHILE ========================================== */
 // if_statement: if x stmt            - Anything can be in "stmt"
@@ -416,20 +416,21 @@ expr_t7          ::= t7op:o expr_t7:e
                        {:RESULT = ee;:};
 
 expr_atom        ::= subscripts_rhs:ss     {:RESULT = ss;:}
+                   | dot:d                 {:RESULT = d;:}
                    | expr_atom_nosub:e     {:RESULT = e;:};
 expr_atom_nosub  ::= expr_no_paren:e       {:RESULT = e;:}
                    | array_literal:al      {:RESULT = al;:}
                    | OPEN_PAREN expr:e CLOSE_PAREN {:RESULT = e;:};
-expr_no_paren    ::= identifier:id         {:RESULT = id;:}
-                   | INTEGER_LITERAL:il    {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
+expr_no_paren    ::= INTEGER_LITERAL:il    {:RESULT = new IntegerLiteral(illeft, ilright, il);:}
                    | STRING_LITERAL:sl     {:RESULT = new StringLiteral(slleft, slright, sl);:}
                    | CHARACTER_LITERAL:cl  {:RESULT = new CharacterLiteral(clleft, clright, cl);:}
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
                    | NULL:n                {:RESULT = new NullLiteral(nleft, nright);:}
-                   | call:c                {:RESULT = c;:}
+                   | identifier:id         {:RESULT = id;:}
+                   | method_call:c         {:RESULT = c;:}
                    | length_expr:ls        {:RESULT = ls;:}
-                   | dot_get:dg            {:RESULT = dg;:};
+                   | new_object:n          {:RESULT = n;:};
 
 length_expr      ::= LENGTH:a OPEN_PAREN expr:e CLOSE_PAREN
                        {:RESULT = new Length(aleft, aright, e);:};
@@ -442,12 +443,17 @@ call             ::= method_call:mc        {:RESULT = mc;:}
 method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
                        {:RESULT = new MethodCall(idleft, idright, id);
                          RESULT.addChildren(el);:};
-dot_call         ::= dot_left:dl DOT:d method_call:m
-                       {:RESULT = new Dot(dlleft, dlright, new Keyword(dleft, dright, "."), dl, m);:};
-dot_get          ::= dot_left:dl DOT:d identifier:id
-                       {:RESULT = new Dot(dlleft, dlright, new Keyword(dleft, dright, "."), dl, id);:};
-dot_left         ::= expr_no_paren:e               {:RESULT = e;:}
-                   | NEW:n identifier:id           {:RESULT = new New(nleft, nright, id);:};
+dot              ::= dot_call:d            {:RESULT = d;:}
+                   | dot_get:d             {:RESULT = d;:};
+dot_call         ::= dot:e DOT:d method_call:m
+                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:}
+                   | expr_no_paren:e DOT:d method_call:m
+                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:};
+dot_get          ::= dot:e DOT:d identifier:id
+                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:}
+                   | expr_no_paren:e DOT:d identifier:id
+                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:};
+new_object       ::= NEW:n identifier:id   {:RESULT = new New(nleft, nright, id);:};
 
 /* ================= OPERATION ============================================== */
 t1op             ::= OR:a           {:RESULT = new LogicOr(aleft, aright);:};

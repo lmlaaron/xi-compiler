@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.MethodClassList;
@@ -70,7 +71,7 @@ public class Node {
      *            the complete symbol table for the scope of this node
      * @throws Exception
      */
-    public void loadClasses(SymbolTable sTable, String libPath) throws Exception {
+    public void loadClasses(SymbolTable sTable, Set<String> libPath) throws Exception {
         for (Node child : children) {
             if (child != null) {
                 child.loadClasses(sTable, libPath);
@@ -96,7 +97,7 @@ public class Node {
      *            the complete symbol table for the scope of this node
      * @throws Exception
      */
-    public void loadMethods(SymbolTable sTable, String libPath) throws Exception {
+    public void loadMethods(SymbolTable sTable, Set<String> libPath) throws Exception {
         for (Node child : children) {
             if (child != null) {
                 child.loadMethods(sTable, libPath);
