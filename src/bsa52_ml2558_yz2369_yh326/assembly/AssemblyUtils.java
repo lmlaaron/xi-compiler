@@ -399,10 +399,11 @@ public class AssemblyUtils {
                 String dest = stmt.operands[0].value();
 
                 // we need this extra check because temps are also valid arguments to call.
-                // xi functions will always begin with '_', and we're making the assumption
+                // xi functions will always begin with '_I_', and we're making the assumption
                 // that temp names will not
-                if (dest.length() >= 1 && dest.substring(0,1).equals("_")) {
-                    String label = stmt.operands[0].value();
+                if (Utilities.beginsWith(dest, "_I_")) {
+                    System.out.println("LABEL -> " + dest); // TODO: remove
+                    String label = dest;
                     if (includeColon)
                         label = label + ":";
                     labelNames.add(label);
