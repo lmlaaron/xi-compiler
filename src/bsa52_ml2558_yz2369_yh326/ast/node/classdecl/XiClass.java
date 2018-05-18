@@ -21,9 +21,6 @@ import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.UnitType;
 import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
-import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
-import bsa52_ml2558_yz2369_yh326.exception.MismatchNumberException;
-import bsa52_ml2558_yz2369_yh326.exception.NotDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Tuple;
@@ -274,7 +271,6 @@ public class XiClass extends Node {
     }
 
     public int sizeOfListOfIRMethods() {
-        List<IRFuncDecl> list = new ArrayList<>();
         int ret = 0;
         for (Node child : children) {
             if (child instanceof Method) {
@@ -299,7 +295,7 @@ public class XiClass extends Node {
 
                 IRFuncDecl funcdecl = (IRFuncDecl) child.translate();
                 // System.out.println("label " +funcdecl.label() + " name :" + funcdecl.name());
-                IRFuncDecl f = new IRFuncDecl(((Method) child).id.value, funcdecl.body());
+                // IRFuncDecl f = new IRFuncDecl(((Method) child).id.value, funcdecl.body());
                 list.add(funcdecl);
             }
         }

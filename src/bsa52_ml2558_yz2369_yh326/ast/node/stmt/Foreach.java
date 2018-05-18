@@ -30,22 +30,16 @@ public class Foreach extends Loop {
 
         // 'from' has to be an array
         NodeType fromType = from.typeCheck(sTable);
-        if (!(fromType instanceof VariableType)) {
-            throw new MatchTypeException(line, col, "Any Array Type", fromType);
+        if (!(fromType instanceof VariableType) || ((VariableType) fromType).getLevel() < 1) {
+            throw new MatchTypeException(line, col, "any[]", fromType);
         }
         else {
-
-            VariableType fromTypevt = (VariableType)fromType;
-
-            if (fromTypevt.getLevel() < 1) {
-                throw new MatchTypeException(line, col, "Must have level >1", fromTypevt);
-            }
 
             sTable.enterBlock();
             sTable.enterLoop(this);
 
             // add loop variable to typing context:
-            VariableType getsType = fromTypevt.copy();
+            VariableType getsType = ((VariableType) fromType).copy();
             getsType.decreaseLevel();
             sTable.addVar(gets.value, getsType);
 

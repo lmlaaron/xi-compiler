@@ -10,7 +10,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class Break extends Stmt {
-    private Stmt loop;
+    private Loop loop;
 
     public Break(int line, int col) {
         super(line, col, new Keyword(line, col, "break"));
@@ -28,7 +28,7 @@ public class Break extends Stmt {
     
     @Override
     public IRNode translate() {
-        String labelNumber = ((Loop) loop).labelNumber;
+        String labelNumber = loop.labelNumber;
         return new IRJump(new IRName("_end_" + labelNumber));
     }
 }

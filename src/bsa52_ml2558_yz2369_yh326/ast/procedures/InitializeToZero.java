@@ -72,8 +72,6 @@ public class InitializeToZero {
                 }
             }
             else if (type instanceof ArrayTypeNode) { // arrays
-                ArrayTypeNode arrayType = (ArrayTypeNode)type;
-
                 rhs = new NullLiteral(n.line, n.col);
 
                 for (Node child : type.children){

@@ -6,7 +6,6 @@ import java.util.Map;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
-import bsa52_ml2558_yz2369_yh326.ast.node.interfc.InterfaceClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.literal.IntegerLiteral;
 import bsa52_ml2558_yz2369_yh326.ast.node.method.Method;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.AssignSingle;
@@ -93,7 +92,7 @@ public class MethodClassList extends Node {
             			irNode.appendFunc(func);
                 }
             } else if ( child instanceof VarDecl ) {
-            		int unit_size = 1;
+            		//int unit_size = 1;
             		for (Identifier id: ((VarDecl) child).ids) {
             			irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),   ((VarDecl) child).getArraySize(this.globalIntSizeMap) );
             		}
