@@ -5,10 +5,10 @@ import java.util.List;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
+import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
-import bsa52_ml2558_yz2369_yh326.ir.Canonicalization;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
@@ -22,6 +22,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
+
 public class Dot extends Expr {
 	NodeType leftNodeType = null;
 	
@@ -38,7 +39,7 @@ public class Dot extends Expr {
                 ((MethodCall) right).setClassOfMethod(((ObjectType) leftNodeType).getType());
                 return right.typeCheck(sTable);
             } else if (right instanceof Identifier) {
-                ((Identifier) right).setClassOfInstance(((ObjectType) leftNodeType).getType());
+                ((Identifier) right).classOfInstance = ((ObjectType) leftNodeType).getType();
                 return right.typeCheck(sTable);
             } else {
                 throw new MatchTypeException(line, col, "MethodCall or Identifier", leftNodeType);
@@ -56,7 +57,8 @@ public class Dot extends Expr {
     		}	
     		// it is just a member variable
     		else {
-    			return translateVariable();
+    			return translateVariable(((ObjectType) leftNodeType).getType(), 
+    			        (IRExpr) children.get(1).translate(), children.get(2).value);
     		}
     }
     
@@ -123,19 +125,18 @@ public class Dot extends Expr {
 				);
     }
     
-    private IRNode translateVariable() {
+    public static IRNode translateVariable(XiClass xiClass, IRExpr left, String varName) {
 		// new offset
 		// look up the offset of the variable in java
-		int varoffset = ((ObjectType) leftNodeType).indexOfVar(children.get(2).value);
+		int varoffset = xiClass.indexOfVar(varName);
 		
 		// resolve the absolute offset
-		ObjectType leftObjType = (ObjectType) leftNodeType;
 		IRExpr absoluteVarOffset = null;
-		if ( leftObjType.getType().superClass != null ) {
+		if ( xiClass.superClass != null ) {
 			absoluteVarOffset = new IRBinOp(
 					IRBinOp.OpType.ADD,
 					new IRConst(varoffset),
-				    new IRTemp("_I_size_"+leftObjType.getType().superClass.classId.getId().replace("_", "__"))
+				    new IRTemp("_I_size_"+xiClass.superClass.classId.getId().replace("_", "__"))
 					);
 		} else {
 			absoluteVarOffset = new IRConst(varoffset+8);
@@ -145,7 +146,7 @@ public class Dot extends Expr {
 		return new IRMem(
 				new IRBinOp(
 						IRBinOp.OpType.ADD,
-						(IRExpr) children.get(1).translate(),
+						left,
 						absoluteVarOffset
 				));
     }

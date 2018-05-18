@@ -248,6 +248,13 @@ public class SymbolTable {
         }
         return null;
     }
+    
+    public VariableType getNonClassVariableType(String varName) {
+        if (varTable.containsKey(varName))
+            return varTable.get(varName).t1;
+        else
+            return null;
+    }
 
     /**
      * Given the name of a function, return the type of that function. Return null

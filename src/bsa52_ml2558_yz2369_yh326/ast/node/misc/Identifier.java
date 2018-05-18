@@ -2,6 +2,7 @@ package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
+import bsa52_ml2558_yz2369_yh326.ast.node.expr.Dot;
 import bsa52_ml2558_yz2369_yh326.ast.node.expr.Expr;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -15,10 +16,10 @@ import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 public class Identifier extends Expr {
     private String id;
-    private XiClass classOfInstance = null;
-    private boolean isGlobalVariable = false;
     private VariableType idType;
-
+    private boolean isGlobalVariable = false;
+    public XiClass classOfInstance = null;
+    
     public Identifier(int line, int col, String id) {
         super(line, col, id);
         this.id = id;
@@ -28,10 +29,6 @@ public class Identifier extends Expr {
         return id;
     }
     
-    public void setClassOfInstance(XiClass xiClass) {
-        this.classOfInstance = xiClass;
-    }
-
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
         XiClass curClass = sTable.getCurClass();
@@ -44,14 +41,20 @@ public class Identifier extends Expr {
             }
         }
         
+        if (sTable.isGlobalVariable(id))
+            this.isGlobalVariable = true;
+        
         VariableType type;
         if (classOfInstance != null) {
             type = sTable.getVariableType(classOfInstance, id);
         } else {
-            type = sTable.getVariableType(id);
+            type = sTable.getNonClassVariableType(id);
+            if (type == null) {
+                this.classOfInstance = curClass;
+                type = sTable.getVariableType(classOfInstance, id);
+            }
         }
-        if (sTable.isGlobalVariable(id))
-            this.isGlobalVariable = true;
+        
         if (type != null) {
         		idType = type;
             return type;
@@ -66,6 +69,8 @@ public class Identifier extends Expr {
     public IRNode translate() {
         if (isGlobalVariable) {
             return new IRName( Utilities.toIRGlobalName(id, idType ));
+        } else if (classOfInstance != null) {
+            return Dot.translateVariable(classOfInstance, new IRTemp("this"), id);
         } else
             return new IRTemp(id);
     }
