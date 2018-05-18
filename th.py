@@ -11,6 +11,7 @@ TYPECHECKER_TESTS = "./tests/typecheck"
 IRRUN_TESTS = "./tests/irrun"
 ASSM_TESTS = "./tests/assm"
 PA7_TESTS = "./tests/pa7"
+PA7_NEGATIVE_TESTS = "./tests/pa7_shouldfail"
 
 LIB_PATH = "./runtime/include"
 
@@ -257,6 +258,9 @@ def assm_grader(testcase_f, answer_f):
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
 
+def negative_assm_grader(testcase_f, answer_f):
+    return negate(assm_grader(testcase_f, answer_f))
+
 def optimization_grader(testcase_f, answer_f):
     assembly_f = testcase_f.rsplit('.', maxsplit=1)[0] + '.s'
 
@@ -273,6 +277,14 @@ def optimization_grader(testcase_f, answer_f):
 
     answer_contents = ''.join(open(answer_f))
     return grade_by_matching_output(stdout, answer_contents)
+
+def negate(result):
+    return (not result[0], result[1],)
+
+
+def negative_optimization_grader(testcase_f, answer_f):
+    result = optimization_grader(testcase_f, answer_f)
+    return negate(result)
 
 def compile_and_run(xi_f, extra_options = None):
     if os.path.isfile('./xi_executable'):
@@ -368,9 +380,13 @@ if __name__ == "__main__":
     if "pa7o" in sys.argv:
         print("==== RUNNING OPTIMIZED PA7 TESTS ====")
         run_test_set(PA7_TESTS, optimization_grader)
+        print("==== RUNNING NEGATIVE OPTIMIZED PA7 TESTS ====")
+        run_test_set(PA7_NEGATIVE_TESTS, negative_optimization_grader)
     if "pa7" in sys.argv:
         print("==== RUNNING PA7 TESTS ====")
         run_test_set(PA7_TESTS, assm_grader)
+        print("==== RUNNING NEGATIVE PA7 TESTS ====")
+        run_test_set(PA7_NEGATIVE_TESTS, negative_assm_grader)
     
 
     print("Test Harness End!")
