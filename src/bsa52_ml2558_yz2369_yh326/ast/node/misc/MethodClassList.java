@@ -1,6 +1,8 @@
 package bsa52_ml2558_yz2369_yh326.ast.node.misc;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
@@ -15,8 +17,16 @@ import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRCompUnit;
+import edu.cornell.cs.cs4120.xic.ir.IRConst;
+import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRFuncDecl;
+import edu.cornell.cs.cs4120.xic.ir.IRMove;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
+import edu.cornell.cs.cs4120.xic.ir.IRReturn;
+import edu.cornell.cs.cs4120.xic.ir.IRSeq;
+import edu.cornell.cs.cs4120.xic.ir.IRStmt;
+import edu.cornell.cs.cs4120.xic.ir.IRTemp;
 
 public class MethodClassList extends Node {
 	private Map<String, Long> globalIntSizeMap;
@@ -82,19 +92,46 @@ public class MethodClassList extends Node {
             if (childIR instanceof IRFuncDecl) {
                 irNode.appendFunc((IRFuncDecl) child.translate());
             } else if (child instanceof XiClass) {
-            	irNode.appendVarUninit("_I_size_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
-            	irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
-            	if ( ((XiClass) child).superClass != null ) {
-            		irNode.appendVarUninit("_I_size_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
-            		irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
-            	}
+            	    irNode.appendVarUninit("_I_size_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
+            	    irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
+            	    if ( ((XiClass) child).superClass != null ) {
+            		    irNode.appendVarUninit("_I_size_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
+            		    irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
+            	    }
                 for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods(localSTable)) {
             			irNode.appendFunc(func);
                 }
             } else if ( child instanceof VarDecl ) {
             		//int unit_size = 1;
             		for (Identifier id: ((VarDecl) child).ids) {
-            			irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),   ((VarDecl) child).getArraySize(this.globalIntSizeMap) );
+            			if (((VarDecl) child).VarType.toShortString().startsWith("a")) {
+                			irNode.appendArray(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),   ((VarDecl) child).getArraySize(this.globalIntSizeMap) );
+                			List<IRExpr> ArraySizeIR = new ArrayList<>();
+                			for (Long i: ((VarDecl) child).getArraySize(this.globalIntSizeMap)) {
+                				ArraySizeIR.add(new IRConst(i));
+                			}
+                			IRTemp freshtemp = new IRTemp(Utilities.freshTemp());
+                			IRStmt funcbodyIR = 
+                					new IRSeq(
+                							new IRMove(
+                									freshtemp,
+                									((VarDecl)child).generateIRNode(ArraySizeIR, 0))
+                					,
+                							new IRMove(
+                									new IRName(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType)),
+                									freshtemp)         							
+                					,
+                						    new IRReturn()
+                					);
+                			
+                        irNode.appendFunc(
+                        		new IRFuncDecl(
+                        				Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType).replace("_I_g_", "_I_ginit_"), 
+                        				funcbodyIR));
+            			} else {
+                			irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),  1);
+            			}
+            			//irNode.appendVarUninit(Utilities.toIRGlobalName(id.getId(), ((VarDecl) child).VarType),   ((VarDecl) child).getArraySize(this.globalIntSizeMap) );
             		}
             } else if ( child instanceof AssignSingle) {
             		AssignSingle as = (AssignSingle) child;

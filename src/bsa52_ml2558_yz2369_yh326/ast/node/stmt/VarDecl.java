@@ -85,7 +85,7 @@ public class VarDecl extends Stmt {
     }
 
     // TODO Mulong need to resolve the size if it is not constant
-    public int getArraySize( Map<String, Long> globalIntSizeMap) {
+    /*public int getArraySize( Map<String, Long> globalIntSizeMap) {
     		int ret = 1;
     		if ( sizes == null ) {
     			return 1;
@@ -106,6 +106,31 @@ public class VarDecl extends Stmt {
              }
        }
         return ret;
+    }*/
+    public List<Long> getArraySize(Map<String,Long> globalIntSizeMap) {
+    			List<Long> ret = new ArrayList<>();
+        		if ( sizes == null ) {
+        			return null;
+        		}
+            for (int i = 0; i < sizes.size(); i++) {
+                if (sizes.get(i) == null)
+                        return null;
+
+                 IRExpr size = (IRExpr) sizes.get(i).translate();
+                 if (size instanceof IRConst ) {
+                	     ret.add(((IRConst) size).value());
+                	 //ret = (int) (ret * ((IRConst) size).value());
+                 } else if (size instanceof IRName ) {
+                	    ret.add(globalIntSizeMap.get( ((IRName) size).name()));
+                	 	//ret = (int) (ret * globalIntSizeMap.get( ((IRName) size).name()));
+                 } else if ( size instanceof IRTemp) {
+                	    ret.add(globalIntSizeMap.get(((IRName) size).name()));
+             	 	//ret = (int) (ret * globalIntSizeMap.get( ((IRTemp) size).name())); 	
+                 }else {
+                   return null;
+                 }
+           }
+            return ret;
     }
 
     @Override
@@ -159,7 +184,7 @@ public class VarDecl extends Stmt {
         
     }
 
-    private IRExpr generateIRNode(List<IRExpr> sizesExpr, int i) {
+    public IRExpr generateIRNode(List<IRExpr> sizesExpr, int i) {
         if (i >= sizes.size() || sizes.get(i) == null) {
             return null;
         }

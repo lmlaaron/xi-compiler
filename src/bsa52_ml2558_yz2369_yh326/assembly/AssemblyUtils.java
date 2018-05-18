@@ -344,7 +344,9 @@ public class AssemblyUtils {
 
     // per ABI specification, calculate the argument size
     static public int getArgSize(String targetName) {
-        if (targetName.equals("_xi_out_of_bounds")) {
+    	    if ( targetName.startsWith("_I_init_") ) {
+    	    		return 0;
+    	    } if (targetName.equals("_xi_out_of_bounds")) {
             return 0;
         } else if (targetName.equals("_xi_alloc")) {
             return 1;

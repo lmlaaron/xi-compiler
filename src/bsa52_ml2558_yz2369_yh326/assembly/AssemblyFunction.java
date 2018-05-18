@@ -108,11 +108,7 @@ public class AssemblyFunction extends Assembly {
     public void calleeSave(Map<String, String> registerAllocations) {
         if (!actuallyAFunction()) return;
 
-        // special case: we don't want _I_init_ functions to calleeSave
-        //               due to the layout of our stack
-        if (Utilities.beginsWith(functionName, "_I_init_")) {
-            return;
-        }
+
 
         // this function, as a callee, must save all callee-save variables it uses,
         // then restore them before each 'ret' statement
@@ -143,6 +139,37 @@ public class AssemblyFunction extends Assembly {
                 }
                 break;
             }
+        }
+        
+        // special case: we don't want _I_init_ functions to calleeSave
+        //               due to the layout of our stack
+        if (Utilities.beginsWith(functionName, "_I_init_") || Utilities.beginsWith(functionName, "_I_ginit_")) {
+            List<AssemblyStatement> saveStmts = new LinkedList<>();
+            List<AssemblyStatement> loadStmts = new LinkedList<>();
+        	    for (String reg:calleeSave) {
+                    saveStmts.add(new AssemblyStatement("push", new AssemblyOperand(reg)));
+                    loadStmts.add(new AssemblyStatement("pop", new AssemblyOperand(reg)));   	    	
+        	    }
+        	    Collections.reverse(loadStmts);
+        	    // insert save statements:
+                for (AssemblyStatement saveStmt : saveStmts)
+                    it.add(saveStmt);
+                
+                      
+            // now iterate through to every ret statement and add pop statements before:
+            while (it.hasNext()) {
+                AssemblyStatement statement = it.next();
+                // leave always comes before ret.
+                // because leave changes rbp, we must do restores before
+                if (statement.operation.equals("leave")) {
+                    it.previous();
+                    for (AssemblyStatement loadStmt : loadStmts) {                   
+                        	it.add(loadStmt);
+                    }
+                    it.next();
+                }
+            }
+            return;
         }
 
         List<AssemblyStatement> saveStmts = new LinkedList<>();

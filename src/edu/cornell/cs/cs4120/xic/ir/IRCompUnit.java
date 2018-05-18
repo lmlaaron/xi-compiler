@@ -1,6 +1,7 @@
 package edu.cornell.cs.cs4120.xic.ir;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.cornell.cs.cs4120.util.SExpPrinter;
@@ -15,12 +16,14 @@ public class IRCompUnit extends IRNode_c {
     private Map<String, IRFuncDecl> functions;
     public Map<String, Integer> global_variables;
     public Map<String, Integer> global_variables_init;
+    public Map<String, List<Long>> global_array_dim;
 
     public IRCompUnit(String name) {
         this.name = name;
         functions = new LinkedHashMap<>();
         global_variables = new LinkedHashMap<>();
         global_variables_init = new LinkedHashMap<>();
+        global_array_dim = new LinkedHashMap<>();
     }
 
     public IRCompUnit(String name, Map<String, IRFuncDecl> functions) {
@@ -33,6 +36,7 @@ public class IRCompUnit extends IRNode_c {
         this.functions = functions;
         global_variables = new LinkedHashMap<>(oldUnit.global_variables);
         global_variables_init = new LinkedHashMap<>(oldUnit.global_variables_init);
+        global_array_dim = new LinkedHashMap<>(oldUnit.global_array_dim);
     }
     
     public Map<String, Integer> getGlobalVariablesMap() {
@@ -49,6 +53,11 @@ public class IRCompUnit extends IRNode_c {
 
     public void appendVarUninit(String name, int size) {
     		global_variables.put(name, size);
+    }
+    
+    public void appendArray(String name, List<Long> dim) {
+		global_variables.put(name, 1);
+    		global_array_dim.put(name, dim);
     }
     
     public void appendVarInit(String name, int size, int value) {
