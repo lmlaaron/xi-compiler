@@ -22,10 +22,9 @@ import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
 
-public class While extends Stmt {
+public class While extends Loop {
     protected Expr condition;
     protected Stmt then;
-    public String labelNumber;
 
     public While(int line, int col, Expr condition, Stmt then) {
         super(line, col, new Keyword(line, col, "while"), condition, then);

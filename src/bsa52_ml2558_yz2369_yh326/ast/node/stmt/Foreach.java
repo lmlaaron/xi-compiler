@@ -12,14 +12,13 @@ import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.*;
 
-public class Foreach extends Stmt {
+public class Foreach extends Loop {
     protected Identifier gets;
     protected Identifier from;
     protected Stmt then;
-    public String labelNumber;
 
     public Foreach(int line, int col, Identifier gets, Identifier from, Stmt then) {
-        super(line, col, new Keyword(line, col, "for"), then);
+        super(line, col, new Keyword(line, col, "for"), gets, new Keyword(line, col, "in"), from, then);
         this.gets = gets;
         this.from = from;
         this.then = then;
@@ -53,11 +52,6 @@ public class Foreach extends Stmt {
     @Override
     public IRNode translate() {
         labelNumber = NumberGetter.uniqueNumberStr();
-        return getIRForeach(this, labelNumber);
-    }
-
-    public static IRSeq getIRForeach(Foreach f, String labelNumber) {
-
 
         List<IRStmt> stmts = new ArrayList<IRStmt>();
 
@@ -65,7 +59,7 @@ public class Foreach extends Stmt {
         IRTemp index = new IRTemp(Utilities.freshTemp());
         stmts.add(new IRMove(index, new IRConst(0)));
 
-        IRTemp arr = new IRTemp(f.from.value);
+        IRTemp arr = new IRTemp(from.value);
 
         IRTemp arrlen = new IRTemp(Utilities.freshTemp());
         stmts.add(new IRMove(arrlen, new IRMem(new IRBinOp(IRBinOp.OpType.SUB, arr, new IRConst(8)))));
@@ -77,16 +71,16 @@ public class Foreach extends Stmt {
         stmts.add(new IRJump(new IRName("_end_" + labelNumber)));
         stmts.add(new IRLabel("_then_" + labelNumber));
         // first thing to do in the loop is to assign to 'gets'
-        stmts.add(new IRMove(new IRTemp(f.gets.value),
+        stmts.add(new IRMove(new IRTemp(gets.value),
                              new IRMem(new IRBinOp(IRBinOp.OpType.ADD,
                                                    arr,
                                                    new IRBinOp(IRBinOp.OpType.MUL,
                                                                index,
                                                                new IRConst(8))))));
-        // the second thing is to increment the index:
+        // the second thing is to incremeånt the index:
         stmts.add(new IRMove(index, new IRBinOp(IRBinOp.OpType.ADD, new IRConst(1), index)));
         // the third thing is whatever the loop is meant to do
-        IRNode then = f.then.translate();
+        IRNode then = this.then.translate();
         if (then instanceof IRExpr) {
             stmts.add(new IRExp((IRExpr) then));
         } else {

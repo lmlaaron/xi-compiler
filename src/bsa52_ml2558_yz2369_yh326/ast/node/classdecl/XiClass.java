@@ -53,7 +53,8 @@ public class XiClass extends Node {
     public XiClass(int line, int col, Identifier id, Identifier extend) {
         super(line, col, new Keyword(line, col, "class"), id, extend);
         this.classId = id;
-        this.superClassName = extend.value;
+        if (extend != null)
+            this.superClassName = extend.value;
         all.add(this);
     }
 
@@ -194,9 +195,9 @@ public class XiClass extends Node {
         }
         // TODO: don't know how to represent this variable at IR level
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
-        //LinkedList<IRExpr> alloc_size = new LinkedList<>();
-        //alloc_size.add(new IRConst(treeDVSize * 8));
-        //body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
+        LinkedList<IRExpr> alloc_size = new LinkedList<>();
+        alloc_size.add(new IRConst(treeDVSize * 8));
+        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
         if (superClass != null) {
@@ -283,9 +284,9 @@ public class XiClass extends Node {
 
     public int indexOfFunc(String funcname) {
         if (superClass != null) {
-            if (superClass.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
-                return superClass.indexOfFunc(funcname);
-            }
+            //if (superClass.indexOfFunc(funcname) != RUNTIME_RESOLVE) {
+            //    return superClass.indexOfFunc(funcname);
+            //}
             return superClass.numMethods() + funcs_ordered.indexOf(funcname);
         } else {
             return funcs_ordered.indexOf(funcname);
