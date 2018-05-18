@@ -19,8 +19,15 @@ public abstract class ComparisonBinopTile extends BinopTile {
         String trueLabel = freshLabel();
         String finalLabel = freshLabel();
 
+        String temp1 = freshTemp();
+        String temp2 = freshTemp();
+
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
-        statements.add(new AssemblyStatement("cmp", new AssemblyOperand(), new AssemblyOperand()));
+
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(temp1), new AssemblyOperand()));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(temp2), new AssemblyOperand()));
+
+        statements.add(new AssemblyStatement("cmp", new AssemblyOperand(temp1), new AssemblyOperand(temp2)));
         statements.add(new AssemblyStatement(conditionalJump(), trueLabel));
         statements.add(new AssemblyStatement("mov", freshTemp, "0"));
         statements.add(new AssemblyStatement("jmp", finalLabel));

@@ -1,11 +1,11 @@
 class C {
     a : int
-    init(x : int)  {
+    init(x : int) : C {
         // both of these should pass:
         a = x
         x=this.a
 
-        //return this
+        return this
     }
 }
 

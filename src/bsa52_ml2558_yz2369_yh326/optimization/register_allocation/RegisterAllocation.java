@@ -279,6 +279,12 @@ public class RegisterAllocation {
                         //System.out.printf("%-20s is a Memory Operand%n", op);
                         validPair = false;
                     }
+                    else if (Utilities.beginsWith(op.value(), "_I_g") ||
+                            Utilities.beginsWith(op.value(), "_I_size_") ||
+                            Utilities.beginsWith(op.value(), "_I_vt_")) {
+                        // ^^^ These are all memory locations even though they're classified as temps!
+                        validPair = false;
+                    }
                     else if (op.value().charAt(0) == '[') {
                         validPair = false; // the previous check doesn't seem to work in all cases. WHY?
                     }

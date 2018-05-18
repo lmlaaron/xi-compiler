@@ -16,10 +16,12 @@ public abstract class ArithmeticBinopTile extends BinopTile {
     @Override
     protected Assembly generateLocalAssembly() {
         String freshTemp = freshTemp();
+        String freshTemp2 = freshTemp();
 
         LinkedList<AssemblyStatement> statements = new LinkedList<AssemblyStatement>();
         statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
-        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand()));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp2), new AssemblyOperand()));
+        statements.add(new AssemblyStatement(binOpAssmName(), new AssemblyOperand(freshTemp), new AssemblyOperand(freshTemp2)));
 
         Assembly assm = new Assembly(statements, new AssemblyOperand(freshTemp));
 
