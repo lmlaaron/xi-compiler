@@ -9,6 +9,10 @@ class Point {
         y = y0
         return this
     }
+
+    equals(p: Point): bool {
+        return this == p
+    }
 }
 
 class ColoredPoint extends Point{
@@ -18,6 +22,10 @@ class ColoredPoint extends Point{
         x = x0
         y = y0
         return this
+    }
+
+    equals(p: ColoredPoint): bool {
+        return this == p
     }
 }
 
@@ -29,6 +37,10 @@ class HappyColoredPoint extends ColoredPoint {
         y = y0
         return this
     }
+
+    equals(p: HappyColoredPoint): bool {
+        return this == p
+    }
 }
 
 main(args: int[][]) {
@@ -38,28 +50,28 @@ main(args: int[][]) {
     p1 = new Point.initPoint(2, 2)
     p2 = new ColoredPoint.initPoint(3, 3)
     p3 = new HappyColoredPoint.initPoint(4, 4)
-    if (p1 != p1) {
+    if (!p1.equals(p1)) {
       println("p1 is not p1")
     }
-    if (p1 == p1) {
+    if (p1.equals(p1)) {
       println("p1 is p1")
     }
-    if (p1 != p2) {
+    if (!p1.equals(p2)) {
       println("p1 is not p2")
     }
-    if (p1 == p2) {
+    if (p1.equals(p2)) {
       println("p1 is p2")
     }
-    if (p1 == p3) {
-      println("p1 is p3")
-    }
-    if (p1 != p3) {
+    if (!p1.equals(p3)) {
       println("p1 is not p3")
     }
-    if (p2 == p3) {
-      println("p2 is p3")
+    if (p1.equals(p3)) {
+      println("p1 is p3")
     }
-    if (p2 != p3) {
-      println("p2 is not p3")
+    if (!p2.equals(p3)) {
+      println("p2 is not p1")
+    }
+    if (p2.equals(p3)) {
+      println("p2 is p1")
     }
 }

@@ -15,6 +15,8 @@ PA7_NEGATIVE_TESTS = "./tests/pa7_shouldfail"
 
 LIB_PATH = "./runtime/include"
 
+silent = False
+
 # https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
 bcolors = {
     'HEADER': '\033[95m',
@@ -118,7 +120,8 @@ def load_testcases(test_dir):
     bad_keys = []
     for k in testcases.keys():
         if k not in answers:
-            print_stderr("Testcase {} has no corresponding solution!".format(k))
+            if not silent:
+                print_stderr("Testcase {} has no corresponding solution!".format(k))
             bad_keys.append(k)
     for k in bad_keys:
         del testcases[k]
@@ -148,7 +151,8 @@ def run_test_set(test_dir, grader_function):
             # print_log("Case {} : {} : {}".format(case, "PASS", reason))
             correct += 1
         else:
-            print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
+            if not silent:
+                print_stderr("Case {} : {} : {}".format(case, "FAIL", reason))
 
     print_log("{} out of {} tests passed".format(correct, len(results)))
 
@@ -310,11 +314,14 @@ def compile_and_run(xi_f, extra_options = None):
 
 
 def build():
-    print("===CLEANING===")
+    if not silent:
+        print("===CLEANING===")
     run_shell(['./clean'])
-    print("===BUILDING PROJECT===")
+    if not silent:
+        print("===BUILDING PROJECT===")
     run_shell(['./xic-build'], print_results=False)
-    print("====BUILDING BINARY RUNTIME====")
+    if not silent:
+        print("====BUILDING BINARY RUNTIME====")
     run_shell(['make', '-C', 'runtime'], print_results=False)
 
 def help():
@@ -330,11 +337,15 @@ assm      -> run unoptimized assembly tests
 assmo     -> run optimized assembly tests
 pa7       -> run pa7 tests
 pa7o      -> run pa7 tests with all optimizations on
+silent    -> run with minimal printing
 ================================================
 """
     )
 
 if __name__ == "__main__":
+
+    if "silent" in sys.argv:
+        silent = True
 
     if "all" in sys.argv:
         sys.argv.extend(['lex', 'parse', 'typecheck', 'ir', 'assm', 'assmo'])
@@ -347,47 +358,59 @@ if __name__ == "__main__":
         LIB_PATH = sys.argv[sys.argv.index("-libpath") + 1]
         print(LIB_PATH)
 
-    print("Test Harness Begin")
+    if not silent:
+        print("Test Harness Begin")
 
     if "nobuild" not in sys.argv:
         build() # <-- TODO: uncomment!
 
     if "lex" in sys.argv:
-        print("===RUNNING LEX TESTS===")
+        if not silent:
+            print("===RUNNING LEX TESTS===")
         run_test_set(LEXER_TESTS, lex_grader)
 
     if "parse" in sys.argv:
-        print("===RUNNING PARSE TESTS===")
+        if not silent:
+            print("===RUNNING PARSE TESTS===")
         run_test_set(PARSER_TESTS, parse_grader)
 
     if "typecheck" in sys.argv:
-        print("====RUNNING TYPECHECK TESTS===")
+        if not silent:
+            print("====RUNNING TYPECHECK TESTS===")
         run_test_set(TYPECHECKER_TESTS, typecheck_grader)
 
     if "ir" in sys.argv:
-        print("====RUNNING IRRUN TESTS====")
+        if not silent:
+            print("====RUNNING IRRUN TESTS====")
         run_test_set(IRRUN_TESTS, irrun_grader)
 
     if "assm" in sys.argv:
-        print("====RUNNING ASSM TESTS====")
+        if not silent:
+            print("====RUNNING ASSM TESTS====")
         # print("Note: if this process is killed, we still have a critical issue in assm generation... test with run_assm.py")
         run_test_set(ASSM_TESTS, assm_grader) # reuse old tests because they test by output
 
     if "assmo" in sys.argv:
-        print("==== RUNNING OPTIMIZED ASSM TESTS ====")
+        if not silent:
+            print("==== RUNNING OPTIMIZED ASSM TESTS ====")
         run_test_set(ASSM_TESTS, optimization_grader)
 
     if "pa7o" in sys.argv:
-        print("==== RUNNING OPTIMIZED PA7 TESTS ====")
+        if not silent:
+            print("==== RUNNING OPTIMIZED PA7 TESTS ====")
         run_test_set(PA7_TESTS, optimization_grader)
-        print("==== RUNNING NEGATIVE OPTIMIZED PA7 TESTS ====")
+        if not silent:
+            print("==== RUNNING NEGATIVE OPTIMIZED PA7 TESTS ====")
         run_test_set(PA7_NEGATIVE_TESTS, negative_optimization_grader)
     if "pa7" in sys.argv:
-        print("==== RUNNING PA7 TESTS ====")
+        if not silent:
+            print("==== RUNNING PA7 TESTS ====")
         run_test_set(PA7_TESTS, assm_grader)
-        print("==== RUNNING NEGATIVE PA7 TESTS ====")
+        if not silent:
+            print("==== RUNNING NEGATIVE PA7 TESTS ====")
         run_test_set(PA7_NEGATIVE_TESTS, negative_assm_grader)
     
 
-    print("Test Harness End!")
+    if not silent:
+        print("Test Harness End!")
 
