@@ -158,11 +158,20 @@ public class XiClass extends Node {
         // generating this function. That's only our responsibility if we
         // have the actual implementation!!!
 
+        IRLabel veryEnd = new IRLabel("_veryEnd_" + NumberGetter.uniqueNumberStr());
+
         List<IRStmt> body = new LinkedList<IRStmt>();
 
-        // step 1: recursively initialize superclasses (WRONG!!!, superclass are intialized automatically)
-        //if (superClass != null)
-        //   body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
+        // step 1: recursively initialize superclasses
+        if (superClass != null)
+           body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
+
+        // if initialized already, just return
+        // TODO: WHY DOES THIS SEGFAULT?
+        IRExpr thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
+        //IRTemp thisSizeTemp = new IRTemp(Utilities.freshTemp());
+        //body.add(new IRMove(thisSizeTemp, thisSize));
+        //body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.NEQ, thisSizeTemp, new IRConst(0)), veryEnd.name()));
 
         // step 2: compute total size of this class
         int localSize = vars_ordered.size();
@@ -170,7 +179,7 @@ public class XiClass extends Node {
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
 
         // TODO: ^^^ same as above
-        IRExpr thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
+
         body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
 
         if (superClass != null) {
@@ -185,9 +194,9 @@ public class XiClass extends Node {
         // so we need to allocate a spot for each method in each class
         int treeDVSize = sizeOfListOfIRMethods();// listOfIRMethods().size();
         XiClass xc = this;
-        while (xc.superClass != null) {
+        while (xc != null) {
+            treeDVSize += xc.funcs_ordered.size();
             xc = xc.superClass;
-            treeDVSize += xc.sizeOfListOfIRMethods(); // .size();
         }
         // TODO: don't know how to represent this variable at IR level
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
@@ -262,6 +271,10 @@ public class XiClass extends Node {
                     new IRName(Utilities.toIRFunctionName(funcs_ordered.get(i),argTypes,retTypes))));
         }
 
+        //TODO: override functions!
+
+
+        //body.add(veryEnd);
         body.add(new IRReturn());
 
         IRFuncDecl f = new IRFuncDecl("_I_init_" + classId.value.replace("_", "__"),
