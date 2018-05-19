@@ -219,18 +219,20 @@ public class XiClass extends Node {
             IRTemp addrTo = new IRTemp(Utilities.freshTemp());
 
             IRLabel top = new IRLabel("top_" + NumberGetter.uniqueNumberStr());
+            IRLabel then = new IRLabel("then_" + NumberGetter.uniqueNumberStr());
             IRLabel end = new IRLabel("end_" + NumberGetter.uniqueNumberStr());
 
             body.add(new IRMove(index, new IRConst(0)));
-            body.add(new IRMove(addrFrom, new IRMem(superdv)));
-            body.add(new IRMove(addrTo, new IRMem(dv)));
+            body.add(new IRMove(addrFrom, superdv));  // dispatch vector is already the address of the function pointers!!! DON'T use IRMem(superdv)!!!
+            body.add(new IRMove(addrTo, dv));
 
             body.add(top);
             //parentDVsize = treeDVSize - vars_ordered.size(); // not sure if this is a bug, ask bsa52
             parentDVsize = superClass.numMethods();
 
             // loop: copy over super's pointers
-            body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.GEQ, index, new IRConst(parentDVsize)), end.name()));
+            body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.GEQ, index, new IRConst(parentDVsize)), end.name(), then.name()));
+            body.add(then);
             body.add(new IRMove(new IRMem(addrTo), new IRMem(addrFrom)));
             body.add(new IRMove(addrFrom, new IRBinOp(IRBinOp.OpType.ADD, addrFrom, new IRConst(8))));
             body.add(new IRMove(addrTo, new IRBinOp(IRBinOp.OpType.ADD, addrTo, new IRConst(8))));
@@ -276,7 +278,6 @@ public class XiClass extends Node {
 
         //body.add(veryEnd);
         body.add(new IRReturn());
-
         IRFuncDecl f = new IRFuncDecl("_I_init_" + classId.value.replace("_", "__"),
                 new IRSeq(body));
 
