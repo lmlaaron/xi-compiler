@@ -159,24 +159,26 @@ public class XiClass extends Node {
 
         List<IRStmt> body = new LinkedList<IRStmt>();
 
-        // step 1: recursively initialize superclasses
-        if (superClass != null)
-            body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
+        // step 1: recursively initialize superclasses (WRONG!!!, superclass are intialized automatically)
+        //if (superClass != null)
+         //   body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
 
         // step 2: compute total size of this class
         int localSize = vars_ordered.size();
         String totalsizevar = Utilities.freshTemp();
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
+
+        // TODO: ^^^ same as above
+        IRExpr thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
+        body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
+
         if (superClass != null) {
             // TODO: how to represent the size variable at IR level?
             IRExpr superSize = new IRName("_I_size_" + superClassName.replace("_", "__"));
             body.add(new IRMove(new IRTemp(totalsizevar),
                     new IRBinOp(IRBinOp.OpType.ADD, new IRTemp(totalsizevar), superSize)));
         }
-        // TODO: ^^^ same as above
-        IRExpr thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
-        body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
-
+        
         // step 3: allocate dispatch vector
         // TODO: right now I'm assuming we're not overriding anything,
         // so we need to allocate a spot for each method in each class
@@ -190,7 +192,12 @@ public class XiClass extends Node {
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
         LinkedList<IRExpr> alloc_size = new LinkedList<>();
         alloc_size.add(new IRConst(treeDVSize * 8));
-        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
+        IRTemp temp = new IRTemp(Utilities.freshTemp());
+        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));  //cannot do xi_alloc in ctors section, need static allocation
+        //body.add(new IRMove(dv, dv));  // use to generate lea rax, dv; mov dv, rax see IRMove Tile conditions: src and dest are same, also begin with _I_vt_  , see MoveTile.java
+        //body.add(new IRMove(dv, temp));
+        //body.add(new IRMove(dv ,new IRBinOp(IRBinOp.OpType.ADD,dv, new IRConst(8))));
+
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
         if (superClass != null) {
@@ -209,7 +216,8 @@ public class XiClass extends Node {
             body.add(new IRMove(addrTo, new IRMem(dv)));
 
             body.add(top);
-            parentDVsize = treeDVSize - vars_ordered.size();
+            //parentDVsize = treeDVSize - vars_ordered.size(); // not sure if this is a bug, ask bsa52
+            parentDVsize = superClass.numMethods();
 
             // loop: copy over super's pointers
             body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.GEQ, index, new IRConst(parentDVsize)), end.name()));
@@ -220,6 +228,7 @@ public class XiClass extends Node {
             body.add(new IRJump(new IRName(top.name())));
             body.add(end);
         }
+        
         // copy over this class's method pointers:
         for (int i = 0; i < funcs_ordered.size(); i++) {            
                    // figure out the ABI name

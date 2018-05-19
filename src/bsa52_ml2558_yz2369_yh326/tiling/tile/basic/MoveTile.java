@@ -27,7 +27,15 @@ public class MoveTile extends Tile {
             // mov temp, src
             // mov des, temp
             // thus have to add source first then target
-            if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
+            if ( ((IRMove) root).target() instanceof IRName &&
+            		((IRName) ((IRMove) root).target()).name().startsWith("_I_vt_") &&
+            		((IRMove) root).source() instanceof IRName &&
+            		((IRName) ((IRMove) root).source()).name().startsWith("_I_vt_") &&
+            		((IRName) ((IRMove) root).target()).name().equals(
+            				((IRName) ((IRMove) root).source()).name())) {
+                subtreeRoots.add(move.source());
+                subtreeRoots.add(move.target());        	
+            } else if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
                 subtreeRoots.add(move.source());
                 subtreeRoots.add(move.target());
             } else if ( ((IRMove) root).source() instanceof  IRName 
@@ -56,7 +64,17 @@ public class MoveTile extends Tile {
     @Override
     protected Assembly generateLocalAssembly() {
         LinkedList<AssemblyStatement> statements = new LinkedList<>();
-        if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
+        // magic condition for IRMove( IRName(_I_vt_ooo), IRName(_I_vt_ooo))  force it to translate into lea
+        if ( ((IRMove) root).target() instanceof IRName &&
+        		((IRName) ((IRMove) root).target()).name().startsWith("_I_vt_") &&
+        		((IRMove) root).source() instanceof IRName &&
+        		((IRName) ((IRMove) root).source()).name().startsWith("_I_vt_") &&
+        		((IRName) ((IRMove) root).target()).name().equals(
+        				((IRName) ((IRMove) root).source()).name())) {
+            String freshTemp = freshTemp();
+        		statements.add(new AssemblyStatement("lea", new AssemblyOperand(freshTemp), new AssemblyOperand()));
+    	    		statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));    
+        } else if (((IRMove) root).target() instanceof IRMem && ((IRMove) root).source() instanceof IRMem) {
             String freshTemp = freshTemp();
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));

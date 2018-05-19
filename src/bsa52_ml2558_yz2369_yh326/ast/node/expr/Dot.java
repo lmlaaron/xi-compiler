@@ -96,7 +96,7 @@ public class Dot extends Expr {
 				((IRCall) ((MethodCall) children.get(2)).translate()).args());
 		
 		// for method calls, interface must be included and the offset can be resolved at compile time
-		IRExpr absoluteFuncOffset = new IRConst(funcoffset);	
+		IRExpr absoluteFuncOffset = new IRConst(funcoffset*8);	
 		
 		// invoke the member function call
 		IRTemp callAddr = new IRTemp(Utilities.freshTemp());
@@ -106,15 +106,14 @@ public class Dot extends Expr {
 								children1IRStmt,
 								new IRMove(
 										callAddr,
-										new IRBinOp(
-												IRBinOp.OpType.ADD,
-												// address of DV
-												new IRMem(
+										new IRMem(
+												new IRBinOp(
+														IRBinOp.OpType.ADD,
+														// address of DV
 														new IRMem(
 																children1IRTemp
-																)
 														),
-														absoluteFuncOffset
+														absoluteFuncOffset)
 												)
 										)
 								)
@@ -138,7 +137,7 @@ public class Dot extends Expr {
 				    new IRTemp("_I_size_"+xiClass.superClass.classId.getId().replace("_", "__"))
 					);
 		} else {
-			absoluteVarOffset = new IRConst(varoffset+8);
+			absoluteVarOffset = new IRConst(varoffset*8+8);
 		}
 		
 		// return the memory location of the variable

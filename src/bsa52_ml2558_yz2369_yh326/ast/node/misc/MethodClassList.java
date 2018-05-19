@@ -94,10 +94,10 @@ public class MethodClassList extends Node {
                 irNode.appendFunc((IRFuncDecl) child.translate());
             } else if (child instanceof XiClass) {
             	    irNode.appendVarUninit("_I_size_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
-            	    irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
+            	    irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1+ ((XiClass)child).sizeOfListOfIRMethods());
             	    if ( ((XiClass) child).superClass != null ) {
             		    irNode.appendVarUninit("_I_size_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
-            		    irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1);
+            		    irNode.appendVarUninit("_I_vt_"+((XiClass) child).superClass.classId.getId().replace("_", "__"),   1+ ((XiClass)child).superClass.sizeOfListOfIRMethods());
             	    }
                 for (IRFuncDecl func: ((XiClass) child).GenerateListOfIRMethods(localSTable)) {
             			irNode.appendFunc(func);

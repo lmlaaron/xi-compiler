@@ -80,14 +80,28 @@ public class CompUnitTile extends Tile {
         // add all _I_init_someClass function 
         statements.add(new AssemblyStatement(".section .ctors"));
         statements.add(new AssemblyStatement(".align 4"));
-        for (String name: global_array_dim.keySet()) {
-        	    statements.add(new AssemblyStatement(".quad " + name.replace("_I_g_", "_I_ginit_")));
-        }
+        statements.add(new AssemblyStatement(".quad _I_init_"));
+ 
+        
+        statements.add(new AssemblyStatement(".text"));
+        statements.add(new AssemblyStatement(".globl _I_init_"));
+        statements.add(new AssemblyStatement(".type _I_init_, @function"));
+        statements.add(new AssemblyStatement("_I_init_: ", true));
+        statements.add(new AssemblyStatement("push", new AssemblyOperand("rbp")));
+        statements.add(new AssemblyStatement("mov", new AssemblyOperand("rbp"),new AssemblyOperand("rsp")));
+        statements.add(new AssemblyStatement("sub", new AssemblyOperand("rsp"), new AssemblyOperand("96")));
+
         for (String name: global_variables.keySet() ) {
         		if ( name.startsWith("_I_vt_")) {
-        			statements.add(new AssemblyStatement(".quad "+ "_I_init_"+ name.substring(6) ));
+        			statements.add(new AssemblyStatement("call",new AssemblyOperand( "_I_init_"+ name.substring(6) )));
         		}
         }
+        
+        for (String name: global_array_dim.keySet()) {
+    	    		statements.add(new AssemblyStatement("call", new AssemblyOperand(name.replace("_I_g_", "_I_init_"))));
+        }	
+        statements.add(new AssemblyStatement("leave"));
+        statements.add(new AssemblyStatement("ret"));
         return new Assembly(statements);
     }
 }
