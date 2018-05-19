@@ -49,6 +49,6 @@ public class ExprNonAtom extends Expr {
             operandTypes.add(operand.typeCheck(sTable));
         }
 
-        return operator.resultTypeFrom(operandTypes.toArray(new NodeType[operands.size()]));
+        return operator.resultTypeFrom(sTable, operandTypes.toArray(new NodeType[operands.size()]));
     }
 }

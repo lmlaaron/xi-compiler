@@ -3,13 +3,16 @@ package bsa52_ml2558_yz2369_yh326.ast.node.operator;
 import edu.cornell.cs.cs4120.xic.ir.IRExpr;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
-import java.util.Arrays;
-
+import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
+import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
+import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.OperandTypeException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.exception.TypeInconsistentException;
+import bsa52_ml2558_yz2369_yh326.exception.TypecheckingException;
 
 //TODO: after modifying cup file, make this and other node super classes abstract
 public abstract class Operator extends Node {
@@ -30,18 +33,35 @@ public abstract class Operator extends Node {
      *             are an invalid number of operands, or if the types of the
      *             operands are not the same
      */
-    public NodeType resultTypeFrom(NodeType... operandTypes) throws Exception {
+    public NodeType resultTypeFrom(SymbolTable sTable, NodeType... operandTypes) throws Exception {
         // ensure all types are the same
-        boolean typesAreSame = Arrays.stream(operandTypes).allMatch(type -> type.equals(operandTypes[0]));
-        if (!typesAreSame)
-            throw new TypeInconsistentException(line, col, "Operands");
+        VariableType type;
+        boolean containsNull = false;
+        if (operandTypes.length == 0) {
+            type = new PrimitiveType(Primitives.EMPTY);
+        } else {
+            if (operandTypes[0] instanceof PrimitiveType && ((PrimitiveType) operandTypes[0]).getType() == Primitives.ANY)
+                containsNull = true;
+            type = (VariableType) operandTypes[0];
+        }
+        for (int i = 1; i < operandTypes.length; i++) {
+            VariableType next = (VariableType) operandTypes[i];
+            if (operandTypes[i] instanceof PrimitiveType && ((PrimitiveType) operandTypes[i]).getType() == Primitives.ANY)
+                containsNull = true;
+            if (type.equals(next)) {
+                type = next;
+            } else if (!type.equals(next)) {
+                throw new TypeInconsistentException(line, col, "Operands");
+            }
+        }
+        
         // ensure operator accepts given operand types
         if (!validNumOperands(operandTypes.length))
             throw new OtherException(line, col,
-                    "Operator " + this.value + "does not accept " + operandTypes.length + " operands");
+                    "Operator " + this.value + " does not accept " + operandTypes.length + " operands");
 
         // function implementation checks whether operand type is valid
-        return returnTypeForOperandType(operandTypes[0]);
+        return returnTypeForOperandType(sTable, containsNull, operandTypes[0]);
     }
 
     /**
@@ -76,4 +96,12 @@ public abstract class Operator extends Node {
      *             if the operand type is not accepted by this operator
      */
     public abstract NodeType returnTypeForOperandType(NodeType operandType) throws OperandTypeException;
+    
+    /**
+     * For most class, sTable is not used, but it is used in EqualityComparisonOperator, so
+     * this function must be override in that class.
+     */
+    public NodeType returnTypeForOperandType(SymbolTable sTable, boolean containsNull, NodeType operandType) throws TypecheckingException {
+        return returnTypeForOperandType(operandType);
+    }
 }

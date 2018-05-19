@@ -9,6 +9,10 @@ class Point {
         y = y0
         return this
     }
+
+    equals(p: Point): bool {
+        return this == p
+    }
 }
 
 class ColoredPoint extends Point{
@@ -19,6 +23,10 @@ class ColoredPoint extends Point{
         y = y0
         return this
     }
+
+    equals(p: ColoredPoint): bool {
+        return this == p
+    }
 }
 
 main(args: int[][]) {
@@ -26,16 +34,16 @@ main(args: int[][]) {
     p2:ColoredPoint
     p1 = new Point.initPoint(2, 2)
     p2 = new ColoredPoint.initPoint(3, 3)
-    if (p1 != p1) {
+    if (!p1.equals(p1)) {
       println("p1 is not p1")
     }
-    if (p1 == p1) {
+    if (p1.equals(p1)) {
       println("p1 is p1")
     }
-    if (p1 != p2) {
+    if (!p1.equals(p2)) {
       println("p1 is not p2")
     }
-    if (p1 == p2) {
+    if (p1.equals(p2)) {
       println("p1 is p2")
     }
 }
