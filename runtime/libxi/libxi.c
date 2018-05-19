@@ -35,7 +35,7 @@ void *XI_BUILTIN(alloc)(xiint size) {
     int64_t * arr = GC_malloc(size);
 
     // set all values to 0
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < size/WORDSIZE; i++)
         arr[i] = 0;
 
 	return arr;
