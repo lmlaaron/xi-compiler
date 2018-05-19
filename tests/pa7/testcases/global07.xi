@@ -1,3 +1,6 @@
+use io
+use conv
+
 // global object declaration
 class Point {
     x,y: int
@@ -13,5 +16,5 @@ p1:Point
 
 main(args: int[][]) {
     p1 = new Point.initPoint(2, 2)
-    println(p1.x)
+    println(unparseInt(p1.x))
 }

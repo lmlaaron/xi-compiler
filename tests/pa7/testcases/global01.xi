@@ -1,5 +1,8 @@
+use io
+use conv
+
 a: int
 
 main(args: int[][]) {
-    println(a)
+    println(unparseInt(a))
 }

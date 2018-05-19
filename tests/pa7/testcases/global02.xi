@@ -1,3 +1,5 @@
+use io
+
 b: bool
 
 main(args: int[][]) {
