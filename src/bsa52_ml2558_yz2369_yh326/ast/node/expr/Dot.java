@@ -110,9 +110,9 @@ public class Dot extends Expr {
 												IRBinOp.OpType.ADD,
 												// address of DV
 												new IRMem(
-														//new IRMem(
+														new IRMem(
 																children1IRTemp
-																//)
+																)
 														),
 														absoluteFuncOffset
 												)

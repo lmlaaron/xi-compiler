@@ -106,7 +106,7 @@ public class Method extends Node {
     			this.args = new FunctionTypeDeclList(line, col,
     					new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
     		} else {
-    			this.args.children.add(1, new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
+    			this.args.children.add(0, new VarDecl(line, col, new Identifier(line, col, "this"), new NonArrayTypeNode(line, col, xc.classId.value)));
     		}
     }
 
