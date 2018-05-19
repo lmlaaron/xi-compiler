@@ -61,7 +61,7 @@ public class MoveTile extends Tile {
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
         }  else if ( (((IRMove) root).source() instanceof  IRName) 
-        	 && (((IRName) ((IRMove) root).source()).name().startsWith("_I_g_"))  ) {
+        	 && (((IRName) ((IRMove) root).source()).name().startsWith("_I_g_")  || ((IRName) ((IRMove) root).source()).name().startsWith("_I_vt_"))  ) {
             String freshTemp = freshTemp();
         	    statements.add(new AssemblyStatement("mov", new AssemblyOperand(freshTemp), new AssemblyOperand()));
             statements.add(new AssemblyStatement("mov", new AssemblyOperand(), new AssemblyOperand(freshTemp)));
