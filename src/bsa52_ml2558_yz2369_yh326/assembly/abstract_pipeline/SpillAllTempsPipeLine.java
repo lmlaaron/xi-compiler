@@ -242,7 +242,7 @@ public class SpillAllTempsPipeLine implements AbstractAssemblyPipeline {
     }
 
     // TODO: there's a lot of shared code between this and getLastCallArgCounts...
-    //       is there any way to consolidate?
+    //       is there any way to postprocessIndices?
     public static List<Integer> getMaxStackSizes(List<List<AssemblyStatement>> functions) {
         List<Integer> ret = new ArrayList<>(functions.size());
 

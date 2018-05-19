@@ -6,9 +6,7 @@
 
 package bsa52_ml2558_yz2369_yh326.ast.node.classdecl;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.Node;
@@ -23,6 +21,7 @@ import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.exception.AlreadyDefinedException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
+import bsa52_ml2558_yz2369_yh326.util.ThreeTuple;
 import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.util.Copy;
@@ -39,7 +38,9 @@ public class XiClass extends Node {
     public String superClassName = null;
     public boolean hasInterface = false;
     public List<String> vars_ordered = new ArrayList<>();
+
     public List<String> funcs_ordered = new ArrayList<>();
+    private List<String> overrides = new ArrayList<>();
 
     /**
      * Constructor TODO: need to reimplement this for parsing
@@ -61,6 +62,41 @@ public class XiClass extends Node {
             this.superClassName = extend.value;
         }
         all.add(this);
+    }
+
+    public List<ThreeTuple<String, Integer, XiClass>> getOverrides() {
+        List<ThreeTuple<String, Integer, XiClass>> ret = new LinkedList<>();
+
+        // get the total size of the dispatch vector to calculate
+        // global offset
+        int height = 0;
+        XiClass xc = this;
+        while (this != null) {
+            height += xc.funcs_ordered.size();
+            xc = xc.superClass;
+        }
+
+        for (String override : overrides) {
+            // iterate upwards until we find an occurrence
+            int i = funcs_ordered.size()-1;
+            xc = superClass;
+            while (i < height) {
+                // iterate through super class's methods
+                Iterator<String> it = new LinkedList(xc.funcs_ordered).descendingIterator();
+                while (it.hasNext()) {
+                    i++;
+                    if (it.next().equals(override)) {
+                        int global_i = height - i+1;
+                        ret.add(new ThreeTuple<>(override, global_i, xc));
+                        i = height; // break the external loop
+                        break;
+                    }
+                }
+                xc = xc.superClass;
+            }
+        }
+
+        return ret;
     }
 
     @Override
@@ -102,8 +138,10 @@ public class XiClass extends Node {
                         throw new OtherException(line, col,
                                 "Function \"" + funcName + "\" is not declaired in the interface.");
                     }
-                    if (isOverride)
+                    if (isOverride) {
                         this.funcs_ordered.remove(funcName);
+                        overrides.add(funcName);
+                    }
                 } else {
                     if (!isOverride)
                         this.funcs_ordered.add(funcName);
@@ -271,7 +309,43 @@ public class XiClass extends Node {
                     new IRName(Utilities.toIRFunctionName(funcs_ordered.get(i),argTypes,retTypes))));
         }
 
-        //TODO: override functions!
+
+        // perform overrides:
+        // note: this block and the one above are nearly identical, but
+        // we don't have to maintain this code HOORAY
+        List<ThreeTuple<String, Integer, XiClass>> overrideList = getOverrides();
+        for (int i = 0; i < overrideList.size(); i++) {
+            ThreeTuple<String, Integer, XiClass> tup = overrideList.get(i);
+
+            // figure out the ABI name
+            List<VariableType> argTypes = new ArrayList<>();
+            List<VariableType> retTypes = new ArrayList<>();
+            Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(tup.t3, tup.t1 );
+            if (funcType.t1 instanceof VariableType) {
+                // Function returns one value
+                argTypes.add((VariableType) funcType.t1);
+            } else {
+                // Function returns multiple values
+                argTypes = ((ListVariableType) funcType.t1).getVariableTypes();
+            }
+
+            // Store return type
+            if (funcType.t2 instanceof UnitType) {
+                // Function is a procedure, do nothing
+            } else if (funcType.t2 instanceof VariableType) {
+                // Function returns one value
+                retTypes.add((VariableType) funcType.t2);
+            } else {
+                retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
+            }
+            body.add(new IRMove(
+                    // TODO: if we're postprocessing func_map to get global indices, don't need to
+                    // add parentDVsize
+                    new IRMem(
+                            new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 *  tup.t2))),
+                    //new IRName(funcs_ordered.get(i))));
+                    new IRName(Utilities.toIRFunctionName(tup.t1, argTypes, retTypes))));
+        }
 
 
         //body.add(veryEnd);

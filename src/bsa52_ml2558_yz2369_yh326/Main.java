@@ -207,7 +207,7 @@ public class Main {
                 if (Settings.debugAst) ParserWrapper.DebugPrintASTNodeTypes(ast);
                 ast.fileName = file + ".xi";
                 ast = TypecheckerWrapper.Typechecking(ast, outputFile);
-                XiClasses.consolidate(XiClass.all);
+                XiClasses.postprocessIndices(XiClass.all);
                 IRNode irNode = IRWrapper.IRGeneration(ast, outputFile);
                 Tile rootTile = MaxMunch.munch(irNode);
                 AssemblyWrapper.GenerateAssembly(rootTile, assmOutputFile);

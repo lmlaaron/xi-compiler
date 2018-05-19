@@ -7,7 +7,11 @@ import java.util.List;
  * class is parsed, it's automatically added to this registry
  */
 public class XiClasses {
-    public static void consolidate(List<XiClass> classes) {
-        //  TODO:
+    /*
+    for each class, separate 'new' methods from overridden methods.
+    for overridden methods, assign a GLOBAL index
+     */
+    public static void postprocessIndices(List<XiClass> classes) {
+
     }
 }
