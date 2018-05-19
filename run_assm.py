@@ -3,7 +3,7 @@ import sys
 import itertools
 
 
-OPTIMIZATIONS = []
+OPTIMIZATIONS = ['-O'] # off by default
 if "o" in sys.argv:
     sys.argv.remove("o")
     OPTIMIZATIONS = ['-Oreg', '-Ocse', '-Ocf', '-Ocopy', '-Odce']
