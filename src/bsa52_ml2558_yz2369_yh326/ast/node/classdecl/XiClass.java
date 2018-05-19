@@ -25,6 +25,7 @@ import bsa52_ml2558_yz2369_yh326.exception.OtherException;
 import bsa52_ml2558_yz2369_yh326.util.NumberGetter;
 import bsa52_ml2558_yz2369_yh326.util.Tuple;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
+import edu.cornell.cs.cs4120.util.Copy;
 import edu.cornell.cs.cs4120.xic.ir.*;
 
 public class XiClass extends Node {
@@ -157,51 +158,52 @@ public class XiClass extends Node {
         // generating this function. That's only our responsibility if we
         // have the actual implementation!!!
 
+        IRLabel theVeryEnd = new IRLabel("_very_end_" + NumberGetter.uniqueNumberStr());
+
         List<IRStmt> body = new LinkedList<IRStmt>();
 
-        // step 1: recursively initialize superclasses (WRONG!!!, superclass are intialized automatically)
-        //if (superClass != null)
-         //   body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
+        // step 1: recursively initialize superclasses
+        // super class init functions are also called in the assembly's .ctors section,
+        // but no guarantee is made regarding the order, making this step necessary
+        if (superClass != null)
+            body.add(new IRExp(new IRCall(new IRName("_I_init_" + superClassName.replace("_", "__")), new LinkedList<IRExpr>())));
+
+        // if the class is already initialized, we don't have to redo the work
+        IRTemp sizeHolder = new IRTemp(Utilities.freshTemp());
+        IRName thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
+        body.add(new IRMove(sizeHolder, thisSize));
+        body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.NEQ, new IRConst(0), sizeHolder), theVeryEnd.name(), null));
 
         // step 2: compute total size of this class
         int localSize = vars_ordered.size();
         String totalsizevar = Utilities.freshTemp();
         body.add(new IRMove(new IRTemp(totalsizevar), new IRConst(localSize + 1))); // +1 for the DV itself
 
-        // TODO: ^^^ same as above
-        IRExpr thisSize = new IRName("_I_size_" + classId.value.replace("_", "__"));
         body.add(new IRMove(thisSize, new IRBinOp(IRBinOp.OpType.MUL, new IRTemp(totalsizevar), new IRConst(8))));
 
         if (superClass != null) {
-            // TODO: how to represent the size variable at IR level?
             IRExpr superSize = new IRName("_I_size_" + superClassName.replace("_", "__"));
             body.add(new IRMove(new IRTemp(totalsizevar),
                     new IRBinOp(IRBinOp.OpType.ADD, new IRTemp(totalsizevar), superSize)));
         }
         
         // step 3: allocate dispatch vector
-        // TODO: right now I'm assuming we're not overriding anything,
-        // so we need to allocate a spot for each method in each class
-        int treeDVSize = sizeOfListOfIRMethods();// listOfIRMethods().size();
+        // Note: this works because overridden functions don't appear in
+        int treeDVSize = 0;
         XiClass xc = this;
         while (xc.superClass != null) {
+            treeDVSize += xc.funcs_ordered.size();
             xc = xc.superClass;
-            treeDVSize += xc.sizeOfListOfIRMethods(); // .size();
         }
-        // TODO: don't know how to represent this variable at IR level
+
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
         LinkedList<IRExpr> alloc_size = new LinkedList<>();
         alloc_size.add(new IRConst(treeDVSize * 8));
-        IRTemp temp = new IRTemp(Utilities.freshTemp());
-        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));  //cannot do xi_alloc in ctors section, need static allocation
-        //body.add(new IRMove(dv, dv));  // use to generate lea rax, dv; mov dv, rax see IRMove Tile conditions: src and dest are same, also begin with _I_vt_  , see MoveTile.java
-        //body.add(new IRMove(dv, temp));
-        //body.add(new IRMove(dv ,new IRBinOp(IRBinOp.OpType.ADD,dv, new IRConst(8))));
+        body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));
 
         int parentDVsize = 0;
         // if there is a parent, copy over its method pointers
         if (superClass != null) {
-            // TODO: same representation issue:
             IRName superdv = new IRName("_I_vt_" + superClassName.replace("_", "__"));
 
             IRTemp index = new IRTemp(Utilities.freshTemp());
@@ -216,51 +218,61 @@ public class XiClass extends Node {
             body.add(new IRMove(addrTo, new IRMem(dv)));
 
             body.add(top);
-            //parentDVsize = treeDVSize - vars_ordered.size(); // not sure if this is a bug, ask bsa52
             parentDVsize = superClass.numMethods();
 
             // loop: copy over super's pointers
+
+            // if index >= parentDVsize GOTO END
             body.add(new IRCJump(new IRBinOp(IRBinOp.OpType.GEQ, index, new IRConst(parentDVsize)), end.name()));
+            // copy a dv element from parent dv to child dv
             body.add(new IRMove(new IRMem(addrTo), new IRMem(addrFrom)));
+            // increment both dv pointers and the index
             body.add(new IRMove(addrFrom, new IRBinOp(IRBinOp.OpType.ADD, addrFrom, new IRConst(8))));
             body.add(new IRMove(addrTo, new IRBinOp(IRBinOp.OpType.ADD, addrTo, new IRConst(8))));
             body.add(new IRMove(index, new IRBinOp(IRBinOp.OpType.ADD, index, new IRConst(1))));
+            // GOTO TOP
             body.add(new IRJump(new IRName(top.name())));
+
             body.add(end);
         }
         
         // copy over this class's method pointers:
         for (int i = 0; i < funcs_ordered.size(); i++) {            
-                   // figure out the ABI name
-                   List<VariableType> argTypes = new ArrayList<>();
-                   List<VariableType> retTypes = new ArrayList<>();
-                   Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(this, funcs_ordered.get(i) );
-                    if (funcType.t1 instanceof VariableType) {
-                       // Function returns one value
-                       argTypes.add((VariableType) funcType.t1);
-                   } else {
-                       // Function returns multiple values
-                       argTypes = ((ListVariableType) funcType.t1).getVariableTypes();
-                   }
+               // figure out the ABI name
+               List<VariableType> argTypes = new ArrayList<>();
+               List<VariableType> retTypes = new ArrayList<>();
+               Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(this, funcs_ordered.get(i) );
+                if (funcType.t1 instanceof VariableType) {
+                   // Function returns one value
+                   argTypes.add((VariableType) funcType.t1);
+               } else {
+                   // Function returns multiple values
+                   argTypes = ((ListVariableType) funcType.t1).getVariableTypes();
+               }
 
-                   // Store return type
-                   if (funcType.t2 instanceof UnitType) {
-                       // Function is a procedure, do nothing
-                   } else if (funcType.t2 instanceof VariableType) {
-                       // Function returns one value
-                       retTypes.add((VariableType) funcType.t2);
-                   } else {
-                       retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
-                   }
-                   body.add(new IRMove(
-                           // TODO: if we're postprocessing func_map to get global indices, don't need to
-                           // add parentDVsize
-                           new IRMem(
-                                   new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + i)))),
-                           //new IRName(funcs_ordered.get(i))));
-                           new IRName(Utilities.toIRFunctionName(funcs_ordered.get(i),argTypes,retTypes))));
+               // Store return type
+               if (funcType.t2 instanceof UnitType) {
+                   // Function is a procedure, do nothing
+               } else if (funcType.t2 instanceof VariableType) {
+                   // Function returns one value
+                   retTypes.add((VariableType) funcType.t2);
+               } else {
+                   retTypes = ((ListVariableType) funcType.t2).getVariableTypes();
+               }
+
+               body.add(
+                   new IRMove(
+                       // TODO: if we're postprocessing func_map to get global indices, don't need to
+                       // add parentDVsize
+                       // ... but for now, indices are relative
+                       new IRMem(new IRBinOp(IRBinOp.OpType.ADD, dv, new IRConst(8 * (parentDVsize + i)))),
+                       //new IRName(funcs_ordered.get(i))));
+                       new IRName(Utilities.toIRFunctionName(funcs_ordered.get(i), argTypes, retTypes))
+                   )
+               );
         }
 
+        body.add(theVeryEnd);
         body.add(new IRReturn());
 
         IRFuncDecl f = new IRFuncDecl("_I_init_" + classId.value.replace("_", "__"), 
@@ -268,6 +280,8 @@ public class XiClass extends Node {
 
         return f;
     }
+
+    // TODO: also copy over methods that this class overrides! currently the API doesn't exist yet
 
     public int sizeOfListOfIRMethods() {
         int ret = 0;
