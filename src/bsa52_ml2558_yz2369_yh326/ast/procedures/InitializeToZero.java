@@ -91,7 +91,6 @@ public class InitializeToZero {
             if (rhs != null) {
                 for (int i = 0; i < n.children.size() - 1; i++) {
                     stmts.add(new AssignSingle(n.line, n.col, n.children.get(i), rhs));
-                    System.out.println("adding default value " + rhs + " to identifier " + n.children.get(i).value);
                 }
             }
 

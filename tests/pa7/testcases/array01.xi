@@ -1,3 +1,5 @@
+use io
+
 // comparing arrays to null should work
 main(args: int[][]) {
     a1: int[] = {0, 1, 2, 3, 4}

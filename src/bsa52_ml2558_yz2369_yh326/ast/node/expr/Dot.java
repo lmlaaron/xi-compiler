@@ -65,7 +65,6 @@ public class Dot extends Expr {
     private IRNode translateCall() {
 		// new offset
 		// look up the offset of the called function in java
-    	    //System.out.println(children.get(2).c);
     	    int funcoffset = -1;
     		if (children.get(2).value == null ) {
     			funcoffset =((ObjectType) leftNodeType).indexOfFunc(children.get(2).children.get(0).value);

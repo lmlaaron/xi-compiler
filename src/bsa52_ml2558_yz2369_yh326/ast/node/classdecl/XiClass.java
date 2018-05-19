@@ -127,17 +127,6 @@ public class XiClass extends Node {
 
         sTable.setCurClass(null);
         sTable.exitBlock();
-        System.out.println("=== PRINTED AT XiClass.java:144 ===");
-        System.out.println("Finished typechecking class \"" + classId.value + "\"");
-        System.out.print("Instance variables: ");
-        System.out.println(vars_ordered);
-        for (String v : vars_ordered)
-            System.out.println("The index of \"" + v + "\" is " + indexOfVar(v));
-        System.out.print("Functions: ");
-        System.out.println(funcs_ordered);
-        for (String f : funcs_ordered)
-            System.out.println("The index of \"" + f + "\" is " + indexOfFunc(f));
-        System.out.println();
         return new UnitType();
     }
 
@@ -295,8 +284,6 @@ public class XiClass extends Node {
                 ((Method) child).addObjArgs(this);
 
                 IRFuncDecl funcdecl = (IRFuncDecl) child.translate();
-                // System.out.println("label " +funcdecl.label() + " name :" + funcdecl.name());
-                // IRFuncDecl f = new IRFuncDecl(((Method) child).id.value, funcdecl.body());
                 list.add(funcdecl);
             }
         }

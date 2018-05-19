@@ -42,7 +42,7 @@ public class IRWrapper {
         // and not just an original part of the variable name
         markTempNames(irNode, "_irtmp$");
 
-        // System.out.println(irNode.toString());
+        //System.out.println(irNode.toString());
         irNode = Canonicalization.Canonicalize(irNode);
         irNode = Canonicalization.Lift(irNode);
         irNode = Canonicalization.BlockReordering(irNode);
