@@ -1,3 +1,5 @@
+use io
+
 // global object declaration
 class Point {
     x,y: int

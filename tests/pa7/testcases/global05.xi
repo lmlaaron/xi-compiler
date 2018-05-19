@@ -1,3 +1,6 @@
+use io
+use conv
+
 a:int[3][3]
 
 main(args: int[][]) {
@@ -5,7 +8,7 @@ main(args: int[][]) {
     y:int = 0
     while (x < 3) {
       while (y < 3) {
-        println(a[x][y])
+        println(unparseInt(a[x][y]))
         y = y + 1
       }
       x = x + 1

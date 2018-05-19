@@ -1,3 +1,5 @@
+use io
+
 a: bool[5]
 
 main(args: int[][]) {

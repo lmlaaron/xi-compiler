@@ -1,3 +1,5 @@
+use io
+
 // == and != between classes
 class Point {
     x,y: int
