@@ -3,8 +3,13 @@ import sys
 import itertools
 
 
+OPTIMIZATIONS = []
+if "o" in sys.argv:
+    sys.argv.remove("o")
+    OPTIMIZATIONS = ['-Oreg', '-Ocse', '-Ocf', '-Ocopy', '-Odce']
+
 for xi_file in sys.argv[1:]:
-    th.compile_and_run(xi_file, ['-Oreg', '-Ocse', '-Ocf', '-Ocopy', '-Odce'])
+    th.compile_and_run(xi_file, OPTIMIZATIONS)
 
 # for xi_file in sys.argv[1:]:
 #     opts = set(['-Oreg', '-Ocse', '-Ocf', '-Ocopy', '-Odce']) # copy and dce have to go with each other
