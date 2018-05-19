@@ -1,3 +1,6 @@
+use io
+use conv
+
 // override methods
 class Point {
     x,y: int
@@ -8,7 +11,7 @@ class Point {
         return this
     }
 
-    unknownCalculcation(): int {
+    unknownCalculation(): int {
         return x+y
     }
 }
@@ -32,6 +35,6 @@ main(args: int[][]) {
     p2:ColoredPoint
     p1 = new Point.initPoint(2, 2)
     p2 = new ColoredPoint.initPoint(2, 2)
-    println(p1.unknownCalculation())
-    println(p2.unknownCalculation())
+    println(unparseInt(p1.unknownCalculation()))
+    println(unparseInt(p2.unknownCalculation()))
 }

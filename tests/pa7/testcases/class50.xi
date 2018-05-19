@@ -1,3 +1,6 @@
+use io
+use conv
+
 // attributes of same name within parent & child classes
 class Point {
     x,y: int
@@ -24,6 +27,6 @@ main(args: int[][]) {
     p2:ColoredPoint
     p1 = new Point.initPoint(2, 2)
     p2 = new ColoredPoint.initPoint(3, 3)
-    println(p1.x)
-    println(p2.x)
+    println(unparseInt(p1.x))
+    println(unparseInt(p2.x))
 }
