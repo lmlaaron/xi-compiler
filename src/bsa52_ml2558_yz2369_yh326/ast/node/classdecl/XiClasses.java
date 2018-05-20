@@ -27,9 +27,9 @@ public class XiClasses {
      *
      */
     public static void postprocessIndices(List<XiClass> classes) {
-        System.out.println(classes.size() + " classes:");
-        for (XiClass xc : classes)
-            System.out.println(xc.classId.value);
+        //System.out.println(classes.size() + " classes:");
+        //for (XiClass xc : classes)
+            //System.out.println(xc.classId.value);
 
         verifyUnique(classes);
 
