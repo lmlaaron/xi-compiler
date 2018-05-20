@@ -38,7 +38,7 @@ public class IRWrapper {
         IRNode irNode = ast.translateProgram();
 
         if (Settings.irgen)
-            WriteIRResult(irNode, outputFile + ".ir");
+            WriteIRResult(irNode, outputFile + "-preopt-" + ".ir");
 
         // add special dollar symbol to ensure if the variable
         // name has this suffix, it's as a result of this function,

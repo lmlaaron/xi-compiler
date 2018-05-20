@@ -250,7 +250,7 @@ public class XiClass extends Node {
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
         LinkedList<IRExpr> alloc_size = new LinkedList<>();
         alloc_size.add(new IRConst(treeDVSize * 8));
-        IRTemp temp = new IRTemp(Utilities.freshTemp());
+        //IRTemp temp = new IRTemp(Utilities.freshTemp());
         body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));  //cannot do xi_alloc in ctors section, need static allocation
         //body.add(new IRMove(dv, dv));  // use to generate lea rax, dv; mov dv, rax see IRMove Tile conditions: src and dest are same, also begin with _I_vt_  , see MoveTile.java
         //body.add(new IRMove(dv, temp));
