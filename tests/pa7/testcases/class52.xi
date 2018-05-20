@@ -15,8 +15,8 @@ class Point {
 }
 
 class ColoredPoint extends Point{
-    x,y: int
-    size: int
+//    x,y: int
+//    size: int
 
     initPoint(x0: int, y0: int): ColoredPoint {
         x = x0
