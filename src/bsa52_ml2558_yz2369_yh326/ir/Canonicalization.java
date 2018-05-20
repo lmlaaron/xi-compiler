@@ -283,7 +283,7 @@ public class Canonicalization {
                 es2 = CanonicalizeExpr(e2);
             IRSeq s2p = (IRSeq) es2.stmt();
             IRExpr e2p = es2.expr();
-            if (e1 instanceof IRTemp) {
+            if (e1 instanceof IRTemp || e1 instanceof IRName) {
                 return (IRSeqNoEmpty(s1, s2p, new IRMove(e1, e2p)));
             } else if (e1 instanceof IRMem) {
                 e1 = ((IRMem) e1).expr();
