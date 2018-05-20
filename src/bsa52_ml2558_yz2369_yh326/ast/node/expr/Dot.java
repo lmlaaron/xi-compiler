@@ -36,7 +36,7 @@ public class Dot extends Expr {
         if (leftNodeType instanceof ObjectType) {
             Node right = children.get(2);
             if (right instanceof MethodCall) {
-                ((MethodCall) right).setClassOfMethod(((ObjectType) leftNodeType).getType());
+                ((MethodCall) right).classOfMethod = ((ObjectType) leftNodeType).getType();
                 return right.typeCheck(sTable);
             } else if (right instanceof Identifier) {
                 ((Identifier) right).classOfInstance = ((ObjectType) leftNodeType).getType();
@@ -67,7 +67,7 @@ public class Dot extends Expr {
 		// look up the offset of the called function in java
     	    int funcoffset = -1;
     		if (children.get(2).value == null ) {
-    			funcoffset =((ObjectType) leftNodeType).indexOfFunc(children.get(2).children.get(0).value);
+    			funcoffset =((ObjectType) leftNodeType).indexOfFunc(((MethodCall) children.get(2)).id.value);
     		} else {
 		  funcoffset = ((ObjectType) leftNodeType).indexOfFunc(children.get(2).value);
     		}

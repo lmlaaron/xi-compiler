@@ -23,10 +23,13 @@ import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 
 public class MethodCall extends Expr {
-    private Identifier id;
+    Identifier id;
+    private Dot dot;
+    private boolean typechecked = false;
+    private boolean translated = false;
     private List<VariableType> argTypes = new ArrayList<>();
     private List<VariableType> retTypes = new ArrayList<>();
-    private XiClass classOfMethod = null;
+    public XiClass classOfMethod = null;
 
     /**
      * Constructor
@@ -35,21 +38,35 @@ public class MethodCall extends Expr {
      * @param col
      * @param id
      */
-    public MethodCall(int line, int col, Identifier id) {
-        super(line, col, id);
-        this.id = id;
-    }
-    
-    public void setClassOfMethod(XiClass xiClass) {
-        classOfMethod = xiClass;
+    public MethodCall(int line, int col, Expr expr) {
+        super(line, col, expr);
+        if (expr instanceof Identifier)
+            this.id = (Identifier) expr;
+        else if (expr instanceof Dot) {
+            this.dot = (Dot) expr;
+            this.id = (Identifier) dot.children.get(2);
+        } else
+            throw new RuntimeException("Invalid expression for method call.");
     }
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
+        // IF THIS IS A "DOT METHOD CALL"
+        // I KNOW THIS DESIGN IS SHIT BUT WHATEVER
+        if (dot != null && !typechecked) {
+            this.dot.children.remove(2);
+            this.dot.children.add(2, this);Dot dot = this.dot;
+            typechecked = true;
+            NodeType result = dot.typeCheck(sTable);
+            typechecked = false; // Useless, just in case typeCheck() is called more than once
+            return result;
+        }  
+        
+        // BELOW ARE IMPLEMENTED BEFORE WE HAVE OBJECT-ORIENTED FEATURES
         // This method combined method call and procedure call.
 
         // First check if id is defined as a variable.
-        if (sTable.getVariableType(id.value) != null) {
+        if (sTable.getVariableType(classOfMethod, id.value) != null) {
             throw new OtherException(line, col, id.value + " is not a function");
         }
         
@@ -115,6 +132,13 @@ public class MethodCall extends Expr {
 
     @Override
     public IRNode translate() {
+        if (dot != null && !translated) {
+            Dot dot = this.dot;
+            translated = true;
+            IRNode result = dot.translate();
+            translated = false; // Useless, just in case translate() is called more than once
+            return result;
+        }  
         String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
         List<IRExpr> exprs = new ArrayList<IRExpr>();
         for (int i = 1; i < children.size(); i++) {

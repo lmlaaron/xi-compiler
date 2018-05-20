@@ -9,6 +9,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.misc.Bracket;
 import bsa52_ml2558_yz2369_yh326.ast.node.stmt.If;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.Primitives;
+import bsa52_ml2558_yz2369_yh326.ast.type.VariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.PrimitiveType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
 import bsa52_ml2558_yz2369_yh326.exception.OtherException;
@@ -44,7 +45,7 @@ public class Subscript extends Expr {
 
     @Override
     public NodeType typeCheck(SymbolTable sTable) throws Exception {
-        PrimitiveType t = (PrimitiveType) children.get(1).typeCheck(sTable);
+        VariableType t = (VariableType) children.get(1).typeCheck(sTable);
 
         // Check if size (expr) is integer.
         PrimitiveType expr = (PrimitiveType) children.get(2).typeCheck(sTable);
@@ -54,8 +55,9 @@ public class Subscript extends Expr {
             if (t.getLevel() == 0) {
                 throw new OtherException(line, col, t + " is not subscriptable");
             } else {
-                // Need to recursively restore the original level
-                return new PrimitiveType(t.getType(), t.getLevel() - 1);
+                VariableType subType = t.copy();
+                subType.decreaseLevel();
+                return subType;
             }
         } else {
             throw new MatchTypeException(line, col, integer, expr);
