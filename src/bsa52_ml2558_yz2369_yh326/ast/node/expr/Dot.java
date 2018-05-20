@@ -93,8 +93,8 @@ public class Dot extends Expr {
 			} else if ( ((IRESeq) children1IR).expr() instanceof IRMem) {
 				children1IRTemp = (IRMem) ((IRESeq) children1IR).expr();
 			}
-			if ( children1IRTemp != null)
-			System.out.println(children1IRTemp);
+			//if ( children1IRTemp != null)
+			//System.out.println(children1IRTemp);
 			//children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
 		} else {
 			try {

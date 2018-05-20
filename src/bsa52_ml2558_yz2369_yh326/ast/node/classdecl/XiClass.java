@@ -133,7 +133,7 @@ public class XiClass extends Node {
                     funcs_ordered.add(((Method) child).id.value);
                 }
             }
-            if (!funcs_ordered.containsAll(this.funcs_ordered.subList(1, funcs_ordered.size()))) {
+            if (!funcs_ordered.containsAll(this.funcs_ordered.subList(1, this.funcs_ordered.size()))) {
                 throw new OtherException(line, col, "Some functions declaired in the interface are not implemented.");
             }
         }
