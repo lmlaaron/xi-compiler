@@ -47,7 +47,12 @@ public class IRJump extends IRStmt {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("JUMP");
-        target.printSExp(p);
+        try {
+            target.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

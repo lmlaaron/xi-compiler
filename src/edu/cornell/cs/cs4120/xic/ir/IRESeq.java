@@ -64,8 +64,18 @@ public class IRESeq extends IRExpr_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("ESEQ");
-        stmt.printSExp(p);
-        expr.printSExp(p);
+        try {
+            stmt.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
+        try {
+            expr.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

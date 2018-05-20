@@ -60,8 +60,18 @@ public class IRFuncDecl extends IRNode_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("FUNC");
-        p.printAtom(name);
-        body.printSExp(p);
+        try {
+            p.printAtom(name);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
+        try {
+            body.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

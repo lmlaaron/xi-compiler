@@ -88,7 +88,12 @@ public class IRCall extends IRExpr_c {
         p.printAtom("CALL");
         target.printSExp(p);
         for (IRExpr arg : args)
-            arg.printSExp(p);
+            try {
+                arg.printSExp(p);
+            }
+            catch (NullPointerException npe) {
+                p.printAtom("NULL!");
+            }
         p.endList();
     }
 }

@@ -85,8 +85,20 @@ public class IRCJump extends IRStmt {
         p.startList();
         p.printAtom("CJUMP");
         cond.printSExp(p);
-        p.printAtom(trueLabel);
-        if (hasFalseLabel()) p.printAtom(falseLabel);
+        try {
+            p.printAtom(trueLabel);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
+        if (hasFalseLabel()) {
+            try {
+                p.printAtom(falseLabel);
+            }
+            catch (NullPointerException npe) {
+                p.printAtom("NULL!");
+            }
+        }
         p.endList();
     }
 }

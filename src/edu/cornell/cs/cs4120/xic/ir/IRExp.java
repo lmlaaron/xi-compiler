@@ -56,7 +56,12 @@ public class IRExp extends IRStmt {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("EXP");
-        expr.printSExp(p);
+        try {
+            expr.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

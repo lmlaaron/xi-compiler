@@ -65,7 +65,12 @@ public class IRReturn extends IRStmt {
         p.startList();
         p.printAtom("RETURN");
         for (IRExpr ret : rets)
-            ret.printSExp(p);
+            try {
+                ret.printSExp(p);
+            }
+            catch (NullPointerException npe) {
+                p.printAtom("NULL!");
+            }
         p.endList();
     }
 }
