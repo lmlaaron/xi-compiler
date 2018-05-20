@@ -7,3 +7,7 @@ class parent {
 class child extends parent {
     a : int = 0
 }
+
+main(argv:int[][]){
+
+}

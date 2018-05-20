@@ -4,3 +4,7 @@ class C {
         return c
     }
 }
+
+main(argv:int[][]){
+
+}
