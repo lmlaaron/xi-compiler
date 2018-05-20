@@ -80,13 +80,17 @@ public class Dot extends Expr {
 		//String children1Name = null;
 		IRNode children1IR = children.get(1).translate();
 
-		IRTemp children1IRTemp = null;
+		IRExpr children1IRTemp = null;
 		IRStmt children1IRStmt = null;
 		if ( children1IR instanceof IRTemp) {
 			children1IRTemp = (IRTemp) children1IR; 
 		} else if (children1IR instanceof IRESeq) { // children1IR can have side effect
 			children1IRStmt = ((IRESeq) children1IR).stmt();
-			children1IRTemp = (IRTemp) ((IRESeq) children1IR).expr();
+			if ( ((IRESeq) children1IR).expr() instanceof IRTemp ) {
+				children1IRTemp = (IRTemp) ((IRESeq) children1IR).expr();
+			} else if ( ((IRESeq) children1IR).expr() instanceof IRMem) {
+				children1IRTemp = (IRMem) ((IRESeq) children1IR).expr();
+			}
 			//children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
 		}
 		// children1IRTemp must be resolved and not be null, 
