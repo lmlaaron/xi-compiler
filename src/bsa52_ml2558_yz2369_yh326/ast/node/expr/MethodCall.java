@@ -55,10 +55,12 @@ public class MethodCall extends Expr {
         // I KNOW THIS DESIGN IS SHIT BUT WHATEVER
         if (dot != null && !typechecked) {
             this.dot.children.remove(2);
-            this.dot.children.add(2, this);Dot dot = this.dot;
+            this.dot.children.add(2, this);
             typechecked = true;
             NodeType result = dot.typeCheck(sTable);
             typechecked = false; // Useless, just in case typeCheck() is called more than once
+            this.dot.children.remove(2);
+            this.dot.children.add(2, id);
             return result;
         }  
         
@@ -76,13 +78,9 @@ public class MethodCall extends Expr {
         else
             funcType = sTable.getFunctionType(id.value);
 
-        // See in what class is this method called
-        XiClass curClass = classOfMethod;
-        if (curClass == null) curClass = sTable.getCurClass();
-
         List<VariableType> actual = new ArrayList<VariableType>();
-        if (curClass != null && !sTable.isGlobalMethod(id.value))
-            actual.add(new ObjectType(curClass));
+        if (classOfMethod != null || sTable.getCurClass() != null && !sTable.isGlobalMethod(id.value))
+            actual.add(new ObjectType(classOfMethod));
         for (int i = 1; i < children.size(); i++)
             actual.add((VariableType) children.get(i).typeCheck(sTable));
         
@@ -133,10 +131,13 @@ public class MethodCall extends Expr {
     @Override
     public IRNode translate() {
         if (dot != null && !translated) {
-            Dot dot = this.dot;
+            this.dot.children.remove(2);
+            this.dot.children.add(2, this);
             translated = true;
             IRNode result = dot.translate();
             translated = false; // Useless, just in case translate() is called more than once
+            this.dot.children.remove(2);
+            this.dot.children.add(2, id);
             return result;
         }  
         String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
