@@ -54,6 +54,7 @@ public class XiClass extends Node {
     public XiClass(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "class"), id);
         this.classId = id;
+		funcs_ordered.add("_I_init_"+classId.value.replace("_", "__"));
         all.add(this);
     }
 
@@ -63,6 +64,7 @@ public class XiClass extends Node {
         if (extend != null) {
             this.superClassName = extend.value;
         }
+		funcs_ordered.add("_I_init_"+classId.value.replace("_", "__"));
         all.add(this);
     }
 
@@ -302,7 +304,8 @@ public class XiClass extends Node {
         }
 
         // copy over this class's method pointers:
-        for (int i = 0; i < funcs_ordered.size(); i++) {
+        // the first slot is for consturctor and can never be overwrite, thus index starts with 1
+        for (int i = 1; i < funcs_ordered.size(); i++) {
             // figure out the ABI name
             List<VariableType> argTypes = new ArrayList<>();
             List<VariableType> retTypes = new ArrayList<>();
