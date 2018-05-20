@@ -159,6 +159,9 @@ public class Main {
 
         // hardcode register allocation to be on, because pa7 breaks backwards compatibility
         Settings.opts.add("reg");
+        // these optimizations no longer work
+        Settings.opts.remove("copy");
+        Settings.opts.remove("dce");
     }
 
     public static void main(String[] argv) {
