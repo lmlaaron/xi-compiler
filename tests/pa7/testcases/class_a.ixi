@@ -1,0 +1,6 @@
+class A {
+	init()
+}
+class B extends A {
+	init()
+}
