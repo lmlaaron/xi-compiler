@@ -79,8 +79,10 @@ public class MethodCall extends Expr {
             funcType = sTable.getFunctionType(id.value);
 
         List<VariableType> actual = new ArrayList<VariableType>();
-        if (classOfMethod != null || sTable.getCurClass() != null && !sTable.isGlobalMethod(id.value))
+        if (classOfMethod != null)
             actual.add(new ObjectType(classOfMethod));
+        else if (sTable.getCurClass() != null && !sTable.isGlobalMethod(id.value))
+            actual.add(new ObjectType(sTable.getCurClass()));
         for (int i = 1; i < children.size(); i++)
             actual.add((VariableType) children.get(i).typeCheck(sTable));
         
