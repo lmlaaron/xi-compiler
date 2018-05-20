@@ -70,7 +70,7 @@ public class XiClass extends Node {
         // get the total size of the dispatch vector to calculate
         // global offset
         int height = 0;
-        XiClass xc = this;
+        XiClass xc = this.superClass;
         while (xc != null) {
             height += xc.funcs_ordered.size();
             xc = xc.superClass;
@@ -86,8 +86,9 @@ public class XiClass extends Node {
                 while (it.hasNext()) {
                     i++;
                     if (it.next().equals(override)) {
-                        int global_i = height - i+1;
+                        int global_i = height - i -1;
                         ret.add(new ThreeTuple<>(override, global_i, xc));
+                        //System.out.println(override+ " " +String.valueOf(global_i));
                         i = height; // break the external loop
                         break;
                     }
@@ -95,7 +96,6 @@ public class XiClass extends Node {
                 xc = xc.superClass;
             }
         }
-
         return ret;
     }
 
@@ -131,8 +131,15 @@ public class XiClass extends Node {
                 ((VarDecl) child).typeCheckAndReturn(sTable);
                 ((VarDecl) child).ids.forEach(id -> vars_ordered.add(id.value));
             } else if (child instanceof Method) {
+
                 String funcName = ((Method) child).id.value;
+        	    	//System.out.println(funcName);
                 boolean isOverride = sTable.isOverride(this, funcName);
+                if (isOverride) {
+                	   //System.out.println("isOverride");
+                } else {
+                	  //System.out.println("isNotOverride");
+                }
                 if (hasInterface) {
                     if (sTable.getFunctionType(this, funcName) == null) {
                         throw new OtherException(line, col,
@@ -143,8 +150,11 @@ public class XiClass extends Node {
                         overrides.add(funcName);
                     }
                 } else {
-                    if (!isOverride)
+                    if (!isOverride) {
                         this.funcs_ordered.add(funcName);
+                    } else {
+                        overrides.add(funcName);
+                    }
                 }
                 child.loadMethods(sTable);
             }
@@ -316,13 +326,15 @@ public class XiClass extends Node {
         // note: this block and the one above are nearly identical, but
         // we don't have to maintain this code HOORAY
         List<ThreeTuple<String, Integer, XiClass>> overrideList = getOverrides();
+        //System.out.println(classId.getId()+ " size of overrideList "+ String.valueOf(overrideList.size()));
+        //System.out.println(classId.getId() + "size of funcs_ordered "+ String.valueOf(funcs_ordered.size()));
         for (int i = 0; i < overrideList.size(); i++) {
             ThreeTuple<String, Integer, XiClass> tup = overrideList.get(i);
 
             // figure out the ABI name
             List<VariableType> argTypes = new ArrayList<>();
             List<VariableType> retTypes = new ArrayList<>();
-            Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(tup.t3, tup.t1 );
+            Tuple<NodeType, NodeType> funcType = sTable.getFunctionType(this, tup.t1 );
             if (funcType.t1 instanceof VariableType) {
                 // Function returns one value
                 argTypes.add((VariableType) funcType.t1);
