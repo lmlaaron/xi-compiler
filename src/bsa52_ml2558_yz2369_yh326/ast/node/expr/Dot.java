@@ -122,24 +122,63 @@ public class Dot extends Expr {
 						args)
 				);
     }
+        
+    private static IRExpr IRAbsoluteOffset(XiClass xiClass, String varName) {
+    		int varoffset = xiClass.indexOfVar(varName);
+    		if ( varoffset == -1 ) {
+    			if ( xiClass.superClass != null ) {
+    				return IRAbsoluteOffset(xiClass.superClass, varName);
+    			} else {
+    				return new IRConst(-1);
+    			}
+    		} else {
+    			if (xiClass.superClass != null ) {
+    				if ( IRAbsoluteOffset(xiClass.superClass, varName) instanceof IRConst &&
+    						((IRConst) (IRAbsoluteOffset(xiClass.superClass, varName))).value() == -1	) {
+    				return new IRBinOp(
+    						IRBinOp.OpType.ADD,
+    						new IRConst(varoffset),
+    					    new IRTemp("_I_size_"+xiClass.superClass.classId.getId().replace("_", "__"))
+    					);
+    				} else {
+    					return IRAbsoluteOffset(xiClass.superClass, varName);
+    				}
+    			} else {
+    				return new IRConst(varoffset*8+8);
+    			}
+    		}
+    }
     
     public static IRNode translateVariable(XiClass xiClass, IRExpr left, String varName) {
-		// new offset
+    		return new IRMem( 
+    				new IRBinOp(
+    						IRBinOp.OpType.ADD,
+    						left,
+    						IRAbsoluteOffset(xiClass, varName)
+    						));
+    }
+    	/*// new offset
 		// look up the offset of the variable in java
 		int varoffset = xiClass.indexOfVar(varName);
-		
-		// resolve the absolute offset
 		IRExpr absoluteVarOffset = null;
-		if ( xiClass.superClass != null ) {
-			absoluteVarOffset = new IRBinOp(
+		if (varoffset == -1 ) {
+			// resolve the absolute offset
+			if ( xiClass.superClass != null ) {
+				
+			} else {
+				return 0/0;  // not possible
+			}
+		} else {
+			if ( xiClass.superClass != null ) {
+				absoluteVarOffset = new IRBinOp(
 					IRBinOp.OpType.ADD,
 					new IRConst(varoffset),
 				    new IRTemp("_I_size_"+xiClass.superClass.classId.getId().replace("_", "__"))
-					);
-		} else {
-			absoluteVarOffset = new IRConst(varoffset*8+8);
+				);
+			} else {
+				absoluteVarOffset = new IRConst(varoffset*8+8);
+			}			
 		}
-		
 		// return the memory location of the variable
 		return new IRMem(
 				new IRBinOp(
@@ -148,5 +187,6 @@ public class Dot extends Expr {
 						absoluteVarOffset
 				));
     }
+    */
 
 }

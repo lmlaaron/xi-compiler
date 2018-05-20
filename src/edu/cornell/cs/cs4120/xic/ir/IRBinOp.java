@@ -131,8 +131,18 @@ public class IRBinOp extends IRExpr_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom(type.toString());
-        left.printSExp(p);
-        right.printSExp(p);
+        try {
+            left.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
+        try {
+            right.printSExp(p);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 

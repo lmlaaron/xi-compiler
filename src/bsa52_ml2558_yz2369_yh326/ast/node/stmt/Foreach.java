@@ -62,7 +62,8 @@ public class Foreach extends Loop {
         IRTemp index = new IRTemp(Utilities.freshTemp());
         stmts.add(new IRMove(index, new IRConst(0)));
 
-        IRTemp arr = new IRTemp(from.value);
+        IRTemp arr = new IRTemp(Utilities.freshTemp());
+        stmts.add(new IRMove(arr, (IRExpr)from.translate()));
 
         IRTemp arrlen = new IRTemp(Utilities.freshTemp());
         stmts.add(new IRMove(arrlen, new IRMem(new IRBinOp(IRBinOp.OpType.SUB, arr, new IRConst(8)))));

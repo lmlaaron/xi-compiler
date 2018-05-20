@@ -4,24 +4,24 @@ use conv
 class A {
     a : int
 
-    incA() {
+    inc() {
         a = a + 1
     }
 
-    printA() {
+    print() {
         println(unparseInt(a))
     }
 }
 
-class B extends A{
-    a : int
+class B extends A {
+    b : int
 
-    incA() {
-        a = a + 1
+    inc() {
+        b = b + 1
     }
 
-    printAlternative() {
-        println(unparseInt(a))
+    printB() {
+        println(unparseInt(b))
     }
 }
 
@@ -29,17 +29,16 @@ main (argv : int[][]) {
     a : A = new A
     a.a = 5
 
-    a.printA() // 5
-    a.incA()
+    a.print() // 5
+    a.inc()
 
     b : B = new B
     b.a = 10
 
-    b.printA() // 0
-    b.incA()
-    b.printA() // still 0
-
-    b.printAlternative() // 11
+    b.print() // 10
+    b.inc()
+    b.print() // still 10
+    b.printB() // 1
 
     a = b
 

@@ -69,9 +69,9 @@ main(args: int[][]) {
       println("p1 is p3")
     }
     if (!p2.equals(p3)) {
-      println("p2 is not p1")
+      println("p2 is not p3")
     }
     if (p2.equals(p3)) {
-      println("p2 is p1")
+      println("p2 is p3")
     }
 }

@@ -65,16 +65,20 @@ public class XiClass extends Node {
     }
 
     public List<ThreeTuple<String, Integer, XiClass>> getOverrides() {
+        System.out.println("Class " + classId.value + " has " + overrides.size() + " overrides:");
+
         List<ThreeTuple<String, Integer, XiClass>> ret = new LinkedList<>();
 
         // get the total size of the dispatch vector to calculate
         // global offset
         int height = 0;
-        XiClass xc = this.superClass;
+        XiClass xc = this;
         while (xc != null) {
             height += xc.funcs_ordered.size();
             xc = xc.superClass;
         }
+
+        //System.out.println("\theight " + height);
 
         for (String override : overrides) {
             // iterate upwards until we find an occurrence
@@ -86,7 +90,13 @@ public class XiClass extends Node {
                 while (it.hasNext()) {
                     i++;
                     if (it.next().equals(override)) {
-                        int global_i = height - i -1;
+
+                        //System.out.println("\ti " + i);
+
+                        int global_i = height - i - 1;
+
+                        //System.out.println("\t" + override + " has global index " + global_i + " and appears in parent " + xc.classId);
+
                         ret.add(new ThreeTuple<>(override, global_i, xc));
                         //System.out.println(override+ " " +String.valueOf(global_i));
                         i = height; // break the external loop
@@ -250,7 +260,7 @@ public class XiClass extends Node {
         IRExpr dv = new IRName("_I_vt_" + classId.value.replace("_", "__"));
         LinkedList<IRExpr> alloc_size = new LinkedList<>();
         alloc_size.add(new IRConst(treeDVSize * 8));
-        IRTemp temp = new IRTemp(Utilities.freshTemp());
+        //IRTemp temp = new IRTemp(Utilities.freshTemp());
         body.add(new IRMove(dv, new IRCall(new IRName("_xi_alloc"), alloc_size)));  //cannot do xi_alloc in ctors section, need static allocation
         //body.add(new IRMove(dv, dv));  // use to generate lea rax, dv; mov dv, rax see IRMove Tile conditions: src and dest are same, also begin with _I_vt_  , see MoveTile.java
         //body.add(new IRMove(dv, temp));
