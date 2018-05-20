@@ -56,22 +56,33 @@ public class Use extends Node {
             } else if (Settings.parse) {
                 Main.WriteException(outputFile + ".parsed", e);
             }
-            throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
+            throw new OtherException(line, col, "Failed to parse or typecheck interface file1.");
         }
     }
 
     @Override
-    public void loadMethods(SymbolTable sTable, Set<String> libPath) throws Exception {
+    public void loadMethods(SymbolTable sTable, Set<String> libPaths) throws Exception {
         if (!alreadyImported) {
             try {
-                ast.loadMethods(sTable, libPath);
+                /*String inputFile = null;
+                for (String libPath : libPaths) {
+                    inputFile = Paths.get(libPath, id.value).toString() + ".ixi";
+                    if (new File(inputFile).exists()) 
+                        break;
+                }
+                String outputFile = Main.realPath(Settings.outputPath, id.value);
+                if (!(new File(inputFile).exists()))
+                    throw new OtherException(line, col, "Interface file " + id.value + ".ixi not found.");
+                lexer xiLexer = LexerWrapper.Lexing(inputFile, outputFile);
+                ast = ParserWrapper.Parsing(xiLexer, outputFile, ".iparsed");*/
+                ast.loadMethods(sTable, libPaths);
             } catch (TypecheckingException e) {
                 e.print(id.value + ".xi");
                 if (Settings.typeCheck) {
                     String outputFile = Main.realPath(Settings.outputPath, id.value);
                     Main.WriteException(outputFile + ".typed", e);
                 }
-                throw new OtherException(line, col, "Failed to parse or typecheck interface file.");
+                throw new OtherException(line, col, "Failed to parse or typecheck interface file3.");
             }
         }
     }
