@@ -140,11 +140,12 @@ public class SymbolTable {
     // =============== ADD CLASS ===============
     public boolean addClass(XiClass xiClass) {
         if (classTable.containsKey(xiClass.classId.value)) {
-            if (!xiClass.equals(classTable.get(xiClass.classId.value))) {
+            if (!xiClass.depthEquals(classTable.get(xiClass.classId.value))) {
                 return false;
             } else {
                 xiClass.funcs_ordered = new ArrayList<>(classTable.get(xiClass.classId.value).funcs_ordered);
                 xiClass.hasInterface = true;
+                xiClass.isInterface = false;
                 classTable.put(xiClass.classId.value, xiClass);
                 return true;
             }
