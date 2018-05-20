@@ -431,15 +431,27 @@ public class XiClass extends Node {
     public boolean equals(Object other) {
         if (other instanceof XiClass) {
             XiClass otherClass = (XiClass) other;
-            if (!classId.value.equals(otherClass.classId.value))
-                return false;
-            if (superClassName == null && otherClass.superClassName == null)
-                return true;
-            else if (superClassName != null && otherClass.superClassName != null)
-                return superClassName.equals(otherClass.superClassName);
-            else
-                return false;
-        } else
+            return otherClass.classId.value.equals(this.classId.value);
+        }
+        else {
             return false;
+        }
+//        if (other instanceof XiClass) {
+//            XiClass otherClass = (XiClass) other;
+//            if (!classId.value.equals(otherClass.classId.value))
+//                return false;
+//            if (superClassName == null && otherClass.superClassName == null)
+//                return true;
+//            else if (superClassName != null && otherClass.superClassName != null)
+//                return superClassName.equals(otherClass.superClassName);
+//            else
+//                return false;
+//        } else
+//            return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return classId.value.hashCode();
     }
 }
