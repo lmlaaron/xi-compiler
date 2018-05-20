@@ -24,11 +24,11 @@ fi
 
 # Build runtime library
 #echo "========== BUILDING RUNTIME LIBRARY =========="
-#cur=`pwd`
-#cd $dir/runtime/
-#make clean
-#make
-#cd $cur
+cur=`pwd`
+cd $dir/runtime/
+make clean
+make
+cd $cur
 
 # Build main function
 echo "========== BUILDING MAIN =========="
