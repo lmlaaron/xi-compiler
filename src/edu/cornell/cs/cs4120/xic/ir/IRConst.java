@@ -40,7 +40,12 @@ public class IRConst extends IRExpr_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("CONST");
-        p.printAtom(String.valueOf(value));
+        try {
+            p.printAtom(String.valueOf(value));
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

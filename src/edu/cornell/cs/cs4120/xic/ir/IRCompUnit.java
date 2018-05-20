@@ -110,9 +110,20 @@ public class IRCompUnit extends IRNode_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("COMPUNIT");
-        p.printAtom(name);
-        for (IRFuncDecl func : functions.values())
-            func.printSExp(p);
+        try {
+            p.printAtom(name);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
+        for (IRFuncDecl func : functions.values()) {
+            try {
+                func.printSExp(p);
+            }
+            catch (NullPointerException npe) {
+                p.printAtom("NULL!");
+            }
+        }
         p.endList();
     }
 }

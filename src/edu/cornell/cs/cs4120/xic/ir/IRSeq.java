@@ -81,7 +81,12 @@ public class IRSeq extends IRStmt {
         p.startUnifiedList();
         p.printAtom("SEQ");
         for (IRStmt stmt : stmts)
-            stmt.printSExp(p);
+            try {
+                stmt.printSExp(p);
+            }
+            catch (NullPointerException npe) {
+                p.printAtom("NULL!");
+            }
         p.endList();
     }
 }

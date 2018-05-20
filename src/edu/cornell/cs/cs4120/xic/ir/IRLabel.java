@@ -36,7 +36,12 @@ public class IRLabel extends IRStmt {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("LABEL");
-        p.printAtom(name);
+        try {
+            p.printAtom(name);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }

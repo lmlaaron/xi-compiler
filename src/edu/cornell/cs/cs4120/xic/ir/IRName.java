@@ -30,7 +30,12 @@ public class IRName extends IRExpr_c {
     public void printSExp(SExpPrinter p) {
         p.startList();
         p.printAtom("NAME");
-        p.printAtom(name);
+        try {
+            p.printAtom(name);
+        }
+        catch (NullPointerException npe) {
+            p.printAtom("NULL!");
+        }
         p.endList();
     }
 }
