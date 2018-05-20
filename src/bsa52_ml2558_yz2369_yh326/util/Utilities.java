@@ -50,6 +50,30 @@ public class Utilities {
         sTable.exitBlock();
         return sTable.addFunc(id, argList, retList);
     }
+    
+    public static boolean loadMethod(SymbolTable sTable, String id, FunctionTypeDeclList args, RetvalList rets, boolean isInterface)
+            throws Exception {
+    		try { 
+    			if (!isInterface) {
+    			    return loadMethod(sTable, id,  args,  rets);
+    			} else {
+    		        sTable.enterBlock();
+    		        List<VariableType> argList = new ArrayList<>();
+    		        List<VariableType> retList = new ArrayList<>();
+    		        if (args != null)
+    		            for (Node varDecl : args.children)
+    		               argList.add((VariableType) ((VarDecl) varDecl).getTypeAndReturn(sTable));
+    		        if (rets != null)
+    		            for (Node varDecl : rets.children)
+    		                retList.add((VariableType) ((TypeNode) varDecl).typeCheck(sTable));
+    		        sTable.exitBlock();
+    		        return sTable.addFunc(id, argList, retList);
+    			} 
+    		} catch (Exception e) {
+    			throw e;
+    		}
+    }
+    
 
     public static String toIRFunctionName(String name, List<VariableType> args, List<VariableType> rets) {
         String result = "_I" + name.replace("_", "__") + "_";

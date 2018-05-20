@@ -33,7 +33,7 @@ public class InterfaceMethod extends Interface {
     public void loadMethods(SymbolTable sTable) throws Exception {
         // Interface and Method class share the same loadMethod method.
         // So it is moved to util package.
-        if (Utilities.loadMethod(sTable, id.value, args, rets) == false) {
+        if (Utilities.loadMethod(sTable, id.value, args, rets, true) == false) {
             throw new AlreadyDefinedException(line, col, id.value);
         }
         XiClass curClass = sTable.getCurClass();

@@ -304,6 +304,7 @@ public class XiClass extends Node {
         }
 
         // copy over this class's method pointers:
+        // the first slot is for consturctor and can never be overwrite, thus index starts with 1
         for (int i = 1; i < funcs_ordered.size(); i++) {
             // figure out the ABI name
             List<VariableType> argTypes = new ArrayList<>();
