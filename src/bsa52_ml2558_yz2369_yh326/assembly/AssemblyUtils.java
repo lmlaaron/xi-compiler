@@ -416,7 +416,7 @@ public class AssemblyUtils {
                 // xi functions will always begin with '_I_', and we're making the assumption
                 // that temp names will not
                 if (Utilities.beginsWith(dest, "_I_")) {
-                    System.out.println("LABEL -> " + dest); // TODO: remove
+                    //System.out.println("LABEL -> " + dest); // TODO: remove
                     String label = dest;
                     if (includeColon)
                         label = label + ":";

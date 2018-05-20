@@ -65,7 +65,7 @@ public class XiClass extends Node {
     }
 
     public List<ThreeTuple<String, Integer, XiClass>> getOverrides() {
-        System.out.println("Class " + classId.value + " has " + overrides.size() + " overrides:");
+        //System.out.println("Class " + classId.value + " has " + overrides.size() + " overrides:");
 
         List<ThreeTuple<String, Integer, XiClass>> ret = new LinkedList<>();
 

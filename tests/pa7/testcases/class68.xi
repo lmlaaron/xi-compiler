@@ -27,8 +27,6 @@ class AnotherPoint {
 }
 
 class HappyColoredPoint extends AnotherPoint {
-    x,y: int
-    size: int
 
     initPoint(x0: int, y0: int): HappyColoredPoint {
         x = x0

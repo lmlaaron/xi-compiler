@@ -8,7 +8,7 @@ class A {
         a = a + 1
     }
 
-    print() {
+    printA() {
         println(unparseInt(a))
     }
 }
@@ -27,17 +27,18 @@ class B extends A {
 
 main (argv : int[][]) {
     a : A = new A
+
     a.a = 5
 
-    a.print() // 5
+    a.printA() // 5
     a.inc()
 
     b : B = new B
     b.a = 10
 
-    b.print() // 10
+    b.printA() // 10
     b.inc()
-    b.print() // still 10
+    b.printA() // still 10
     b.printB() // 1
 
     a = b
