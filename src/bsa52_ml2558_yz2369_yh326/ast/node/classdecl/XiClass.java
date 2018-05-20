@@ -65,16 +65,20 @@ public class XiClass extends Node {
     }
 
     public List<ThreeTuple<String, Integer, XiClass>> getOverrides() {
+        System.out.println("Class " + classId.value + " has " + overrides.size() + " overrides:");
+
         List<ThreeTuple<String, Integer, XiClass>> ret = new LinkedList<>();
 
         // get the total size of the dispatch vector to calculate
         // global offset
         int height = 0;
-        XiClass xc = this.superClass;
+        XiClass xc = this;
         while (xc != null) {
             height += xc.funcs_ordered.size();
             xc = xc.superClass;
         }
+
+        //System.out.println("\theight " + height);
 
         for (String override : overrides) {
             // iterate upwards until we find an occurrence
@@ -86,7 +90,13 @@ public class XiClass extends Node {
                 while (it.hasNext()) {
                     i++;
                     if (it.next().equals(override)) {
-                        int global_i = height - i -1;
+
+                        //System.out.println("\ti " + i);
+
+                        int global_i = height - i - 1;
+
+                        //System.out.println("\t" + override + " has global index " + global_i + " and appears in parent " + xc.classId);
+
                         ret.add(new ThreeTuple<>(override, global_i, xc));
                         //System.out.println(override+ " " +String.valueOf(global_i));
                         i = height; // break the external loop
