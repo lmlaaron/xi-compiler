@@ -62,6 +62,7 @@ terminal TIMES_SHIFT, ERROR, CONTINUE;
 
 nonterminal Node program, xi_file, interface_file;
 nonterminal Identifier identifier;
+nonterminal Expr name;
 
 nonterminal UseList use_list;
 nonterminal Use use;
@@ -118,8 +119,7 @@ nonterminal Expr expr, expr_atom, expr_atom_nosub, expr_no_paren;
 nonterminal Expr expr_t1, expr_t2, expr_t3, expr_t4, expr_t5, expr_t6, expr_t7;
 nonterminal Operator t1op, t2op, t3op, t4op, t5op, t6op, t7op;
 nonterminal ArrayLiteral array_literal;
-nonterminal Expr call;
-nonterminal MethodCall method_call;
+nonterminal Expr method_call;
 nonterminal Dot dot, dot_call, dot_get;
 nonterminal New new_object;
 
@@ -139,6 +139,8 @@ interface_file   ::= use_list:ul interface_list:il
                        {:RESULT = new Node(illeft, ilright, il);:};
 
 identifier       ::= IDENTIFIER:id           {:RESULT = new Identifier(idleft, idright, id);:};
+name             ::= identifier:id           {:RESULT = id;:}
+                   | name:n DOT:d identifier:id {:RESULT = new Dot(nleft, nright, new Keyword(dleft, dright, "."), n, id);:};
 /* ================= USE ==================================================== */
 use_list         ::= use:u use_list:ul
                        {:RESULT = new UseList(uleft, uright, u); RESULT.addChildren(ul);:}
@@ -291,14 +293,14 @@ boxes_empty      ::= box_empty:b boxes_empty:bs  {:RESULT = b; RESULT.addHead(bs
 // On LHS, all expr_atom (except for subscript and PAREN/BRACE) are subscriptable
 subscript        ::= OPEN_BRACKET expr:e CLOSE_BRACKET
                        {:RESULT = e;:};
-subscripts_lhs   ::= subscripts_lhs:slhs subscript:s
-                       {:RESULT = new Subscript(slhsleft, slhsright, slhs); RESULT.addNodes(s);:}
+subscripts_lhs   ::= name:n subscript:s
+                       {:RESULT = new Subscript(nleft, nright, n); RESULT.addNodes(s);:}
                    | expr_no_paren:sblhs subscript:s
                        {:RESULT = new Subscript(sblhsleft, sblhsright, sblhs); RESULT.addNodes(s);:};
-subscripts_rhs   ::= subscripts_rhs:srhs subscript:s
-                       {:RESULT = new Subscript(srhsleft, srhsright, srhs); RESULT.addNodes(s);:}
-                   | expr_atom_nosub:sbrhs subscript:s
-                       {:RESULT = new Subscript(sbrhsleft, sbrhsright, sbrhs); RESULT.addNodes(s);:};
+subscripts_rhs   ::= array_literal:n subscript:s
+                       {:RESULT = new Subscript(nleft, nright, n); RESULT.addNodes(s);:}
+                   | OPEN_PAREN expr:e CLOSE_PAREN subscript:s
+                       {:RESULT = new Subscript(eleft, eright, e); RESULT.addNodes(s);:};
 
 /* ================= BLOCK/STATEMENT ======================================== */
 block            ::= OPEN_BRACE stmt_list:sl CLOSE_BRACE
@@ -325,16 +327,16 @@ stmt_nosub       ::= stmt_core:s             {:RESULT = s;:}
 stmt_core        ::= block:s                 {:RESULT = s;:}
                    | var_decl:s              {:RESULT = s;:}
                    | assignment:s            {:RESULT = s;:}
-                   | call:s                  {:RESULT = s;:}
+                   | method_call:s           {:RESULT = s;:}
                    | break:s                 {:RESULT = s;:}
                    | continue:s              {:RESULT = s;:};
 
 /* ================= ASSIGNMENT ============================================= */
 // assign_to_single_list: left hand side
 // assign_to_single: cannot be a value or containing "[", "]", "{", "}"
-assignment       ::= assign_to_list:al GETS call:mc
+assignment       ::= assign_to_list:al GETS method_call:mc
                        {:RESULT = new AssignMult(alleft, alright, al, mc);:}
-                   | UNDERSCORE:u GETS call:mc
+                   | UNDERSCORE:u GETS method_call:mc
                        {:RESULT = new AssignSingle(uleft, uright, new Underscore(uleft, uright), mc);:}
                    | assign_to_single:at GETS expr:expr
                        {:RESULT = new AssignSingle(atleft, atright, at, expr);:};
@@ -344,7 +346,7 @@ assign_to_list   ::= assign_to_mult:a COMMA assign_to_list:al
                        {:RESULT = new AssignToList(aleft, aright, a, a2);:};
 assign_to_mult   ::= var_decl_empty:vd       {:RESULT = vd;:}
                    | UNDERSCORE:u            {:RESULT = new Underscore(uleft, uright);:};
-assign_to_single ::= identifier:id           {:RESULT = id;:}
+assign_to_single ::= name:n                  {:RESULT = n;:}
                    | var_decl_empty:vd       {:RESULT = vd;:}
                    | subscripts_lhs:ss       {:RESULT = ss;:}
                    | dot_get:d               {:RESULT = d;:};
@@ -416,7 +418,11 @@ expr_t7          ::= t7op:o expr_t7:e
                        {:RESULT = ee;:};
 
 expr_atom        ::= subscripts_rhs:ss     {:RESULT = ss;:}
-                   | dot:d                 {:RESULT = d;:}
+                   | subscripts_rhs:e DOT:d identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {:RESULT = new MethodCall(eleft, eright, new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id)); RESULT.addChildren(el);:}
+                   | subscripts_rhs:e DOT:d identifier:id
+                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:}
+                   | name:n                {:RESULT = n;:}
                    | expr_atom_nosub:e     {:RESULT = e;:};
 expr_atom_nosub  ::= expr_no_paren:e       {:RESULT = e;:}
                    | array_literal:al      {:RESULT = al;:}
@@ -427,7 +433,8 @@ expr_no_paren    ::= INTEGER_LITERAL:il    {:RESULT = new IntegerLiteral(illeft,
                    | TRUE:a                {:RESULT = new TrueLiteral(aleft, aright);:}
                    | FALSE:a               {:RESULT = new FalseLiteral(aleft, aright);:}
                    | NULL:n                {:RESULT = new NullLiteral(nleft, nright);:}
-                   | identifier:id         {:RESULT = id;:}
+                   | subscripts_lhs:ss     {:RESULT = ss;:}
+                   | dot_get:d             {:RESULT = d;:}
                    | method_call:c         {:RESULT = c;:}
                    | length_expr:ls        {:RESULT = ls;:}
                    | new_object:n          {:RESULT = n;:};
@@ -438,20 +445,11 @@ array_literal    ::= OPEN_BRACE:a expr_list:el CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright); RESULT.addChildren(el);:}
                    | OPEN_BRACE:a COMMA CLOSE_BRACE
                        {:RESULT = new ArrayLiteral(aleft, aright);:};
-call             ::= method_call:mc        {:RESULT = mc;:}
-                   | dot_call:dc           {:RESULT = dc;:};
-method_call      ::= identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
-                       {:RESULT = new MethodCall(idleft, idright, id);
-                         RESULT.addChildren(el);:};
-dot              ::= dot_call:d            {:RESULT = d;:}
-                   | dot_get:d             {:RESULT = d;:};
-dot_call         ::= dot:e DOT:d method_call:m
-                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:}
-                   | expr_no_paren:e DOT:d method_call:m
-                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, m);:};
-dot_get          ::= dot:e DOT:d identifier:id
-                       {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:}
-                   | expr_no_paren:e DOT:d identifier:id
+method_call      ::= name:n OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {:RESULT = new MethodCall(nleft, nright, n); RESULT.addChildren(el);:}
+                   | expr_no_paren:e DOT:d identifier:id OPEN_PAREN expr_list:el CLOSE_PAREN
+                       {:RESULT = new MethodCall(eleft, eright, new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id)); RESULT.addChildren(el);:};
+dot_get          ::= expr_no_paren:e DOT:d identifier:id
                        {:RESULT = new Dot(eleft, eright, new Keyword(dleft, dright, "."), e, id);:};
 new_object       ::= NEW:n identifier:id   {:RESULT = new New(nleft, nright, id);:};
 

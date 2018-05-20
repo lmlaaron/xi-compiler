@@ -91,7 +91,7 @@ public class MethodClassList extends Node {
         for (Node child : children) {
             IRNode childIR = child.translate();
             if (childIR instanceof IRFuncDecl) {
-                irNode.appendFunc((IRFuncDecl) child.translate());
+                irNode.appendFunc((IRFuncDecl) childIR);
             } else if (child instanceof XiClass) {
             	    irNode.appendVarUninit("_I_size_"+((XiClass) child).classId.getId().replace("_", "__"),   1);
             	    irNode.appendVarUninit("_I_vt_"+((XiClass) child).classId.getId().replace("_", "__"),   1+ ((XiClass)child).sizeOfListOfIRMethods());
