@@ -223,11 +223,23 @@ public class Node {
     @Override
     public String toString() {
         if (children == null) {
-            return value;
+            try {
+                return value;
+            }
+            catch (NullPointerException e) {
+                return "NULL_VALUE";
+            }
         } else {
             String rs = "(";
             for (Node child : children) {
-                rs += child.toString() + " ";
+                String childString;
+                try {
+                    childString = child.toString();
+                }
+                catch (NullPointerException e) {
+                    childString = "NULL_CHILD";
+                }
+                rs += childString + " ";
             }
             return rs.substring(0, rs.length() - 1) + ")";
         }
