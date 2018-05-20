@@ -98,7 +98,7 @@ public class CompUnitTile extends Tile {
         }
         
         for (String name: global_array_dim.keySet()) {
-    	    		statements.add(new AssemblyStatement("call", new AssemblyOperand(name.replace("_I_g_", "_I_init_"))));
+    	    		statements.add(new AssemblyStatement("call", new AssemblyOperand(name.replace("_I_g_", "_I_ginit_"))));
         }	
         statements.add(new AssemblyStatement("leave"));
         statements.add(new AssemblyStatement("ret"));
