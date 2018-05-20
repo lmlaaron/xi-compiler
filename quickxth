@@ -13,6 +13,8 @@ if [ $(echo $1 | cut -c1-1) == "a" ]; then
         pkg=assm
     elif [ $1 == "a6" ]; then
         pkg=assm_opt
+    elif [ $1 == "a7" ]; then
+        pkg=pa7
     fi
     mkdir temp/xi
     cp tests/$pkg/testcases/* temp/xi

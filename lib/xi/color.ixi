@@ -1,8 +1,0 @@
-use io
-use conv
-
-class Color {
-    initColor(r0: int, g0: int, b0: int) : Color 
-    getRGB() : int, int, int 
-    toString(): int[] 
-}

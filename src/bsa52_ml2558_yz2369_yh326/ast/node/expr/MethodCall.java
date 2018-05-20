@@ -6,6 +6,7 @@ import java.util.List;
 import bsa52_ml2558_yz2369_yh326.ast.SymbolTable;
 import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
+import bsa52_ml2558_yz2369_yh326.ast.node.misc.Keyword;
 import bsa52_ml2558_yz2369_yh326.ast.type.ListVariableType;
 import bsa52_ml2558_yz2369_yh326.ast.type.NodeType;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
@@ -81,8 +82,12 @@ public class MethodCall extends Expr {
         List<VariableType> actual = new ArrayList<VariableType>();
         if (classOfMethod != null)
             actual.add(new ObjectType(classOfMethod));
-        else if (sTable.getCurClass() != null && !sTable.isGlobalMethod(id.value))
+        else if (sTable.getCurClass() != null && !sTable.isGlobalMethod(id.value)) {
+            dot = new Dot(0, 0, new Keyword(0, 0, "."), new Identifier(0, 0, "this"), this);
+            dot.typeCheck(sTable);
             actual.add(new ObjectType(sTable.getCurClass()));
+        }
+        
         for (int i = 1; i < children.size(); i++)
             actual.add((VariableType) children.get(i).typeCheck(sTable));
         
@@ -141,7 +146,7 @@ public class MethodCall extends Expr {
             this.dot.children.remove(2);
             this.dot.children.add(2, id);
             return result;
-        }  
+        }
         String name = Utilities.toIRFunctionName(id.getId(), argTypes, retTypes);
         List<IRExpr> exprs = new ArrayList<IRExpr>();
         for (int i = 1; i < children.size(); i++) {
