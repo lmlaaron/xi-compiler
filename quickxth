@@ -3,7 +3,9 @@
 rm -rf temp
 mkdir temp
 if [ $(echo $1 | cut -c1-1) == "a" ]; then
-    if [ $1 == "a3" ]; then
+    if [ $1 == "a2" ]; then
+        pkg=parse
+    elif [ $1 == "a3" ]; then
         pkg=typecheck
     elif [ $1 == "a4" ]; then
         pkg=irrun

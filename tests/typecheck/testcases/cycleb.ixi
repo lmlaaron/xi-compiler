@@ -1,5 +1,3 @@
-use a
+use cyclea
 
-b() {
-    a()
-}
+b()

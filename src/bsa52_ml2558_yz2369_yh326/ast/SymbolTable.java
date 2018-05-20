@@ -299,13 +299,15 @@ public class SymbolTable {
     }
     
     public void dumpTable() {
+        System.out.println("====================");
         System.out.println("Current level: " + level);
-        System.out.println("Class table:");
+        System.out.println("Current class: " + curClass);
+        System.out.println("Current function: " + curFunc);
+        System.out.print("Class list: ");
         if (classTable.keySet().size() == 0)
-            System.out.println("  Class table empty.");
-
-        for (String key : classTable.keySet())
-            System.out.println("  " + key + ": " + classTable.get(key).classId.value);
+            System.out.println("Class table empty.");
+        else
+            System.out.println(classTable.keySet());
         
         System.out.println("Function table:");
         if (funcTable.keySet().size() == 0)
@@ -318,9 +320,9 @@ public class SymbolTable {
             System.out.println("  Variable table empty.");
         for (String key : varTable.keySet())
             System.out.println("  " + key + ": " + varTable.get(key));
-        
-        System.out.println("Log:");
-        System.out.println("  " + Arrays.toString(logs.toArray()));
+
+        System.out.println("Log:\n  " + Arrays.toString(logs.toArray()));
+        System.out.println("====================");
     }
 
     public int getLevel() {
