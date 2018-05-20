@@ -54,6 +54,7 @@ public class XiClass extends Node {
     public XiClass(int line, int col, Identifier id) {
         super(line, col, new Keyword(line, col, "class"), id);
         this.classId = id;
+        funcs_ordered.add("_I_init_"+classId.value.replace("_", "__"));
         all.add(this);
     }
 
@@ -63,6 +64,7 @@ public class XiClass extends Node {
         if (extend != null) {
             this.superClassName = extend.value;
         }
+        funcs_ordered.add("_I_init_"+classId.value.replace("_", "__"));
         all.add(this);
     }
 
@@ -131,7 +133,7 @@ public class XiClass extends Node {
                     funcs_ordered.add(((Method) child).id.value);
                 }
             }
-            if (!funcs_ordered.containsAll(this.funcs_ordered)) {
+            if (!funcs_ordered.containsAll(this.funcs_ordered.subList(1, funcs_ordered.size()))) {
                 throw new OtherException(line, col, "Some functions declaired in the interface are not implemented.");
             }
         }
@@ -302,7 +304,7 @@ public class XiClass extends Node {
         }
 
         // copy over this class's method pointers:
-        for (int i = 0; i < funcs_ordered.size(); i++) {
+        for (int i = 1; i < funcs_ordered.size(); i++) {
             // figure out the ABI name
             List<VariableType> argTypes = new ArrayList<>();
             List<VariableType> retTypes = new ArrayList<>();
