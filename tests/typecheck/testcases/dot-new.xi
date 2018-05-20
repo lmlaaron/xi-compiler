@@ -20,6 +20,16 @@ main(argv:int[][]) {
 	a.a_ = 3
 	new A.a_ = 3
 	new A.init().a_ = 3 // not sure if this is valid
+
+	b : A[]
+	y1 : int = b[0].a()
+	y2 : int = b[0].a_
+
+	v1 : int = returnAarray()[0].a()
+	v2 : int = returnAarray()[0].a_
+
+	x1 : int = {new A}[0].a()
+	x2 : int = {new A}[0].a_
 }
 
 returnA(): A {

@@ -1,0 +1,23 @@
+xic ("Test --parse") "--parse" {
+02Func1.xi;
+03Func2.xi;
+04Decl1.xi;
+05Array1.xi;
+06Array2.xi;
+07Array3.xi;
+08Array4.xi;
+09Bool1.xi;
+10Block1.xi;
+11String1.xi;
+12While.xi;
+13If1.xi;
+14Else1.xi;
+15FuncCall1.xi;
+16Associativity.xi;
+17Unary.xi;
+18Array5.xi;
+break-continue-bad1.xi;
+break-continue-bad2.xi;
+break-continue-good1.xi;
+break-continue-good2.xi;
+}
