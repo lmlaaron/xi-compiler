@@ -11,6 +11,9 @@ import java.util.*;
  */
 public class XiClasses {
 
+    static HashSet<String> allClassNames;
+
+
 
     /**
      * The function name here is a misnomer, in reality we are trying to
@@ -44,13 +47,14 @@ public class XiClasses {
         for (XiClass xc : classes) {
             String s = xc.classId.value;
 
-            if (names.contains(s)) {
-                System.err.println("Semantic error: two definitions for class " + s);
-                System.exit(1);
-            }
+//            if (names.contains(s)) {
+//                System.err.println("Semantic error: two definitions for class " + s);
+//                System.exit(1);
+//            }
 
             names.add(s);
         }
+        allClassNames = names;
     }
 
     private static void validateTree(XiClass root, DirectedGraph<XiClass> tree, Set<String> attributes) {

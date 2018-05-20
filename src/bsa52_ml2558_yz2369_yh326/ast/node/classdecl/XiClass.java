@@ -29,6 +29,8 @@ import edu.cornell.cs.cs4120.xic.ir.*;
 
 public class XiClass extends Node {
 
+    public boolean isInterface;
+
     // 'global' registry for classes
     public static List<XiClass> all = new LinkedList<XiClass>();
 
@@ -425,6 +427,21 @@ public class XiClass extends Node {
         } else {
             return funcs_ordered.indexOf(funcname);
         }
+    }
+
+    public boolean depthEquals(Object other) {
+        if (other instanceof XiClass) {
+            XiClass otherClass = (XiClass) other;
+            if (!classId.value.equals(otherClass.classId.value))
+                return false;
+            if (superClassName == null && otherClass.superClassName == null)
+                return true;
+            else if (superClassName != null && otherClass.superClassName != null)
+                return superClassName.equals(otherClass.superClassName);
+            else
+                return false;
+        } else
+            return false;
     }
 
     @Override
