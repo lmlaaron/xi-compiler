@@ -66,7 +66,7 @@ public class Dot extends Expr {
 		// new offset
 		// look up the offset of the called function in java
     	    int funcoffset = -1;
-    		if (children.get(2).value == null ) {System.out.println(((MethodCall) children.get(2)).id);
+    		if (children.get(2).value == null ) {
     			funcoffset =((ObjectType) leftNodeType).indexOfFunc(((MethodCall) children.get(2)).id.value);
     		} else {
 		  funcoffset = ((ObjectType) leftNodeType).indexOfFunc(children.get(2).value);
