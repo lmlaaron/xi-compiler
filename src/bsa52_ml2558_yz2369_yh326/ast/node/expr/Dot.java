@@ -9,6 +9,7 @@ import bsa52_ml2558_yz2369_yh326.ast.node.classdecl.XiClass;
 import bsa52_ml2558_yz2369_yh326.ast.node.misc.Identifier;
 import bsa52_ml2558_yz2369_yh326.ast.type.ObjectType;
 import bsa52_ml2558_yz2369_yh326.exception.MatchTypeException;
+import bsa52_ml2558_yz2369_yh326.ir.Canonicalization;
 import bsa52_ml2558_yz2369_yh326.util.Utilities;
 import edu.cornell.cs.cs4120.xic.ir.IRBinOp;
 import edu.cornell.cs.cs4120.xic.ir.IRCall;
@@ -16,6 +17,7 @@ import edu.cornell.cs.cs4120.xic.ir.IRConst;
 import edu.cornell.cs.cs4120.xic.ir.IRESeq;
 import edu.cornell.cs.cs4120.xic.ir.IRMem;
 import edu.cornell.cs.cs4120.xic.ir.IRMove;
+import edu.cornell.cs.cs4120.xic.ir.IRName;
 import edu.cornell.cs.cs4120.xic.ir.IRNode;
 import edu.cornell.cs.cs4120.xic.ir.IRSeq;
 import edu.cornell.cs.cs4120.xic.ir.IRStmt;
@@ -86,12 +88,30 @@ public class Dot extends Expr {
 			children1IRTemp = (IRTemp) children1IR; 
 		} else if (children1IR instanceof IRESeq) { // children1IR can have side effect
 			children1IRStmt = ((IRESeq) children1IR).stmt();
-			if ( ((IRESeq) children1IR).expr() instanceof IRTemp ) {
+			if ( ((IRESeq) children1IR).expr() instanceof IRTemp || ((IRESeq) children1IR).expr() instanceof IRName) {
 				children1IRTemp = (IRTemp) ((IRESeq) children1IR).expr();
 			} else if ( ((IRESeq) children1IR).expr() instanceof IRMem) {
 				children1IRTemp = (IRMem) ((IRESeq) children1IR).expr();
 			}
+			if ( children1IRTemp != null)
+			System.out.println(children1IRTemp);
 			//children1IRTemp =  ((IRTemp) ((IRESeq) (children.get(1).translate())).expr());
+		} else {
+			try {
+				IRNode cano_children1IR = (Canonicalization.Canonicalize(children1IR));
+				if ( cano_children1IR instanceof IRESeq ) {
+					children1IRStmt = ((IRESeq) cano_children1IR).stmt();
+					children1IRTemp = ((IRESeq) cano_children1IR).expr();
+				} else if ( cano_children1IR instanceof IRSeq) {
+					int s = 0/0;
+					return null;
+				} else {
+					children1IRTemp = (IRExpr) cano_children1IR;
+				}
+			} catch (Exception e) {
+				int s = 0/0;
+				return null;
+			}
 		}
 		// children1IRTemp must be resolved and not be null, 
 		
@@ -105,26 +125,40 @@ public class Dot extends Expr {
 		// invoke the member function call
 		IRTemp callAddr = new IRTemp(Utilities.freshTemp());
 		//return new IRESeq(children1IRStmt, children1IRTemp);
-	return new IRESeq(
+		IRStmt movestmt = new IRMove(
+				callAddr,
+				new IRMem(
+						new IRBinOp(
+								IRBinOp.OpType.ADD,
+								// address of DV
+								new IRMem(
+										children1IRTemp
+								),
+								absoluteFuncOffset)
+						)
+				);
+		
+		IRCall callstmt;
+		if (args.size() == 0 ) {
+			callstmt = new IRCall(callAddr);
+		} else {
+			callstmt = new IRCall(callAddr, args);
+		}
+		
+		if ( !(children1IRStmt == null )) {
+			return new IRESeq(
 						new IRSeq(
 								children1IRStmt,
-								new IRMove(
-										callAddr,
-										new IRMem(
-												new IRBinOp(
-														IRBinOp.OpType.ADD,
-														// address of DV
-														new IRMem(
-																children1IRTemp
-														),
-														absoluteFuncOffset)
-												)
-										)
+								movestmt
 								)
-				, new IRCall(
-						callAddr, 
-						args)
+				, callstmt
 				);
+		} else {
+			return new IRESeq(
+					movestmt,
+					callstmt
+					);
+		}
     }
         
     private static IRExpr IRAbsoluteOffset(XiClass xiClass, String varName) {

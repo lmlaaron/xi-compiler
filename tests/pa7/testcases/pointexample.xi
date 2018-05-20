@@ -86,7 +86,7 @@ createColoredPoint(x: int, y: int, r: int, g: int, b: int): ColoredPoint {
 }
 
 main(args: int[][]) {
-    a:Point = null;
+    a:Point=null;
     //println("Starting point/coloredpoint example");
 
     p1: Point = createPoint(100, 200);
@@ -100,7 +100,7 @@ main(args: int[][]) {
     println(p2.toString());
     //println("Should have printed \"Point at x = 105 and y = 205\"");
 
-    cp1: ColoredPoint = createColoredPoint(1000, 1000, 255, 128, 0);
+    cp1: ColoredPoint = createColoredPoint(1000, 2000, 255, 128, 0);// TODO(mulong) check 1000 or 2000
     println(cp1.toString());
     //println("Should have printed \"ColoredPoint at x = 1000 and y = 2000 and Color with r = 255 and g = 128 and b = 0\"");
     p3: Point = cp1.clone();
