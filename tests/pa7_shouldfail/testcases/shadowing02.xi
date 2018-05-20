@@ -6,3 +6,7 @@ class X {
         return a
     }
 }
+
+main(argv:int[][]){
+
+}
