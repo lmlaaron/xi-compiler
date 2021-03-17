@@ -1,8 +1,8 @@
 # Xi compiler
 
-Xi is an imperative procedural programming language, like C, with some basic object-oriented features. An example program of Xi can be found [here](tests/pa7/testcases/pointexample.xi). We build an compiler that generates x86 executable binaries from Xi. The main language features can be found at https://www.cs.cornell.edu/courses/cs4120/2018sp/project/language.pdf.
+Xi is an imperative procedural programming language, like C, with some basic object-oriented features. An example program of Xi can be found [pointexample.xi](tests/pa7/testcases/pointexample.xi). We build an compiler that generates x86 executable binaries from Xi. The main language features can be found at https://www.cs.cornell.edu/courses/cs4120/2018sp/project/language.pdf.
 
-# Build and Run
+## Build the compiler 
 
 The build process has been tested on Ubuntu 16.04. For other platforms the dependencies may need to be resolved manually.
 
@@ -15,6 +15,8 @@ We use a build script to build the xi compiler
 ```
 ./xic-build
 ```
+
+## Run the compiler
 
 To run the xi compiler, we can type
 
