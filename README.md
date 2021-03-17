@@ -1,9 +1,58 @@
-# XI compiler
+# Xi compiler
 
-https://www.cs.cornell.edu/courses/cs4120/2018sp/project/language.pdf
+Xi is an imperative procedural programming language, like C, with some basic object-oriented features. An example program of Xi can be found [here](tests/pa7/testcases/pointexample.xi). We build an compiler that generates x86 executable binaries from Xi. The main language features can be found at https://www.cs.cornell.edu/courses/cs4120/2018sp/project/language.pdf.
 
-Xi programs consist of a single source file containing definitions of one or more functions. Execution of a program consists of evaluating a call to the function main.
-The language has two primitive types: integers (int) and booleans (bool). The array type T[] exists for any type T, so T[][] represents an array of arrays.
-Functions may return a value, but need not. A function that does not return a value is called a procedure. A function may take multiple arguments. Unlike in languages such as C and Java, a function may also return multiple results.
-Statement and expression forms should largely be familiar to C programmers.
-There is no string type, but the type int[] may be used for most of the same purposes. Literal string constants have this type.
+# Build and Run
+
+The build process has been tested on Ubuntu 16.04. For other platforms the dependencies may need to be resolved manually.
+
+```
+sudo apt install jflex openjdk-8-*
+```
+
+We use a build script to build the xi compiler
+
+```
+./xic-build
+```
+
+To run the xi compiler, we can type
+
+```
+./xic /path/to/the/name/of_xi_file.xi
+```
+
+which will generate the assembly file in the same path. To generate teh executable, we use the following commands
+
+```
+runtime/linkxi.sh /path/to/the/name/of_assm.s
+``` 
+
+which will generate teh executable in the current path. We can then run the executable by
+
+
+```
+./a.out
+```
+
+For example, we can use the following command to compile, link and execute the pointexample.xi file.
+
+```
+$./xic tests/pa7/testcases/pointexample.xi
+$runtime/linkxi.sh tests/pa7/testcases/pointexample.s
+$./a.out
+ ```
+
+We sould be able to see the following in the prompt
+
+```
+Point at x = 100 and y = 200
+Point at x = 100 and y = 200
+Point at x = 105 and y = 205
+ColoredPoint at x = 1000 and y = 2000 and Color with r = 255 and g = 128 and b = 0
+ColoredPoint at x = 1000 and y = 2000 and Color with r = 255 and g = 128 and b = 0
+ColoredPoint at x = 1005 and y = 2005 and Color with r = 255 and g = 128 and b = 0
+Point at x = 1110 and y = 2210
+Point at x = 1105 and y = 2205
+```
+
