@@ -24,13 +24,13 @@ To run the xi compiler, we can type
 ./xic /path/to/the/name/of_xi_file.xi
 ```
 
-which will generate the assembly file in the same path. To generate teh executable, we use the following commands
+which will generate the assembly file in the same path. To generate the executable, we use the following commands
 
 ```
 runtime/linkxi.sh /path/to/the/name/of_assm.s
 ``` 
 
-which will generate teh executable in the current path. We can then run the executable by
+which will generate the executable in the current path. We can then run the executable by
 
 
 ```
